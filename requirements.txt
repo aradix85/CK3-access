@@ -1,0 +1,17 @@
+# Third-party packages the tooling needs. Versions are the ones this was measured on, August 2026;
+# newer usually works, but the recognition setup is deliberately pinned in spirit: rapidocr 3.x with
+# the OpenVINO engine, and PP-OCRv6 tiny for recognition. See ARCHITECTURE.md, layer 3.
+#
+# Windows only. The DLL additionally needs the Visual Studio Build Tools (MSVC, x64) to compile;
+# dll/build_channel.bat calls vcvars64.bat and does the rest.
+#
+#     pip install -r requirements.txt
+
+pillow>=12.2.0
+numpy>=2.4.0
+rapidocr>=3.9.2
+openvino>=2026.2.0
+onnx>=1.17.0
+
+# Only for checking a rename round; not needed to run anything.
+pyflakes>=3.2.0

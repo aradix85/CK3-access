@@ -1,0 +1,1976 @@
+{
+ "exe": "95206008-1785183508",
+ "measured": "2026-08-23 21:49",
+ "windows": {
+  "JominiMusicPlayerView": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": false,
+   "file": "gui/jomini/music_player/music_player_view.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "accolade_attribute_selection_view": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_accolade_attribute_selection.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "accolade_view": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_accolade.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "achievement_popup_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": false,
+   "file": "gui/achievements/popup.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "achievements_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/achievements/jomini_achievements_window.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "activity_guest_list": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_activity_guest_list.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "activity_intent_selection": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_activity_intent_selection.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "activity_list": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_activity_list.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": "F9"
+  },
+  "activity_list_detail_host": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_activity_list.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "activity_list_detail_invite": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_activity_list.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 6.9,
+   "shortcut": null
+  },
+  "activity_locale_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_activity_locale.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "activity_log": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_activity_log.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
+  "activity_planner": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": false,
+   "file": "gui/window_activity_planner.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "activity_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_activity.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "add_tradition_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_add_tradition.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "admin_vassal_detail_view": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_admin_vassal_detail.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "ai_war_coordinator_watch_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/debug/ai_war_coordinator_watch_window.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "ai_watch_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/debug/window_watch_ai.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "animation_test_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/debug/animation_test_window.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "anonymous_letter_event": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": false,
+   "file": "gui/event_windows/anonymous_letter_event.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "appoint_court_position_view": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_court_position_appoint.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "army_automation_options_view": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_army_automation_options.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "army_reorganization_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_army.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "army_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_army.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.4,
+   "shortcut": null
+  },
+  "artifact_details_view": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_artifact_details.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 8.5,
+   "shortcut": null
+  },
+  "attach_to_army_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_army.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 8.5,
+   "shortcut": null
+  },
+  "barter_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_barter.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.4,
+   "shortcut": null
+  },
+  "battle_summary": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_battle_summary.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "blackmail_interaction_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/interaction_blackmail.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 6.9,
+   "shortcut": null
+  },
+  "call_ally_interaction_notification_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/interaction_call_ally_notification_window.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "call_ally_interaction_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/interaction_call_ally.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "change_court_type_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_court_types.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.2,
+   "shortcut": null
+  },
+  "change_ghw_target_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_ghw_change_target.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.9,
+   "shortcut": null
+  },
+  "character_ally_list_subview": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/interaction_declare_war.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.8,
+   "shortcut": null
+  },
+  "character_event": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/event_windows/character_event.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.3,
+   "shortcut": null
+  },
+  "character_finder_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_character_finder.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.3,
+   "shortcut": null
+  },
+  "character_focus_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_character_focus.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "character_interaction_confirmation_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/interaction_confirmation.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
+  "character_interaction_menu_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": false,
+   "file": "gui/interaction_menu_window.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
+  "character_interaction_notification_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/interaction_notification_window.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
+  "character_lifestyle_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_character_lifestyle.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "character_pool_watch_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/debug/window_watch_character_pool.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "character_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": false,
+   "file": "gui/window_character.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": "F1"
+  },
+  "claimants_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_title_claimants.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "colorpicker_window": {
+   "cleaned_up": null,
+   "created": false,
+   "drawn": false,
+   "file": "gui/toolstypes.gui",
+   "message": "the engine reported an error; see logs/error.log when reproducing",
+   "nodes_added": 1,
+   "seconds": 3.5,
+   "shortcut": null
+  },
+  "combat_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_combat.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.6,
+   "shortcut": null
+  },
+  "component_library_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/debug/window_component_library.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 8.9,
+   "shortcut": null
+  },
+  "concubine_interaction_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/interaction_concubine.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 8.7,
+   "shortcut": null
+  },
+  "confederation_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_confederation.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 8.8,
+   "shortcut": null
+  },
+  "council_task_interaction_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/interaction_council_task.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.3,
+   "shortcut": null
+  },
+  "council_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_council.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.8,
+   "shortcut": "F4"
+  },
+  "court_task_interaction_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/interaction_court_task.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.3,
+   "shortcut": null
+  },
+  "court_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_court.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.3,
+   "shortcut": "F5"
+  },
+  "create_accolade_view": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_create_accolade.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.4,
+   "shortcut": null
+  },
+  "create_ceremonial_claimant_faction_against_interaction_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/interaction_create_claimant_faction.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.4,
+   "shortcut": null
+  },
+  "create_claimant_faction_against_interaction_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/interaction_create_claimant_faction.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.4,
+   "shortcut": null
+  },
+  "culture_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_culture.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.2,
+   "shortcut": null
+  },
+  "debug_tutorial_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/debug/debug_tutorial_window.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.3,
+   "shortcut": null
+  },
+  "decisiondetail_view": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_decisions_detail.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 6.9,
+   "shortcut": null
+  },
+  "decisions_view": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_decisions.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 6.9,
+   "shortcut": "F8"
+  },
+  "declare_war_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/interaction_declare_war.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
+  "designate_heir": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_succession_designate_heir.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "diarchy_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_diarchy.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "diverge_culture_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_diverge_culture.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "dlc_info": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_dlc_info.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.2,
+   "shortcut": null
+  },
+  "domicile_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_domicile.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.4,
+   "shortcut": null
+  },
+  "duel_event": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/event_windows/duel_event.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.4,
+   "shortcut": null
+  },
+  "dynasty_customization_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/dynasty_customization_window.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.7,
+   "shortcut": null
+  },
+  "dynasty_house_customization_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/dynasty_house_customization_window.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.6,
+   "shortcut": null
+  },
+  "dynasty_house_members_view": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_dynasty_house_members.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 8.6,
+   "shortcut": null
+  },
+  "dynasty_house_view": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_dynasty_house.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 11.1,
+   "shortcut": null
+  },
+  "dynasty_legacy_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_dynasty_legacy.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 8.8,
+   "shortcut": null
+  },
+  "dynasty_tree_view": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_dynasty_tree.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 9.4,
+   "shortcut": null
+  },
+  "environment_debug_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/debug/debug_menus.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 9.1,
+   "shortcut": null
+  },
+  "epidemics_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_epidemics.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 8.6,
+   "shortcut": null
+  },
+  "factions_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_factions.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 9.6,
+   "shortcut": "F7"
+  },
+  "faith_conversion_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_faith_conversion.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 10.2,
+   "shortcut": null
+  },
+  "faith_creation_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_faith_creation.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 9.2,
+   "shortcut": null
+  },
+  "faith_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_faith.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 8.8,
+   "shortcut": null
+  },
+  "find_title_view": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_find_title.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 9.1,
+   "shortcut": null
+  },
+  "find_vassal_list_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_find_vassal.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 8.5,
+   "shortcut": null
+  },
+  "flag_preview_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/debug/debug_menus.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.3,
+   "shortcut": null
+  },
+  "fullscreen_event": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/event_windows/fullscreen_event.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.4,
+   "shortcut": null
+  },
+  "game_rules": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/game_rules.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "government_administration_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": false,
+   "file": "gui/window_government_administration.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "grant_titles_interaction_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/interaction_grant_titles.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.3,
+   "shortcut": null
+  },
+  "great_holy_war_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_ghw.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.4,
+   "shortcut": null
+  },
+  "great_project": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_great_project.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 8.1,
+   "shortcut": null
+  },
+  "hired_troop_detail_view": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_hired_troops_detail.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.6,
+   "shortcut": null
+  },
+  "holding_tracks_view": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": false,
+   "file": "gui/window_county_view.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.4,
+   "shortcut": null
+  },
+  "holding_type_selection_view": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_county_view.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
+  "holding_view": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": false,
+   "file": "gui/window_county_view.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "houses_list": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": false,
+   "file": "gui/window_dynasty_house.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.3,
+   "shortcut": null
+  },
+  "hybridize_culture_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_hybridize_culture.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 8.8,
+   "shortcut": null
+  },
+  "ingame_load_ingame": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/frontend_ingame_menu.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 8.9,
+   "shortcut": null
+  },
+  "ingame_pausemenu": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/frontend_ingame_menu.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.5,
+   "shortcut": null
+  },
+  "ingame_resign_confirmation": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_resign_confirmation.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.2,
+   "shortcut": null
+  },
+  "interfere_in_war_interaction_notification_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/interaction_interfere_in_war_notification.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.5,
+   "shortcut": null
+  },
+  "interfere_in_war_interaction_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/interaction_interfere_in_war.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.7,
+   "shortcut": null
+  },
+  "intrigue_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_intrigue.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 10.0,
+   "shortcut": "F6"
+  },
+  "inventory_view": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_inventory.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 13.8,
+   "shortcut": null
+  },
+  "jomini_encyclopedia": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/jomini/encyclopedia/jomini_encyclopedia.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 8.1,
+   "shortcut": null
+  },
+  "jomini_message": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/notifications/jomini_message.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.2,
+   "shortcut": null
+  },
+  "jomini_notification_sidebar": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": false,
+   "file": "gui/notifications/notification_overlay.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
+  "knight_permissions": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": false,
+   "file": "gui/window_knights.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
+  "knight_view": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_knights.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "languages_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_languages.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "layer_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": false,
+   "file": "gui/map_icon_layer.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.2,
+   "shortcut": null
+  },
+  "lease_out_baronies_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_lease_out_baronies.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
+  "ledger_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_ledger.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.7,
+   "shortcut": null
+  },
+  "legend_chronicle": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_legend_chronicle.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
+  "legend_creation": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_legend_creation.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
+  "legends_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_legends.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "letter_event": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/event_windows/letter_event.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "levy_view": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_levy.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
+  "lineage_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_lineage.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.2,
+   "shortcut": null
+  },
+  "load_info": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": false,
+   "file": "gui/frontend_load.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
+  "load_ruler_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_ruler_designer_load.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.6,
+   "shortcut": null
+  },
+  "mainmenu_mp_game_setup": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/frontend_mp_game_setup.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.5,
+   "shortcut": null
+  },
+  "map_debug_menu": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/debug/debug_menus.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.4,
+   "shortcut": null
+  },
+  "marriage_interaction_notification_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/interaction_marriage_notification_window.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.4,
+   "shortcut": null
+  },
+  "marriage_interaction_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/interaction_marriage.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.5,
+   "shortcut": null
+  },
+  "memories_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_memories.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.3,
+   "shortcut": null
+  },
+  "menatarms_view": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_menatarms.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.5,
+   "shortcut": null
+  },
+  "menatarmstype_view": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_menatarms_type_view.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.4,
+   "shortcut": null
+  },
+  "military_view": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_military.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.5,
+   "shortcut": "F3"
+  },
+  "modify_vassal_contract_interaction_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/interaction_modify_vassal_window.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.4,
+   "shortcut": null
+  },
+  "my_realm_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_my_realm.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.3,
+   "shortcut": "F2"
+  },
+  "plan_great_project": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_plan_great_project.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.3,
+   "shortcut": null
+  },
+  "potential_agent_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_intrigue_potential_scheme_agent.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.5,
+   "shortcut": null
+  },
+  "potential_councillor_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_council_potential_councillor.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.4,
+   "shortcut": null
+  },
+  "potential_faction_member_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_intrigue_potential_faction_member.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.3,
+   "shortcut": null
+  },
+  "potential_great_project_contributors_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_potential_great_project_contributors.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.3,
+   "shortcut": null
+  },
+  "raid_intent_selection_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_raid_intent_selection.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.5,
+   "shortcut": null
+  },
+  "raid_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_raid.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.5,
+   "shortcut": null
+  },
+  "rally_point_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_rally_points.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.8,
+   "shortcut": null
+  },
+  "reforge_artifact_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_artifact_reforge.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.4,
+   "shortcut": null
+  },
+  "replace_pillar_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_replace_pillar.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "revoke_titles_interaction_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/interaction_revoke_title.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "royal_court_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_royal_court.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "ruler_designer": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_ruler_designer.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
+  "save_game_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_save_game.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
+  "save_ruler_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_ruler_designer_save.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
+  "scheme_preparations_event": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/event_windows/scheme_preparations_event.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "search": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/applicationutils/tools_gui_search.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "search_compact": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/applicationutils/tools_gui_search.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
+  "select_commander_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_army_select_commander.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
+  "siege_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_siege.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "situation_sub_region_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_situation_sub_region.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "struggle_involvement_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_struggle_involvement.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
+  "struggle_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_struggle.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
+  "succession_event_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_succession_event.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "succession_law_change_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_succession_change_law.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "succession_select_destiny_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_succession_event.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "task_contract": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_task_contract.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
+  "test_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/debug/test_gui.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "title_add_law_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_title_add_law.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "title_appointment": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_title_appointment.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
+  "title_customization_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_title_customization.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.2,
+   "shortcut": null
+  },
+  "title_election": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_title_election.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "title_history_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_title_history.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "title_view_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_title.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
+  "toolbars_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": false,
+   "file": "gui/console.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
+  "tournament_contest_information": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/activity_window_widgets/tournament_contest_information.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
+  "transfer_vassal_interaction_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/interaction_transfer_vassal.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "travel_option_selection_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_travel_option_selection.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
+  "travel_planner_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": false,
+   "file": "gui/window_travel_planner.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
+  "travel_route_edit_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_travel_route_edit.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "unit_watch_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/debug/ai_war_coordinator_watch_window.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "war_declared_overview": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_war_declared_overview.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "war_overview_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_war_overview.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
+  "war_results": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_war_results.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "watch_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/debug/window_watch.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "window_appoint_tax_collector": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_appoint_tax_collector.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
+  "window_barbershop": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_barbershop.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
+  "window_court_visuals": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_court_visuals.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "window_house_aspiration": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_house_aspiration.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "window_house_relation_history": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_house_relation_history.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
+  "window_lobby_helper": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": false,
+   "file": "gui/window_lobby_helper.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
+  "window_manage_tax_slots": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_manage_tax_slots.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "window_message_popup": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_message_popup.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "window_message_settings": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_message_settings.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
+  "window_migration": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": false,
+   "file": "gui/window_migration.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
+  "window_move_domicile": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": false,
+   "file": "gui/window_move_domicile.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "window_silk_road": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_silk_road.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "window_situation": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_situation.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
+  "window_situation_debug": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_situation_debug.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
+  "window_situation_list": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_situation_list.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "window_situation_participation": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_situation_participation.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "window_situation_participation_debug": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_situation_participation_debug.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
+  "window_tax_slot_assign_vassal": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_tax_slot_assign_vassal.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
+  "window_tax_slot_obligations": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_tax_slot_obligations.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "window_tax_slot_vassals": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_tax_slot_vassals.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "window_tgp_dynastic_cycle": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_tgp_dynastic_cycle.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.2,
+   "shortcut": null
+  },
+  "window_tgp_natural_disaster": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_tgp_natural_disaster.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
+  "window_the_great_steppe": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_the_great_steppe.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  },
+  "window_treasury_budget_change": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_treasury_budget_change.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.0,
+   "shortcut": null
+  }
+ }
+}

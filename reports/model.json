@@ -1,0 +1,19 @@
+{
+ "key": "95206008-1785183508",
+ "record_length": 464,
+ "number_field_in_record": 24,
+ "number_mask": 16777215,
+ "block_size": 1024,
+ "block_stride": 475152,
+ "fields": {
+  "culture": 152,
+  "faith": 156,
+  "dynasty_house": 312
+ },
+ "beacon": {
+  "skill": 164,
+  "note": "six times 32 bits; this is what the object was found by, not a separately tested field"
+ },
+ "evidence": "field offsets relative to the handle field, tested against two saves: 400 characters across 63 blocks in Bohemia 1066 and 400 across 40 blocks in Ghur 867, zero deviations",
+ "global_rva": 91275568
+}

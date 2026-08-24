@@ -1,0 +1,43 @@
+# Not published: the maintainer's working notes.
+# Dutch, written for AI sessions, out of date within a day, and `mensen.md` holds working notes
+# about named people from the community.
+# What the public needs from them is in ARCHITECTURE.md and CONTRIBUTING.md.
+brief/
+BRIEF.md
+.git-notes/
+
+# build leftovers
+dll/*.obj
+dll/*.exp
+dll/*.lib
+dll/*.pdb
+__pycache__/
+*.pyc
+
+# the built DLL belongs to a release, not to the history
+dll/channel.dll
+
+# Not published: dumps from the game and from the executable.
+# This is Paradox's data. Generate it yourself with the game's debug commands.
+naslag/
+reports/rtti_typen.txt
+
+# Not published: the sweep's raw material - 51 MB of widget trees and window captures taken from
+# one game state on one machine. It is measurement, not source, and it is Paradox's interface.
+# Produce it yourself with tools/ck3/harvest.py; what was learned from it is in ARCHITECTURE.md.
+harvest/
+
+# Not published: other people's work without a licence.
+# The key script is Agami's OCR mod script with a change of our own; her repo has no licence
+# file, so it cannot be shipped. See CREDITS.md.
+CK3 toetsen.ahk
+
+# third-party binaries that do not belong here
+tools/autohotkey/
+tools/ocr_modellen/
+tools/nvda/nvdaControllerClient.dll
+tools/nvda/*.exe
+
+# machine-specific copies of settings
+pdx_settings.origineel.txt
+launcher-settings.origineel.json
