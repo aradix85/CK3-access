@@ -420,28 +420,6 @@ static void cmd_sendkey(unsigned code)
     emit("key sent\t%u\n", code);
 }
 
-// A key held down, and released again, as two separate commands. Needed for a binding with a
-// modifier: `sendkey` presses and releases in one go, so a shift sent before an F-key is already
-// back up by the time the F-key arrives, and shift+F1 cannot be sent at all. Measured 25 August
-// 2026 against the game's own bindings: `ledger_window` sits on shift+F1 and was unreachable.
-// Whether it works depends on how the game reads the modifier. GetKeyState is fed from the message
-// queue and sees these; GetAsyncKeyState reads the physical keyboard and cannot. That is a
-// measurement, not a guess - send shift down, F1, and see whether the ledger opens.
-static void cmd_keydown(unsigned code)
-{
-    if (!ensure_window()) return;
-    PostMessageW(g_window, WM_KEYDOWN, code, key_lparam(code, false));
-    emit("key down\t%u\n", code);
-}
-
-static void cmd_keyup(unsigned code)
-{
-    if (!ensure_window()) return;
-    PostMessageW(g_window, WM_KEYUP, code, key_lparam(code, true));
-    emit("key up\t%u\n", code);
-}
-
-
 // Entering text does not go through key codes but through WM_CHAR: that is the message an input
 // field listens to. Needed in order to type a console command.
 static void cmd_sendchar(unsigned ch)
@@ -680,8 +658,6 @@ static void dispatch(char* command)
     else if (strncmp(command, "swallow", 7) == 0)         cmd_swallow(command + 7);
     else if (sscanf(command, "mouse %llu %llu %llu", &a, &b, &c) == 3) cmd_mouse((int)a, (int)b, (int)c);
     else if (sscanf(command, "sendkey %u", &n) == 1)  cmd_sendkey(n);
-    else if (sscanf(command, "keydown %u", &n) == 1)  cmd_keydown(n);
-    else if (sscanf(command, "keyup %u", &n) == 1)  cmd_keyup(n);
     else if (sscanf(command, "sendchar %u", &n) == 1)  cmd_sendchar(n);
     else if (strncmp(command, "find ", 5) == 0)           cmd_find(command + 5, 0, 0);
     else if (strcmp(command, "hello") == 0)

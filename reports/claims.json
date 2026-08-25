@@ -36,7 +36,7 @@
  {"name": "00_landed_titles.txt", "claimed": 1296625, "measure": "bytes",
   "arguments": ["<game>\\game\\common\\landed_titles\\00_landed_titles.txt"],
   "counting_rule": "file size in bytes"},
- {"name": "channel.dll", "claimed": 172544, "measure": "bytes",
+ {"name": "channel.dll", "claimed": 172032, "measure": "bytes",
   "arguments": ["<project>\\dll\\channel.dll"],
   "counting_rule": "file size in bytes; changes with every rebuild of the DLL"},
  {"name": "derived field offsets", "claimed": 9, "measure": "json_keys",
