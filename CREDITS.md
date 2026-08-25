@@ -58,5 +58,6 @@ game, never rebuild it — came out of a discussion there, and it is the right l
 
 ## Assistance
 
-Built with Claude (Anthropic) as a working partner throughout: measurement, reverse engineering,
-and the working notes in `brief/`.
+Built with Claude (Anthropic) as a working partner throughout: measurement, reverse engineering, and
+the maintainer's working notes, which are kept separately and are not part of this repository.
+
