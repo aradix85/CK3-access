@@ -53,6 +53,11 @@ game on disk; that is the tool working, not failing. And if you rename anything,
 `python -m pyflakes tools` afterwards — a rename that compiles can still be half done, and that has
 cost this project real time.
 
+`check.py` also verifies every file name the documentation mentions, including bare names with no
+folder in front of them. The convention that makes that work: **backticks mean the thing exists.**
+Name a file that was removed in plain text instead.
+
+
 The maintainer keeps separate working notes, in Dutch, which are not part of this repository. You
 do not need them, and nothing in a pull request should depend on them.
 

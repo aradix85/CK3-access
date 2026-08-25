@@ -110,8 +110,27 @@ def document_paths():
     pointed at twenty-one files that no longer existed, and a fresh session would have run them.
     Only paths that start with a folder of this project are checked - `game\\` and `logs\\` live
     elsewhere and are not ours to verify.
+
+    **A bare name with no folder in front of it counts too, and that gap cost something.** A
+    document promised a `.bat` on the desktop that would restore the launcher, said it had been
+    tested, and said there was an agreement with the user that he would hear it fail. The file did
+    not exist and he had never asked for it. Nothing caught that, because the name carried no
+    separator and the check skipped it. So: a name ending in an extension we write ourselves has to
+    exist somewhere under this project.
+
+    That only works with a convention, and here it is: **backticks mean the thing exists.** A file
+    that was removed - invoer.py, lees_scherm.py, lezer.py - is named in plain text, so a reader
+    still finds it and this check does not trip over it. Without that rule the check reported ten
+    deliberate mentions next to two real problems, which is how a control teaches people to ignore
+    it.
     """
     tops = {name.lower() for name in os.listdir(PROJ)}
+    ours = ('.py', '.bat', '.ps1', '.cpp', '.ahk')
+    on_disk = set()
+    for root, _, names in os.walk(PROJ):
+        if '.git' in root or '__pycache__' in root:
+            continue
+        on_disk.update(name.lower() for name in names)
     docs = sorted(glob.glob(os.path.join(PROJ, '*.md')) + glob.glob(os.path.join(PROJ, 'brief', '*.md')))
     missing, seen = [], 0
     for doc in docs:
@@ -124,7 +143,14 @@ def document_paths():
                      else [p.strip() for p in line.split('`')[1::2]])
             for part in parts:
                 part = part.rstrip('.,;:').replace('/', os.sep)
-                if os.sep not in part or any(c in part for c in '<>*|='):
+                if any(c in part for c in '<>*|=') or part.startswith('.'):
+                    continue
+                if os.sep not in part:
+                    if not part.lower().endswith(ours):
+                        continue
+                    seen += 1
+                    if part.lower() not in on_disk:
+                        missing.append((os.path.relpath(doc, PROJ), number, part))
                     continue
                 if part.split(os.sep)[0].lower() not in tops:
                     continue
@@ -132,6 +158,7 @@ def document_paths():
                 if not os.path.exists(os.path.join(PROJ, part)):
                     missing.append((os.path.relpath(doc, PROJ), number, part))
     return seen, missing
+
 
 
 def mod_windows(part):

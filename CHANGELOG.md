@@ -72,6 +72,15 @@ along, skipped because it had no size at that moment.
 
 
 
+**`check.py` now verifies bare file names as well, and that closed a real hole.** It only looked at
+names with a folder in front of them, so a document could promise a `.bat` on the desktop that
+restored the launcher — tested, with an agreement that the user would hear it fail — while no such
+file existed and he had never asked for one. Nothing caught it for a month. A name ending in an
+extension this project writes now has to exist somewhere under the project, which needs one
+convention to be usable: backticks mean the thing exists, and a removed file is named in plain text.
+Without that the check reported ten deliberate mentions beside one real problem. 297 names are
+verified where 260 were before, and the check was tested by planting the failure it was built for.
+
 ## 2026-08-24
 
 **Everything public is English.** 22 Python files and 749 lines of C++: names, comments, messages,
