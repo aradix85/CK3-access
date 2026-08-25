@@ -208,6 +208,8 @@ returns a pair, passed on as one thing, costs a run.
 | `buttons_on_disk()` | value | Every widget that opens a window when pressed, with how it does it. |
 | `press(address, nodes, scales, classes, row)` | NoneType of str | Click the middle of a widget, but only if it is really on screen. |
 | `back_to(game, baseline, tries=4)` | value of bool | Shut whatever opened. Escape only when something is open, or it opens the pause menu. |
+| `subtree_of(nodes, window)` | value of NoneType | The addresses under the drawn window object of that name, or None. |
+| `try_button(game, row, address, nodes, scales, classes, floor, date, number, total, where, fallback=None)` | value of str | Press one button, record what opened, and put the state back. |
 | `main()` | nothing | - |
 
 ## ck3\savegame.py

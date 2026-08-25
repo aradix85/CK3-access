@@ -37,7 +37,7 @@ import derive
 import paths
 import vtablemap
 import windowmap
-from harvest import free_memory, game_date, paused, FREE_MEMORY_FLOOR
+from harvest import free_memory, game_date, paused, drawn_one, FREE_MEMORY_FLOOR
 
 OUT = os.path.join(paths.PROJECT, 'reports', 'openers.json')
 ONLY_A_VIEW = re.compile(r"^\[\s*(?:Open|Toggle)GameView(?:Data)?\s*\(\s*'([^']+)'[^\[\]]*\)\s*\]$")
@@ -45,6 +45,7 @@ NAME = re.compile(r'\bname\s*=\s*"([^"]+)"')
 SHORTCUT = re.compile(r'\bshortcut\s*=\s*"([^"]+)"')
 ONCLICK = re.compile(r'\bonclick\s*=\s*(.+)', re.I)
 SETTLE = 1.8
+game_classes = set()
 
 
 def buttons_on_disk():
@@ -170,6 +171,66 @@ def back_to(game, baseline, tries=4):
     return game.state()[2] == baseline
 
 
+def subtree_of(nodes, window):
+    """The addresses under the drawn window object of that name, or None.
+
+    Looking inside a window instead of inside the whole tree is what makes phase two work at all.
+    Fourteen of the buttons carry a name that more than one widget in the tree has - one of them
+    160 times - and from a neutral state there is no way to tell which was meant. Within one open
+    window there almost always is exactly one.
+    """
+    candidates = [a for a, k in nodes.items() if k[6] == window and k[0] in game_classes]
+    if not candidates:
+        return None
+    root = drawn_one(candidates, window)
+    children = {}
+    for address, k in nodes.items():
+        children.setdefault(k[5], []).append(address)
+    seen, stack = set(), [root]
+    while stack:
+        address = stack.pop()
+        seen.add(address)
+        stack.extend(children.get(address, []))
+    return seen
+
+
+def try_button(game, row, address, nodes, scales, classes, floor, date, number, total, where,
+               fallback=None):
+    """Press one button, record what opened, and put the state back.
+
+    Escape does not always shut only what the click opened: inside an open window it can close the
+    window along with it, so the state comes back to the bare screen rather than to the state the
+    click started from. That is not a contaminated measurement, it just means the parent has to be
+    opened again - so a fall-back state is accepted and reported. Anything else stops the round,
+    because a window left standing makes every measurement after it wrong.
+    """
+    row['reason'] = press(address, nodes, scales, classes, row)
+    if row['reason'] is not None:
+        row['opens'] = None
+        return 'skipped'
+    time.sleep(SETTLE)
+    row['opens'] = sorted(game.state()[2] - floor)
+    row['found_in'] = where
+    landed = 'ok' if back_to(game, floor) else None
+    if landed is None and fallback is not None and back_to(game, fallback):
+        landed = 'fell back'
+    row['state_returned'] = landed is not None
+    print('%3d/%d %-32s %-24s %-18s opened %s%s'
+          % (number, total, row['widget'], row['target'], where,
+             row['opens'] or 'nothing', '' if landed == 'ok' else '  (%s)' % (landed or 'STUCK')))
+    if landed is None:
+        raise SystemExit('something stayed open after clicking %s; stopping, because every '
+                         'measurement after this one would be contaminated' % row['widget'])
+    if free_memory() < FREE_MEMORY_FLOOR:
+        raise SystemExit('free memory %.1f GB is under the floor of %.1f GB'
+                         % (free_memory(), FREE_MEMORY_FLOOR))
+    if game_date(game.tree()) != date:
+        raise SystemExit('the date moved from %s to %s: the clock is running'
+                         % (date, game_date(game.tree())))
+    return landed
+
+
+
 def main():
     if len(sys.argv) < 2:
         raise SystemExit(__doc__.strip().splitlines()[-1])
@@ -179,6 +240,8 @@ def main():
     derive.configure_channel(fields)
     derive.use_fields(fields)
     game = windowmap.Game(pid)
+    global game_classes
+    game_classes = game.window_classes
     if not paused(game):
         raise SystemExit('the clock is running; pause the game first, or the state is not repeatable')
     game.set_console(False)
@@ -200,7 +263,8 @@ def main():
     scales = derive.scales_for(list(nodes))
     classes = derive.class_map(pid, {a: k[0] for a, k in nodes.items()})
 
-    results, pressed, agreed = [], 0, 0
+    print('\nphase one: what is reachable without opening anything first')
+    done = {}
     for number, row in enumerate(rows, 1):
         here = by_name.get(row['widget'], [])
         if not here:
@@ -208,38 +272,73 @@ def main():
         elif len(here) > 1:
             row['reason'] = '%d widgets carry this name' % len(here)
         else:
-            row['reason'] = press(here[0], nodes, scales, classes, row)
-        if row['reason'] is None:
-            time.sleep(SETTLE)
-            row['opens'] = sorted(game.state()[2] - baseline)
-            row['state_returned'] = back_to(game, baseline)
-            pressed += 1
-            agreed += any(row['target'] in w or w in row['target'] for w in row['opens'])
-            print('%3d/%d %-34s %-26s opened %s%s'
-                  % (number, len(rows), row['widget'], row['target'],
-
-                     row['opens'] or 'nothing',
-                     '' if row['state_returned'] else '  STATE DID NOT RETURN'))
-            if not row['state_returned']:
-                raise SystemExit('something stayed open after clicking %s; stopping, because every '
-                                 'measurement after this one would be contaminated' % row['widget'])
-            if free_memory() < FREE_MEMORY_FLOOR:
-                raise SystemExit('free memory %.1f GB is under the floor of %.1f GB'
-                                 % (free_memory(), FREE_MEMORY_FLOOR))
-            if game_date(game.tree()) != date:
-                raise SystemExit('the date moved from %s to %s: the clock is running'
-                                 % (date, game_date(game.tree())))
-        else:
+            try_button(game, row, here[0], nodes, scales, classes, baseline, date,
+                       number, len(rows), 'the screen')
+        if row.get('opens') is None:
             row['opens'] = None
-        results.append(row)
+        done[row['widget']] = row
+
+    doors = {}
+    for row in rows:
+        if row.get('opens') and len(row['opens']) == 1:
+            doors.setdefault(row['opens'][0], row['widget'])
+    print('\nphase two: %d windows can be opened first, then looked inside' % len(doors))
+
+    for window, opener in sorted(doors.items()):
+        waiting = [r for r in rows if r['reason'] is not None]
+        if not waiting:
+            break
+        here = by_name.get(opener, [])
+        if len(here) != 1:
+            continue
+        blank = {}
+        if press(here[0], nodes, scales, classes, blank) is not None:
+            continue
+        time.sleep(SETTLE)
+        inside_nodes = game.tree()
+        floor = game.state(inside_nodes)[2]
+        held = subtree_of(inside_nodes, window)
+        if not held:
+            back_to(game, baseline)
+            continue
+        inside_scales = derive.scales_for(list(inside_nodes))
+        inside_classes = derive.class_map(pid, {a: k[0] for a, k in inside_nodes.items()})
+        found = 0
+        for number, row in enumerate(waiting, 1):
+            spots = [a for a in held if inside_nodes[a][6] == row['widget']]
+            if len(spots) != 1:
+                continue
+            found += 1
+            landed = try_button(game, row, spots[0], inside_nodes, inside_scales, inside_classes,
+                                floor, date, number, len(waiting), 'in ' + window,
+                                fallback=baseline)
+            if landed != 'fell back':
+                continue
+            # Escape took the parent with it, so open it again and read the tree afresh: the
+            # addresses of a window are not the same after it has been closed and reopened.
+            if press(here[0], nodes, scales, classes, {}) is not None:
+                break
+            time.sleep(SETTLE)
+            inside_nodes = game.tree()
+            floor = game.state(inside_nodes)[2]
+            held = subtree_of(inside_nodes, window) or set()
+            inside_scales = derive.scales_for(list(inside_nodes))
+            inside_classes = derive.class_map(pid, {a: k[0] for a, k in inside_nodes.items()})
+
+        print('   %-28s %d of the %d still waiting were in it' % (window, found, len(waiting)))
+        if not back_to(game, baseline):
+            raise SystemExit('%s would not close again' % window)
 
     with open(OUT, 'w', encoding='utf-8') as file:
         json.dump({'measured': time.strftime('%Y-%m-%d %H:%M'), 'game_date': date,
-                   'buttons': results}, file, ensure_ascii=False, indent=1)
-    opened = [r for r in results if r['opens']]
+                   'buttons': rows}, file, ensure_ascii=False, indent=1)
+    pressed = [r for r in rows if r.get('point')]
+    opened = [r for r in pressed if r['opens']]
+    agreed = [r for r in opened if any(r['target'] in w or w in r['target'] for w in r['opens'])]
     print('\npressed %d of %d, of those %d opened a window and %d matched the view name'
-          % (pressed, len(rows), len(opened), agreed))
+          % (len(pressed), len(rows), len(opened), len(agreed)))
     print('written to %s' % OUT)
+
 
 
 if __name__ == '__main__':

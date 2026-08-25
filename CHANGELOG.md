@@ -40,10 +40,14 @@ that should be on screen, and how many of them the recogniser confirmed.
 say which *view* an onclick opens, but nothing on disk binds a view to a window - the known view
 names appear in the 515 files only as texture paths, widget names and tooltip names. So the round
 presses the button and watches the drawn set. Of 56 buttons that open a window and do nothing else,
-17 exist in the tree from a neutral state; 15 opened a window and the state came back every time.
-The right-hand tab column is right eight times out of eight; the bottom row is context-dependent and
-falls through to the character window. Result in `reports/openers.json`, with the box and the point
-clicked, because otherwise a click that landed elsewhere cannot be told from a wrong prediction.
+19 could be pressed; 17 opened a window and the state came back every time. The right-hand tab
+column is right eight times out of eight; the bottom row is context-dependent and falls through to
+the character window. A second pass opens a window first and looks inside it, which is what makes a
+name usable - in the whole tree one of them occurs 160 times, inside one window almost never twice -
+but it only adds two more buttons: the rest are not one layer down, they are behind chains of
+windows. Result in `reports/openers.json`, with the box and the point clicked, because otherwise a
+click that landed elsewhere cannot be told from a wrong prediction.
+
 
 **Attributing a trigger to a widget has exactly one correct rule.** A trigger belongs to the widget
 whose name sits one level above it with a `blockoverride` in between - that is template filling, not

@@ -23,8 +23,12 @@ measured rather than assumed:
   verified character-for-character against the localisation files on disk.
 - Mouse and keyboard input is posted from inside the process, so it never steals focus.
 - 196 of 197 game windows open on demand (`reports/windows.json`), and 178 have been harvested:
-  68,146 widgets with their names, classes, rectangles and visibility.
+  68,146 widgets with their names, classes, rectangles and visibility. The recogniser confirms
+  1,169 of the 1,415 text boxes that should be on screen.
+- 19 buttons have been pressed the way a player would, and 17 opened a window
+  (`reports/openers.json`). Which button opens which window cannot be read off disk; it is measured.
 - All of the above still holds on 1.19.0.6 with every DLC and five content mods loaded.
+
 
 What is missing is the half a player would notice: nothing decides *what* to say, in *what order*.
 That layer does not exist yet.

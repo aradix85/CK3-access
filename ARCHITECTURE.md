@@ -63,6 +63,12 @@ sees only what was meant for the game, and that filter comes free.
 the player's screen stays theirs. The product does not do this; it is how the game gets driven while
 the interface is still being mapped.
 
+**A posted click lands on whatever is topmost at that point, not on the widget you aimed at.** The
+tree tells you a widget is drawn and where it is; it does not tell you what is drawn over it. So a
+click is a measurement with a witness, never an assumption: press, read the drawn set, put the state
+back, and record the point along with the result. `tools/ck3/openers.py` works that way.
+
+
 ## 5. Reading the game
 
 Two independent sources, and their disagreement is the test.
