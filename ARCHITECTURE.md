@@ -68,6 +68,22 @@ tree tells you a widget is drawn and where it is; it does not tell you what is d
 click is a measurement with a witness, never an assumption: press, read the drawn set, put the state
 back, and record the point along with the result. `tools/ck3/openers.py` works that way.
 
+**A modifier key cannot be sent inward at all, and that is a Windows boundary rather than a gap
+here.** A key message carries no modifier information, so an application that cares asks separately;
+this game asks through raw input, straight from the device, where posted messages never arrive.
+Measured by hooking `GetKeyState`, `GetAsyncKeyState` and `GetKeyboardState` in the executable's
+import table with a counter on each: a keypress moves none of them. The hooks were reverted. Note
+the limit of that measurement — only the executable's import table was patched, so a call from
+another loaded module would not have been counted. Three routes remain if it is ever needed: hooking
+`GetRawInputData` and answering a self-posted `WM_INPUT`, locating the engine's own key table in
+memory, or `SendInput`, which works but requires the foreground and therefore takes the screen.
+Nothing needs it today: of 705 bindings that use a modifier, exactly one opens a window, and that
+window has an ordinary button.
+
+**Receiving is complete; sending is a research convenience.** The product never sends a key — it
+intercepts one and acts on it itself. The asymmetry above therefore does not touch the product.
+
+
 
 ## 5. Reading the game
 

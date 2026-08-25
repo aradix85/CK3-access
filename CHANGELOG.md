@@ -58,15 +58,18 @@ loses all eight main tabs. There are also two mechanisms, `onclick` and `shortcu
 reading only one throws away half the buttons.
 
 **A modifier cannot be sent into the game, and the channel is unchanged because of it.** Three
-routes, each measured. Posting shift as a separate message: the game opened the character window, as
-if the shift were not there — a key message carries no modifier information, so an application that
-cares has to ask for it. Hooking the two functions that answer that question, `GetKeyState` and
-`GetAsyncKeyState`, in the executable's import table, and `GetKeyboardState` alongside them: the
-hooks demonstrably landed and changed nothing. A counter on each hook then settled it — a keypress
-moves none of them. The game does not consult those functions at all; it reads raw input straight
-from the device, which matches the `RegisterRawInputDevices` and `GetRawInputData` it imports.
-Everything was reverted, and the DLL is byte for byte back at its previous size. One window sits
-behind such a binding, the ledger, and it is reachable another way.
+routes, each measured. Posting shift as its own message did nothing — a key message carries no
+modifier information, so an application that cares asks separately. Hooking the two functions that
+answer that question, `GetKeyState` and `GetAsyncKeyState`, in the executable's import table, and
+`GetKeyboardState` alongside them: the hooks demonstrably landed and changed nothing. A counter on
+each hook then settled it — a keypress moves none of them. The game reads raw input straight from
+the device, which matches the `RegisterRawInputDevices` and `GetRawInputData` it imports. Everything
+was reverted, and the DLL is byte for byte back at its previous size. The limit of that measurement
+is written down too: only the executable's import table was patched, so a call from another module
+would not have been counted. It turned out not to matter — of 705 bindings that use a modifier,
+exactly one opens a window, and that window has an ordinary button that was in the click round all
+along, skipped because it had no size at that moment.
+
 
 
 ## 2026-08-24
