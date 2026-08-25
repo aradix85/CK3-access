@@ -57,6 +57,13 @@ on the speed bar, which started the clock and moved the state seven months. Requ
 loses all eight main tabs. There are also two mechanisms, `onclick` and `shortcut = "<window>"`, and
 reading only one throws away half the buttons.
 
+**A modifier cannot be posted into the game, and that is now measured rather than assumed.** The
+channel gained `keydown` and `keyup` so that shift can stay held while a function key arrives. The
+commands answer and plain F1 still opens the character window, but shift+F1 opens the character
+window too — as if the shift were not there. The game reads that state from the physical keyboard,
+not from the message queue, so no further posted message will fix it. One window sits behind such a
+binding: the ledger.
+
 ## 2026-08-24
 
 **Everything public is English.** 22 Python files and 749 lines of C++: names, comments, messages,
