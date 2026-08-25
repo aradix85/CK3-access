@@ -36,6 +36,23 @@ seven minutes deriving again only to fail on the same requirement.
 **`check.py` now recomputes the quality of a sweep**, not just file sizes: windows opened, text boxes
 that should be on screen, and how many of them the recogniser confirmed.
 
+**`tools/ck3/openers.py`: which button opens which window, measured rather than read.** The gui files
+say which *view* an onclick opens, but nothing on disk binds a view to a window - the known view
+names appear in the 515 files only as texture paths, widget names and tooltip names. So the round
+presses the button and watches the drawn set. Of 56 buttons that open a window and do nothing else,
+17 exist in the tree from a neutral state; 15 opened a window and the state came back every time.
+The right-hand tab column is right eight times out of eight; the bottom row is context-dependent and
+falls through to the character window. Result in `reports/openers.json`, with the box and the point
+clicked, because otherwise a click that landed elsewhere cannot be told from a wrong prediction.
+
+**Attributing a trigger to a widget has exactly one correct rule.** A trigger belongs to the widget
+whose name sits one level above it with a `blockoverride` in between - that is template filling, not
+a child widget. Taking the nearest named ancestor instead hangs the call on the container around the
+button, and the middle of a container is not the button: nine clicks landed on the portrait and one
+on the speed bar, which started the clock and moved the state seven months. Requiring the same block
+loses all eight main tabs. There are also two mechanisms, `onclick` and `shortcut = "<window>"`, and
+reading only one throws away half the buttons.
+
 ## 2026-08-24
 
 **Everything public is English.** 22 Python files and 749 lines of C++: names, comments, messages,

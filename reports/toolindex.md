@@ -200,6 +200,16 @@ returns a pair, passed on as one thing, costs a run.
 | `screen_size()` | 2-tuple | - |
 | `type_name_count()` | value | How many RTTI type names the exe contains. |
 
+## ck3\openers.py
+*Which button opens which window? Clicks them and writes `reports\openers.json`.*
+
+| call | returns | does |
+|---|---|---|
+| `buttons_on_disk()` | value | Every widget that opens a window when pressed, with how it does it. |
+| `press(address, nodes, scales, classes, row)` | NoneType of str | Click the middle of a widget, but only if it is really on screen. |
+| `back_to(game, baseline, tries=4)` | value of bool | Shut whatever opened. Escape only when something is open, or it opens the pause menu. |
+| `main()` | nothing | - |
+
 ## ck3\savegame.py
 *Reads the game state from a save file - the answer key for searching in memory.*
 

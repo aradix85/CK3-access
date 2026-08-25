@@ -1,0 +1,671 @@
+{
+ "measured": "2026-08-25 13:58",
+ "game_date": "23rd of November, 1067 AD",
+ "buttons": [
+  {
+   "via": "onclick",
+   "target": "activity_log",
+   "widget": "activity_log",
+   "file": "window_activity.gui",
+   "reason": "3 widgets carry this name",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "activity_intent_selection",
+   "widget": "change_intent",
+   "file": "window_activity_locale.gui",
+   "reason": "not visible",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "confederation_window",
+   "widget": "confederation_button",
+   "file": "hud.gui",
+   "reason": "2 widgets carry this name",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "faith_conversion",
+   "widget": "convert_faith",
+   "file": "window_faith.gui",
+   "reason": "not visible",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "faith_creation",
+   "widget": "create_faith",
+   "file": "window_faith.gui",
+   "reason": "3 widgets carry this name",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "artifact_details",
+   "widget": "details",
+   "file": "window_royal_court.gui",
+   "reason": "not in the tree from a neutral state",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "domicile",
+   "widget": "domicile_map_icon",
+   "file": "map_icon_layer.gui",
+   "reason": "160 widgets carry this name",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "character_focus",
+   "widget": "education_button",
+   "file": "hud.gui",
+   "point": [
+    325,
+    865
+   ],
+   "box": [
+    297,
+    837,
+    56,
+    56
+   ],
+   "reason": null,
+   "opens": [
+    "inventory_view"
+   ],
+   "state_returned": true
+  },
+  {
+   "via": "onclick",
+   "target": "decision_detail",
+   "widget": "elevate_confederation_decision",
+   "file": "window_confederation.gui",
+   "reason": "not visible",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "legends",
+   "widget": "explore_legends",
+   "file": "hud_bottom.gui",
+   "reason": "not visible",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "epidemics",
+   "widget": "explore_plagues",
+   "file": "hud_bottom.gui",
+   "reason": "not visible",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "faith",
+   "widget": "faith_button",
+   "file": "hud.gui",
+   "reason": "9 widgets carry this name",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "great_holy_war",
+   "widget": "faith_icon",
+   "file": "hud.gui",
+   "reason": "4 widgets carry this name",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "decision_detail",
+   "widget": "gather_provisions_decision",
+   "file": "map_icon_layer.gui",
+   "reason": "96 widgets carry this name",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "great_project",
+   "widget": "great_project_button",
+   "file": "window_decisions.gui",
+   "reason": "not in the tree from a neutral state",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "activity_guest_list",
+   "widget": "guest_list",
+   "file": "window_activity.gui",
+   "reason": "2 widgets carry this name",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "decision_detail",
+   "widget": "hired_troops_view_create_holy_order_item",
+   "file": "window_military.gui",
+   "reason": "not visible",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "great_holy_war",
+   "widget": "holy_war_icon_prep",
+   "file": "hud.gui",
+   "reason": "not visible",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "great_holy_war",
+   "widget": "holy_war_icon_started",
+   "file": "hud.gui",
+   "reason": "not visible",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "house_aspiration_window",
+   "widget": "house_power_hud_button",
+   "file": "hud.gui",
+   "point": [
+    625,
+    865
+   ],
+   "box": [
+    597,
+    837,
+    56,
+    56
+   ],
+   "reason": null,
+   "opens": [
+    "character_window"
+   ],
+   "state_returned": true
+  },
+  {
+   "via": "onclick",
+   "target": "domicile",
+   "widget": "hud_camp_button",
+   "file": "hud.gui",
+   "point": [
+    505,
+    865
+   ],
+   "box": [
+    477,
+    837,
+    56,
+    56
+   ],
+   "reason": null,
+   "opens": [
+    "character_window"
+   ],
+   "state_returned": true
+  },
+  {
+   "via": "onclick",
+   "target": "decision_detail",
+   "widget": "invite_claimants_decision",
+   "file": "window_court.gui",
+   "reason": "not visible",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "decision_detail",
+   "widget": "invite_from_nomad_capital",
+   "file": "window_knights.gui",
+   "reason": "not visible",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "decision_detail",
+   "widget": "invite_knights_decision",
+   "file": "window_court.gui",
+   "reason": "2 widgets carry this name",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "decision_detail",
+   "widget": "leave_confederation_decision",
+   "file": "window_confederation.gui",
+   "reason": "not visible",
+   "opens": null
+  },
+  {
+   "via": "shortcut",
+   "target": "ledger_window",
+   "widget": "ledger_shortcut",
+   "file": "hud.gui",
+   "reason": "no size",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "ledger",
+   "widget": "ledger_window",
+   "file": "hud.gui",
+   "reason": "2 widgets carry this name",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "lifestyle",
+   "widget": "lifestyle_button",
+   "file": "hud.gui",
+   "point": [
+    265,
+    865
+   ],
+   "box": [
+    237,
+    837,
+    56,
+    56
+   ],
+   "reason": null,
+   "opens": [
+    "character_lifestyle_window"
+   ],
+   "state_returned": true
+  },
+  {
+   "via": "onclick",
+   "target": "move_domicile_planner",
+   "widget": "move_camp_quick_button",
+   "file": "map_icon_layer.gui",
+   "reason": "96 widgets carry this name",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "move_domicile_planner",
+   "widget": "move_domcicle_button",
+   "file": "window_county_view.gui",
+   "reason": "2 widgets carry this name",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "diarchy",
+   "widget": "open_diarchy_tutorial_uses_this",
+   "file": "hud.gui",
+   "point": [
+    1355,
+    777
+   ],
+   "box": [
+    1310,
+    732,
+    90,
+    90
+   ],
+   "reason": null,
+   "opens": [
+    "window_situation"
+   ],
+   "state_returned": true
+  },
+  {
+   "via": "onclick",
+   "target": "diarchy",
+   "widget": "open_future_diarchy_tutorial_uses_this",
+   "file": "window_my_realm.gui",
+   "reason": "not visible",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "house_relation_history_window",
+   "widget": "open_memories",
+   "file": "window_dynasty_house.gui",
+   "reason": "not visible",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "outliner",
+   "widget": "outliner_button",
+   "file": "hud.gui",
+   "point": [
+    1577,
+    72
+   ],
+   "box": [
+    1560,
+    55,
+    35,
+    35
+   ],
+   "reason": null,
+   "opens": [],
+   "state_returned": true
+  },
+  {
+   "via": "onclick",
+   "target": "culture_window",
+   "widget": "player_culture_button_tutorial_uses_this",
+   "file": "hud.gui",
+   "reason": "off screen",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "great_project",
+   "widget": "portrait_pin",
+   "file": "map_icon_layer.gui",
+   "reason": "32 widgets carry this name",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "decision_detail",
+   "widget": "recruit_position_decision",
+   "file": "window_court_positions.gui",
+   "reason": "not visible",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "reforge_artifact",
+   "widget": "reforge",
+   "file": "window_artifact_details.gui",
+   "reason": "not visible",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "hud_ruler_objective",
+   "widget": "ruler_objective_button",
+   "file": "hud.gui",
+   "reason": "not visible",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "decision_detail",
+   "widget": "search_for_tax_collector_decision",
+   "file": "window_manage_tax_slots.gui",
+   "reason": "not visible",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "decision_detail",
+   "widget": "story_decision_entry",
+   "file": "window_situation_list.gui",
+   "reason": "not in the tree from a neutral state",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "struggle",
+   "widget": "struggle_banner_tutorial_uses_this",
+   "file": "hud.gui",
+   "reason": "not in the tree from a neutral state",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "struggle_involvement",
+   "widget": "struggle_involvement_button_tutorial_uses_this",
+   "file": "window_struggle.gui",
+   "reason": "not visible",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "activity_list_window",
+   "widget": "tab_activities",
+   "file": "hud.gui",
+   "point": [
+    1577,
+    467
+   ],
+   "box": [
+    1555,
+    445,
+    45,
+    45
+   ],
+   "reason": null,
+   "opens": [
+    "activity_list"
+   ],
+   "state_returned": true
+  },
+  {
+   "via": "onclick",
+   "target": "decisions",
+   "widget": "tab_contracts",
+   "file": "hud.gui",
+   "point": [
+    1577,
+    512
+   ],
+   "box": [
+    1555,
+    490,
+    45,
+    45
+   ],
+   "reason": null,
+   "opens": [
+    "window_situation_list"
+   ],
+   "state_returned": true
+  },
+  {
+   "via": "onclick",
+   "target": "council_window",
+   "widget": "tab_council",
+   "file": "hud.gui",
+   "point": [
+    1577,
+    212
+   ],
+   "box": [
+    1555,
+    190,
+    45,
+    45
+   ],
+   "reason": null,
+   "opens": [
+    "council_window"
+   ],
+   "state_returned": true
+  },
+  {
+   "via": "onclick",
+   "target": "court_window",
+   "widget": "tab_court_tutorial_uses_this",
+   "file": "hud.gui",
+   "point": [
+    1577,
+    272
+   ],
+   "box": [
+    1555,
+    250,
+    45,
+    45
+   ],
+   "reason": null,
+   "opens": [
+    "court_window"
+   ],
+   "state_returned": true
+  },
+  {
+   "via": "onclick",
+   "target": "decisions",
+   "widget": "tab_decisions",
+   "file": "hud.gui",
+   "point": [
+    1577,
+    422
+   ],
+   "box": [
+    1555,
+    400,
+    45,
+    45
+   ],
+   "reason": null,
+   "opens": [
+    "decisions_view"
+   ],
+   "state_returned": true
+  },
+  {
+   "via": "onclick",
+   "target": "factions_window",
+   "widget": "tab_factions",
+   "file": "hud.gui",
+   "point": [
+    1577,
+    362
+   ],
+   "box": [
+    1555,
+    340,
+    45,
+    45
+   ],
+   "reason": null,
+   "opens": [
+    "factions_window"
+   ],
+   "state_returned": true
+  },
+  {
+   "via": "onclick",
+   "target": "intrigue_window",
+   "widget": "tab_intrigue",
+   "file": "hud.gui",
+   "point": [
+    1577,
+    317
+   ],
+   "box": [
+    1555,
+    295,
+    45,
+    45
+   ],
+   "reason": null,
+   "opens": [
+    "intrigue_window"
+   ],
+   "state_returned": true
+  },
+  {
+   "via": "onclick",
+   "target": "military",
+   "widget": "tab_military_tutorial_uses_this",
+   "file": "hud.gui",
+   "point": [
+    1577,
+    167
+   ],
+   "box": [
+    1555,
+    145,
+    45,
+    45
+   ],
+   "reason": null,
+   "opens": [
+    "military_view"
+   ],
+   "state_returned": true
+  },
+  {
+   "via": "onclick",
+   "target": "my_realm",
+   "widget": "tab_my_realm_tutorial_uses_this",
+   "file": "hud.gui",
+   "point": [
+    1577,
+    122
+   ],
+   "box": [
+    1555,
+    100,
+    45,
+    45
+   ],
+   "reason": null,
+   "opens": [
+    "my_realm_window"
+   ],
+   "state_returned": true
+  },
+  {
+   "via": "onclick",
+   "target": "situations",
+   "widget": "tab_situation",
+   "file": "hud.gui",
+   "point": [
+    1577,
+    512
+   ],
+   "box": [
+    1555,
+    490,
+    45,
+    45
+   ],
+   "reason": null,
+   "opens": [
+    "window_situation_list"
+   ],
+   "state_returned": true
+  },
+  {
+   "via": "onclick",
+   "target": "manage_tax_slots",
+   "widget": "tab_tax_jurisdiction",
+   "file": "hud.gui",
+   "point": [
+    1577,
+    647
+   ],
+   "box": [
+    1555,
+    625,
+    45,
+    45
+   ],
+   "reason": null,
+   "opens": [],
+   "state_returned": true
+  },
+  {
+   "via": "onclick",
+   "target": "dynasty_legacy_window",
+   "widget": "top_legacy",
+   "file": "window_dynasty_house.gui",
+   "reason": "not visible",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "decision_detail",
+   "widget": "visit_local_settlement_decision",
+   "file": "map_icon_layer.gui",
+   "reason": "96 widgets carry this name",
+   "opens": null
+  }
+ ]
+}
