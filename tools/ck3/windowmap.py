@@ -101,9 +101,21 @@ class Game(object):
                     if flags.get(a, 0xFF) == 0x00 and nodes[a][6]}
         return nodes, counts, drawn
 
-    def console_open(self, nodes):
-        return any(k[6] == 'console_edit' for k in nodes.values()) and \
-               'console_window' in self.state(nodes)[2]
+    def console_open(self, nodes=None):
+        """Is the console on screen? From the flag byte of `console_window`.
+
+        Measured 25 August 2026 by pressing the key twice with the recogniser watching: open, the
+        window sits at 20,31 with a frame of 427x838 and its flag byte reads 0x00, and the screen
+        carries the console's own output; shut, the frame is 0x0 and the byte reads 0x18. So the
+        ordinary window flag decides it after all - what does not work is asking `state()`, because
+        that only looks at widgets of the `Window` class and `console_window` is not one of them.
+        That is the whole reason this used to be judged by typing into it.
+        """
+        nodes = nodes if nodes is not None else self.tree()
+        address = next((a for a, k in nodes.items() if k[6] == 'console_window'), None)
+        if address is None:
+            return False
+        return derive.flags_for([address]).get(address, 0xFF) == 0x00
 
     def field_text(self, address):
         """The text of one widget, without walking the tree - a single channel question.
@@ -117,29 +129,26 @@ class Game(object):
         return derive._cstring(chunk, self.fields['text']) or ''
 
     def set_console(self, on, nodes=None):
-        """Open or close the console, and test it by typing rather than by looking.
+        """Open or close the console, and prove it with the flag byte before typing anything.
 
-        This used to be judged from the window flag of `console_window`. That does not work: the
-        widget is not always in the window class, after which the routine concluded "already open",
-        pressed nothing and typed into the void. Measured 23 August 2026 - the console itself is
-        reliable, the measurement was not.
+        The order matters and it cost a round to learn. This used to test by clicking into the
+        input field and typing a character - reliable while the console stands open, and a stray
+        click into the game when it does not. Measured 25 August 2026: with the console shut that
+        click lands on the portrait at the bottom left and opens `character_window`, after which
+        the harvest refuses to start because a window is already open before the round. So the
+        flag decides whether it is open, and typing only ever confirms a console that is there.
         """
         nodes = nodes if nodes is not None else self.tree()
         self.field = next((a for a, k in nodes.items() if k[6] == 'console_edit'), None)
-        if not on:
-            if self.field is not None and self._captures_input():
-                channel.ask('sendkey 192')
-                time.sleep(1.2)
-                nodes = self.tree()
-            return nodes
         for _ in range(3):
-            if self.field is not None and self._captures_input():
+            if self.console_open(nodes) == on and (not on or self._captures_input()):
                 return nodes
             channel.ask('sendkey 192')
             time.sleep(1.4)
             nodes = self.tree()
             self.field = next((a for a, k in nodes.items() if k[6] == 'console_edit'), None)
-        raise SystemExit('the console does not open')
+        raise SystemExit('the console does not %s' % ('open' if on else 'close'))
+
 
     def _captures_input(self):
         """Does a character really land in the input field? Clicks into it and tries."""

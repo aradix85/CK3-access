@@ -152,11 +152,31 @@ def mod_windows(part):
     return count
 
 
+def harvest_total(part, field):
+    """A number summed over the harvest records: how big the round was, and how good.
+
+    `harvest\\` stays out of the repo, so on a clone this measures nothing and the claim will
+    drift - which is right, because the number belongs to a round on this machine. What it buys is
+    that the quality of a round is a figure that can be recomputed instead of a sentence somebody
+    typed. `boxes` counts the text boxes of a window that should be on screen, `confirmed` how many
+    of them the recogniser read back; the ratio of the two is what says whether a capture was blind.
+    """
+    total = 0
+    for name in sorted(glob.glob(os.path.join(_path(part), '*.json'))):
+        record = json.load(open(name, encoding='utf-8'))
+        if field == 'windows':
+            total += 1 if record.get('opened') else 0
+        else:
+            total += record.get(field, 0)
+    return total
+
+
 MEASURES = {'bytes': bytes_of, 'lines': lines_of, 'files': files_in,
             'json_field': json_field, 'json_keys': json_keys,
             'type_names': type_names_in_exe, 'widget_vtables': widget_vtables,
             'gamestate_mb': gamestate_mb, 'repo_files': repo_files,
-            'mod_windows': mod_windows}
+            'mod_windows': mod_windows, 'harvest_total': harvest_total}
+
 
 
 def main(all_of_them):

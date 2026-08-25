@@ -613,12 +613,25 @@ def _name_field(chunks, gui):
 
 import re
 
-_MARKUP = re.compile('\x15[^ ]*[ !]?')
+_MARKUP = re.compile('[\x15\x16][^ !]*[ !]?')
 
 
 def strip_markup(text):
-    """Strips the game's markup codes; those do not appear in the localization files."""
-    return _MARKUP.sub('', text).strip()
+    """Strips the game's markup codes; those do not appear in the localization files.
+
+    Two bytes open a code: 0x15 for colour, tooltips and links, and 0x16 for an icon. Both end at
+    a space or an exclamation mark, and the pattern has to stop there instead of running on to the
+    next space. Measured 25 August 2026 over the 1466 texts in the harvest: running on eats the
+    separator between two codes standing back to back, which glued words together in 117 of them
+    (`SucceededIntent`) and swallowed a colon that is on screen (`Aspiration` for `Aspiration:`).
+    Both were written down as quirks of the game and were ours. Judged three ways: 179 texts found
+    literally in the localization against 175, 883 text boxes confirmed by the recogniser against
+    871, and no change at all on the 1296 texts that carry no two codes in a row.
+
+    An icon carries meaning - `warning_icon` heads the 53 texts that hold one - but here it is
+    markup like any other. The raw text keeps it for the presentation layer to turn into a word.
+    """
+    return re.sub(' {2,}', ' ', _MARKUP.sub('', text)).strip()
 
 
 def _text_field(chunks, text_boxes, translation, f_name):

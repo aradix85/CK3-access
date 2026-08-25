@@ -25,7 +25,8 @@ reports/rtti_typen.txt
 # Not published: the sweep's raw material - 51 MB of widget trees and window captures taken from
 # one game state on one machine. It is measurement, not source, and it is Paradox's interface.
 # Produce it yourself with tools/ck3/harvest.py; what was learned from it is in ARCHITECTURE.md.
-harvest/
+# The pattern also covers a parked round kept for comparison, such as harvest-2026-08-24-*.
+harvest*/
 
 # Not published: other people's work without a licence.
 # The key script is Agami's OCR mod script with a change of our own; her repo has no licence

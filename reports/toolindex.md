@@ -30,6 +30,7 @@ returns a pair, passed on as one thing, costs a run.
 | `repo_files()` | value | Counts what a `git init` would take into the repo: everything .gitignore does not exclude. |
 | `document_paths()` | 2-tuple | Every project path named in a document, checked against the disk. |
 | `mod_windows(part)` | value | Windows in the map whose gui file is not part of the game itself. |
+| `harvest_total(part, field)` | value | A number summed over the harvest records: how big the round was, and how good. |
 | `main(all_of_them)` | value | - |
 
 ## docsearch.py
@@ -175,6 +176,7 @@ returns a pair, passed on as one thing, costs a run.
 | `widget_record(nodes, address, depth, scales, classes, flags, alphas)` | dict | One widget, with every field this project can read - also the ones nothing uses yet. |
 | `alphas_for(addresses)` | value | Alpha of many widgets in as few channel questions as possible, the way flags_for does it. |
 | `capture(pid, name)` | dict | The window as pixels, plus everything the recogniser reads in it, with positions. |
+| `confirmed(tree, lines)` | 2-tuple | (text boxes that should be on screen, how many of them the recogniser reads back). |
 | `open_window(game, name, row, baseline)` | 2-tuple | Open one window along the route phase 0 found for it, and prove it is drawn. |
 | `close_window(game, name, row, baseline, limit=12)` | bool | Shut it again and wait until the state before it is back. Anything left open contaminates |
 | `drawn_one(candidates, name)` | value | Of several window objects carrying the same name, the one that is actually drawn. |

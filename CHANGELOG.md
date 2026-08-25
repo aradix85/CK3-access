@@ -2,6 +2,40 @@
 
 Dates are the day the work was measured, not the day it was committed.
 
+## 2026-08-25
+
+**The sweep was blind on the left third of the screen and nothing said so.** Coupling the text
+recogniser to the widget tree on text and overlap produced a confirmation rate that varied by
+position rather than by window: 7 percent in the strip from x 0 to 200, 23 percent from 200 to 400,
+then 84, 80, 85, 78, 72 and 64. The debug console had stood open over that area for the whole round.
+The tree does not notice a window being covered, so the capture half was worthless exactly where it
+mattered most — `character_window` had 0 of its 33 text boxes confirmed. The console is now shut for
+the length of every capture, and each record carries how many of its own text boxes the recogniser
+read back, so a blind capture shows up in the first ten windows instead of a day later. Same rule,
+same 178 windows: **1169 of 1415 confirmed against 1009 of 1416**, median window 88 to 100 percent.
+
+**Two documented quirks of the game were ours.** `strip_markup` matched a markup code up to the next
+space, so where two codes stand back to back it ate the separator between them. Over the 1466 texts
+in the sweep, 117 came out with words glued together and a colon that is on screen disappeared from
+the widget text. Both had been written down as engine behaviour. There is also a second markup byte,
+0x16 for icons, which was not stripped at all: 53 texts carry one, 11 distinct icons, `warning_icon`
+and `gold_icon` leading. The new rule was judged three ways — 179 texts found literally in the
+localisation against 175, 883 text boxes confirmed against 871, and no change on the 1296 texts that
+carry no two codes in a row.
+
+**A test with a side effect.** Whether the console was open used to be settled by clicking into its
+input field and typing. That is reliable while it stands open and a stray click into the game when it
+does not — on this state it opened the character window, and the sweep refused to start because a
+window was already open. It now reads the flag byte of `console_window`, which is 0x00 with a
+427x838 frame when open and 0x18 with an empty frame when shut, confirmed against the recogniser.
+
+**Field verification needs a loaded game.** On the main menu the position check cannot find the
+hundred distinct values it requires, rejects a perfectly good stored derivation, and then spends
+seven minutes deriving again only to fail on the same requirement.
+
+**`check.py` now recomputes the quality of a sweep**, not just file sizes: windows opened, text boxes
+that should be on screen, and how many of them the recogniser confirmed.
+
 ## 2026-08-24
 
 **Everything public is English.** 22 Python files and 749 lines of C++: names, comments, messages,

@@ -16,11 +16,18 @@ matters most - if something stays open, every later measurement is contaminated.
 
 Resumable: what is already on disk is skipped, so a stopped round continues where it left off.
 
+**The console is shut for the length of every capture.** It is the route most of these windows are
+opened by, and while it stands open it is drawn over the left third of the screen. The tree does
+not notice; the recogniser does, and it says nothing about it. Every record therefore also carries
+how many of its own text boxes the recogniser read back, so a blind capture shows up in the first
+ten windows of a round instead of in the analysis a day later.
+
 Usage:  python tools\ck3\harvest.py <pid> [<window> ...]
 """
 import ctypes
 import json
 import os
+import re
 import sys
 import time
 
@@ -149,6 +156,51 @@ def capture(pid, name):
                            for line in lines]}
 
 
+def _flat(text):
+    return re.sub(r'[^a-z0-9]', '', text.lower())
+
+
+def confirmed(tree, lines):
+    """(text boxes that should be on screen, how many of them the recogniser reads back).
+
+    The second witness, measured while the round runs rather than a day afterwards. That is not
+    tidiness: the round of 24 August 2026 was harvested with the debug console standing open over
+    x 0 to 424, so every capture was blind on the left third of the screen. Nothing said so, and
+    `character_window` - which sits exactly there - came out of it with 0 of its 33 text boxes
+    confirmed while windows on the right side sat above 80 percent. A number in every record makes
+    that visible in the first ten windows instead of in the analysis afterwards.
+
+    Not a stop condition, because zero is a legitimate answer: a window built by `GUI.CreateWidget`
+    can be drawn without its labels ever reaching the screen. What it is, is a number that can be
+    compared - between windows, between rounds, and against the next patch.
+    """
+    by_address = {w['address']: w for w in tree}
+    boxes = seen = 0
+    for w in tree:
+        if w['class'] != 'Textbox' or not w['text'] or w['clipped']:
+            continue
+        want = _flat(derive.strip_markup(w['text']))
+        x, y, width, height = w['screen_rect']
+        if not want or width <= 0 or height <= 0:
+            continue
+        alpha, node, steps = 1.0, w, 0
+        while node is not None and steps < 40:
+            alpha *= node['alpha'] if node['alpha'] is not None else 1.0
+            node = by_address.get(node['parent'])
+            steps += 1
+        if alpha <= 0.0:
+            continue
+        boxes += 1
+        for line in lines:
+            lx, ly, lw, lh = line['rect']
+            if lx < x + width and x < lx + lw and ly < y + height and y < ly + lh:
+                got = _flat(line['text'])
+                if got and (got in want or want in got):
+                    seen += 1
+                    break
+    return boxes, seen
+
+
 def open_window(game, name, row, baseline):
     """Open one window along the route phase 0 found for it, and prove it is drawn.
 
@@ -256,9 +308,16 @@ def harvest(game, name, row, baseline, header):
         'route': 'shortcut ' + row['shortcut'] if row.get('shortcut') else 'GUI.CreateWidget',
         'address': '%x' % address, 'widgets': len(family),
         'tree_size': len(nodes), 'seconds': round(time.time() - started, 1)})
-    record.update(capture(game.pid, name))
     record['tree'] = [widget_record(nodes, a, d, scales, classes, flags, alphas)
                       for a, d in family]
+    # The console is how most of these windows are opened, and it is drawn over the left third of
+    # the screen while it stands open. Leaving it there costs nothing in the tree and everything in
+    # the capture, so it goes away for the length of the picture and comes straight back - the
+    # baseline was taken with it open, and `close_window` compares against that baseline.
+    game.set_console(False, nodes)
+    record.update(capture(game.pid, name))
+    game.set_console(True)
+    record['boxes'], record['confirmed'] = confirmed(record['tree'], record['recognised'])
     if not close_window(game, name, row, baseline):
         return record, 'state did not come back'
     record['seconds'] = round(time.time() - started, 1)
@@ -311,8 +370,10 @@ def main():
         done += reason is None
         failed += reason is not None
         print('%3d/%d %-34s %s' % (number, len(names), name,
-                                   reason or '%d widgets, %d recognised lines, %.0fs'
+                                   reason or '%d widgets, %d recognised lines, %d/%d text boxes '
+                                   'confirmed, %.0fs'
                                    % (record['widgets'], len(record['recognised']),
+                                      record['confirmed'], record['boxes'],
                                       record['seconds'])))
     print('harvested %d, failed to open %d, written to %s' % (done, failed, OUT))
 
