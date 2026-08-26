@@ -45,8 +45,11 @@ judgement, and it is taken with attribution.
 
 ## Tools and libraries
 
-- **NVDA** (`github.com/nvaccess/nvda`) — the screen reader, and its controller client DLL, which is
-  redistributed here under LGPL 2.1. Its licence text ships with it.
+- **NVDA** (`github.com/nvaccess/nvda`) — the screen reader, and its controller client DLL, which
+  this project loads but does **not** redistribute: `.gitignore` keeps the binary out, and
+  `tools/nvda/README.md` says where to fetch it. Its licence, LGPL 2.1, is quoted in
+  `tools/nvda/license_nvda_controllerclient.txt` so that the terms travel with the code that calls
+  it. Linking dynamically and leaving the DLL untouched is the clean route; baking it in is not.
 - **Paradox Interactive** — Crusader Kings III and the Clausewitz/Jomini engine. No files belonging
   to Paradox are included in this repository or in any release.
 

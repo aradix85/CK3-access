@@ -87,26 +87,40 @@ intercepts one and acts on it itself. The asymmetry above therefore does not tou
 
 ## 5. Reading the game
 
-Two independent sources, and their disagreement is the test.
+Three independent sources, and their disagreement is the test.
 
-- **The widget tree** gives structure, names, rectangles and text.
+- **The widget tree** gives structure, names, rectangles and text — what is on screen right now.
+- **The `.gui` files** give meaning: which data function fills a widget, which localisation key it
+  carries, which tooltip hangs on it. `tools/ck3/guimap.py` parses the format properly rather than
+  matching lines: the three layers plus the active mods are merged in load order, every `type` and
+  `template` is collected into one global table, and a window is expanded with inheritance, `using`
+  mixins and named slots resolved. This runs off disk with no game in sight.
 - **The save file** (uncompressed, plain text) gives the ground truth to check against.
 - **Optical character recognition** exists only as a witness, never as the product. If the tree says
   a word is at x=262 and the recogniser reads it at x=262, the geometry is right.
 
-The game's `.gui` files on disk say which widget shows what; the localisation files say what the
-text should read. Both are read, neither is copied.
+Nothing is copied from any of them.
+
+**Three things about the gui format that a line-based reader gets wrong.** Load order carries
+meaning, because the last definition of a template wins — sorting the file list loses a mod that
+redefines a vanilla template. `block "x"` and `block = "x"` both occur. And a tooltip contains
+widgets that have tooltips of their own, without end: the engine builds one only when the pointer
+arrives, so on disk the definition is allowed to be circular and the expansion has to stop there.
 
 ## 6. Presentation — not built yet
 
 What gets spoken, in what order, and what is left out. This is the layer that decides whether the
 result is usable, and it is the one place where measurement cannot answer the question.
 
-Three rules already fixed: output is not sorted by screen position (that is a sighted reader's
-order), one keystroke produces one unit of speech plus braille, and a widget is addressed by name
-and by what the `.gui` file says it shows — never by its index among its siblings or by a
-coordinate. The last one is what keeps a mod that adds a row inside a vanilla window from making
-this read out the wrong field on someone else's machine.
+Two rules are fixed: output is not sorted by screen position (that is a sighted reader's order), and
+one keystroke produces one unit of speech plus braille.
+
+**A third rule was fixed and has since been withdrawn.** It said a widget is addressed by name and
+by what the `.gui` file says it shows, never by its index among its siblings. The intent stands —
+an index breaks the moment a mod adds a row inside a vanilla window — but the mechanism does not: of
+the widgets that actually carry text, only about a quarter have a name at all, and a name is not
+unique within a window either. So the expanded tree from disk has to be aligned with the live tree
+**structurally**, and that alignment is the next thing to build.
 
 ## Speech — `tools/nvda/speech.py`
 

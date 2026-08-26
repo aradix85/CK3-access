@@ -22,16 +22,23 @@ measured rather than assumed:
   of memory, an option chosen by clicking a computed point. Six events in a row, three window types,
   verified character-for-character against the localisation files on disk.
 - Mouse and keyboard input is posted from inside the process, so it never steals focus.
-- 196 of 197 game windows open on demand (`reports/windows.json`), and 178 have been harvested:
-  68,146 widgets with their names, classes, rectangles and visibility. The recogniser confirms
-  1,169 of the 1,415 text boxes that should be on screen.
+- 196 game windows can be opened on demand (`reports/windows.json`), and 178 have been harvested:
+  every widget with its name, class, rectangle and visibility. The recogniser confirms 1,169 of the
+  1,415 text boxes that should be on screen.
+- The `.gui` files are parsed rather than grepped (`tools/ck3/guimap.py`): templates, inheritance
+  and named slots are resolved, so a window expands into the widget tree the engine would build.
+  Every distinct widget name found in memory across those 178 windows appears in that expansion,
+  and where a file gives one plain localisation key the predicted text matched the running game 84
+  times out of 84.
 - 19 buttons have been pressed the way a player would, and 17 opened a window
   (`reports/openers.json`). Which button opens which window cannot be read off disk; it is measured.
 - All of the above still holds on 1.19.0.6 with every DLC and five content mods loaded.
 
 
 What is missing is the half a player would notice: nothing decides *what* to say, in *what order*.
-That layer does not exist yet.
+That layer does not exist yet. The measurement that shapes it: of the widgets that actually carry
+text, only about a quarter have a name, so the meaning on disk has to be matched to the live tree
+structurally rather than by name.
 
 Text recognition is in here too (`tools/ocr.py`, `tools/boxreader.py`), but as a measuring
 instrument: it reads the screen independently so that what comes out of memory can be checked
@@ -64,6 +71,15 @@ Paths are derived, not configured: the game comes from your Steam library in the
 save folder from the Windows shell setting, so a second drive or a relocated Documents folder works.
 Override with `CK3_GAME`, `CK3_DOCS` or `CK3_WORK` if you need to.
 
+**One part needs no game running at all.** `tools/ck3/guimap.py` reads the `.gui` and localisation
+files straight off your disk, so it is the cheapest place to see whether this repository does
+anything useful on your machine:
+
+    python -c "from tools.ck3 import guimap; print(len(guimap.files()), 'gui files,', len(guimap.windows()), 'windows')"
+
+On this machine that prints 563 gui files and 196 windows, and `reports/claims.json` carries both
+numbers with the rule they were counted by.
+
 **Your antivirus may object, and you need to know that up front.** This starts the game suspended,
 loads a DLL into it and resumes it. That is what an injector does and what malware does, so an
 unsigned injector can be flagged, quarantined or silently blocked. If something does not start and
@@ -79,7 +95,7 @@ no schedule is implied.
 ## Repository layout
 
     dll/        the injected channel (C++ source and build script)
-    tools/      Python: derivation, memory reading, input, speech, measurement
+    tools/      Python: derivation, memory reading, gui parsing, input, speech, measurement
     reports/    generated, machine-checked facts about this build
 
 `tools/check.py` recomputes every number in `reports/claims.json` against the disk and checks that
