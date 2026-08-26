@@ -119,8 +119,19 @@ one keystroke produces one unit of speech plus braille.
 by what the `.gui` file says it shows, never by its index among its siblings. The intent stands —
 an index breaks the moment a mod adds a row inside a vanilla window — but the mechanism does not: of
 the widgets that actually carry text, only about a quarter have a name at all, and a name is not
-unique within a window either. So the expanded tree from disk has to be aligned with the live tree
-**structurally**, and that alignment is the next thing to build.
+unique within a window either.
+
+What replaces it is measured. **The engine builds a widget's children in the order the `.gui` file
+lists them, and it keeps them in that order:** of 130,645 pairs of widgets carrying an unambiguous
+name in both trees, 99.4 per cent stand in the same relative order, median 1.000 per window. So the
+expanded tree from disk can be aligned with the live tree structurally, anchored on the names that
+are there — every unnamed text box has a named ancestor, usually one or two steps up. Building that
+alignment is the next piece of work.
+
+That order lives in exactly one place and is easy to throw away: the channel walks each child list
+in the engine's own order and the tree reader keeps the lines that way. The parent offset says who
+the parent is and never in which place, so a pass that sorts the children has silently destroyed
+the only copy — which is what happened, and it also decides which of two drawn widgets is on top.
 
 ## Speech — `tools/nvda/speech.py`
 

@@ -81,12 +81,15 @@
  {"name": "windows opened in the harvest round", "claimed": 178, "measure": "harvest_total",
   "arguments": ["<project>\\harvest", "windows"],
   "counting_rule": "records in harvest\\ with opened true; 18 of the 196 windows in the map refuse to open at all, the same 18 as in the round before"},
- {"name": "text boxes in the harvest round", "claimed": 1415, "measure": "harvest_total",
+ {"name": "text boxes in the harvest round", "claimed": 1261, "measure": "harvest_total",
   "arguments": ["<project>\\harvest", "boxes"],
-  "counting_rule": "summed over the records: text boxes of a window that carry text, are not clipped and have no zero alpha above them, so they should be on screen"},
- {"name": "text boxes the recogniser confirmed", "claimed": 1169, "measure": "harvest_total",
+  "counting_rule": "summed over the records: text boxes of a window that carry text, are not clipped, have no zero alpha above them and lie inside the drawing area, so they should be on screen"},
+ {"name": "text boxes the recogniser confirmed", "claimed": 1156, "measure": "harvest_total",
   "arguments": ["<project>\\harvest", "confirmed"],
-  "counting_rule": "summed over the records: of those boxes, the ones an overlapping recognised line says the same thing about. 1169 of 1415 on 25 August 2026 against 1009 of 1416 the day before, when the console stood open over the left third of the screen. harvest\\ is outside the repo, so on a clone these three measure nothing and drift - they belong to a round on one machine"},
+  "counting_rule": "summed over the records: of those boxes, the ones an overlapping recognised line says the same thing about. 1156 of 1261 in the round of 26 August 2026. harvest\\ is outside the repo, so on a clone these measure nothing and drift - they belong to a round on one machine"},
+ {"name": "text boxes outside the drawing area", "claimed": 152, "measure": "harvest_total",
+  "arguments": ["<project>\\harvest", "offscreen"],
+  "counting_rule": "summed over the records: boxes that would otherwise count, but fall wholly or partly outside the 1600x900 drawing area. A window built by GUI.CreateWidget is not laid out where a player would see it, so counting these as misses measures the console route rather than the recogniser"},
  {"name": "windows in the map that a mod put there", "claimed": 0, "measure": "mod_windows",
   "arguments": ["<project>\\reports\\windows.json"],
   "counting_rule": "entries in windows.json whose gui file exists in none of the three game layers (game, clausewitz, jomini); the map ships, so anything a mod added would be a window nobody else can open"},
@@ -103,5 +106,5 @@
   "arguments": ["local"],
   "counting_rule": "names declared as `local_type`, keyed by file; all six sit in the developers' editor tools"},
  {"name": "windows with a name in the merged gui set", "claimed": 196, "measure": "gui_windows",
-  "counting_rule": "`window = { name = ... }` blocks found by the parser in the merged set, one entry per name. windows.json holds 197: its line reader met a window block that carries no name in frontend_load.gui and walked on to the next name it saw, which belongs to the template vbox_save_preview, so load_info is in the map and is not a window"}
+  "counting_rule": "`window = { name = ... }` blocks found by the parser in the merged set, at any depth and one entry per name. windows.json holds 197: its line reader met a window block carrying no name in frontend_load.gui and walked on to the next name it saw, which belongs to the template vbox_save_preview, so load_info is in the map and is not a window. Of these 196, 195 can be created with GUI.CreateWidget; colorpicker_window cannot, because that block sits inside a type definition and the console finds only top-level widgets"}
 ]

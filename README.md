@@ -22,14 +22,17 @@ measured rather than assumed:
   of memory, an option chosen by clicking a computed point. Six events in a row, three window types,
   verified character-for-character against the localisation files on disk.
 - Mouse and keyboard input is posted from inside the process, so it never steals focus.
-- 196 game windows can be opened on demand (`reports/windows.json`), and 178 have been harvested:
-  every widget with its name, class, rectangle and visibility. The recogniser confirms 1,169 of the
-  1,415 text boxes that should be on screen.
+- 195 of the 196 game windows can be created on demand (`reports/windows.json`), and 178 have been
+  harvested: every widget with its name, class, rectangle, sibling index and visibility. The
+  recogniser confirms 1,156 of the 1,261 text boxes that should be on screen.
 - The `.gui` files are parsed rather than grepped (`tools/ck3/guimap.py`): templates, inheritance
   and named slots are resolved, so a window expands into the widget tree the engine would build.
   Every distinct widget name found in memory across those 178 windows appears in that expansion,
   and where a file gives one plain localisation key the predicted text matched the running game 84
   times out of 84.
+- **The tree on disk and the tree in memory line up child by child**: of 130,645 pairs of widgets
+  that carry an unambiguous name in both, 99.4 per cent stand in the same relative order, median
+  1.000 per window. That is what makes the meaning on disk attachable to a live window.
 - 19 buttons have been pressed the way a player would, and 17 opened a window
   (`reports/openers.json`). Which button opens which window cannot be read off disk; it is measured.
 - All of the above still holds on 1.19.0.6 with every DLC and five content mods loaded.

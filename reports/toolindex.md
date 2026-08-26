@@ -26,6 +26,9 @@ returns a pair, passed on as one thing, costs a run.
 | `json_keys(part, *skip)` | value | - |
 | `type_names_in_exe()` | value | - |
 | `widget_vtables()` | value | - |
+| `gui_merged(with_mods)` | value | Gui files as the engine sees them: the three layers merged, mods on top. |
+| `gui_templates(scope)` | value | Templates in the merged set. `type` and `template` are global, `local_type` is not. |
+| `gui_windows()` | value | - |
 | `gamestate_mb(part)` | value | - |
 | `repo_files()` | value | Counts what a `git init` would take into the repo: everything .gitignore does not exclude. |
 | `document_paths()` | 2-tuple | Every project path named in a document, checked against the disk. |
@@ -190,11 +193,11 @@ returns a pair, passed on as one thing, costs a run.
 | `free_memory()` | value | Free physical memory in gigabytes, straight from Windows. |
 | `game_date(nodes)` | NoneType of value | The date the game is showing, from the widget that carries it. |
 | `paused(game, seconds=6.0)` | value | Is the clock standing still? Measured, not assumed - a running clock makes the round |
-| `subtree(nodes, root)` | value | Every widget below this window, breadth first, with the depth kept. |
-| `widget_record(nodes, address, depth, scales, classes, flags, alphas)` | dict | One widget, with every field this project can read - also the ones nothing uses yet. |
+| `subtree(nodes, root)` | value | Every widget below this window, breadth first, with the depth and the sibling index kept. |
+| `widget_record(nodes, address, depth, index, scales, classes, flags, alphas)` | dict | One widget, with every field this project can read - also the ones nothing uses yet. |
 | `alphas_for(addresses)` | value | Alpha of many widgets in as few channel questions as possible, the way flags_for does it. |
 | `capture(pid, name)` | dict | The window as pixels, plus everything the recogniser reads in it, with positions. |
-| `confirmed(tree, lines)` | 2-tuple | (text boxes that should be on screen, how many of them the recogniser reads back). |
+| `confirmed(tree, lines, size)` | 3-tuple | (text boxes that should be on screen, how many the recogniser reads back, how many lie |
 | `open_window(game, name, row, baseline)` | 2-tuple | Open one window along the route phase 0 found for it, and prove it is drawn. |
 | `close_window(game, name, row, baseline, limit=12)` | bool | Shut it again and wait until the state before it is back. Anything left open contaminates |
 | `drawn_one(candidates, name)` | value | Of several window objects carrying the same name, the one that is actually drawn. |

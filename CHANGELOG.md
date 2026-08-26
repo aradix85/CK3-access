@@ -2,6 +2,38 @@
 
 Dates are the day the work was measured, not the day it was committed.
 
+## 2026-08-26 (later)
+
+**The harvest sorted every widget's children by memory address, which threw away the one thing that
+records draw order.** The channel walks each widget's child list in the engine's own index order and
+`derive.widgets` keeps the lines in that order, so the order arrives for free — and nothing else
+holds a copy of it, because the parent offset says who the parent is and never in which place. That
+order is what decides which of two drawn widgets lies on top, the rule that picks the right one out
+of a stack of event windows.
+
+It showed up as a number that was neither right nor wrong: comparing child order between the gui
+files and memory scored 69.4 per cent, and address order correlates with build order without being
+it. The check that settled it took a minute — if sorting is the cause, every parent's children stand
+in ascending address order, and they did: 16,166 out of 16,166.
+
+Fixed, and each widget now carries its own `index` so that a reader of the harvest file cannot lose
+the order by sorting either. The harvest could not be repaired after the fact, so it was run again
+and the old one discarded: 178 windows, the same 18 refusals, 68,110 widgets, 1,463 carrying text.
+
+**With an order-preserving harvest, the question that started this has an answer: the tree on disk
+and the tree in memory line up child by child.** Of 130,645 pairs of widgets carrying an unambiguous
+name in both, 129,879 stand in the same relative order — 99.4 per cent, median 1.000 per window,
+worst window 0.83 on four names. That is what lets the meaning in the gui files be attached to a
+live window, and it matters because only about a quarter of the widgets that carry text have a name
+to attach it by.
+
+**A text box outside the drawing area is no longer counted as a recognition failure.** A window
+built by `GUI.CreateWidget` is not laid out where a player would see it and part of it hangs over
+the edge; the recogniser cannot read what is not on the picture. Counting those apart moves the
+score from 1,191 of 1,413 to **1,156 of 1,261**, with 152 boxes outside — so two thirds of what
+looked like misses were widgets that were never on screen. Per route: 90.7 per cent through the
+console, 96.9 per cent through a shortcut.
+
 ## 2026-08-26
 
 **`tools/ck3/guimap.py`: the gui files now say what a widget shows.** Until today the project knew
@@ -10,8 +42,8 @@ line, for one pattern at a time. This is a parser for the format, a table of eve
 expansion that turns a window into a widget tree with inheritance, `using` mixins and named slots
 resolved. It touches no running game and answers from disk alone.
 
-**Tested against a sweep of 178 windows: all 11,236 distinct widget names that were really in memory
-appear in the expansion**, up from 98.6 percent before two mistakes were found. Where a gui file
+**Tested against a sweep of 178 windows: every distinct widget name that was really in memory
+appears in the expansion**, up from 98.6 percent before two mistakes were found. Where a gui file
 hangs exactly one plain localisation key on a name and that sentence has no gaps, the predicted text
 matched what the game held 84 times out of 84.
 
@@ -27,13 +59,16 @@ builds a tooltip only when the pointer arrives, so on disk the definition is all
 Expanding it anyway produced 6.5 million nodes for 196 windows; with the boundary it is 1.4 million,
 and per window only two to fifteen distinct names out of two to four hundred disappear.
 
-**Two corrections to the window map, both needing a round with the game to confirm.** There are 196
-windows on disk, not 197: `load_info` is the name of a template, picked up by a line reader that met
-a window block carrying no name and walked on to the next name it saw. And `colorpicker_window` did
-not refuse because it does not exist — the map points at the wrong file.
+**Two corrections to the window map.** There are 196 window blocks on disk, not 197: `load_info` is
+the name of a template, picked up by a line reader that met a window block carrying no name and
+walked on to the next name it saw. Of those 196, 195 can be created on demand. `colorpicker_window`
+is the exception, and the original explanation of it was right: that name exists only as a `window`
+block *inside* a type definition, and `GUI.CreateWidget` finds only a top-level widget. A claim here
+that the map simply pointed at the wrong file was wrong, and the game refuted it in a minute — the
+parser was one source, and one source is not enough.
 
-**Three quarters of the text on screen sits in a widget with no name.** Of the 1465 harvested
-widgets that carry text, 337 have a name. Addressing by name therefore reaches a quarter of what
+**Three quarters of the text on screen sits in a widget with no name.** Of the harvested widgets
+that carry text, about a quarter have a name. Addressing by name therefore reaches a quarter of what
 there is to read, which rules out the approach the presentation layer was going to take.
 
 `paths.py` now derives the folders of the enabled mods, because the engine merges them with its own

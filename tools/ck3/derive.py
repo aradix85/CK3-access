@@ -146,6 +146,12 @@ def widgets(root):
     x and y are relative to the parent; use `screen_pos` for the place on screen. The text is only
     valid on a text box - on other classes you are reading the neighbour from the same pool. So
     filter on vtable before believing the text.
+
+    **The order of this dict is the engine's own child order, and it is the only copy of it.** The
+    DLL walks each widget's child list in index order and this keeps the lines as they arrive, so
+    the children of a parent come out in the order the game draws them - which is what decides
+    which of two drawn widgets lies on top. Nothing else records it: the parent offset says who the
+    parent is, never in which place. Rebuild children from this dict and do not sort them.
     """
     nodes = {}
     for line in channel.ask('tree %x' % root, timeout=60).split('\n'):

@@ -93,20 +93,34 @@ def paused(game, seconds=6.0):
 
 
 def subtree(nodes, root):
-    """Every widget below this window, breadth first, with the depth kept."""
+    """Every widget below this window, breadth first, with the depth and the sibling index kept.
+
+    **Do not sort the children.** The order the engine keeps them in is the draw order, and it is
+    the only thing that says which of two drawn widgets lies on top - the rule that decides which
+    of a stack of event windows is the one to read. It arrives here for free: the channel walks the
+    child list in the engine's own order and `derive.widgets` keeps the lines in that order, so the
+    children of a parent come out of `nodes` already sorted the way the game holds them.
+
+    This used to sort by address, which throws that away and replaces it with the order the objects
+    happen to sit in memory. Measured 26 August 2026: two instances of the same header template came
+    out with their buttons in a different order, and a comparison against the gui files scored 69
+    per cent where the truth is either near zero or near one hundred. Address order correlates with
+    build order without being it, which is the worst kind of wrong - it looks like a result.
+    """
     children = {}
     for address, k in nodes.items():
         children.setdefault(k[5], []).append(address)
-    out, todo = [], [(root, 0)]
+    out, todo = [], [(root, 0, 0)]
     while todo:
-        address, depth = todo.pop(0)
-        out.append((address, depth))
+        address, depth, index = todo.pop(0)
+        out.append((address, depth, index))
         if depth < 40:
-            todo.extend((child, depth + 1) for child in sorted(children.get(address, [])))
+            todo.extend((child, depth + 1, position)
+                        for position, child in enumerate(children.get(address, [])))
     return out
 
 
-def widget_record(nodes, address, depth, scales, classes, flags, alphas):
+def widget_record(nodes, address, depth, index, scales, classes, flags, alphas):
     """One widget, with every field this project can read - also the ones nothing uses yet.
 
     **Text only from a text box.** The offset that holds the shown string belongs to `Textbox`;
@@ -115,13 +129,16 @@ def widget_record(nodes, address, depth, scales, classes, flags, alphas):
     thing from the other side: the search for a text field per class found a hit for `Textbox`
     and for nothing else. So other classes get null here, with their class recorded, rather than
     noise that a later pass would have to learn to distrust.
+
+    `index` is the widget's place among its parent's children, written down rather than left to the
+    order of the records, so that a reader of this file cannot lose it by sorting.
     """
     vtable, x, y, width, height, parent, name, text = nodes[address]
     screen_x, screen_y = derive.screen_pos(nodes, address, scales)
     drawn_width, drawn_height = derive.screen_size(nodes, address, scales)
     own, above = scales.get(address, (1.0, 1.0))
     kind = classes.get(address)
-    return {'address': '%x' % address, 'parent': '%x' % parent, 'depth': depth,
+    return {'address': '%x' % address, 'parent': '%x' % parent, 'depth': depth, 'index': index,
             'class': kind, 'name': name, 'text': text if kind == 'Textbox' else None,
             'own_rect': [x, y, width, height],
             'screen_rect': [screen_x, screen_y, drawn_width, drawn_height],
@@ -160,8 +177,9 @@ def _flat(text):
     return re.sub(r'[^a-z0-9]', '', text.lower())
 
 
-def confirmed(tree, lines):
-    """(text boxes that should be on screen, how many of them the recogniser reads back).
+def confirmed(tree, lines, size):
+    """(text boxes that should be on screen, how many the recogniser reads back, how many lie
+    outside the drawing area).
 
     The second witness, measured while the round runs rather than a day afterwards. That is not
     tidiness: the round of 24 August 2026 was harvested with the debug console standing open over
@@ -170,12 +188,20 @@ def confirmed(tree, lines):
     confirmed while windows on the right side sat above 80 percent. A number in every record makes
     that visible in the first ten windows instead of in the analysis afterwards.
 
+    **A box outside the drawing area is not a miss and is counted apart.** A window built by
+    `GUI.CreateWidget` is not laid out where a player would see it, and a good part of one hangs
+    over the edge; the recogniser cannot read what is not on the picture, so counting those as
+    failures measures the console route rather than the recogniser. Measured 26 August 2026 over
+    178 windows: 152 of the 1413 boxes lay outside, and taking them out moves the score from
+    1191 of 1413 to 1156 of 1261.
+
     Not a stop condition, because zero is a legitimate answer: a window built by `GUI.CreateWidget`
     can be drawn without its labels ever reaching the screen. What it is, is a number that can be
     compared - between windows, between rounds, and against the next patch.
     """
+    width_limit, height_limit = size
     by_address = {w['address']: w for w in tree}
-    boxes = seen = 0
+    boxes = seen = offscreen = 0
     for w in tree:
         if w['class'] != 'Textbox' or not w['text'] or w['clipped']:
             continue
@@ -190,6 +216,9 @@ def confirmed(tree, lines):
             steps += 1
         if alpha <= 0.0:
             continue
+        if x < 0 or y < 0 or x + width > width_limit or y + height > height_limit:
+            offscreen += 1
+            continue
         boxes += 1
         for line in lines:
             lx, ly, lw, lh = line['rect']
@@ -198,7 +227,7 @@ def confirmed(tree, lines):
                 if got and (got in want or want in got):
                     seen += 1
                     break
-    return boxes, seen
+    return boxes, seen, offscreen
 
 
 def open_window(game, name, row, baseline):
@@ -297,7 +326,7 @@ def harvest(game, name, row, baseline, header):
     named = [a for a in windows if nodes[a][6] == name]
     address = drawn_one(named, name)
     family = subtree(nodes, address)
-    addresses = [a for a, _ in family]
+    addresses = [a for a, _, _ in family]
     scales = derive.scales_for(list(nodes))
     classes = derive.class_map(game.pid, {a: k[0] for a, k in nodes.items()})
     flags = derive.flags_for([a for a in addresses if a in windows])
@@ -308,8 +337,8 @@ def harvest(game, name, row, baseline, header):
         'route': 'shortcut ' + row['shortcut'] if row.get('shortcut') else 'GUI.CreateWidget',
         'address': '%x' % address, 'widgets': len(family),
         'tree_size': len(nodes), 'seconds': round(time.time() - started, 1)})
-    record['tree'] = [widget_record(nodes, a, d, scales, classes, flags, alphas)
-                      for a, d in family]
+    record['tree'] = [widget_record(nodes, a, d, i, scales, classes, flags, alphas)
+                      for a, d, i in family]
     # The console is how most of these windows are opened, and it is drawn over the left third of
     # the screen while it stands open. Leaving it there costs nothing in the tree and everything in
     # the capture, so it goes away for the length of the picture and comes straight back - the
@@ -317,7 +346,8 @@ def harvest(game, name, row, baseline, header):
     game.set_console(False, nodes)
     record.update(capture(game.pid, name))
     game.set_console(True)
-    record['boxes'], record['confirmed'] = confirmed(record['tree'], record['recognised'])
+    record['boxes'], record['confirmed'], record['offscreen'] = confirmed(
+        record['tree'], record['recognised'], record['size'])
     if not close_window(game, name, row, baseline):
         return record, 'state did not come back'
     record['seconds'] = round(time.time() - started, 1)
@@ -371,10 +401,10 @@ def main():
         failed += reason is not None
         print('%3d/%d %-34s %s' % (number, len(names), name,
                                    reason or '%d widgets, %d recognised lines, %d/%d text boxes '
-                                   'confirmed, %.0fs'
+                                   'confirmed, %d off screen, %.0fs'
                                    % (record['widgets'], len(record['recognised']),
                                       record['confirmed'], record['boxes'],
-                                      record['seconds'])))
+                                      record['offscreen'], record['seconds'])))
     print('harvested %d, failed to open %d, written to %s' % (done, failed, OUT))
 
 
