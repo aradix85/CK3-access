@@ -46,6 +46,9 @@ against what is actually drawn. It is not how the game gets read.
 
 - Windows, Crusader Kings III (developed against **1.19.0.6**)
 - **NVDA**. Other screen readers are not supported yet — see CONTRIBUTING if you can help test one.
+  `tools/nvda/addon/` is a small add-on that puts NVDA in sleep mode while the game has focus, so
+  the reader is not talked over and keeps the keys it needs. Sleep mode does not gate the controller
+  client, so speech and braille still arrive.
 - Python 3.11+ and the packages in `requirements.txt` (`pip install -r requirements.txt`)
 - Visual Studio Build Tools (MSVC, x64) to compile the DLL
 

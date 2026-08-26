@@ -5,6 +5,10 @@ Numbers live in `reports/claims.json`, where they can be recomputed; they are no
 
 ## 2026-08-26
 
+- `tools/nvda/addon/`: an NVDA add-on that puts NVDA in sleep mode while the game has focus.
+  Without it NVDA reports the game window as well, so everything is said twice and NVDA keeps the
+  keys the reader needs. Sleep mode does not silence the controller client - NVDA's speak handler
+  only returns early for `SLEEP_FULL` - so speech and braille keep arriving.
 - `tools/ck3/guimap.py`: a parser for the `.gui` format, a table of every template, and an
   expansion that resolves inheritance, `using` mixins and named slots. A window now expands into
   the widget tree the engine would build, off disk, with no game running.
