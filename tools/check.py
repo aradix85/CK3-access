@@ -75,6 +75,24 @@ def widget_vtables():
     return len(memory.widget_vtables())
 
 
+def gui_merged(with_mods):
+    """Gui files as the engine sees them: the three layers merged, mods on top."""
+    import guimap
+    return len(guimap.files(with_mods=with_mods))
+
+
+def gui_templates(scope):
+    """Templates in the merged set. `type` and `template` are global, `local_type` is not."""
+    import guimap
+    table, local = guimap.type_table()
+    return len(table if scope == 'global' else local)
+
+
+def gui_windows():
+    import guimap
+    return len(guimap.windows())
+
+
 def gamestate_mb(part):
     with open(_path(part), 'rb') as file:
         raw = file.read()
@@ -202,7 +220,9 @@ MEASURES = {'bytes': bytes_of, 'lines': lines_of, 'files': files_in,
             'json_field': json_field, 'json_keys': json_keys,
             'type_names': type_names_in_exe, 'widget_vtables': widget_vtables,
             'gamestate_mb': gamestate_mb, 'repo_files': repo_files,
-            'mod_windows': mod_windows, 'harvest_total': harvest_total}
+            'mod_windows': mod_windows, 'harvest_total': harvest_total,
+            'gui_merged': gui_merged, 'gui_templates': gui_templates,
+            'gui_windows': gui_windows}
 
 
 

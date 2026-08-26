@@ -11,6 +11,7 @@ Anything can be overridden with an environment variable, for anyone whose game l
     CK3_DOCS        the folder under Documents with saves, settings and logs
     CK3_WORK        scratch work (defaults to %TEMP%\\ck3)
 """
+import json
 import os
 import winreg
 
@@ -90,6 +91,34 @@ SAVES = os.path.join(DOCS, 'save games') if DOCS else None
 ERROR_LOG = os.path.join(DOCS, 'logs', 'error.log') if DOCS else None
 REPORTS = os.path.join(PROJECT, 'reports')
 DLL = os.path.join(PROJECT, 'dll', 'channel.dll')
+
+
+def mod_folders():
+    """The folders of the mods that are switched on, in load order.
+
+    The engine merges these over its own files, so anything reading game files off disk has to
+    read the same set or it is looking at a game nobody is running. Which mods are on sits in
+    `dlc_load.json`; each entry names a `.mod` file, and that file points at the workshop folder.
+
+    Do not read the launcher database for this: it holds zero mods on this machine, which is
+    exactly how it wiped `dlc_load.json` once.
+    """
+    if not DOCS:
+        return []
+    listing = os.path.join(DOCS, 'dlc_load.json')
+    if not os.path.exists(listing):
+        return []
+    out = []
+    for entry in json.load(open(listing, encoding='utf-8-sig'))['enabled_mods']:
+        descriptor = os.path.join(DOCS, entry.replace('/', os.sep))
+        if not os.path.exists(descriptor):
+            continue
+        for line in open(descriptor, encoding='utf-8-sig', errors='replace'):
+            if line.strip().startswith('path='):
+                folder = line.split('=', 1)[1].strip().strip('"').replace('/', os.sep)
+                if os.path.isdir(folder):
+                    out.append(folder)
+    return out
 
 
 def require(name):

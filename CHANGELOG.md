@@ -2,6 +2,43 @@
 
 Dates are the day the work was measured, not the day it was committed.
 
+## 2026-08-26
+
+**`tools/ck3/guimap.py`: the gui files now say what a widget shows.** Until today the project knew
+*that* a widget existed and what it currently said; the files that give it meaning were read line by
+line, for one pattern at a time. This is a parser for the format, a table of every template, and an
+expansion that turns a window into a widget tree with inheritance, `using` mixins and named slots
+resolved. It touches no running game and answers from disk alone.
+
+**Tested against a sweep of 178 windows: all 11,236 distinct widget names that were really in memory
+appear in the expansion**, up from 98.6 percent before two mistakes were found. Where a gui file
+hangs exactly one plain localisation key on a name and that sentence has no gaps, the predicted text
+matched what the game held 84 times out of 84.
+
+**What the format does that is not obvious.** `type` and `template` are both global and share one
+namespace; only `local_type` is confined to its file, and all six of those sit in the developers'
+editor tools. `block "x"` and `block = "x"` both occur. **Load order carries meaning** — the last
+definition of a template wins, so sorting the file list by path silently lost a mod that redefines a
+vanilla template, and with it two widget names in seventy windows.
+
+**A tooltip inside a tooltip is not expanded, and that is a property of the game.** The deepest
+paths run portrait button → tooltip → coat of arms → tooltip → coat of arms without end: the engine
+builds a tooltip only when the pointer arrives, so on disk the definition is allowed to be circular.
+Expanding it anyway produced 6.5 million nodes for 196 windows; with the boundary it is 1.4 million,
+and per window only two to fifteen distinct names out of two to four hundred disappear.
+
+**Two corrections to the window map, both needing a round with the game to confirm.** There are 196
+windows on disk, not 197: `load_info` is the name of a template, picked up by a line reader that met
+a window block carrying no name and walked on to the next name it saw. And `colorpicker_window` did
+not refuse because it does not exist — the map points at the wrong file.
+
+**Three quarters of the text on screen sits in a widget with no name.** Of the 1465 harvested
+widgets that carry text, 337 have a name. Addressing by name therefore reaches a quarter of what
+there is to read, which rules out the approach the presentation layer was going to take.
+
+`paths.py` now derives the folders of the enabled mods, because the engine merges them with its own
+files and a reader that skips them is looking at a game nobody is running.
+
 ## 2026-08-25
 
 **The sweep was blind on the left third of the screen and nothing said so.** Coupling the text

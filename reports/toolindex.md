@@ -57,6 +57,7 @@ returns a pair, passed on as one thing, costs a run.
 
 | call | returns | does |
 |---|---|---|
+| `mod_folders()` | value of list | The folders of the mods that are switched on, in load order. |
 | `require(name)` | value | Return a path, or stop with a sentence saying what needs to happen. |
 
 ## restore_launcher.py
@@ -163,6 +164,23 @@ returns a pair, passed on as one thing, costs a run.
 | `configure_channel(fields)` | nothing | Hands the derived offsets to the DLL. The DLL knows nothing about CK3; all knowledge about |
 | `regions(pid)` | value | The memory regions of the game, asked for from the outside. |
 | `seed_batches(pid, chunk=67108864)` | nothing | Per piece of memory the addresses found, until the caller finds a usable one. |
+
+## ck3\guimap.py
+*Reads the meaning out of the gui files: which widget shows what.*
+
+| call | returns | does |
+|---|---|---|
+| `tokens(text)` | value | The file as a flat list of (kind, text, line). Comments and whitespace are dropped here so |
+| `parse(text)` | value | A gui file as a list of entries. An entry is a key with at most one of a value and a body. |
+| `files(with_mods=True)` | value | Every gui file the engine has loaded, **in load order**, as (layer, virtual path, disk path). |
+| `read(path)` | value | - |
+| `type_table(rows=None)` | 2-tuple | Every template the engine knows, as name -> definition. |
+| `build(key, body, templates, overrides=None, depth=0, in_tooltip=False)` | value of dict | One widget, fully expanded: inherited defaults, mixed-in templates, slots filled. |
+| `windows(rows=None)` | value | Every `window = { name = ... }` on disk, as name -> (virtual path, its entry). |
+| `window(name, table=None, local=None, known=None)` | 2-tuple | A window resolved into a widget tree, with a Templates carrying what went wrong. |
+| `localization(language='english')` | value | Key -> sentence, from the localization files of the game and of the active mods. |
+| `widgets(node, path=(), context=())` | nothing | One row per widget that carries a name, with where its content comes from. |
+| `strip_style(text)` | value | The style markup as it is written in the localization files: `#weak ... #!`. |
 
 ## ck3\harvest.py
 *Phase 1 of the sweep: harvest one window at a time, raw.*
