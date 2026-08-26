@@ -68,17 +68,17 @@ tree tells you a widget is drawn and where it is; it does not tell you what is d
 click is a measurement with a witness, never an assumption: press, read the drawn set, put the state
 back, and record the point along with the result. `tools/ck3/openers.py` works that way.
 
-**A modifier key cannot be sent inward at all, and that is a Windows boundary rather than a gap
-here.** A key message carries no modifier information, so an application that cares asks separately;
-this game asks through raw input, straight from the device, where posted messages never arrive.
-Measured by hooking `GetKeyState`, `GetAsyncKeyState` and `GetKeyboardState` in the executable's
-import table with a counter on each: a keypress moves none of them. The hooks were reverted. Note
-the limit of that measurement — only the executable's import table was patched, so a call from
-another loaded module would not have been counted. Three routes remain if it is ever needed: hooking
-`GetRawInputData` and answering a self-posted `WM_INPUT`, locating the engine's own key table in
-memory, or `SendInput`, which works but requires the foreground and therefore takes the screen.
-Nothing needs it today: of 705 bindings that use a modifier, exactly one opens a window, and that
-window has an ordinary button.
+**A modifier key cannot be sent inward, and that is a Windows boundary rather than a gap here.** A
+key message carries no modifier information, and this game asks for the state through raw input,
+straight from the device, where posted messages never arrive. Measured by hooking `GetKeyState`,
+`GetAsyncKeyState` and `GetKeyboardState` with a counter on each: a keypress moves none of them. The
+hooks were reverted. Note the limit — only the executable's import table was patched, so a call from
+another loaded module would not have been counted.
+
+Nothing needs it: of 705 bindings that use a modifier, exactly one opens a window, and that window
+has an ordinary button. If it is ever required, three routes remain — hooking `GetRawInputData` and
+answering a self-posted `WM_INPUT`, locating the engine's own key table in memory, or `SendInput`,
+which works but takes the foreground and therefore the screen.
 
 **Receiving is complete; sending is a research convenience.** The product never sends a key — it
 intercepts one and acts on it itself. The asymmetry above therefore does not touch the product.
@@ -115,23 +115,19 @@ result is usable, and it is the one place where measurement cannot answer the qu
 Two rules are fixed: output is not sorted by screen position (that is a sighted reader's order), and
 one keystroke produces one unit of speech plus braille.
 
-**A third rule was fixed and has since been withdrawn.** It said a widget is addressed by name and
-by what the `.gui` file says it shows, never by its index among its siblings. The intent stands —
-an index breaks the moment a mod adds a row inside a vanilla window — but the mechanism does not: of
-the widgets that actually carry text, only about a quarter have a name at all, and a name is not
-unique within a window either.
+**A third rule was fixed and has since been withdrawn.** It said a widget is addressed by name. The
+intent stands — an index among siblings breaks the moment a mod adds a row inside a vanilla window —
+but only about a quarter of the widgets that carry text have a name, and a name is not unique within
+a window either.
 
-What replaces it is measured. **The engine builds a widget's children in the order the `.gui` file
-lists them, and it keeps them in that order:** of 130,645 pairs of widgets carrying an unambiguous
-name in both trees, 99.4 per cent stand in the same relative order, median 1.000 per window. So the
-expanded tree from disk can be aligned with the live tree structurally, anchored on the names that
-are there — every unnamed text box has a named ancestor, usually one or two steps up. Building that
-alignment is the next piece of work.
+What replaces it: the engine builds a widget's children in the order the `.gui` file lists them and
+keeps them in that order, so the expanded tree from disk can be aligned with the live tree
+structurally, anchored on the names that are there. Every unnamed text box has a named ancestor,
+usually one or two steps up. Building that alignment is the next piece of work.
 
-That order lives in exactly one place and is easy to throw away: the channel walks each child list
-in the engine's own order and the tree reader keeps the lines that way. The parent offset says who
-the parent is and never in which place, so a pass that sorts the children has silently destroyed
-the only copy — which is what happened, and it also decides which of two drawn widgets is on top.
+**That order lives in exactly one place.** The channel walks each child list in the engine's own
+order and the tree reader keeps the lines that way; the parent offset says who the parent is and
+never in which place. A pass that sorts the children destroys the only copy — which has happened.
 
 ## Speech — `tools/nvda/speech.py`
 

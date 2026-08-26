@@ -19,29 +19,24 @@ measured rather than assumed:
 - Nine memory field offsets are re-derived from the running game at **every start** and re-checked,
   so a patch does not break it. Tested against 1.16.2: one had moved, and it recovered on its own.
 - An event window can be read and answered end to end — title, description and options straight out
-  of memory, an option chosen by clicking a computed point. Six events in a row, three window types,
-  verified character-for-character against the localisation files on disk.
+  of memory, an option chosen by clicking a computed point, verified against the localisation files
+  on disk.
 - Mouse and keyboard input is posted from inside the process, so it never steals focus.
-- 195 of the 196 game windows can be created on demand (`reports/windows.json`), and 178 have been
-  harvested: every widget with its name, class, rectangle, sibling index and visibility. The
-  recogniser confirms 1,156 of the 1,261 text boxes that should be on screen.
+- Nearly every window in the game can be created on demand, and 178 have been harvested with every
+  widget's name, class, rectangle, sibling index and visibility (`reports/windows.json`).
 - The `.gui` files are parsed rather than grepped (`tools/ck3/guimap.py`): templates, inheritance
   and named slots are resolved, so a window expands into the widget tree the engine would build.
-  Every distinct widget name found in memory across those 178 windows appears in that expansion,
-  and where a file gives one plain localisation key the predicted text matched the running game 84
-  times out of 84.
-- **The tree on disk and the tree in memory line up child by child**: of 130,645 pairs of widgets
-  that carry an unambiguous name in both, 99.4 per cent stand in the same relative order, median
-  1.000 per window. That is what makes the meaning on disk attachable to a live window.
-- 19 buttons have been pressed the way a player would, and 17 opened a window
-  (`reports/openers.json`). Which button opens which window cannot be read off disk; it is measured.
+  Every widget name found in memory appears in that expansion, and the two trees line up child by
+  child — which is what lets meaning on disk be attached to a live window.
+- Which button opens which window is measured by pressing it, because it cannot be read off disk
+  (`reports/openers.json`).
 - All of the above still holds on 1.19.0.6 with every DLC and five content mods loaded.
 
+Every number behind these claims is in `reports/claims.json` with the rule it was counted by, and
+`tools/check.py` recomputes them.
 
 What is missing is the half a player would notice: nothing decides *what* to say, in *what order*.
-That layer does not exist yet. The measurement that shapes it: of the widgets that actually carry
-text, only about a quarter have a name, so the meaning on disk has to be matched to the live tree
-structurally rather than by name.
+That layer does not exist yet.
 
 Text recognition is in here too (`tools/ocr.py`, `tools/boxreader.py`), but as a measuring
 instrument: it reads the screen independently so that what comes out of memory can be checked
