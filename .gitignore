@@ -33,6 +33,11 @@ harvest*/
 # file, so it cannot be shipped. See CREDITS.md.
 CK3 toetsen.ahk
 
+# Not published: it only reads the maintainer's working notes, which are not in this repository.
+# On a clone it would find nothing and report nothing, which is worse than absent - a tool that
+# always answers "clean" teaches you to trust it.
+tools/docsearch.py
+
 # third-party binaries that do not belong here
 tools/autohotkey/
 tools/ocr_modellen/

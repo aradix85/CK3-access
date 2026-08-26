@@ -14,6 +14,7 @@ import glob
 import io
 import json
 import os
+import re
 import sys
 import zipfile
 import fnmatch
@@ -73,6 +74,61 @@ def type_names_in_exe():
 def widget_vtables():
     import memory
     return len(memory.widget_vtables())
+
+
+CHANNEL_PARSE = re.compile(r'(?:strcmp|strncmp|sscanf)\(command,\s*"([a-z_]+(?: [a-z_]+)?)')
+# Backticked phrases that look like a command but belong to someone else's vocabulary.
+NOT_OURS = {'git': 'a program', 'effect': "the game's own console", 'answer': 'a channel reply'}
+
+
+def _documents():
+    """The markdown in the project root and in `brief\\`. On a clone the second is not there."""
+    return sorted(glob.glob(os.path.join(PROJ, '*.md'))
+                  + glob.glob(os.path.join(PROJ, 'brief', '*.md')))
+
+
+def channel_commands():
+    """Every command the DLL accepts, read out of its dispatch chain."""
+    source = open(os.path.join(PROJ, 'dll', 'channel.cpp'), encoding='utf-8',
+                  errors='replace').read()
+    return set(CHANNEL_PARSE.findall(source))
+
+
+def channel_names():
+    """Command names the documents claim, checked against the DLL - both directions.
+
+    **Why this exists.** `toetsen aan` and `toetsen uit` survived a month in the working notes
+    after the protocol was translated, because nothing checks a command name. Paths are verified,
+    numbers are verified, duplicates are reported - a command name was verified by nobody, which is
+    exactly the half-finished rename this project has already paid for twice.
+
+    **What counts as a claim, and why the rule is this narrow.** A backticked phrase of two
+    lowercase words, or one word followed by a `<placeholder>`. A wider rule is useless: widget
+    names, function names and script names are all single lowercase tokens, and requiring those to
+    be commands produced 223 false alarms against 31 real hits. Two words with a space between them
+    is what a command looks like and almost nothing else does.
+
+    Returns (problems, how many claims were checked).
+    """
+    known = channel_commands()
+    claim = re.compile(r'^([a-z_]+)(?: ([a-z_]+)| (<[^>]+>))$')
+    problems, checked = [], 0
+    for path in _documents():
+        for number, line in enumerate(open(path, encoding='utf-8'), 1):
+            for piece in re.findall(r'`([^`]+)`', line):
+                piece = piece.replace('\\|', '|').split('|')[0].strip()
+                found = claim.match(piece)
+                if not found or found.group(1) in NOT_OURS:
+                    continue
+                checked += 1
+                if found.group(1) not in known and piece not in known:
+                    problems.append('%s line %d: `%s` is not a channel command'
+                                    % (os.path.relpath(path, PROJ), number, piece))
+    text = ' '.join(open(p, encoding='utf-8').read() for p in _documents())
+    for command in sorted(known):
+        if '`%s' % command not in text:
+            problems.append('the DLL accepts `%s` and no document mentions it' % command)
+    return problems, checked
 
 
 def gui_merged(with_mods):
@@ -255,7 +311,13 @@ def main(all_of_them):
         print('GONE    %s line %d names %s' % (doc, number, part))
     print('%d of the %d project paths named in the documents exist.'
           % (seen - len(missing), seen))
-    return 1 if drifted or missing else 0
+
+    wrong, claimed = channel_names()
+    for problem in wrong:
+        print('STALE   %s' % problem)
+    print('%d of the %d channel commands named in the documents exist.'
+          % (claimed - len(wrong), claimed))
+    return 1 if drifted or missing or wrong else 0
 
 
 if __name__ == '__main__':

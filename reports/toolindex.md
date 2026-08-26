@@ -26,6 +26,8 @@ returns a pair, passed on as one thing, costs a run.
 | `json_keys(part, *skip)` | value | - |
 | `type_names_in_exe()` | value | - |
 | `widget_vtables()` | value | - |
+| `channel_commands()` | value | Every command the DLL accepts, read out of its dispatch chain. |
+| `channel_names()` | 2-tuple | Command names the documents claim, checked against the DLL - both directions. |
 | `gui_merged(with_mods)` | value | Gui files as the engine sees them: the three layers merged, mods on top. |
 | `gui_templates(scope)` | value | Templates in the merged set. `type` and `template` are global, `local_type` is not. |
 | `gui_windows()` | value | - |
@@ -35,15 +37,6 @@ returns a pair, passed on as one thing, costs a run.
 | `mod_windows(part)` | value | Windows in the map whose gui file is not part of the game itself. |
 | `harvest_total(part, field)` | value | A number summed over the harvest records: how big the round was, and how good. |
 | `main(all_of_them)` | value | - |
-
-## docsearch.py
-*Two things: search by subject, and report where the working document repeats itself.*
-
-| call | returns | does |
-|---|---|---|
-| `files()` | nothing | The maintainer's working notes, which are not part of this repository. On a clone this finds |
-| `summary(path)` | value | - |
-| `strip_markup(text)` | value | - |
 
 ## ocr.py
 *Reads the text on screen, with positions attached.*

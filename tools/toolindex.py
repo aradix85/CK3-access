@@ -14,7 +14,10 @@ import os
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SOURCE = os.path.join(ROOT, 'tools')
 OUT = os.path.join(ROOT, 'reports', 'toolindex.md')
-SKIP = ('test_', 'overzicht.py')
+SKIP = ('test_', 'overzicht.py',
+        # Reads the maintainer's working notes only, and .gitignore keeps it out of the repository.
+        # Listing it here would describe a tool a reader of this index does not have.
+        'docsearch.py')
 
 
 def first_line(text):
