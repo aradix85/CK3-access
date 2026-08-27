@@ -101,6 +101,13 @@ Three independent sources, and their disagreement is the test.
 
 Nothing is copied from any of them.
 
+**The first two are joined by structure, not by name.** `tools/ck3/pairing.py` lays the expanded
+tree from disk against the harvested tree on class and child order, so the meaning in the files can
+be attached to a widget that carries no name — and three widgets in four carry none. Names are kept
+out of the alignment on purpose, which leaves them free to score it: they come out right 98.4 per
+cent of the time. The alignment has to allow a template row on disk to become many live rows,
+because that is what a data model does, and a widget on disk that the game never built.
+
 **Three things about the gui format that a line-based reader gets wrong.** Load order carries
 meaning, because the last definition of a template wins — sorting the file list loses a mod that
 redefines a vanilla template. `block "x"` and `block = "x"` both occur. And a tooltip contains

@@ -3,6 +3,20 @@
 One line per change: what changed and why. Dates are the day the work was measured.
 Numbers live in `reports/claims.json`, where they can be recomputed; they are not repeated here.
 
+## 2026-08-27
+
+- `tools/ck3/pairing.py`: pairs the widget tree expanded off disk with the tree the game built,
+  on class and child order alone. Names are kept out of the alignment so they can score it
+  afterwards, and they come out right for 98.4 per cent of the named widgets. The gui files can
+  now say where most of the text on screen comes from, which by name alone reached a quarter.
+- Four moves are needed, not two: one template row on disk becomes as many live rows as there are
+  records behind it, and a widget can sit on disk that the game never built.
+- `DEFAULT_TEXT` is an answer rather than a gap. Where a widget carries it the code sets the text
+  at run time, so the files cannot say what will stand there and only a running game can.
+- `tools/docsearch.py` now reports working notes the notes repository does not track. Both
+  repositories share one working tree, so `.gitignore` outranks `.git-notes/info/exclude` and a
+  newly added note is ignored there in silence.
+
 ## 2026-08-26
 
 - `tools/nvda/addon/`: an NVDA add-on that puts NVDA in sleep mode while the game has focus.

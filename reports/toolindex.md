@@ -226,6 +226,22 @@ returns a pair, passed on as one thing, costs a run.
 | `try_button(game, row, address, nodes, scales, classes, floor, date, number, total, where, fallback=None)` | value of str | Press one button, record what opened, and put the state back. |
 | `main()` | nothing | - |
 
+## ck3\pairing.py
+*Pairs the widget tree on disk with the widget tree the game actually built.*
+
+| call | returns | does |
+|---|---|---|
+| `root_finder(table)` | value | Type name -> the end of its inheritance chain, remembered, because the walk repeats itself |
+| `attribute(node, key)` | NoneType of value | - |
+| `name_of(node)` | value | - |
+| `widget_children(node, root)` | value | The children of a node that can reach the live tree, in file order. |
+| `align_row(disk, live, root)` | value | Two rows of children laid against each other on class and order alone. |
+| `live_tree(record)` | 2-tuple | The harvest is a flat list with an address and a parent address; this is it as a tree. |
+| `pairs(window, table, local, known, root)` | value | Every live widget of one window with its source on disk, and the data context it inherits. |
+| `text_source(source, localization)` | value of str | What fills this widget: a key, a data function, both, or a placeholder. |
+| `sweep()` | 2-tuple | Every harvested window paired, as one tally. Takes about three minutes. |
+| `main()` | nothing | - |
+
 ## ck3\savegame.py
 *Reads the game state from a save file - the answer key for searching in memory.*
 

@@ -26,8 +26,9 @@ measured rather than assumed:
   widget's name, class, rectangle, sibling index and visibility (`reports/windows.json`).
 - The `.gui` files are parsed rather than grepped (`tools/ck3/guimap.py`): templates, inheritance
   and named slots are resolved, so a window expands into the widget tree the engine would build.
-  Every widget name found in memory appears in that expansion, and the two trees line up child by
-  child — which is what lets meaning on disk be attached to a live window.
+- That expansion is paired with the live tree on class and child order (`tools/ck3/pairing.py`), so
+  the meaning on disk reaches widgets carrying no name — three in four of them. Names are kept out
+  of the alignment and used to score it afterwards: they come out right 98.4 per cent of the time.
 - Which button opens which window is measured by pressing it, because it cannot be read off disk
   (`reports/openers.json`).
 - All of the above still holds on 1.19.0.6 with every DLC and five content mods loaded.
