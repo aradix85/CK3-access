@@ -139,5 +139,7 @@
   "counting_rule": "of those keys, the ones the localization files also carry a sentence for. All of them, which is the check that the reader read the right part of the file rather than a plausible-looking wrong one"},
  {"name": "faiths the engine loads", "claimed": 237, "measure": "database_entries",
   "arguments": ["faith", "keys"],
-  "counting_rule": "a faith is not a top-level key: it hangs inside a religion under `faiths`, in common/religion/religion_types, and there is no `religions` folder at all. A line reader looking at column zero finds none of them. 140 without the mods"}
-]
+  "counting_rule": "a faith is not a top-level key: it hangs inside a religion under `faiths`, in common/religion/religion_types, and there is no `religions` folder at all. A line reader looking at column zero finds none of them. 140 without the mods"},
+ {"name": "cultures whose number the file order predicts", "claimed": 463, "measure": "database_entries",
+  "arguments": ["culture", "numbered"],
+  "counting_rule": "the save of 1067-11-23 carries the engine's own numbering, and for cultures it is exactly the file order - all 463. That does not hold for the other databases: 78 of 237 faiths, 36 of 94 religions, 301 of 342 traits, so the numbering is read from the save and not derived from disk. The faiths do fall into place, all 237, once they are grouped per religion in the engine's religion order; where that religion order comes from is not known"}]

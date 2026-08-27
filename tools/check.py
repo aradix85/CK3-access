@@ -188,7 +188,13 @@ def database_entries(kind, what):
     """
     sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'ck3'))
     import database
-    return len(database.entries(kind)) if what == 'keys' else len(database.named(kind))
+    if what == 'keys':
+        return len(database.entries(kind))
+    if what == 'named':
+        return len(database.named(kind))
+    keys = [k for k, _, _ in database.entries(kind)]
+    return sum(1 for n, key in database.numbering(kind).items()
+               if n < len(keys) and keys[n] == key)
 
 
 def gamestate_mb(part):

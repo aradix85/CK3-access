@@ -134,6 +134,7 @@ returns a pair, passed on as one thing, costs a run.
 | `entries(kind)` | value | The keys of one database in the order the files give them, as (key, layer, file). |
 | `named(kind, localization=None)` | value | Key -> the sentence a player sees, for every entry that has one. |
 | `main()` | nothing | - |
+| `numbering(kind, text=None)` | dict of value | Number -> key, taken from the save rather than guessed from the file order. |
 
 ## ck3\derive.py
 *Derives the field offsets of a widget object from the running game, through the channel.*

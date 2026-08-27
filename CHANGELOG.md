@@ -30,6 +30,12 @@ One line per change: what changed and why. Dates are the day the work was measur
   files do, and one grammar reads both rather than two parsers drifting apart.
 - All 463 culture keys also resolve in the localisation files, which is what says the reader read
   the right part of the file.
+- Which number means which key is read from a save, not guessed: the engine writes all three lists
+  into it and a save needs no running game.
+- The engine does not number by one rule. Cultures follow the file order exactly, all 463 of them.
+  Faiths do not, but fall into place, all 237, once grouped per religion in the engine's religion
+  order — and where that religion order comes from is not known. Traits agree to number 300 and
+  then diverge where the mods add theirs.
 
 ## 2026-08-26
 
