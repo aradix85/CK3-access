@@ -1,7 +1,19 @@
 # Architecture
 
-Four layers, deliberately separated. The boundaries are where the maintenance cost lives, so they
-are drawn where a game patch is most likely to hit.
+Six parts, deliberately separated. The boundaries are drawn where the maintenance cost lives — that
+is, where a game patch is most likely to hit.
+
+**Where this is heading, because it decides where new code belongs.** For a real user, installing
+has to mean putting down one DLL, the NVDA controller client beside it, and a launch option in
+Steam: no Python, no environment, no paths. So the logic moves inside the DLL in the end. It is
+thin today because the interface is still being mapped and every DLL change costs a game restart of
+several minutes. Move something inward when a measurement says it pays or when distribution demands
+it, not before, and keep tuning in a data file the DLL reads rather than in C++ so it can be
+changed without recompiling.
+
+**Two things never move inward.** Speech and braille stay outside: moving them wins under a
+per-mille and costs NVDA's library inside the game process plus a game thread waiting on another
+program. And receiving keys stays inside — see section 4.
 
 ## 1. The channel — `dll/channel.cpp`
 
@@ -9,9 +21,15 @@ A DLL injected into `ck3.exe`. It exposes a handful of primitives over a named p
 read many addresses at once, walk the widget tree from a root, post a mouse click, post a key, post
 a character. That is all. It does **not** know what a county is, and it contains no speech.
 
-**Why it stays thin.** Every change to the DLL costs a game restart of several minutes. While the
-interface is still being mapped, that is the most expensive second in the project. Logic that can
-live in Python lives in Python.
+**Python on the other side is fast enough, and that is measured rather than hoped.** NVDA is itself
+a Python program that handles every keystroke on the machine; this side sends one question down a
+pipe and turns a few kilobytes into text, orders of magnitude under the tenth of a second a screen
+reader may cost. Two rules keep it there: let the DLL walk the tree and return a compact answer
+rather than raw bytes, and react to keys and events instead of walking the whole tree every frame.
+
+**Measure before making the DLL faster.** Re-checking the derivation once took 122 seconds, and
+nearly all of it was the Python side polling in ten-millisecond steps; a growing wait made it 3
+seconds without a line of C++. A multi-minute restart for a second and a half is a bad trade.
 
 **One rule for anything added here:** a limit either grows or announces itself, never silently. The
 costliest bug in this project was a tree walk that stopped at 20,000 nodes and dropped children
@@ -75,9 +93,15 @@ posted messages never arrive — measured by counting calls to `GetKeyState`, `G
 use a modifier, exactly one opens a window, and that window has an ordinary button. It does not
 touch the product either, which never sends a key — it intercepts one and acts on it itself.
 
+If it is ever needed, three routes remain: hook `GetRawInputData` and answer a self-posted
+`WM_INPUT`; find the engine's own key table in memory by taking two snapshots while the key is held
+and watching which byte flips; or `SendInput`, which certainly works but takes the foreground and
+therefore the player's screen. Note the limit on the measurement above — only the executable's
+import table was patched, so a call from another loaded module would not have been counted.
+
 ## 5. Reading the game
 
-Three independent sources, and their disagreement is the test.
+Four independent sources, and their disagreement is the test.
 
 - **The widget tree** gives structure, names, rectangles and text — what is on screen right now.
 - **The `.gui` files** give meaning: which data function fills a widget, which localisation key it
@@ -86,6 +110,10 @@ Three independent sources, and their disagreement is the test.
   `template` is collected into one global table, and a window is expanded with inheritance, `using`
   mixins and named slots resolved. This runs off disk with no game in sight.
 - **The save file** (uncompressed, plain text) gives the ground truth to check against.
+- **The game's static data files** — province positions and adjacency, the de jure hierarchy,
+  building types, traits — give everything that does not change during a game, and so give
+  distances, compass directions and title chains without any reverse engineering at all. Not built
+  yet; it is the cheapest layer left and needs no running game.
 - **Optical character recognition** exists only as a witness, never as the product. If the tree says
   a word is at x=262 and the recogniser reads it at x=262, the geometry is right.
 
@@ -110,7 +138,8 @@ What gets spoken, in what order, and what is left out. This is the layer that de
 result is usable, and it is the one place where measurement cannot answer the question.
 
 Two rules are fixed: output is not sorted by screen position (that is a sighted reader's order), and
-one keystroke produces one unit of speech plus braille.
+one keystroke produces one unit of speech plus braille. It belongs in data rather than in code —
+this is the layer that changes most and the one a user will want to tune for herself.
 
 **A third rule was fixed and has since been withdrawn.** It said a widget is addressed by name. The
 intent stands — an index among siblings breaks the moment a mod adds a row inside a vanilla window —
@@ -124,9 +153,16 @@ never in which place. A pass that sorts the children destroys the only copy — 
 
 ## Speech — `tools/nvda/speech.py`
 
-One function: text, braille text, mode. Behind it, the official NVDA controller client. Keeping
-that seam thin is deliberate: swapping in an abstraction layer such as Prism or SRAL to support
-other screen readers should be a day's work, not a rebuild.
+One function: text, braille text, mode. Behind it, the official NVDA controller client rather than
+Tolk, which passes plain text only and has not been updated in years; the official client also
+carries braille, SSML with prosody and pauses, symbol level and priority. **It is LGPL 2.1, so it
+must be linked dynamically and shipped unchanged — do not bake it in statically.**
+
+Two modes are enough, replace and queue. Priority-with-resume was considered and rejected: it
+interrupts and then carries on with the old sentence, which feels as though nothing happened.
+
+Keeping that seam thin is deliberate: swapping in an abstraction layer such as Prism or SRAL to
+support other screen readers should be a day's work, not a rebuild.
 
 ## What is deliberately not done
 

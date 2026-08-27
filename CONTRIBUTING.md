@@ -28,6 +28,11 @@ not change, but a closed window keeps its widgets, so the counter could not have
 - **Derive, do not hard-code.** No memory addresses, field offsets, click coordinates or widget
   positions in source. If you need one, derive it and verify it at runtime.
 - **Do not add game files.** Nothing belonging to Paradox goes in this repository, ever.
+- **Bundle your C++.** A change in `tools/` counts on the next call; the DLL only enters the game
+  at injection, so a running game keeps the old one however often you build. Do all the Python
+  first, gather the C++ into one round, then build once and restart once — building takes twenty
+  seconds and a restart takes minutes. Build even if you only touched names or comments in C++: the
+  compiler is the only check on a half-finished rename.
 
 ## What to update
 
