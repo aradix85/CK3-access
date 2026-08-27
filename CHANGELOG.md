@@ -12,6 +12,11 @@ One line per change: what changed and why. Dates are the day the work was measur
   there are records behind it, and a widget can sit on disk that the game never built.
 - `DEFAULT_TEXT` is counted apart — where a widget carries it the code sets the text, so the files
   cannot say what will stand there.
+- A button carries its own caption and the engine hangs a text box under it to draw it, so the box
+  is absent from the file and the widget above answers for it.
+- Two more things a localisation value can hold: a quote of another key, written `$OTHER_KEY$`, and
+  an icon token the game draws in place of the text. Both were being read as plain sentences.
+- With those three modelled, every plain key the alignment points at matches what was on screen.
 
 ## 2026-08-26
 

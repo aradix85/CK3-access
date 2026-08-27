@@ -33,6 +33,10 @@ HARVEST = os.path.join(paths.PROJECT, 'harvest')
 # the question asked of it.
 FUNCTION = re.compile(r'\[([A-Za-z_][A-Za-z_0-9]*)')
 
+# `@warning_icon!` is an icon the game draws in place of the token, so it is in the localization
+# and never in the text. Sibling of `guimap.strip_style`, which does the same for `#weak ... #!`.
+ICON = re.compile(r'@\w+!')
+
 # Which gui type becomes which C++ class. Derived 27 August 2026, not copied from a wiki: over all
 # 178 harvested windows, every name that occurs exactly once in the live tree and resolves to one
 # inheritance root on disk was tallied - 7299 such names, 24 roots, and each root pointed at
@@ -202,7 +206,11 @@ def text_source(source, localization):
     `DEFAULT_TEXT` is its own answer and not a failure. It is what the gui file carries where the
     code sets the text at run time, so for those widgets the files positively cannot tell you what
     will be on screen - only a running game can. Counting them as ordinary keys made the agreement
-    between key and screen look like 57 per cent; apart it is 381 of 400.
+    between key and screen look like 57 per cent.
+
+    A localization value can also quote another key, written `$OTHER_KEY$`. That is a third thing
+    again: the sentence is fixed but not here, so reading this file alone gives you the wrong words
+    - `DIARCHY_WINDOW_HEADER` is `$game_concept_diarchy$` on disk and "Power Sharing" on screen.
     """
     if source is None:
         return 'no key on disk'
@@ -212,7 +220,10 @@ def text_source(source, localization):
         return 'data function'
     if source not in localization:
         return 'key not in localization'
-    return 'data function through key' if '[' in localization[source] else 'plain key'
+    value = localization[source]
+    if '[' in value:
+        return 'data function through key'
+    return 'key quoting another key' if '$' in value else 'plain key'
 
 
 REPORT = os.path.join(paths.PROJECT, 'reports', 'pairing.json')
@@ -236,14 +247,25 @@ def sweep():
         count['windows'] += 1
         count['widgets in harvest'] += len(record['tree'])
         seen = 0
-        for source, built, context in pairs(window, table, local, known, root):
+        rows_here = pairs(window, table, local, known, root)
+        by_address = {built['address']: source for source, built, _ in rows_here}
+        for source, built, context in rows_here:
             seen += 1
             if not built['text']:
                 continue
             count['texts'] += 1
             if source is None:
-                count['no source on disk'] += 1
-                continue
+                # A button carries its caption itself and the engine hangs a text box under it to
+                # draw it. That box is not in the file, so the alignment cannot pair it - but its
+                # parent is paired and does carry the text. This is the widget above answering for
+                # it, not a guess: the check below compares the caption with what was on screen.
+                above = by_address.get(built['parent'])
+                if above is not None and attribute(above, 'text'):
+                    count['caption of the widget above'] += 1
+                    source = above
+                else:
+                    count['no source on disk'] += 1
+                    continue
             count['paired'] += 1
             if context:
                 count['with data context'] += 1
@@ -255,7 +277,7 @@ def sweep():
                     functions[name] += 1
             if kind == 'plain key':
                 shown = derive.strip_markup(built['text'] or '').strip()
-                expected = guimap.strip_style(localization[key]).strip()
+                expected = ICON.sub('', guimap.strip_style(localization[key])).strip()
                 count['plain key agrees' if shown == expected else 'plain key differs'] += 1
         if seen != len(record['tree']):
             raise AssertionError('%s: the walk saw %d of the %d harvested widgets - a share of '

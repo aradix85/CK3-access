@@ -1,15 +1,16 @@
 {
- "data function": 161,
+ "caption of the widget above": 165,
+ "data function": 163,
  "data function through key": 166,
- "data functions together": 327,
+ "data functions together": 329,
  "key not in localization": 2,
+ "key quoting another key": 16,
  "no key on disk": 152,
- "no source on disk": 302,
- "paired": 1161,
+ "no source on disk": 137,
+ "paired": 1326,
  "placeholder, code fills it": 280,
- "plain key": 400,
- "plain key agrees": 381,
- "plain key differs": 19,
+ "plain key": 547,
+ "plain key agrees": 547,
  "texts": 1463,
  "top functions": {
   "ActiveCouncilTask": 6,
@@ -35,5 +36,5 @@
  },
  "widgets in harvest": 68110,
  "windows": 178,
- "with data context": 928
+ "with data context": 1058
 }

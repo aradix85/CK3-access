@@ -29,6 +29,8 @@ measured rather than assumed:
 - That expansion is paired with the live tree on class and child order (`tools/ck3/pairing.py`), so
   the meaning on disk reaches widgets carrying no name — three in four of them. Names are kept out
   of the alignment and used to score it afterwards: they come out right 98.4 per cent of the time.
+  Nine in ten of the texts on screen now have a place in a gui file, and every plain localisation
+  key the alignment points at matches what was actually displayed.
 - Which button opens which window is measured by pressing it, because it cannot be read off disk
   (`reports/openers.json`).
 - All of the above still holds on 1.19.0.6 with every DLC and five content mods loaded.
