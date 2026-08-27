@@ -112,8 +112,10 @@ Four independent sources, and their disagreement is the test.
 - **The save file** (uncompressed, plain text) gives the ground truth to check against.
 - **The game's static data files** — province positions and adjacency, the de jure hierarchy,
   building types, traits — give everything that does not change during a game, and so give
-  distances, compass directions and title chains without any reverse engineering at all. Not built
-  yet; it is the cheapest layer left and needs no running game.
+  distances, compass directions and title chains without any reverse engineering at all.
+  `tools/ck3/database.py` reads the culture, faith, religion and trait databases the way the engine
+  merges them, so a number out of memory becomes the name a player sees. The map side of this layer
+  is not built yet.
 - **Optical character recognition** exists only as a witness, never as the product. If the tree says
   a word is at x=262 and the recogniser reads it at x=262, the geometry is right.
 
@@ -125,6 +127,13 @@ be attached to a widget that carries no name — and three widgets in four carry
 out of the alignment on purpose, which leaves them free to score it: they come out right 98.4 per
 cent of the time. The alignment has to allow a template row on disk to become many live rows,
 because that is what a data model does, and a widget on disk that the game never built.
+
+**The save file is also where the numbering comes from.** A number in memory where the game means a
+culture or a faith is an index into a database the engine loaded, and the engine writes those lists
+into every save. That is read rather than derived, because it is not one rule: cultures come out in
+exactly the file order, all 463 of them, while faiths are grouped per religion and traits diverge
+where mods add theirs. A rule that holds for one database and not the next is worth knowing about
+before it is trusted.
 
 **Three things about the gui format that a line-based reader gets wrong.** Load order carries
 meaning, because the last definition of a template wins — sorting the file list loses a mod that

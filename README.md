@@ -33,6 +33,8 @@ measured rather than assumed:
   key the alignment points at matches what was actually displayed.
 - Which button opens which window is measured by pressing it, because it cannot be read off disk
   (`reports/openers.json`).
+- A number in memory where the game means a culture, a faith or a trait becomes the name a player
+  sees (`tools/ck3/database.py`), reading the databases the way the engine merges them.
 - All of the above still holds on 1.19.0.6 with every DLC and five content mods loaded.
 
 Every number behind these claims is in `reports/claims.json` with the rule it was counted by, and
