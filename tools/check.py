@@ -97,7 +97,7 @@ def channel_commands():
 def channel_names():
     """Command names the documents claim, checked against the DLL - both directions.
 
-    **Why this exists.** `toetsen aan` and `toetsen uit` survived a month in the working notes
+    **Why this exists.** `toetsen aan` and `toetsen uit` survived a month in the documentation
     after the protocol was translated, because nothing checks a command name. Paths are verified,
     numbers are verified, duplicates are reported - a command name was verified by nobody, which is
     exactly the half-finished rename this project has already paid for twice.

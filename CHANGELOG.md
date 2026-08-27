@@ -12,8 +12,6 @@ One line per change: what changed and why. Dates are the day the work was measur
   there are records behind it, and a widget can sit on disk that the game never built.
 - `DEFAULT_TEXT` is counted apart — where a widget carries it the code sets the text, so the files
   cannot say what will stand there.
-- `tools/docsearch.py` reports working notes the notes repository does not track: `.gitignore`
-  outranks `.git-notes/info/exclude`, so a newly added note is ignored there in silence.
 
 ## 2026-08-26
 
