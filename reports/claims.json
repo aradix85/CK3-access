@@ -76,8 +76,8 @@
  {"name": "gui files of the five mods", "claimed": 69, "measure": "files",
   "arguments": ["<workshop>", "*.gui"],
   "counting_rule": "files with the gui suffix under the CK3 workshop folder; RICE 67, Historical Figure 1, Historic Invasions 1, and none of them replaces a vanilla file"},
- {"name": "files that go into the repo", "claimed": 52, "measure": "repo_files",
-  "counting_rule": "files under the project folder that .gitignore does not exclude; on 23 August 2026 git ls-files --others --exclude-standard counted the same number. 45 until 25 August 2026, when the click round added tools/ck3/openers.py and reports/openers.json; 48 when the gui reader added tools/ck3/guimap.py; 47 when docsearch.py was taken out, because it reads only the working notes; 50 since the NVDA sleep-mode add-on added three files under tools/nvda/addon; 52 since the alignment added tools/ck3/pairing.py and reports/pairing.json"},
+ {"name": "files that go into the repo", "claimed": 53, "measure": "repo_files",
+  "counting_rule": "files under the project folder that .gitignore does not exclude; on 23 August 2026 git ls-files --others --exclude-standard counted the same number. 45 until 25 August 2026, when the click round added tools/ck3/openers.py and reports/openers.json; 48 when the gui reader added tools/ck3/guimap.py; 47 when docsearch.py was taken out, because it reads only the working notes; 50 since the NVDA sleep-mode add-on added three files under tools/nvda/addon; 52 since the alignment added tools/ck3/pairing.py and reports/pairing.json; 53 since the database reader added tools/ck3/database.py"},
  {"name": "windows opened in the harvest round", "claimed": 178, "measure": "harvest_total",
   "arguments": ["<project>\\harvest", "windows"],
   "counting_rule": "records in harvest\\ with opened true; 18 of the 196 windows in the map refuse to open at all, the same 18 as in the round before"},
@@ -130,5 +130,14 @@
   "counting_rule": "every HasDlcFeature('x') in the 563 merged files, counted by text. All 45 sit on the visible of a widget: expanded over all 196 windows on 27 August 2026, not one window block carries such a check, so an expansion never takes a window away from a tester, only parts inside one"},
  {"name": "distinct expansion features the gui set gates on", "claimed": 13, "measure": "gui_dlc",
   "arguments": ["features"],
-  "counting_rule": "distinct names inside those calls, by text over the files. Eleven of the thirteen are reachable from the expansion of a named window; admin_gov sits in the bookmark screen and court_room_view in the hud, neither of which is a window in the map. all_under_heaven reaches 114 of the 117 affected windows through three shared portrait templates and hides one status icon; the other ten touch one to five windows each. Feature names match expansion titles - all_under_heaven is All Under Heaven, dlc022_ep4 - but most are named for the feature and not the expansion, so that mapping is not derivable from disk"}
+  "counting_rule": "distinct names inside those calls, by text over the files. Eleven of the thirteen are reachable from the expansion of a named window; admin_gov sits in the bookmark screen and court_room_view in the hud, neither of which is a window in the map. all_under_heaven reaches 114 of the 117 affected windows through three shared portrait templates and hides one status icon; the other ten touch one to five windows each. Feature names match expansion titles - all_under_heaven is All Under Heaven, dlc022_ep4 - but most are named for the feature and not the expansion, so that mapping is not derivable from disk"},
+ {"name": "cultures the engine loads", "claimed": 463, "measure": "database_entries",
+  "arguments": ["culture", "keys"],
+  "counting_rule": "top-level keys in common/culture/cultures, game folder first and the five mods after it in load order, a file replacing the one at the same name. 244 without the mods; RICE brings most of the rest"},
+ {"name": "cultures that also have a name in the localization", "claimed": 463, "measure": "database_entries",
+  "arguments": ["culture", "named"],
+  "counting_rule": "of those keys, the ones the localization files also carry a sentence for. All of them, which is the check that the reader read the right part of the file rather than a plausible-looking wrong one"},
+ {"name": "faiths the engine loads", "claimed": 237, "measure": "database_entries",
+  "arguments": ["faith", "keys"],
+  "counting_rule": "a faith is not a top-level key: it hangs inside a religion under `faiths`, in common/religion/religion_types, and there is no `religions` folder at all. A line reader looking at column zero finds none of them. 140 without the mods"}
 ]

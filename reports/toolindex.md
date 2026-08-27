@@ -31,6 +31,9 @@ returns a pair, passed on as one thing, costs a run.
 | `gui_merged(with_mods)` | value | Gui files as the engine sees them: the three layers merged, mods on top. |
 | `gui_templates(scope)` | value | Templates in the merged set. `type` and `template` are global, `local_type` is not. |
 | `gui_windows()` | value | - |
+| `gui_dlc(what)` | value | How the gui set gates content behind an expansion, counted over the merged files. |
+| `guimap_files()` | value | - |
+| `database_entries(kind, what)` | value | Entries of one of the game's databases, merged the way the engine merges them. |
 | `gamestate_mb(part)` | value | - |
 | `repo_files()` | value | Counts what a `git init` would take into the repo: everything .gitignore does not exclude. |
 | `document_paths()` | 2-tuple | Every project path named in a document, checked against the disk. |
@@ -121,6 +124,16 @@ returns a pair, passed on as one thing, costs a run.
 |---|---|---|
 | `close()` | nothing | - |
 | `ask(command, timeout=60.0, errors_ok=False)` | value | Asks the channel one question and returns the answer as text. |
+
+## ck3\database.py
+*Reads the game's own databases off disk: which key sits at which place, and what it is called.*
+
+| call | returns | does |
+|---|---|---|
+| `files(branch)` | value | Every file of one database the engine has loaded, in load order, as (layer, virtual, full). |
+| `entries(kind)` | value | The keys of one database in the order the files give them, as (key, layer, file). |
+| `named(kind, localization=None)` | value | Key -> the sentence a player sees, for every entry that has one. |
+| `main()` | nothing | - |
 
 ## ck3\derive.py
 *Derives the field offsets of a widget object from the running game, through the channel.*

@@ -179,6 +179,18 @@ def guimap_files():
     return guimap.files()
 
 
+def database_entries(kind, what):
+    """Entries of one of the game's databases, merged the way the engine merges them.
+
+    `named` is the check rather than a statistic: a key that also resolves to a sentence in the
+    localization files exists in two independent places, so a reader that walked into the wrong
+    part of the file would show up here as a gap rather than as a plausible list.
+    """
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'ck3'))
+    import database
+    return len(database.entries(kind)) if what == 'keys' else len(database.named(kind))
+
+
 def gamestate_mb(part):
     with open(_path(part), 'rb') as file:
         raw = file.read()
@@ -308,7 +320,8 @@ MEASURES = {'bytes': bytes_of, 'lines': lines_of, 'files': files_in,
             'gamestate_mb': gamestate_mb, 'repo_files': repo_files,
             'mod_windows': mod_windows, 'harvest_total': harvest_total,
             'gui_merged': gui_merged, 'gui_templates': gui_templates,
-            'gui_windows': gui_windows, 'gui_dlc': gui_dlc}
+            'gui_windows': gui_windows, 'gui_dlc': gui_dlc,
+            'database_entries': database_entries}
 
 
 

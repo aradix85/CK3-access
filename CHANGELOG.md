@@ -22,6 +22,14 @@ One line per change: what changed and why. Dates are the day the work was measur
   expansion takes away parts of a window and never the window.
 - `tools/check.py` counts those checks and the distinct features, cheaply, so a patch that changes
   how the game gates content shows up.
+- `tools/ck3/database.py`: reads the game's own databases the way the engine merges them, so a
+  culture, faith or trait key can be turned into the name a player sees, off disk.
+- A faith is not a top-level key — it hangs inside a religion under `faiths`, and there is no
+  `religions` folder at all, so a line reader looking at column zero finds none of them.
+- The gui parser now accepts an unnamed block inside a block. No gui file does that; the script
+  files do, and one grammar reads both rather than two parsers drifting apart.
+- All 463 culture keys also resolve in the localisation files, which is what says the reader read
+  the right part of the file.
 
 ## 2026-08-26
 

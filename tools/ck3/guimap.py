@@ -114,8 +114,13 @@ def _one(found, at):
     kind, word, line = found[at]
     at += 1
     if kind == 'punct':
-        raise GuiError('line %d: %s' % (line, 'a block opens where a key was expected'
-                                        if word == '{' else 'a stray %r' % word))
+        if word == '{':
+            # An unnamed block inside a block. No gui file does this, but the game's script files
+            # do - a list whose items are themselves blocks - and the same grammar reads both, so
+            # refusing here would mean a second parser for the data folders.
+            at, body = _block(found, at, out=[])
+            return at, _entry(None, body=body)
+        raise GuiError('line %d: a stray %r' % (line, word))
 
     if word in ('block', 'blockoverride'):
         at = _skip_equals(found, at)
