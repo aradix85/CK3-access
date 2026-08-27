@@ -17,6 +17,11 @@ One line per change: what changed and why. Dates are the day the work was measur
 - Two more things a localisation value can hold: a quote of another key, written `$OTHER_KEY$`, and
   an icon token the game draws in place of the text. Both were being read as plain sentences.
 - With those three modelled, every plain key the alignment points at matches what was on screen.
+- No window is gated behind an expansion: expanded over all 196, not one window block carries a
+  `HasDlcFeature` check. They all sit on the `visible` of a widget deeper down, so a missing
+  expansion takes away parts of a window and never the window.
+- `tools/check.py` counts those checks and the distinct features, cheaply, so a patch that changes
+  how the game gates content shows up.
 
 ## 2026-08-26
 

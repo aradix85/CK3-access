@@ -149,6 +149,36 @@ def gui_windows():
     return len(guimap.windows())
 
 
+DLC_CHECK = re.compile(r"HasDlcFeature\(\s*'([^']+)'\s*\)")
+
+
+def gui_dlc(what):
+    """How the gui set gates content behind an expansion, counted over the merged files.
+
+    Measured 27 August 2026 over the expansion of all 196 windows: **not one window block carries
+    such a check.** Every one of them sits on the `visible` of a widget deeper down, and 114 of the
+    117 windows that touch a feature at all reach it through three shared portrait templates that
+    hide one status icon. So an expansion never removes a window from a tester's game, only parts
+    inside one - which is what a beta report has to be read against.
+
+    Kept cheap on purpose: a text scan over the 563 files, not an expansion of every window, which
+    takes five minutes. If a patch changes how the game gates things, these two numbers move and
+    the expensive question is worth asking again.
+    """
+    found = set()
+    total = 0
+    for _, _, full in guimap_files():
+        for name in DLC_CHECK.findall(open(full, encoding='utf-8-sig', errors='replace').read()):
+            found.add(name)
+            total += 1
+    return total if what == 'checks' else len(found)
+
+
+def guimap_files():
+    import guimap
+    return guimap.files()
+
+
 def gamestate_mb(part):
     with open(_path(part), 'rb') as file:
         raw = file.read()
@@ -278,7 +308,7 @@ MEASURES = {'bytes': bytes_of, 'lines': lines_of, 'files': files_in,
             'gamestate_mb': gamestate_mb, 'repo_files': repo_files,
             'mod_windows': mod_windows, 'harvest_total': harvest_total,
             'gui_merged': gui_merged, 'gui_templates': gui_templates,
-            'gui_windows': gui_windows}
+            'gui_windows': gui_windows, 'gui_dlc': gui_dlc}
 
 
 

@@ -124,5 +124,11 @@
   "counting_rule": "163 where the gui file carries the call itself and 166 where it carries a key whose localization does; both need the data context of the ancestors to say who the sentence is about"},
  {"name": "harvested texts the gui file leaves to code", "claimed": 280, "measure": "json_field",
   "arguments": ["<project>\\reports\\pairing.json", "placeholder, code fills it"],
-  "counting_rule": "the widget carries DEFAULT_TEXT, so the files positively cannot say what will stand there and only a running game can; this is an answer, not a gap"}
+  "counting_rule": "the widget carries DEFAULT_TEXT, so the files positively cannot say what will stand there and only a running game can; this is an answer, not a gap"},
+ {"name": "HasDlcFeature checks in the merged gui set", "claimed": 45, "measure": "gui_dlc",
+  "arguments": ["checks"],
+  "counting_rule": "every HasDlcFeature('x') in the 563 merged files, counted by text. All 45 sit on the visible of a widget: expanded over all 196 windows on 27 August 2026, not one window block carries such a check, so an expansion never takes a window away from a tester, only parts inside one"},
+ {"name": "distinct expansion features the gui set gates on", "claimed": 13, "measure": "gui_dlc",
+  "arguments": ["features"],
+  "counting_rule": "distinct names inside those calls, by text over the files. Eleven of the thirteen are reachable from the expansion of a named window; admin_gov sits in the bookmark screen and court_room_view in the hud, neither of which is a window in the map. all_under_heaven reaches 114 of the 117 affected windows through three shared portrait templates and hides one status icon; the other ten touch one to five windows each. Feature names match expansion titles - all_under_heaven is All Under Heaven, dlc022_ep4 - but most are named for the feature and not the expansion, so that mapping is not derivable from disk"}
 ]
