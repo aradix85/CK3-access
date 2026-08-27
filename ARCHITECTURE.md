@@ -162,8 +162,12 @@ never in which place. A pass that sorts the children destroys the only copy — 
 
 ## Speech — `tools/nvda/speech.py`
 
-One function: text, braille text, mode. Behind it, the official NVDA controller client rather than
-Tolk, which passes plain text only and has not been updated in years; the official client also
+One function: text, braille text, mode. **Braille is never optional**: leave it out and the spoken
+text goes to the display, because there is no call that only speaks. A seam that lets a caller
+forget one channel loses that channel eventually, which is how the Fallout 4 accessibility mod
+ended up with a braille backend it never called. Behind it, the official NVDA controller client
+rather than Tolk, which passes plain text only and has not been updated in years; the official
+client also
 carries braille, SSML with prosody and pauses, symbol level and priority. **It is LGPL 2.1, so it
 must be linked dynamically and shipped unchanged — do not bake it in statically.**
 

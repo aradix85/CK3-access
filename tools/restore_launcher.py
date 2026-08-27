@@ -26,5 +26,5 @@ if sha256(ORIGINAL) == sha256(TARGET):
 else:
     message, braille = 'Restore failed. The files still differ.', 'failed'
 
-speech.speak(message, braille=braille)
+speech.output(message, braille=braille)
 print(message)
