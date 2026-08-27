@@ -69,21 +69,11 @@ click is a measurement with a witness, never an assumption: press, read the draw
 back, and record the point along with the result. `tools/ck3/openers.py` works that way.
 
 **A modifier key cannot be sent inward, and that is a Windows boundary rather than a gap here.** A
-key message carries no modifier information, and this game asks for the state through raw input,
-straight from the device, where posted messages never arrive. Measured by hooking `GetKeyState`,
-`GetAsyncKeyState` and `GetKeyboardState` with a counter on each: a keypress moves none of them. The
-hooks were reverted. Note the limit — only the executable's import table was patched, so a call from
-another loaded module would not have been counted.
-
-Nothing needs it: of 705 bindings that use a modifier, exactly one opens a window, and that window
-has an ordinary button. If it is ever required, three routes remain — hooking `GetRawInputData` and
-answering a self-posted `WM_INPUT`, locating the engine's own key table in memory, or `SendInput`,
-which works but takes the foreground and therefore the screen.
-
-**Receiving is complete; sending is a research convenience.** The product never sends a key — it
-intercepts one and acts on it itself. The asymmetry above therefore does not touch the product.
-
-
+key message carries no modifier information, and this game reads the state through raw input, where
+posted messages never arrive — measured by counting calls to `GetKeyState`, `GetAsyncKeyState` and
+`GetKeyboardState`, none of which a posted keypress moves. Nothing needs it: of 705 bindings that
+use a modifier, exactly one opens a window, and that window has an ordinary button. It does not
+touch the product either, which never sends a key — it intercepts one and acts on it itself.
 
 ## 5. Reading the game
 
@@ -124,13 +114,9 @@ one keystroke produces one unit of speech plus braille.
 
 **A third rule was fixed and has since been withdrawn.** It said a widget is addressed by name. The
 intent stands — an index among siblings breaks the moment a mod adds a row inside a vanilla window —
-but only about a quarter of the widgets that carry text have a name, and a name is not unique within
-a window either.
-
-What replaces it: the engine builds a widget's children in the order the `.gui` file lists them and
-keeps them in that order, so the expanded tree from disk can be aligned with the live tree
-structurally, anchored on the names that are there. Every unnamed text box has a named ancestor,
-usually one or two steps up. Building that alignment is the next piece of work.
+but only a quarter of the widgets that carry text have a name, and a name is not unique within a
+window either. The structural alignment in section 5 replaces it, anchored on the names that are
+there: every unnamed text box has a named ancestor a step or two up.
 
 **That order lives in exactly one place.** The channel walks each child list in the engine's own
 order and the tree reader keeps the lines that way; the parent offset says who the parent is and

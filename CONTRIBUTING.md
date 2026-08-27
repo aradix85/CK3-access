@@ -57,7 +57,6 @@ cost this project real time.
 folder in front of them. The convention that makes that work: **backticks mean the thing exists.**
 Name a file that was removed in plain text instead.
 
-
 The maintainer keeps separate working notes, in Dutch, which are not part of this repository. You
 do not need them, and nothing in a pull request should depend on them.
 
