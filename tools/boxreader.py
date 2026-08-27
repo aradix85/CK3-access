@@ -29,9 +29,9 @@ HEIGHT = 48
 BOX = 320  # the width runs in multiples of this
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
-_OWN = os.path.join(_HERE, 'ocr_modellen')
+_OWN = os.path.join(_HERE, 'ocr_models')
 _IR = os.path.join(_OWN, 'v6_tiny_rec.xml')
-_CHARS = os.path.join(_OWN, 'v6_tiny_rec_tekens.txt')
+_CHARS = os.path.join(_OWN, 'v6_tiny_rec_chars.txt')
 _CACHE = os.path.join(_OWN, 'ov_cache')
 
 _core = None

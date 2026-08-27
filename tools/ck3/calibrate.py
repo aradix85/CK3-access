@@ -139,7 +139,7 @@ def test_ocr(pid, nodes, addresses):
 
 def main(pid, count=400, step=97):
     key_sheet = answer_key()
-    print('antwoordblad: %s' % os.path.basename(savegame.newest_readable_save()))
+    print('answer key: %s' % os.path.basename(savegame.newest_readable_save()))
 
     fields = derive.fields_for(pid)[0]
     derive.configure_channel(fields)
@@ -156,7 +156,7 @@ def main(pid, count=400, step=97):
     blocks, places = anchor.size(pid)
     numbers = list(range(1, places, step))[:count]
     counters, unknown, empty, misses = test_model(key_sheet, pid, numbers)
-    print('spelmodel: %d personages over %d blokken' % (len(numbers), blocks))
+    print('game model: %d characters across %d blocks' % (len(numbers), blocks))
     for field, (g, t) in sorted(counters.items()):
         print('   %-14s %d of %d' % (field, g, t))
     print('   %d empty slots, %d numbers the save did not know' % (empty, unknown))

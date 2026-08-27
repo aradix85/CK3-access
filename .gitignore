@@ -1,4 +1,4 @@
-# Not published: the maintainer's working notes.
+﻿# Not published: the maintainer's working notes.
 # Dutch, written for AI sessions, and out of date within a day.
 # What the public needs from them is in ARCHITECTURE.md and CONTRIBUTING.md.
 brief/
@@ -39,7 +39,7 @@ tools/docsearch.py
 
 # third-party binaries that do not belong here
 tools/autohotkey/
-tools/ocr_modellen/
+tools/ocr_models/
 tools/nvda/nvdaControllerClient.dll
 tools/nvda/*.exe
 
