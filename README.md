@@ -23,14 +23,18 @@ measured rather than assumed:
   on disk.
 - Mouse and keyboard input is posted from inside the process, so it never steals focus.
 - Nearly every window in the game can be created on demand, and 178 have been harvested with every
-  widget's name, class, rectangle, sibling index and visibility (`reports/windows.json`).
+  widget's name, class, rectangle, sibling index and visibility. Which window opens by which route
+  is in `reports/windows.json`.
+- **A window only carries its data when it is opened the way a player opens it.** Built from the
+  console it has its shape and its captions and nothing else: 7.4 text boxes per window, against
+  23.7 through a keyboard shortcut and 36.3 through a measured click.
 - The `.gui` files are parsed rather than grepped (`tools/ck3/guimap.py`): templates, inheritance
   and named slots are resolved, so a window expands into the widget tree the engine would build.
 - That expansion is paired with the live tree on class and child order (`tools/ck3/pairing.py`), so
   the meaning on disk reaches widgets carrying no name — three in four of them. Names are kept out
   of the alignment and used to score it afterwards: they come out right 98.4 per cent of the time.
-  Nine in ten of the texts on screen now have a place in a gui file, and every plain localisation
-  key the alignment points at matches what was actually displayed.
+  Almost nine in ten of the texts on screen now have a place in a gui file, and every plain
+  localisation key the alignment points at matches what was actually displayed.
 - Which button opens which window is measured by pressing it, because it cannot be read off disk
   (`reports/openers.json`).
 - A number in memory where the game means a culture, a faith or a trait becomes the name a player

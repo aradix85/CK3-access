@@ -121,6 +121,14 @@ Four independent sources, and their disagreement is the test.
 
 Nothing is copied from any of them.
 
+**A window has to be opened the way a player opens it, or the first source is half empty.** The
+console can build any window on demand, which is what makes coverage independent of who is playing,
+but it hands over the shape and the captions and no data context: 7.4 text boxes per window against
+23.7 through a shortcut and 36.3 through a click. Neither is better than the other — both are the
+player's own route — and there is no console command that supplies a context, which was checked
+against all twelve the executable has. So structure is collected the cheap way and data the slow
+way, and `tools/ck3/harvest.py` knows all three routes.
+
 **The first two are joined by structure, not by name.** `tools/ck3/pairing.py` lays the expanded
 tree from disk against the harvested tree on class and child order, so the meaning in the files can
 be attached to a widget that carries no name — and three widgets in four carry none. Names are kept
@@ -167,9 +175,8 @@ text goes to the display, because there is no call that only speaks. A seam that
 forget one channel loses that channel eventually, which is how the Fallout 4 accessibility mod
 ended up with a braille backend it never called. Behind it, the official NVDA controller client
 rather than Tolk, which passes plain text only and has not been updated in years; the official
-client also
-carries braille, SSML with prosody and pauses, symbol level and priority. **It is LGPL 2.1, so it
-must be linked dynamically and shipped unchanged — do not bake it in statically.**
+client also carries braille, SSML with prosody and pauses, symbol level and priority. **It is
+LGPL 2.1, so it must be linked dynamically and shipped unchanged — do not bake it in statically.**
 
 Two modes are enough, replace and queue. Priority-with-resume was considered and rejected: it
 interrupts and then carries on with the old sentence, which feels as though nothing happened.

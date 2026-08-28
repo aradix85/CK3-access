@@ -6,11 +6,9 @@ One line per change: what changed and why. Dates are the day the work was measur
 ## 2026-08-28
 
 - `tools/ck3/harvest.py` takes a third route: `--click` opens a window the way a player does, from
-  the openers file, where the console could only ever build its shape and its captions.
+  the openers file, with the console shut because two of those buttons sit under it.
 - Measured over the whole harvest: 7.4 text boxes per window through the console, 23.7 through a
   shortcut, 36.3 through a click. Seven windows harvested that way went from 55 text boxes to 254.
-- A click round runs with the console shut, because it is drawn over the left third of the screen
-  and two of the buttons that open a window sit under it.
 - A window that fails to open now has the state put back before the next one starts. A click lands
   on whatever lies on that point, so a miss opens something often enough to poison the round.
 - `tools/ck3/openers.py` no longer skips a button whose name several widgets carry. The copies are
