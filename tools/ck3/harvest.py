@@ -131,9 +131,9 @@ def widget_record(nodes, address, depth, index, scales, classes, flags, alphas):
 
     **Text only from a text box.** The offset that holds the shown string belongs to `Textbox`;
     on any other class it lands on something else and comes back as unreadable bytes that look
-    like a reading error. Measured 24 August 2026, and `reports\\textfield.json` says the same
-    thing from the other side: the search for a text field per class found a hit for `Textbox`
-    and for nothing else. So other classes get null here, with their class recorded, rather than
+    like a reading error. Measured 24 August 2026 with textfield.py, which searched per widget
+    class for a text offset and found one for `Textbox` and for no other class. So other classes
+    get null here, with their class recorded, rather than
     noise that a later pass would have to learn to distrust.
 
     `index` is the widget's place among its parent's children, written down rather than left to the

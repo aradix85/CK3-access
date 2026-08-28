@@ -268,9 +268,9 @@
  },
  {
   "name": "files that go into the repo",
-  "claimed": 53,
+  "claimed": 51,
   "measure": "repo_files",
-  "counting_rule": "files under the project folder that .gitignore does not exclude; on 23 August 2026 git ls-files --others --exclude-standard counted the same number. 45 until 25 August 2026, when the click round added tools/ck3/openers.py and reports/openers.json; 48 when the gui reader added tools/ck3/guimap.py; 47 when docsearch.py was taken out, because it reads only the working notes; 50 since the NVDA sleep-mode add-on added three files under tools/nvda/addon; 52 since the alignment added tools/ck3/pairing.py and reports/pairing.json; 53 since the database reader added tools/ck3/database.py"
+  "counting_rule": "files under the project folder that .gitignore does not exclude; on 23 August 2026 git ls-files --others --exclude-standard counted the same number. 45 until 25 August 2026, when the click round added tools/ck3/openers.py and reports/openers.json; 48 when the gui reader added tools/ck3/guimap.py; 47 when docsearch.py was taken out, because it reads only the working notes; 50 since the NVDA sleep-mode add-on added three files under tools/nvda/addon; 52 since the alignment added tools/ck3/pairing.py and reports/pairing.json; 53 since the database reader added tools/ck3/database.py; 51 since the two text-field reports were dropped on 28 August 2026, being the only files under reports that no claim covered and that nothing read"
  },
  {
   "name": "windows opened in the harvest round",
