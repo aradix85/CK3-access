@@ -45,4 +45,4 @@ tools/nvda/*.exe
 
 # machine-specific copies of settings
 pdx_settings.origineel.txt
-launcher-settings.origineel.json
+launcher-settings.original.json

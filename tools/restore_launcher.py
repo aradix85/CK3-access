@@ -1,7 +1,8 @@
 """Restores launcher-settings.json to the original from before the injector.
 
-Meant for one case: the game no longer starts. Launch it with
-'CK3 launcher herstellen.bat' on the desktop. If you hear nothing, it failed.
+Meant for one case: the game no longer starts. Run it with
+`python tools/restore_launcher.py`; it says out loud whether it worked, and if you hear nothing at
+all it did not run. Steam's own "verify integrity of game files" is the second net behind this one.
 """
 import hashlib, os, shutil, sys
 
@@ -10,7 +11,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'nvd
 import paths
 import speech
 
-ORIGINAL = os.path.join(paths.PROJECT, 'launcher-settings.origineel.json')
+ORIGINAL = os.path.join(paths.PROJECT, 'launcher-settings.original.json')
 TARGET = os.path.join(paths.GAME, 'launcher', 'launcher-settings.json')
 
 
@@ -22,7 +23,7 @@ def sha256(path):
 shutil.copyfile(ORIGINAL, TARGET)
 
 if sha256(ORIGINAL) == sha256(TARGET):
-    message, braille = 'Launcher restored to the original. Start the game through Steam.', 'hersteld'
+    message, braille = 'Launcher restored to the original. Start the game through Steam.', 'restored'
 else:
     message, braille = 'Restore failed. The files still differ.', 'failed'
 

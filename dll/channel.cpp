@@ -542,7 +542,7 @@ static void cmd_readmany(const char* rest)
         }
         done++;
     }
-    emit("klaar\t%d\n", done);
+    emit("done\t%d\n", done);
 }
 
 static void cmd_swallow(const char* rest)

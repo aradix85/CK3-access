@@ -5,6 +5,15 @@ One line per change: what changed and why. Dates are the day the work was measur
 
 ## 2026-08-28
 
+- The last two Dutch remnants are gone. `channel.cpp` ended a bulk read with a Dutch word; no caller
+  ever read that line, so it was renamed, rebuilt and smoke-tested against a running game. The
+  launcher fallback copy is now `launcher-settings.original.json`, and `tools/restore_launcher.py`
+  with it — restoring was actually run rather than assumed, and it verified its hash.
+- Two remnants a word scan could not see, both in `restore_launcher.py`: a Dutch braille string, and
+  a docstring pointing at a desktop launcher that does not exist. A scan for words does not find a
+  promise that is untrue.
+- `.gitignore` kept the fallback copy out under its old name only, so the rename would have
+  published a machine-specific file. `tools/check.py` caught it on the file count.
 - `README.md` and `ARCHITECTURE.md` were missing the game model entirely: it is a source in its own
   right beside the widget tree, and section 5 counted four sources where there are five.
 - `tools/ck3/calibrate.py` fetches the character database once and hands it down instead of letting
