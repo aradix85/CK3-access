@@ -315,5 +315,5 @@ returns a pair, passed on as one thing, costs a run.
 |---|---|---|
 | `nvda_running()` | value | - |
 | `silence()` | nothing | - |
-| `speak(text, mode=REPLACE, braille=None)` | nothing | - |
+| `output(text, mode=REPLACE, braille=None)` | nothing | Speak and write to the braille display. braille=None means: the same text. |
 

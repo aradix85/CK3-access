@@ -36,6 +36,9 @@ One line per change: what changed and why. Dates are the day the work was measur
   Faiths do not, but fall into place, all 237, once grouped per religion in the engine's religion
   order — and where that religion order comes from is not known. Traits agree to number 300 and
   then diverge where the mods add theirs.
+- `tools/nvda/speech.py`: braille is no longer optional. Leave the braille text out and the spoken
+  text goes to the display, because a seam a caller can forget one channel in loses that channel.
+- That call is named `output` rather than `speak`, since speaking is half of what it does.
 
 ## 2026-08-26
 
