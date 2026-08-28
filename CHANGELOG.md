@@ -5,6 +5,11 @@ One line per change: what changed and why. Dates are the day the work was measur
 
 ## 2026-08-28
 
+- `tools/ck3/savegame.py` carries an index from character number to where that character's block
+  starts, built in one pass. Looking one up used to scan the whole game state and a calibration
+  round asks for hundreds; both routes return the same block, numbers absent from the save included.
+- `tools/ck3/calibrate.py` closes with the sentence the tool exists for after a patch: which field
+  disagrees with the save, or that every one of them agrees.
 - `tools/ck3/harvest.py` takes a third route: `--click` opens a window the way a player does, from
   the openers file, with the console shut because two of those buttons sit under it.
 - Measured over the whole harvest: 7.4 text boxes per window through the console, 23.7 through a

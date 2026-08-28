@@ -268,6 +268,7 @@ returns a pair, passed on as one thing, costs a run.
 | `is_text(content)` | value | - |
 | `unpack(path=None)` | value | The game state as text. The header before the zip differs in length per save, so it is |
 | `block(text, build_key, start_at=0)` | value of NoneType | The content between the braces of `key={ ... }`, with braces counted so that nested |
+| `character_index(text)` | dict | Character number -> where its block starts, in one pass. |
 | `numbers(content, prefix='', depth=0)` | value | Every whole number in a block, with its path as the name. Whole numbers only, because that |
 | `player(text)` | value | The character number of the player. |
 

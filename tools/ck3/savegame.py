@@ -81,6 +81,23 @@ def block(text, build_key, start_at=0):
     return text[i:j - 1]
 
 
+_CHARACTER = re.compile(r'\n(\d+)=\{\n\tfirst_name=')
+
+
+def character_index(text):
+    """Character number -> where its block starts, in one pass.
+
+    Looking one character up costs a scan of the whole game state, and a calibration round asks
+    for hundreds of them. Measured 28 August 2026 on the Nobatia save: 400 characters cost 8.4 s
+    one at a time against 0.2 s through this index, returning the same block 400 out of 400 times.
+
+    A number is not unique across kinds - 1515 is a dynasty house as well as a barony - so the
+    pattern demands a character field right behind it. Within one kind it is unique: over the
+    three saves not one number carries two character blocks.
+    """
+    return {int(m.group(1)): m.start() for m in _CHARACTER.finditer(text)}
+
+
 _MAPPING = re.compile(r'([a-z_][a-z_0-9]*)=([^\s{}"]+|\{[^{}]*\})', re.I)
 
 

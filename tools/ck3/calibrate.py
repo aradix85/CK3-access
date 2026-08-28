@@ -35,13 +35,14 @@ def test_model(key_sheet, pid, numbers):
     not testing the block arithmetic.
     """
     counters = {}
+    index = savegame.character_index(key_sheet)
     unknown, empty, misses = 0, 0, []
     for number in numbers:
         pos, from_memory = anchor.character(pid, number)
         if from_memory['number'] != number:
             empty += 1
             continue
-        values = savegame.numbers(_character_block(key_sheet, number))
+        values = savegame.numbers(_character_block(key_sheet, index, number))
         if not values:
             unknown += 1
             continue
@@ -57,16 +58,15 @@ def test_model(key_sheet, pid, numbers):
     return counters, unknown, empty, misses
 
 
-def _character_block(key_sheet, number):
+def _character_block(key_sheet, index, number):
     """The block of a character, and not that of a title with the same number.
 
-    Numbers in a save are not unique across kinds: 1515 is both a dynasty house and a barony. So
-    search for the block that starts with a character field.
+    The index carries that distinction - see `savegame.character_index` - and it is what keeps a
+    round of hundreds of characters affordable.
     """
-    pos = key_sheet.find('\n%d={\n\tfirst_name=' % number)
-    if pos < 0:
+    if number not in index:
         return None
-    return savegame.block(key_sheet, str(number), pos - 1)
+    return savegame.block(key_sheet, str(number), index[number] - 1)
 
 
 def text_boxes(nodes):
@@ -162,6 +162,10 @@ def main(pid, count=400, step=97):
     print('   %d empty slots, %d numbers the save did not know' % (empty, unknown))
     for line in misses:
         print('   %s' % line)
+    # The verdict, because that is the whole point after a patch: which field moved?
+    shifted = ['%s (%d wrong)' % (f, t - g) for f, (g, t) in sorted(counters.items()) if g < t]
+    print('   %s' % ('fields that disagree with the save: ' + ', '.join(shifted) if shifted
+                     else 'every field agrees with the save'))
 
 
 if __name__ == '__main__':
