@@ -5,6 +5,8 @@ One line per change: what changed and why. Dates are the day the work was measur
 
 ## 2026-08-28
 
+- `README.md` and `ARCHITECTURE.md` were missing the game model entirely: it is a source in its own
+  right beside the widget tree, and section 5 counted four sources where there are five.
 - `tools/ck3/calibrate.py` fetches the character database once and hands it down instead of letting
   the anchor find it again per character. That lookup, not the reading, was the whole cost of a
   round: four hundred characters went from thirteen minutes to about one.

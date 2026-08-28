@@ -90,9 +90,15 @@ never sends a key — it intercepts one and acts on it itself.
 
 ## 5. Reading the game
 
-Four independent sources, and their disagreement is the test.
+Five independent sources, and their disagreement is the test.
 
 - **The widget tree** — structure, names, rectangles and text: what is on screen right now.
+- **The game model in memory** — the same values raw, plus everything no open window is showing.
+  `tools/ck3/anchor.py` walks from a global in the executable to any character in four reads: name,
+  culture, faith, dynasty house, and gold, piety and prestige in a sub-object behind it. Nothing is
+  searched for and no offset is written down. `tools/ck3/calibrate.py` holds four hundred characters
+  against the save and names the field that disagrees; it runs clean on three game states that
+  differ in era, faith, government and mod set.
 - **The `.gui` files** — meaning: which data function fills a widget, which localisation key it
   carries, which tooltip hangs on it. `tools/ck3/guimap.py` parses the format properly rather than
   matching lines, merging the three engine layers and the active mods in load order and expanding a

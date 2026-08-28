@@ -20,6 +20,9 @@ machinery underneath:
   break it. Tested against 1.16.2: one had moved, and it recovered on its own.
 - An event window can be read and answered end to end — title, description, options — straight out
   of memory, checked against the localisation files on disk.
+- The game state is reachable without searching: from a global in the executable to any character in
+  four reads. A regression pass holds four hundred of them against the save and names the field that
+  disagrees; it runs clean on three game states differing in era, faith, government and mod set.
 - 178 windows have been harvested widget by widget. **A window only carries its data when it is
   opened the way a player opens it**; built from the console it has its shape and its captions and
   nothing else.
@@ -82,6 +85,10 @@ licence. Bug reports are welcome, fixes more so, but no support is promised.
     dll/        the injected channel (C++ source and build script)
     tools/      derivation, memory reading, gui parsing, input, speech, measurement
     reports/    generated, machine-checked facts about this build
+
+`check_rtti.ps1` in the root is separate from all of it: point it at any Paradox executable and it
+tells you in seconds whether this whole approach could work there — tens of thousands of RTTI type
+names and a `CPdxGuiWidget` base class mean yes, nothing means no.
 
 `tools/check.py` recomputes every number in `reports/claims.json` and checks that every path the
 documentation names still exists. It measures *this* installation, so on a fresh clone some lines
