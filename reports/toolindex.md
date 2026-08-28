@@ -111,11 +111,11 @@ returns a pair, passed on as one thing, costs a run.
 
 | call | returns | does |
 |---|---|---|
-| `answer_key()` | value | - |
+| `answer_key(save=None)` | 2-tuple | The unpacked save that serves as the answer key, with its path. |
 | `test_model(key_sheet, pid, numbers)` | 4-tuple | Reads characters through the anchor and puts every field beside the save. |
 | `text_boxes(nodes)` | list | The addresses of the text boxes, found through the vtable that touches the localization files. |
 | `test_ocr(pid, nodes, addresses)` | 4-tuple | Reads every text box actually on screen and puts it beside the widget text. |
-| `main(pid, count=400, step=97)` | nothing | - |
+| `main(pid, count=400, step=97, save=None)` | nothing | - |
 
 ## ck3\channel.py
 *Talks to the channel inside the DLL.*

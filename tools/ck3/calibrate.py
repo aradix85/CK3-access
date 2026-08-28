@@ -5,12 +5,15 @@ against it separately and reported separately, because the value is in knowing w
 broken: if a field offset shifts after a patch, only the game model fails and the rest stands.
 
 Usage:
-    python tools\\ck3\\calibrate.py <pid> [<number of characters>] [<step>]
+    python tools\\ck3\\calibrate.py <pid> [<number of characters>] [<step>] [<save>]
 
-Recognition is tested against the widget tree, the game model against the save. Take a step large
+The save argument is any part of a save file name, and it is what you reach for when the game has
+something other than the newest save loaded. Recognition is tested against the widget tree, the
+game model against the save. Take a step large
 enough to cross several blocks; within one block you are not testing the block arithmetic.
 The field offsets live in `reports\\model.json` and belong to be derived there, not typed in here.
 """
+import glob
 import os
 import sys
 
@@ -23,8 +26,22 @@ MODEL = os.path.join(PROJECT, 'reports', 'model.json')
 sys.path.insert(0, os.path.join(PROJECT, 'tools'))  # boxreader and windowgrab sit one folder up
 
 
-def answer_key():
-    return savegame.unpack(savegame.newest_readable_save())
+def answer_key(save=None):
+    """The unpacked save that serves as the answer key, with its path.
+
+    Defaults to the newest readable save. Name the save - any part of the file name will do - when
+    the game has a different one loaded. Memory carries the state that was loaded, and held against
+    another save every field disagrees at once, which reads exactly like a shifted field offset.
+    """
+    if save is None:
+        path = savegame.newest_readable_save()
+    else:
+        matches = [p for p in glob.glob(os.path.join(savegame.SAVE_DIR, '*.ck3'))
+                   if save.lower() in os.path.basename(p).lower()]
+        if len(matches) != 1:
+            raise SystemExit('%d saves carry %r in their name, so it says nothing' % (len(matches), save))
+        path = matches[0]
+    return path, savegame.unpack(path)
 
 
 def test_model(key_sheet, pid, numbers):
@@ -33,12 +50,18 @@ def test_model(key_sheet, pid, numbers):
     Unknown numbers are counted, not scored as errors: an empty slot is normal, and a character
     the save does not know is not a shifted field offset. Walk across several blocks, or you are
     not testing the block arithmetic.
+
+    The database object is fetched once and handed down. Letting `anchor.character` find it again
+    per character is what made this round unusable: measured 28 August 2026, twenty characters cost
+    0.08 s with the object passed in and five cost 9.9 s without, because looking the database up
+    is 1.9 s on its own. Reading a character is 4 ms; everything else was the lookup.
     """
     counters = {}
     index = savegame.character_index(key_sheet)
+    db = anchor.database(pid)
     unknown, empty, misses = 0, 0, []
     for number in numbers:
-        pos, from_memory = anchor.character(pid, number)
+        pos, from_memory = anchor.character(pid, number, db)
         if from_memory['number'] != number:
             empty += 1
             continue
@@ -137,9 +160,9 @@ def test_ocr(pid, nodes, addresses):
     return ok, total, covered, misses
 
 
-def main(pid, count=400, step=97):
-    key_sheet = answer_key()
-    print('answer key: %s' % os.path.basename(savegame.newest_readable_save()))
+def main(pid, count=400, step=97, save=None):
+    path, key_sheet = answer_key(save)
+    print('answer key: %s' % os.path.basename(path))
 
     fields = derive.fields_for(pid)[0]
     derive.configure_channel(fields)
@@ -170,4 +193,6 @@ def main(pid, count=400, step=97):
 
 if __name__ == '__main__':
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
-    main(int(sys.argv[1]), *[int(a) for a in sys.argv[2:]])
+    given = sys.argv[1:]
+    named = given.pop() if given and not given[-1].isdigit() else None
+    main(int(given[0]), *[int(a) for a in given[1:]], save=named)

@@ -160,7 +160,7 @@ if __name__ == '__main__':
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
     pid = int(sys.argv[1])
     db = database(pid)
-    print('database op %x' % db)
+    print('database at %x' % db)
     for number in [int(a) for a in sys.argv[2:]] or [32769]:
         pos, values = character(pid, number, db)
-        print('%d op %x -> %s' % (number, pos, values))
+        print('%d at %x -> %s' % (number, pos, values))

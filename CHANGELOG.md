@@ -5,6 +5,14 @@ One line per change: what changed and why. Dates are the day the work was measur
 
 ## 2026-08-28
 
+- `tools/ck3/calibrate.py` fetches the character database once and hands it down instead of letting
+  the anchor find it again per character. That lookup, not the reading, was the whole cost of a
+  round: four hundred characters went from thirteen minutes to about one.
+- `tools/ck3/calibrate.py` takes the save as an argument. The answer key has to be the save the game
+  actually loaded; held against another one every field disagrees at once, which reads exactly like
+  a shifted field offset.
+- The game model regression test now runs clean on three game states that differ in era, faith,
+  government and mod set: culture, faith and dynasty house agree with the save every time.
 - `tools/ck3/savegame.py` carries an index from character number to where that character's block
   starts, built in one pass. Looking one up used to scan the whole game state and a calibration
   round asks for hundreds; both routes return the same block, numbers absent from the save included.
