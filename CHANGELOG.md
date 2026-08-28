@@ -3,6 +3,26 @@
 One line per change: what changed and why. Dates are the day the work was measured. Numbers live in
 `reports/claims.json`, where they can be recomputed; the reasoning lives in `ARCHITECTURE.md`.
 
+## 2026-08-28
+
+- `tools/ck3/harvest.py` takes a third route: `--click` opens a window the way a player does, from
+  the openers file, where the console could only ever build its shape and its captions.
+- Measured over the whole harvest: 7.4 text boxes per window through the console, 23.7 through a
+  shortcut, 36.3 through a click. Seven windows harvested that way went from 55 text boxes to 254.
+- A click round runs with the console shut, because it is drawn over the left third of the screen
+  and two of the buttons that open a window sit under it.
+- A window that fails to open now has the state put back before the next one starts. A click lands
+  on whatever lies on that point, so a miss opens something often enough to poison the round.
+- `tools/ck3/openers.py` no longer skips a button whose name several widgets carry. The copies are
+  narrowed to the ones really drawn, which leaves exactly one for two of the fourteen.
+- Alpha is not the same question as drawn: all three widgets named `create_faith` pass the alpha and
+  size test from a bare screen and all three sit inside a shut window, so the nearest window
+  ancestor has to be drawn as well before anything is clicked.
+- The ledger opens on a click after all. Not on `ledger_shortcut`, which has no size at all, but on
+  a second widget carrying the window's own name; that window went from 4 text boxes to 78.
+- `tools/ck3/pairing.py` writes the leftover texts per window, so the share that sits in the
+  developers' own tools stays recomputable instead of ageing into a number nobody can check.
+
 ## 2026-08-27
 
 - `tools/ck3/pairing.py`: pairs the tree expanded off disk with the tree the game built, on class

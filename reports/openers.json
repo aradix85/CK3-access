@@ -1,5 +1,5 @@
 {
- "measured": "2026-08-25 14:30",
+ "measured": "2026-08-28 15:28",
  "game_date": "23rd of November, 1067 AD",
  "buttons": [
   {
@@ -7,7 +7,7 @@
    "target": "activity_log",
    "widget": "activity_log",
    "file": "window_activity.gui",
-   "reason": "3 widgets carry this name",
+   "reason": "3 widgets carry this name and 0 of them are on screen",
    "opens": null
   },
   {
@@ -23,8 +23,20 @@
    "target": "confederation_window",
    "widget": "confederation_button",
    "file": "hud.gui",
-   "reason": "2 widgets carry this name",
-   "opens": null
+   "point": [
+    565,
+    865
+   ],
+   "box": [
+    537,
+    837,
+    56,
+    56
+   ],
+   "reason": null,
+   "opens": [],
+   "found_in": "the screen",
+   "state_returned": true
   },
   {
    "via": "onclick",
@@ -39,7 +51,7 @@
    "target": "faith_creation",
    "widget": "create_faith",
    "file": "window_faith.gui",
-   "reason": "3 widgets carry this name",
+   "reason": "3 widgets carry this name and 0 of them are on screen",
    "opens": null
   },
   {
@@ -55,7 +67,7 @@
    "target": "domicile",
    "widget": "domicile_map_icon",
    "file": "map_icon_layer.gui",
-   "reason": "160 widgets carry this name",
+   "reason": "225 widgets carry this name and 0 of them are on screen",
    "opens": null
   },
   {
@@ -64,11 +76,11 @@
    "widget": "education_button",
    "file": "hud.gui",
    "point": [
-    332,
+    325,
     865
    ],
    "box": [
-    304,
+    297,
     837,
     56,
     56
@@ -109,7 +121,7 @@
    "target": "faith",
    "widget": "faith_button",
    "file": "hud.gui",
-   "reason": "not visible",
+   "reason": "9 widgets carry this name and 0 of them are on screen",
    "opens": null
   },
   {
@@ -117,7 +129,7 @@
    "target": "great_holy_war",
    "widget": "faith_icon",
    "file": "hud.gui",
-   "reason": "4 widgets carry this name",
+   "reason": "4 widgets carry this name and 0 of them are on screen",
    "opens": null
   },
   {
@@ -125,7 +137,7 @@
    "target": "decision_detail",
    "widget": "gather_provisions_decision",
    "file": "map_icon_layer.gui",
-   "reason": "96 widgets carry this name",
+   "reason": "135 widgets carry this name and 0 of them are on screen",
    "opens": null
   },
   {
@@ -141,7 +153,7 @@
    "target": "activity_guest_list",
    "widget": "guest_list",
    "file": "window_activity.gui",
-   "reason": "2 widgets carry this name",
+   "reason": "2 widgets carry this name and 0 of them are on screen",
    "opens": null
   },
   {
@@ -174,19 +186,17 @@
    "widget": "house_power_hud_button",
    "file": "hud.gui",
    "point": [
-    632,
+    625,
     865
    ],
    "box": [
-    604,
+    597,
     837,
     56,
     56
    ],
    "reason": null,
-   "opens": [
-    "character_window"
-   ],
+   "opens": [],
    "found_in": "the screen",
    "state_returned": true
   },
@@ -196,19 +206,17 @@
    "widget": "hud_camp_button",
    "file": "hud.gui",
    "point": [
-    512,
+    505,
     865
    ],
    "box": [
-    484,
+    477,
     837,
     56,
     56
    ],
    "reason": null,
-   "opens": [
-    "character_window"
-   ],
+   "opens": [],
    "found_in": "the screen",
    "state_returned": true
   },
@@ -257,8 +265,22 @@
    "target": "ledger",
    "widget": "ledger_window",
    "file": "hud.gui",
-   "reason": "2 widgets carry this name",
-   "opens": null
+   "point": [
+    1121,
+    884
+   ],
+   "box": [
+    1105,
+    868,
+    32,
+    32
+   ],
+   "reason": null,
+   "opens": [
+    "ledger_window"
+   ],
+   "found_in": "the screen",
+   "state_returned": true
   },
   {
    "via": "onclick",
@@ -266,11 +288,11 @@
    "widget": "lifestyle_button",
    "file": "hud.gui",
    "point": [
-    272,
+    265,
     865
    ],
    "box": [
-    244,
+    237,
     837,
     56,
     56
@@ -287,7 +309,7 @@
    "target": "move_domicile_planner",
    "widget": "move_camp_quick_button",
    "file": "map_icon_layer.gui",
-   "reason": "96 widgets carry this name",
+   "reason": "135 widgets carry this name and 0 of them are on screen",
    "opens": null
   },
   {
@@ -295,7 +317,7 @@
    "target": "move_domicile_planner",
    "widget": "move_domcicle_button",
    "file": "window_county_view.gui",
-   "reason": "2 widgets carry this name",
+   "reason": "2 widgets carry this name and 0 of them are on screen",
    "opens": null
   },
   {
@@ -383,7 +405,7 @@
    "target": "great_project",
    "widget": "portrait_pin",
    "file": "map_icon_layer.gui",
-   "reason": "32 widgets carry this name",
+   "reason": "45 widgets carry this name and 0 of them are on screen",
    "opens": null
   },
   {
@@ -710,7 +732,7 @@
    "target": "decision_detail",
    "widget": "visit_local_settlement_decision",
    "file": "map_icon_layer.gui",
-   "reason": "96 widgets carry this name",
+   "reason": "135 widgets carry this name and 0 of them are on screen",
    "opens": null
   }
  ]

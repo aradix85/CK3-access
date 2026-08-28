@@ -1,145 +1,484 @@
 [
- {"name": "size of ck3.exe", "claimed": 95206008, "measure": "bytes",
-  "arguments": ["<game>\\binaries\\ck3.exe"],
-  "counting_rule": "file size in bytes; changes with every game update and is the key under which fields and model are stored"},
- {"name": "RTTI type names in the list on disk", "claimed": 48006, "measure": "lines",
-  "arguments": ["<project>\\reports\\rtti_typen.txt"],
-  "counting_rule": "lines in the file check_rtti.ps1 produced, one per unique name, deduplicated case sensitively"},
- {"name": "RTTI type names according to memory.py", "claimed": 48006, "measure": "type_names",
-  "counting_rule": "memory.type_name_count() on the same exe; equal to check_rtti.ps1 since that script started deduplicating case sensitively on 30 July 2026"},
- {"name": "widget vtables in the exe", "claimed": 54, "measure": "widget_vtables",
-  "counting_rule": "vtables of classes descending from CPdxGuiWidget; 52 classes, two of which have two through multiple inheritance"},
- {"name": "gui files, game layer", "claimed": 373, "measure": "files",
-  "arguments": ["<game>\\game\\gui", "*.gui"],
-  "counting_rule": "files with the gui suffix under game\\gui, all subfolders included"},
- {"name": "gui files, engine layer", "claimed": 49, "measure": "files",
-  "arguments": ["<game>\\clausewitz\\gui", "*.gui"],
-  "counting_rule": "the same under clausewitz\\gui"},
- {"name": "gui files, jomini layer", "claimed": 92, "measure": "files",
-  "arguments": ["<game>\\jomini", "*.gui"],
-  "counting_rule": "the same under the whole jomini folder: 91 in jomini\\gui plus the encyclopedia in jomini\\jomini\\gui, which a count on jomini\\gui alone would miss"},
- {"name": "gui files in the game folder, total", "claimed": 515, "measure": "files",
-  "arguments": ["<game>", "*.gui"],
-  "counting_rule": "every file with the gui suffix under the game folder: 373 game layer, 49 engine layer, 92 jomini layer and one developer file for the tweaker; this count is not tied to a folder and therefore cannot go quietly too low"},
- {"name": "English localization files", "claimed": 1173, "measure": "files",
-  "arguments": ["<game>\\game\\localization\\english", "*.yml"],
-  "counting_rule": "files with the yml suffix under localization\\english, all subfolders included"},
- {"name": "lines in shortcuts.shortcuts", "claimed": 1047, "measure": "lines",
-  "arguments": ["<game>\\game\\gui\\shortcuts.shortcuts"],
-  "counting_rule": "lines in the main file; the seven smaller files in the engine and editor layers do not count"},
- {"name": "map_data\\positions.txt", "claimed": 349525, "measure": "bytes",
-  "arguments": ["<game>\\game\\map_data\\positions.txt"], "counting_rule": "file size in bytes"},
- {"name": "map_data\\definition.csv", "claimed": 432072, "measure": "bytes",
-  "arguments": ["<game>\\game\\map_data\\definition.csv"], "counting_rule": "file size in bytes"},
- {"name": "map_data\\adjacencies.csv", "claimed": 20541, "measure": "bytes",
-  "arguments": ["<game>\\game\\map_data\\adjacencies.csv"], "counting_rule": "file size in bytes"},
- {"name": "00_landed_titles.txt", "claimed": 1296625, "measure": "bytes",
-  "arguments": ["<game>\\game\\common\\landed_titles\\00_landed_titles.txt"],
-  "counting_rule": "file size in bytes"},
- {"name": "channel.dll", "claimed": 172032, "measure": "bytes",
-  "arguments": ["<project>\\dll\\channel.dll"],
-  "counting_rule": "file size in bytes; changes with every rebuild of the DLL"},
- {"name": "derived field offsets", "claimed": 9, "measure": "json_keys",
-  "arguments": ["<project>\\reports\\fields.json", "key", "objects", "unreadable", "roots"],
-  "counting_rule": "fields in fields.json besides the four bookkeeping keys; the seven layout offsets plus alpha and the window flag, which have been derived by toggling a window since 24 August 2026"},
- {"name": "record length of a character", "claimed": 464, "measure": "json_field",
-  "arguments": ["<project>\\reports\\model.json", "record_length"], "counting_rule": "from model.json"},
- {"name": "characters per block", "claimed": 1024, "measure": "json_field",
-  "arguments": ["<project>\\reports\\model.json", "block_size"], "counting_rule": "from model.json"},
- {"name": "stride between blocks", "claimed": 475152, "measure": "json_field",
-  "arguments": ["<project>\\reports\\model.json", "block_stride"],
-  "counting_rule": "from model.json; 1024 times 464 is 475136, so a 16-byte header per block"},
- {"name": "model field culture", "claimed": 152, "measure": "json_field",
-  "arguments": ["<project>\\reports\\model.json", "fields", "culture"],
-  "counting_rule": "offset relative to the handle field, from model.json"},
- {"name": "model field faith", "claimed": 156, "measure": "json_field",
-  "arguments": ["<project>\\reports\\model.json", "fields", "faith"],
-  "counting_rule": "offset relative to the handle field, from model.json"},
- {"name": "model field dynasty house", "claimed": 312, "measure": "json_field",
-  "arguments": ["<project>\\reports\\model.json", "fields", "dynasty_house"],
-  "counting_rule": "offset relative to the handle field, from model.json"},
- {"name": "game state in the Bohemia save", "claimed": 60.7, "measure": "gamestate_mb",
-  "arguments": ["<documents>\\save games\\Duke_Vratislav_II_of_Bohemia_1066_09_15.ck3"],
-  "counting_rule": "unpacked size of gamestate in MB to one decimal; the file itself is 7751963 bytes"},
- {"name": "game state in the Ghur save", "claimed": 56.7, "measure": "gamestate_mb",
-  "arguments": ["<documents>\\save games\\Ghurshah_Suri_of_the_Ghurid_Shahdom_867_10_26.ck3"],
-  "counting_rule": "the same; the file itself is 7179229 bytes and its header is 23007 bytes, not 32720 as in the Bohemia save"},
- {"name": "expansions on disk", "claimed": 29, "measure": "files",
-  "arguments": ["<game>\\game\\dlc", "*.dlc"],
-  "counting_rule": "one metadata file with the dlc suffix per expansion folder; all 29 are enabled, because disabled_dlcs in dlc_load.json is empty"},
- {"name": "enabled mods", "claimed": 5, "measure": "files",
-  "arguments": ["<documents>\\mod", "*.mod"],
-  "counting_rule": "reference files in the mod folder, each pointing at a workshop folder; dlc_load.json names the same five"},
- {"name": "game state in the Nobatia save", "claimed": 86.2, "measure": "gamestate_mb",
-  "arguments": ["<documents>\\save games\\Duke_Marianos_of_Nobatia_1067_11_23.ck3"],
-  "counting_rule": "unpacked size of gamestate in MB to one decimal; made 23 August 2026 with five mods and every expansion, against 60.7 and 56.7 for the two vanilla saves"},
- {"name": "gui files of the five mods", "claimed": 69, "measure": "files",
-  "arguments": ["<workshop>", "*.gui"],
-  "counting_rule": "files with the gui suffix under the CK3 workshop folder; RICE 67, Historical Figure 1, Historic Invasions 1, and none of them replaces a vanilla file"},
- {"name": "files that go into the repo", "claimed": 53, "measure": "repo_files",
-  "counting_rule": "files under the project folder that .gitignore does not exclude; on 23 August 2026 git ls-files --others --exclude-standard counted the same number. 45 until 25 August 2026, when the click round added tools/ck3/openers.py and reports/openers.json; 48 when the gui reader added tools/ck3/guimap.py; 47 when docsearch.py was taken out, because it reads only the working notes; 50 since the NVDA sleep-mode add-on added three files under tools/nvda/addon; 52 since the alignment added tools/ck3/pairing.py and reports/pairing.json; 53 since the database reader added tools/ck3/database.py"},
- {"name": "windows opened in the harvest round", "claimed": 178, "measure": "harvest_total",
-  "arguments": ["<project>\\harvest", "windows"],
-  "counting_rule": "records in harvest\\ with opened true; 18 of the 196 windows in the map refuse to open at all, the same 18 as in the round before"},
- {"name": "text boxes in the harvest round", "claimed": 1261, "measure": "harvest_total",
-  "arguments": ["<project>\\harvest", "boxes"],
-  "counting_rule": "summed over the records: text boxes of a window that carry text, are not clipped, have no zero alpha above them and lie inside the drawing area, so they should be on screen"},
- {"name": "text boxes the recogniser confirmed", "claimed": 1156, "measure": "harvest_total",
-  "arguments": ["<project>\\harvest", "confirmed"],
-  "counting_rule": "summed over the records: of those boxes, the ones an overlapping recognised line says the same thing about. 1156 of 1261 in the round of 26 August 2026. harvest\\ is outside the repo, so on a clone these measure nothing and drift - they belong to a round on one machine"},
- {"name": "text boxes outside the drawing area", "claimed": 152, "measure": "harvest_total",
-  "arguments": ["<project>\\harvest", "offscreen"],
-  "counting_rule": "summed over the records: boxes that would otherwise count, but fall wholly or partly outside the 1600x900 drawing area. A window built by GUI.CreateWidget is not laid out where a player would see it, so counting these as misses measures the console route rather than the recogniser"},
- {"name": "windows in the map that a mod put there", "claimed": 0, "measure": "mod_windows",
-  "arguments": ["<project>\\reports\\windows.json"],
-  "counting_rule": "entries in windows.json whose gui file exists in none of the three game layers (game, clausewitz, jomini); the map ships, so anything a mod added would be a window nobody else can open"},
- {"name": "gui files as the engine sees them, vanilla", "claimed": 494, "measure": "gui_merged",
-  "arguments": [false],
-  "counting_rule": "the three layers merged on their shared virtual path, so a file the game layer replaces is counted once: 374 game, 71 jomini, 49 engine. Lower than the 515 counted on disk because 21 virtual paths exist in two layers"},
- {"name": "gui files as the engine sees them, with mods", "claimed": 563, "measure": "gui_merged",
-  "arguments": [true],
-  "counting_rule": "the same with the five enabled mods on top; the 69 mod files all add and none of them replaces a vanilla virtual path"},
- {"name": "global gui templates", "claimed": 2774, "measure": "gui_templates",
-  "arguments": ["global"],
-  "counting_rule": "distinct names declared as `type` or `template` in the merged set, later declarations winning; both keywords reach across files, which is why they share one table"},
- {"name": "file-local gui templates", "claimed": 6, "measure": "gui_templates",
-  "arguments": ["local"],
-  "counting_rule": "names declared as `local_type`, keyed by file; all six sit in the developers' editor tools"},
- {"name": "windows with a name in the merged gui set", "claimed": 196, "measure": "gui_windows",
-  "counting_rule": "`window = { name = ... }` blocks found by the parser in the merged set, at any depth and one entry per name. windows.json holds 197: its line reader met a window block carrying no name in frontend_load.gui and walked on to the next name it saw, which belongs to the template vbox_save_preview, so load_info is in the map and is not a window. Of these 196, 195 can be created with GUI.CreateWidget; colorpicker_window cannot, because that block sits inside a type definition and the console finds only top-level widgets"},
- {"name": "harvested widgets that carry text", "claimed": 1463, "measure": "json_field",
-  "arguments": ["<project>\\reports\\pairing.json", "texts"],
-  "counting_rule": "every widget with a non-empty text in the 178 harvested trees, counted while walking, and the walk asserts it saw all 68110 widgets of every record; a live subtree whose parent found no source used to be skipped, which shrank this denominator by dropping exactly the hard cases"},
- {"name": "harvested texts paired with a place in a gui file", "claimed": 1326, "measure": "json_field",
-  "arguments": ["<project>\\reports\\pairing.json", "paired"],
-  "counting_rule": "paired by class and child order only, never by name. 165 of them are a caption: a button carries its own text and the engine hangs a text box under it to draw it, so the box is not in the file and the widget above answers for it. The remaining 137 are texts the files describe nowhere, and 76 of those sit in developer windows - the debug map, the AI watch windows, the component library"},
- {"name": "harvested texts whose gui file names a plain localization key", "claimed": 547, "measure": "json_field",
-  "arguments": ["<project>\\reports\\pairing.json", "plain key"],
-  "counting_rule": "a text key that is in the localization and whose value holds neither a data function nor a quote of another key. DEFAULT_TEXT is counted apart because it is a placeholder for text the code sets"},
- {"name": "plain keys whose localization matches what was on screen", "claimed": 547, "measure": "json_field",
-  "arguments": ["<project>\\reports\\pairing.json", "plain key agrees"],
-  "counting_rule": "the check that can fail: game markup stripped from the screen text, style markup and icon tokens from the localization, then compared whole. All 547 agree, which is also what carries the caption model - had a button's caption not been the source of the box under it, those 165 would have disagreed"},
- {"name": "harvested texts filled by a data function", "claimed": 329, "measure": "json_field",
-  "arguments": ["<project>\\reports\\pairing.json", "data functions together"],
-  "counting_rule": "163 where the gui file carries the call itself and 166 where it carries a key whose localization does; both need the data context of the ancestors to say who the sentence is about"},
- {"name": "harvested texts the gui file leaves to code", "claimed": 280, "measure": "json_field",
-  "arguments": ["<project>\\reports\\pairing.json", "placeholder, code fills it"],
-  "counting_rule": "the widget carries DEFAULT_TEXT, so the files positively cannot say what will stand there and only a running game can; this is an answer, not a gap"},
- {"name": "HasDlcFeature checks in the merged gui set", "claimed": 45, "measure": "gui_dlc",
-  "arguments": ["checks"],
-  "counting_rule": "every HasDlcFeature('x') in the 563 merged files, counted by text. All 45 sit on the visible of a widget: expanded over all 196 windows on 27 August 2026, not one window block carries such a check, so an expansion never takes a window away from a tester, only parts inside one"},
- {"name": "distinct expansion features the gui set gates on", "claimed": 13, "measure": "gui_dlc",
-  "arguments": ["features"],
-  "counting_rule": "distinct names inside those calls, by text over the files. Eleven of the thirteen are reachable from the expansion of a named window; admin_gov sits in the bookmark screen and court_room_view in the hud, neither of which is a window in the map. all_under_heaven reaches 114 of the 117 affected windows through three shared portrait templates and hides one status icon; the other ten touch one to five windows each. Feature names match expansion titles - all_under_heaven is All Under Heaven, dlc022_ep4 - but most are named for the feature and not the expansion, so that mapping is not derivable from disk"},
- {"name": "cultures the engine loads", "claimed": 463, "measure": "database_entries",
-  "arguments": ["culture", "keys"],
-  "counting_rule": "top-level keys in common/culture/cultures, game folder first and the five mods after it in load order, a file replacing the one at the same name. 244 without the mods; RICE brings most of the rest"},
- {"name": "cultures that also have a name in the localization", "claimed": 463, "measure": "database_entries",
-  "arguments": ["culture", "named"],
-  "counting_rule": "of those keys, the ones the localization files also carry a sentence for. All of them, which is the check that the reader read the right part of the file rather than a plausible-looking wrong one"},
- {"name": "faiths the engine loads", "claimed": 237, "measure": "database_entries",
-  "arguments": ["faith", "keys"],
-  "counting_rule": "a faith is not a top-level key: it hangs inside a religion under `faiths`, in common/religion/religion_types, and there is no `religions` folder at all. A line reader looking at column zero finds none of them. 140 without the mods"},
- {"name": "cultures whose number the file order predicts", "claimed": 463, "measure": "database_entries",
-  "arguments": ["culture", "numbered"],
-  "counting_rule": "the save of 1067-11-23 carries the engine's own numbering, and for cultures it is exactly the file order - all 463. That does not hold for the other databases: 78 of 237 faiths, 36 of 94 religions, 301 of 342 traits, so the numbering is read from the save and not derived from disk. The faiths do fall into place, all 237, once they are grouped per religion in the engine's religion order; where that religion order comes from is not known"}]
+ {
+  "name": "size of ck3.exe",
+  "claimed": 95206008,
+  "measure": "bytes",
+  "arguments": [
+   "<game>\\binaries\\ck3.exe"
+  ],
+  "counting_rule": "file size in bytes; changes with every game update and is the key under which fields and model are stored"
+ },
+ {
+  "name": "RTTI type names in the list on disk",
+  "claimed": 48006,
+  "measure": "lines",
+  "arguments": [
+   "<project>\\reports\\rtti_typen.txt"
+  ],
+  "counting_rule": "lines in the file check_rtti.ps1 produced, one per unique name, deduplicated case sensitively"
+ },
+ {
+  "name": "RTTI type names according to memory.py",
+  "claimed": 48006,
+  "measure": "type_names",
+  "counting_rule": "memory.type_name_count() on the same exe; equal to check_rtti.ps1 since that script started deduplicating case sensitively on 30 July 2026"
+ },
+ {
+  "name": "widget vtables in the exe",
+  "claimed": 54,
+  "measure": "widget_vtables",
+  "counting_rule": "vtables of classes descending from CPdxGuiWidget; 52 classes, two of which have two through multiple inheritance"
+ },
+ {
+  "name": "gui files, game layer",
+  "claimed": 373,
+  "measure": "files",
+  "arguments": [
+   "<game>\\game\\gui",
+   "*.gui"
+  ],
+  "counting_rule": "files with the gui suffix under game\\gui, all subfolders included"
+ },
+ {
+  "name": "gui files, engine layer",
+  "claimed": 49,
+  "measure": "files",
+  "arguments": [
+   "<game>\\clausewitz\\gui",
+   "*.gui"
+  ],
+  "counting_rule": "the same under clausewitz\\gui"
+ },
+ {
+  "name": "gui files, jomini layer",
+  "claimed": 92,
+  "measure": "files",
+  "arguments": [
+   "<game>\\jomini",
+   "*.gui"
+  ],
+  "counting_rule": "the same under the whole jomini folder: 91 in jomini\\gui plus the encyclopedia in jomini\\jomini\\gui, which a count on jomini\\gui alone would miss"
+ },
+ {
+  "name": "gui files in the game folder, total",
+  "claimed": 515,
+  "measure": "files",
+  "arguments": [
+   "<game>",
+   "*.gui"
+  ],
+  "counting_rule": "every file with the gui suffix under the game folder: 373 game layer, 49 engine layer, 92 jomini layer and one developer file for the tweaker; this count is not tied to a folder and therefore cannot go quietly too low"
+ },
+ {
+  "name": "English localization files",
+  "claimed": 1173,
+  "measure": "files",
+  "arguments": [
+   "<game>\\game\\localization\\english",
+   "*.yml"
+  ],
+  "counting_rule": "files with the yml suffix under localization\\english, all subfolders included"
+ },
+ {
+  "name": "lines in shortcuts.shortcuts",
+  "claimed": 1047,
+  "measure": "lines",
+  "arguments": [
+   "<game>\\game\\gui\\shortcuts.shortcuts"
+  ],
+  "counting_rule": "lines in the main file; the seven smaller files in the engine and editor layers do not count"
+ },
+ {
+  "name": "map_data\\positions.txt",
+  "claimed": 349525,
+  "measure": "bytes",
+  "arguments": [
+   "<game>\\game\\map_data\\positions.txt"
+  ],
+  "counting_rule": "file size in bytes"
+ },
+ {
+  "name": "map_data\\definition.csv",
+  "claimed": 432072,
+  "measure": "bytes",
+  "arguments": [
+   "<game>\\game\\map_data\\definition.csv"
+  ],
+  "counting_rule": "file size in bytes"
+ },
+ {
+  "name": "map_data\\adjacencies.csv",
+  "claimed": 20541,
+  "measure": "bytes",
+  "arguments": [
+   "<game>\\game\\map_data\\adjacencies.csv"
+  ],
+  "counting_rule": "file size in bytes"
+ },
+ {
+  "name": "00_landed_titles.txt",
+  "claimed": 1296625,
+  "measure": "bytes",
+  "arguments": [
+   "<game>\\game\\common\\landed_titles\\00_landed_titles.txt"
+  ],
+  "counting_rule": "file size in bytes"
+ },
+ {
+  "name": "channel.dll",
+  "claimed": 172032,
+  "measure": "bytes",
+  "arguments": [
+   "<project>\\dll\\channel.dll"
+  ],
+  "counting_rule": "file size in bytes; changes with every rebuild of the DLL"
+ },
+ {
+  "name": "derived field offsets",
+  "claimed": 9,
+  "measure": "json_keys",
+  "arguments": [
+   "<project>\\reports\\fields.json",
+   "key",
+   "objects",
+   "unreadable",
+   "roots"
+  ],
+  "counting_rule": "fields in fields.json besides the four bookkeeping keys; the seven layout offsets plus alpha and the window flag, which have been derived by toggling a window since 24 August 2026"
+ },
+ {
+  "name": "record length of a character",
+  "claimed": 464,
+  "measure": "json_field",
+  "arguments": [
+   "<project>\\reports\\model.json",
+   "record_length"
+  ],
+  "counting_rule": "from model.json"
+ },
+ {
+  "name": "characters per block",
+  "claimed": 1024,
+  "measure": "json_field",
+  "arguments": [
+   "<project>\\reports\\model.json",
+   "block_size"
+  ],
+  "counting_rule": "from model.json"
+ },
+ {
+  "name": "stride between blocks",
+  "claimed": 475152,
+  "measure": "json_field",
+  "arguments": [
+   "<project>\\reports\\model.json",
+   "block_stride"
+  ],
+  "counting_rule": "from model.json; 1024 times 464 is 475136, so a 16-byte header per block"
+ },
+ {
+  "name": "model field culture",
+  "claimed": 152,
+  "measure": "json_field",
+  "arguments": [
+   "<project>\\reports\\model.json",
+   "fields",
+   "culture"
+  ],
+  "counting_rule": "offset relative to the handle field, from model.json"
+ },
+ {
+  "name": "model field faith",
+  "claimed": 156,
+  "measure": "json_field",
+  "arguments": [
+   "<project>\\reports\\model.json",
+   "fields",
+   "faith"
+  ],
+  "counting_rule": "offset relative to the handle field, from model.json"
+ },
+ {
+  "name": "model field dynasty house",
+  "claimed": 312,
+  "measure": "json_field",
+  "arguments": [
+   "<project>\\reports\\model.json",
+   "fields",
+   "dynasty_house"
+  ],
+  "counting_rule": "offset relative to the handle field, from model.json"
+ },
+ {
+  "name": "game state in the Bohemia save",
+  "claimed": 60.7,
+  "measure": "gamestate_mb",
+  "arguments": [
+   "<documents>\\save games\\Duke_Vratislav_II_of_Bohemia_1066_09_15.ck3"
+  ],
+  "counting_rule": "unpacked size of gamestate in MB to one decimal; the file itself is 7751963 bytes"
+ },
+ {
+  "name": "game state in the Ghur save",
+  "claimed": 56.7,
+  "measure": "gamestate_mb",
+  "arguments": [
+   "<documents>\\save games\\Ghurshah_Suri_of_the_Ghurid_Shahdom_867_10_26.ck3"
+  ],
+  "counting_rule": "the same; the file itself is 7179229 bytes and its header is 23007 bytes, not 32720 as in the Bohemia save"
+ },
+ {
+  "name": "expansions on disk",
+  "claimed": 29,
+  "measure": "files",
+  "arguments": [
+   "<game>\\game\\dlc",
+   "*.dlc"
+  ],
+  "counting_rule": "one metadata file with the dlc suffix per expansion folder; all 29 are enabled, because disabled_dlcs in dlc_load.json is empty"
+ },
+ {
+  "name": "enabled mods",
+  "claimed": 5,
+  "measure": "files",
+  "arguments": [
+   "<documents>\\mod",
+   "*.mod"
+  ],
+  "counting_rule": "reference files in the mod folder, each pointing at a workshop folder; dlc_load.json names the same five"
+ },
+ {
+  "name": "game state in the Nobatia save",
+  "claimed": 86.2,
+  "measure": "gamestate_mb",
+  "arguments": [
+   "<documents>\\save games\\Duke_Marianos_of_Nobatia_1067_11_23.ck3"
+  ],
+  "counting_rule": "unpacked size of gamestate in MB to one decimal; made 23 August 2026 with five mods and every expansion, against 60.7 and 56.7 for the two vanilla saves"
+ },
+ {
+  "name": "gui files of the five mods",
+  "claimed": 69,
+  "measure": "files",
+  "arguments": [
+   "<workshop>",
+   "*.gui"
+  ],
+  "counting_rule": "files with the gui suffix under the CK3 workshop folder; RICE 67, Historical Figure 1, Historic Invasions 1, and none of them replaces a vanilla file"
+ },
+ {
+  "name": "files that go into the repo",
+  "claimed": 53,
+  "measure": "repo_files",
+  "counting_rule": "files under the project folder that .gitignore does not exclude; on 23 August 2026 git ls-files --others --exclude-standard counted the same number. 45 until 25 August 2026, when the click round added tools/ck3/openers.py and reports/openers.json; 48 when the gui reader added tools/ck3/guimap.py; 47 when docsearch.py was taken out, because it reads only the working notes; 50 since the NVDA sleep-mode add-on added three files under tools/nvda/addon; 52 since the alignment added tools/ck3/pairing.py and reports/pairing.json; 53 since the database reader added tools/ck3/database.py"
+ },
+ {
+  "name": "windows opened in the harvest round",
+  "claimed": 178,
+  "measure": "harvest_total",
+  "arguments": [
+   "<project>\\harvest",
+   "windows"
+  ],
+  "counting_rule": "records in harvest\\ with opened true; 18 of the 196 windows in the map refuse to open at all, the same 18 as in the round before"
+ },
+ {
+  "name": "text boxes in the harvest round",
+  "claimed": 1419,
+  "measure": "harvest_total",
+  "arguments": [
+   "<project>\\harvest",
+   "boxes"
+  ],
+  "counting_rule": "summed over the records: text boxes of a window that carry text, are not clipped, have no zero alpha above them and lie inside the drawing area, so they should be on screen"
+ },
+ {
+  "name": "text boxes the recogniser confirmed",
+  "claimed": 1298,
+  "measure": "harvest_total",
+  "arguments": [
+   "<project>\\harvest",
+   "confirmed"
+  ],
+  "counting_rule": "summed over the records: of those boxes, the ones an overlapping recognised line says the same thing about. 1298 of 1419 in the round of 28 August 2026. harvest\\ is outside the repo, so on a clone these measure nothing and drift - they belong to a round on one machine"
+ },
+ {
+  "name": "text boxes outside the drawing area",
+  "claimed": 144,
+  "measure": "harvest_total",
+  "arguments": [
+   "<project>\\harvest",
+   "offscreen"
+  ],
+  "counting_rule": "summed over the records: boxes that would otherwise count, but fall wholly or partly outside the 1600x900 drawing area. A window built by GUI.CreateWidget is not laid out where a player would see it, so counting these as misses measures the console route rather than the recogniser"
+ },
+ {
+  "name": "windows in the map that a mod put there",
+  "claimed": 0,
+  "measure": "mod_windows",
+  "arguments": [
+   "<project>\\reports\\windows.json"
+  ],
+  "counting_rule": "entries in windows.json whose gui file exists in none of the three game layers (game, clausewitz, jomini); the map ships, so anything a mod added would be a window nobody else can open"
+ },
+ {
+  "name": "gui files as the engine sees them, vanilla",
+  "claimed": 494,
+  "measure": "gui_merged",
+  "arguments": [
+   false
+  ],
+  "counting_rule": "the three layers merged on their shared virtual path, so a file the game layer replaces is counted once: 374 game, 71 jomini, 49 engine. Lower than the 515 counted on disk because 21 virtual paths exist in two layers"
+ },
+ {
+  "name": "gui files as the engine sees them, with mods",
+  "claimed": 563,
+  "measure": "gui_merged",
+  "arguments": [
+   true
+  ],
+  "counting_rule": "the same with the five enabled mods on top; the 69 mod files all add and none of them replaces a vanilla virtual path"
+ },
+ {
+  "name": "global gui templates",
+  "claimed": 2774,
+  "measure": "gui_templates",
+  "arguments": [
+   "global"
+  ],
+  "counting_rule": "distinct names declared as `type` or `template` in the merged set, later declarations winning; both keywords reach across files, which is why they share one table"
+ },
+ {
+  "name": "file-local gui templates",
+  "claimed": 6,
+  "measure": "gui_templates",
+  "arguments": [
+   "local"
+  ],
+  "counting_rule": "names declared as `local_type`, keyed by file; all six sit in the developers' editor tools"
+ },
+ {
+  "name": "windows with a name in the merged gui set",
+  "claimed": 196,
+  "measure": "gui_windows",
+  "counting_rule": "`window = { name = ... }` blocks found by the parser in the merged set, at any depth and one entry per name. windows.json holds 197: its line reader met a window block carrying no name in frontend_load.gui and walked on to the next name it saw, which belongs to the template vbox_save_preview, so load_info is in the map and is not a window. Of these 196, 195 can be created with GUI.CreateWidget; colorpicker_window cannot, because that block sits inside a type definition and the console finds only top-level widgets"
+ },
+ {
+  "name": "harvested widgets that carry text",
+  "claimed": 1662,
+  "measure": "json_field",
+  "arguments": [
+   "<project>\\reports\\pairing.json",
+   "texts"
+  ],
+  "counting_rule": "every widget with a non-empty text in the 178 harvested trees, counted while walking, and the walk asserts it saw all 70084 widgets of every record; a live subtree whose parent found no source used to be skipped, which shrank this denominator by dropping exactly the hard cases"
+ },
+ {
+  "name": "harvested texts paired with a place in a gui file",
+  "claimed": 1467,
+  "measure": "json_field",
+  "arguments": [
+   "<project>\\reports\\pairing.json",
+   "paired"
+  ],
+  "counting_rule": "paired by class and child order only, never by name. 164 of them are a caption: a button carries its own text and the engine hangs a text box under it to draw it, so the box is not in the file and the widget above answers for it. The remaining 195 are texts the files describe nowhere, spread over 37 windows, and 82 of those sit in developer tools - the debug map alone holds 42. They are listed per window in reports\\pairing.json, so the share is recomputable rather than a number that ages"
+ },
+ {
+  "name": "harvested texts whose gui file names a plain localization key",
+  "claimed": 541,
+  "measure": "json_field",
+  "arguments": [
+   "<project>\\reports\\pairing.json",
+   "plain key"
+  ],
+  "counting_rule": "a text key that is in the localization and whose value holds neither a data function nor a quote of another key. DEFAULT_TEXT is counted apart because it is a placeholder for text the code sets"
+ },
+ {
+  "name": "plain keys whose localization matches what was on screen",
+  "claimed": 541,
+  "measure": "json_field",
+  "arguments": [
+   "<project>\\reports\\pairing.json",
+   "plain key agrees"
+  ],
+  "counting_rule": "the check that can fail: game markup stripped from the screen text, style markup and icon tokens from the localization, then compared whole. All 541 agree, which is also what carries the caption model - had a button's caption not been the source of the box under it, those 164 would have disagreed"
+ },
+ {
+  "name": "harvested texts filled by a data function",
+  "claimed": 465,
+  "measure": "json_field",
+  "arguments": [
+   "<project>\\reports\\pairing.json",
+   "data functions together"
+  ],
+  "counting_rule": "291 where the gui file carries the call itself and 174 where it carries a key whose localization does; both need the data context of the ancestors to say who the sentence is about"
+ },
+ {
+  "name": "harvested texts the gui file leaves to code",
+  "claimed": 288,
+  "measure": "json_field",
+  "arguments": [
+   "<project>\\reports\\pairing.json",
+   "placeholder, code fills it"
+  ],
+  "counting_rule": "the widget carries DEFAULT_TEXT, so the files positively cannot say what will stand there and only a running game can; this is an answer, not a gap"
+ },
+ {
+  "name": "HasDlcFeature checks in the merged gui set",
+  "claimed": 45,
+  "measure": "gui_dlc",
+  "arguments": [
+   "checks"
+  ],
+  "counting_rule": "every HasDlcFeature('x') in the 563 merged files, counted by text. All 45 sit on the visible of a widget: expanded over all 196 windows on 27 August 2026, not one window block carries such a check, so an expansion never takes a window away from a tester, only parts inside one"
+ },
+ {
+  "name": "distinct expansion features the gui set gates on",
+  "claimed": 13,
+  "measure": "gui_dlc",
+  "arguments": [
+   "features"
+  ],
+  "counting_rule": "distinct names inside those calls, by text over the files. Eleven of the thirteen are reachable from the expansion of a named window; admin_gov sits in the bookmark screen and court_room_view in the hud, neither of which is a window in the map. all_under_heaven reaches 114 of the 117 affected windows through three shared portrait templates and hides one status icon; the other ten touch one to five windows each. Feature names match expansion titles - all_under_heaven is All Under Heaven, dlc022_ep4 - but most are named for the feature and not the expansion, so that mapping is not derivable from disk"
+ },
+ {
+  "name": "cultures the engine loads",
+  "claimed": 463,
+  "measure": "database_entries",
+  "arguments": [
+   "culture",
+   "keys"
+  ],
+  "counting_rule": "top-level keys in common/culture/cultures, game folder first and the five mods after it in load order, a file replacing the one at the same name. 244 without the mods; RICE brings most of the rest"
+ },
+ {
+  "name": "cultures that also have a name in the localization",
+  "claimed": 463,
+  "measure": "database_entries",
+  "arguments": [
+   "culture",
+   "named"
+  ],
+  "counting_rule": "of those keys, the ones the localization files also carry a sentence for. All of them, which is the check that the reader read the right part of the file rather than a plausible-looking wrong one"
+ },
+ {
+  "name": "faiths the engine loads",
+  "claimed": 237,
+  "measure": "database_entries",
+  "arguments": [
+   "faith",
+   "keys"
+  ],
+  "counting_rule": "a faith is not a top-level key: it hangs inside a religion under `faiths`, in common/religion/religion_types, and there is no `religions` folder at all. A line reader looking at column zero finds none of them. 140 without the mods"
+ },
+ {
+  "name": "cultures whose number the file order predicts",
+  "claimed": 463,
+  "measure": "database_entries",
+  "arguments": [
+   "culture",
+   "numbered"
+  ],
+  "counting_rule": "the save of 1067-11-23 carries the engine's own numbering, and for cultures it is exactly the file order - all 463. That does not hold for the other databases: 78 of 237 faiths, 36 of 94 religions, 301 of 342 traits, so the numbering is read from the save and not derived from disk. The faiths do fall into place, all 237, once they are grouped per religion in the engine's religion order; where that religion order comes from is not known"
+ }
+]

@@ -17,8 +17,9 @@ click leaves something standing, every later measurement is contaminated.
 
 Two traps that cost time on 25 August 2026, both worth keeping in mind when reading this:
 Escape opens the pause menu when nothing is open, so it is only pressed when a click really opened
-something; and a widget name can occur more than once in the tree, in which case there is no way to
-know which one the file meant, so it is skipped and said so.
+something; and a widget name can occur more than once in the tree. That second one used to mean
+the row was skipped. It no longer does: the copies are filtered down to the ones really drawn, and
+only what is left ambiguous after that is skipped, with both counts said out loud.
 
 Usage:  python tools\ck3\openers.py <pid>
 """
@@ -140,11 +141,18 @@ def buttons_on_disk():
 
 
 
-def press(address, nodes, scales, classes, row):
-    """Click the middle of a widget, but only if it is really on screen.
+def on_screen(address, nodes, scales, classes):
+    """Why this widget cannot be clicked, or None when it can.
 
-    The point is written into the record: a click that lands somewhere else is then visible in the
-    result without deriving the whole tree again to find out where it went.
+    **Alpha is not the same question as drawn, and that difference nearly cost a stray click.**
+    Measured 28 August 2026: all three widgets named `create_faith` pass the alpha and the size
+    test from a bare screen, and all three hang inside a window whose flag byte is 0x18 - shut.
+    A click at that point does not reach them; it lands on whatever really lies there, which is the
+    map. So the nearest window ancestor has to be drawn as well.
+
+    The four cheap tests come first and the flag is asked last, because that one is a channel
+    question and the disambiguation below runs this over every widget carrying a name - one of
+    them 225 times.
     """
     if not derive.is_visible(nodes, address) or derive.is_clipped(nodes, address, scales, classes):
         return 'not visible'
@@ -154,6 +162,27 @@ def press(address, nodes, scales, classes, row):
         return 'no size'
     if x < 0 or y < 0 or x + width > 1600 or y + height > 900:
         return 'off screen'
+    node = nodes[address][5]
+    while node in nodes:
+        if nodes[node][0] in game_classes:
+            if derive.flags_for([node]).get(node, 0xFF) != 0x00:
+                return 'its window is not drawn'
+            break
+        node = nodes[node][5]
+    return None
+
+
+def press(address, nodes, scales, classes, row):
+    """Click the middle of a widget, but only if it is really on screen.
+
+    The point is written into the record: a click that lands somewhere else is then visible in the
+    result without deriving the whole tree again to find out where it went.
+    """
+    reason = on_screen(address, nodes, scales, classes)
+    if reason:
+        return reason
+    x, y = derive.screen_pos(nodes, address, scales)
+    width, height = derive.screen_size(nodes, address, scales)
     row['point'] = [int(x + width / 2), int(y + height / 2)]
     row['box'] = [round(x), round(y), round(width), round(height)]
     channel.ask('mouse %d %d 1' % tuple(row['point']))
@@ -270,7 +299,19 @@ def main():
         if not here:
             row['reason'] = 'not in the tree from a neutral state'
         elif len(here) > 1:
-            row['reason'] = '%d widgets carry this name' % len(here)
+            # A name that several widgets carry is not automatically hopeless: most of those
+            # copies sit inside a window that is shut, and one of them is the button on screen.
+            # Measured 28 August 2026 over the fourteen ambiguous names: filtering on what is
+            # really drawn leaves exactly one for `ledger_window` and `confederation_button`,
+            # nothing for eleven others, and for `create_faith` it correctly leaves nothing where
+            # alpha alone would have offered a button inside a closed window.
+            usable = [a for a in here if on_screen(a, nodes, scales, classes) is None]
+            if len(usable) == 1:
+                try_button(game, row, usable[0], nodes, scales, classes, baseline, date,
+                           number, len(rows), 'the screen')
+            else:
+                row['reason'] = ('%d widgets carry this name and %d of them are on screen'
+                                 % (len(here), len(usable)))
         else:
             try_button(game, row, here[0], nodes, scales, classes, baseline, date,
                        number, len(rows), 'the screen')
@@ -288,7 +329,7 @@ def main():
         waiting = [r for r in rows if r['reason'] is not None]
         if not waiting:
             break
-        here = by_name.get(opener, [])
+        here = [a for a in by_name.get(opener, []) if on_screen(a, nodes, scales, classes) is None]
         if len(here) != 1:
             continue
         blank = {}

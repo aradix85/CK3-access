@@ -239,6 +239,7 @@ def sweep():
 
     count = collections.Counter()
     functions = collections.Counter()
+    unplaced = collections.Counter()
     for record_path in sorted(glob.glob(os.path.join(HARVEST, '*.json'))):
         window = os.path.basename(record_path)[:-5]
         record = json.load(open(record_path, encoding='utf-8'))
@@ -265,6 +266,7 @@ def sweep():
                     source = above
                 else:
                     count['no source on disk'] += 1
+                    unplaced[window] += 1
                     continue
             count['paired'] += 1
             if context:
@@ -285,13 +287,17 @@ def sweep():
                                  % (window, seen, len(record['tree'])))
     count['data functions together'] = (count['data function']
                                         + count['data function through key'])
-    return count, functions
+    return count, functions, unplaced
 
 
 def main():
-    count, functions = sweep()
+    count, functions, unplaced = sweep()
     report = dict(count)
     report['top functions'] = dict(functions.most_common(20))
+    # Which windows the leftover texts sit in, per window. Without this the share that lands in
+    # the developers' own windows - the reason for leaving the rest alone - is a number nobody can
+    # recompute after the next round, and it quietly ages into a claim no one can check.
+    report['no source on disk, per window'] = dict(unplaced.most_common())
     json.dump(report, open(REPORT, 'w', encoding='utf-8'), indent=1, sort_keys=True)
     width = max(len(k) for k in count)
     for key in sorted(count):

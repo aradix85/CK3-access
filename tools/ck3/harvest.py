@@ -22,7 +22,12 @@ not notice; the recogniser does, and it says nothing about it. Every record ther
 how many of its own text boxes the recogniser read back, so a blind capture shows up in the first
 ten windows of a round instead of in the analysis a day later.
 
-Usage:  python tools\ck3\harvest.py <pid> [<window> ...]
+**Three routes, and they do not yield the same thing.** A shortcut and a click open a window the
+way a player does, with its data context; `GUI.CreateWidget` builds the shape and the captions and
+no data. With `--click` the round takes its openers from `reports\openers.json` instead of the
+phase 0 map, and runs with the console shut, because part of the buttons sit under it.
+
+Usage:  python tools\ck3\harvest.py <pid> [--click] [<window> ...]
 """
 import ctypes
 import json
@@ -44,6 +49,7 @@ import windowmap
 
 OUT = os.path.join(paths.PROJECT, 'harvest')
 MAP = os.path.join(paths.REPORTS, 'windows.json')
+OPENERS = os.path.join(paths.REPORTS, 'openers.json')
 FREE_MEMORY_FLOOR = 2.0          # gigabytes; the game itself uses about 16
 OPEN_TRIES = 3
 # The HUD is drawn in every game state and never opens or closes, so it belongs in the baseline
@@ -230,6 +236,32 @@ def confirmed(tree, lines, size):
     return boxes, seen, offscreen
 
 
+def click_routes(windows):
+    """Window -> the button that opens it, from `reports\\openers.json`.
+
+    The third route, and the only one that gives a window its data. `GUI.CreateWidget` builds the
+    shape and the captions but no data context, which is the whole of the difference measured on
+    26 August 2026: 7.4 text boxes per window through the console against 23.7 through a key.
+
+    Two things come out of the openers file rather than out of a rule. Which window a button really
+    opens - `education_button` opens `inventory_view`, which no name would have told you. And where
+    the button can be reached from: `found_in` says either the bare screen or the window it sits
+    in, and that window is opened first, by its shortcut.
+    """
+    out = {}
+    for row in json.load(open(OPENERS, encoding='utf-8'))['buttons']:
+        for name in row.get('opens') or ():
+            if name in out or 'point' not in row:
+                continue
+            inside = row['found_in'][3:] if row['found_in'].startswith('in ') else None
+            if inside and not (windows.get(inside) or {}).get('shortcut'):
+                continue
+            out[name] = {'click': row['point'], 'button': row['widget'], 'first': inside,
+                         'first_key': 111 + int(windows[inside]['shortcut'][1:]) if inside else 0,
+                         'file': windows.get(name, {}).get('file'), 'drawn': True}
+    return out
+
+
 def open_window(game, name, row, baseline):
     """Open one window along the route phase 0 found for it, and prove it is drawn.
 
@@ -264,6 +296,24 @@ def open_window(game, name, row, baseline):
                 time.sleep(0.6)
                 if derive.flags_for([address]).get(address, 0xFF) == 0x00:
                     return game.tree(), attempt
+        elif row.get('click'):
+            # The parent window first, and only if it is not already standing: its shortcut is a
+            # toggle, so sending it a second time shuts the very window the button sits in.
+            if row['first']:
+                for _ in range(10):
+                    _, _, drawn = game.state()
+                    if row['first'] in drawn:
+                        break
+                    channel.ask('sendkey %d' % row['first_key'])
+                    time.sleep(1.2)
+                else:
+                    continue
+            channel.ask('mouse %d %d 1' % tuple(row['click']))
+            for _ in range(6):
+                time.sleep(1.0)
+                nodes, _, drawn = game.state()
+                if name in drawn - baseline:
+                    return nodes, attempt
         else:
             game.command('GUI.CreateWidget %s %s' % (row['file'], name))
             for _ in range(5):
@@ -280,8 +330,11 @@ def close_window(game, name, row, baseline, limit=12):
     for _ in range(limit):
         if row.get('shortcut'):
             channel.ask('sendkey %d' % (111 + int(row['shortcut'][1:])))
-        else:
+        elif not row.get('click'):
             game.command('GUI.ClearWidgets')
+        # The click route closes on Escape alone, at the foot of this loop, and that key is only
+        # ever sent while something is still standing - with nothing open Escape opens the pause
+        # menu, which is the state it was meant to clear.
         time.sleep(1.2)
         _, _, drawn = game.state()
         if drawn == baseline:
@@ -318,9 +371,15 @@ def harvest(game, name, row, baseline, header):
     started = time.time()
     nodes, attempts = open_window(game, name, row, baseline)
     if nodes is None:
-        return {'window': name, 'opened': False,
-                'reason': 'did not open in %d %s'
-                          % (attempts, 'try' if attempts == 1 else 'tries')}, 'not opened'
+        # A window that refuses can still have left something standing - a click lands on whatever
+        # lies on top of that point, not on the widget it was aimed at, so a miss opens *something*
+        # often enough. Putting the state back here is what keeps a miss from contaminating every
+        # window after it, and if it cannot be put back that is the round's stop condition.
+        came_back = close_window(game, name, row, baseline)
+        return ({'window': name, 'opened': False, 'state_returned': came_back,
+                 'reason': 'did not open in %d %s'
+                           % (attempts, 'try' if attempts == 1 else 'tries')},
+                'not opened' if came_back else 'state did not come back')
 
     windows = [a for a, k in nodes.items() if k[0] in game.window_classes]
     named = [a for a in windows if nodes[a][6] == name]
@@ -334,18 +393,23 @@ def harvest(game, name, row, baseline, header):
     record = dict(header)
     record.update({
         'window': name, 'opened': True, 'attempts': attempts, 'file': row.get('file'),
-        'route': 'shortcut ' + row['shortcut'] if row.get('shortcut') else 'GUI.CreateWidget',
+        'route': ('shortcut ' + row['shortcut'] if row.get('shortcut')
+                  else 'click ' + row['button'] if row.get('click') else 'GUI.CreateWidget'),
         'address': '%x' % address, 'widgets': len(family),
         'tree_size': len(nodes), 'seconds': round(time.time() - started, 1)})
     record['tree'] = [widget_record(nodes, a, d, i, scales, classes, flags, alphas)
                       for a, d, i in family]
     # The console is how most of these windows are opened, and it is drawn over the left third of
     # the screen while it stands open. Leaving it there costs nothing in the tree and everything in
-    # the capture, so it goes away for the length of the picture and comes straight back - the
-    # baseline was taken with it open, and `close_window` compares against that baseline.
-    game.set_console(False, nodes)
+    # the capture, so it goes away for the length of the picture and comes back exactly as it was -
+    # the baseline was taken in one console state and `close_window` compares against that baseline.
+    # A click round runs with it shut throughout, because half the buttons sit under it.
+    console = game.console_open(nodes)
+    if console:
+        game.set_console(False, nodes)
     record.update(capture(game.pid, name))
-    game.set_console(True)
+    if console:
+        game.set_console(True)
     record['boxes'], record['confirmed'], record['offscreen'] = confirmed(
         record['tree'], record['recognised'], record['size'])
     if not close_window(game, name, row, baseline):
@@ -356,16 +420,28 @@ def harvest(game, name, row, baseline, header):
 
 def main():
     pid = int(sys.argv[1])
-    wanted = sys.argv[2:]
+    arguments = sys.argv[2:]
+    by_click = '--click' in arguments
+    wanted = [a for a in arguments if a != '--click']
     os.makedirs(OUT, exist_ok=True)
     windows = json.load(open(MAP, encoding='utf-8'))['windows']
+    if by_click:
+        windows = click_routes(windows)
     names = wanted or sorted(windows)
+    unknown = [n for n in names if n not in windows]
+    if unknown:
+        raise SystemExit('no %s route for: %s'
+                         % ('click' if by_click else 'phase 0', ', '.join(unknown)))
 
     game = windowmap.Game(pid)
     if not paused(game):
         raise SystemExit('the clock is running: pause the game first, or the state is not '
                          'repeatable and the character can die halfway through')
     game.command('GUI.ClearWidgets')
+    # A click round runs with the console shut: it is drawn over the left third of the screen, and
+    # two of the buttons that open a window sit under it - a click there lands on the console.
+    if by_click:
+        game.set_console(False)
     time.sleep(1.0)
     nodes, _, baseline = game.state()
     header = {'measured': time.strftime('%Y-%m-%d %H:%M'), 'exe': derive.build_key(),

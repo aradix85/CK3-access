@@ -205,6 +205,7 @@ returns a pair, passed on as one thing, costs a run.
 | `alphas_for(addresses)` | value | Alpha of many widgets in as few channel questions as possible, the way flags_for does it. |
 | `capture(pid, name)` | dict | The window as pixels, plus everything the recogniser reads in it, with positions. |
 | `confirmed(tree, lines, size)` | 3-tuple | (text boxes that should be on screen, how many the recogniser reads back, how many lie |
+| `click_routes(windows)` | value | Window -> the button that opens it, from `reports\openers.json`. |
 | `open_window(game, name, row, baseline)` | 2-tuple | Open one window along the route phase 0 found for it, and prove it is drawn. |
 | `close_window(game, name, row, baseline, limit=12)` | bool | Shut it again and wait until the state before it is back. Anything left open contaminates |
 | `drawn_one(candidates, name)` | value | Of several window objects carrying the same name, the one that is actually drawn. |
@@ -234,7 +235,8 @@ returns a pair, passed on as one thing, costs a run.
 | call | returns | does |
 |---|---|---|
 | `buttons_on_disk()` | value | Every widget that opens a window when pressed, with how it does it. |
-| `press(address, nodes, scales, classes, row)` | NoneType of str | Click the middle of a widget, but only if it is really on screen. |
+| `on_screen(address, nodes, scales, classes)` | NoneType of str | Why this widget cannot be clicked, or None when it can. |
+| `press(address, nodes, scales, classes, row)` | NoneType of value | Click the middle of a widget, but only if it is really on screen. |
 | `back_to(game, baseline, tries=4)` | value of bool | Shut whatever opened. Escape only when something is open, or it opens the pause menu. |
 | `subtree_of(nodes, window)` | value of NoneType | The addresses under the drawn window object of that name, or None. |
 | `try_button(game, row, address, nodes, scales, classes, floor, date, number, total, where, fallback=None)` | value of str | Press one button, record what opened, and put the state back. |
@@ -253,7 +255,7 @@ returns a pair, passed on as one thing, costs a run.
 | `live_tree(record)` | 2-tuple | The harvest is a flat list with an address and a parent address; this is it as a tree. |
 | `pairs(window, table, local, known, root)` | value | Every live widget of one window with its source on disk, and the data context it inherits. |
 | `text_source(source, localization)` | value of str | What fills this widget: a key, a data function, both, or a placeholder. |
-| `sweep()` | 2-tuple | Every harvested window paired, as one tally. Takes about three minutes. |
+| `sweep()` | 3-tuple | Every harvested window paired, as one tally. Takes about three minutes. |
 | `main()` | nothing | - |
 
 ## ck3\savegame.py
