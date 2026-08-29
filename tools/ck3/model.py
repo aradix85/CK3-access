@@ -132,9 +132,11 @@ def readmany(addresses, count):
     The command takes at most about 400 addresses; the answer has a limit too, and it is not
     written down anywhere. A round asking for hundreds of kilobytes at a time is the one thing
     suspected of taking the game down on 28 August 2026, so the answer is bounded here as well.
+    Both bounds have to hold at once: asking for 32 bytes each would otherwise put over a
+    thousand addresses in one command and the DLL refuses the command rather than trimming it.
     """
     out = {}
-    per_question = max(1, 32768 // count)
+    per_question = max(1, min(400, 32768 // count))
     for start in range(0, len(addresses), per_question):
         part = addresses[start:start + per_question]
         answer = channel.ask('readmany %d %s' % (count, ' '.join('%x' % a for a in part)),

@@ -8,6 +8,14 @@ lives in `ARCHITECTURE.md`. This file says only what moved.
 
 ## 2026-08-29
 
+- `tools/ck3/numbering.py`: which number means which culture, faith, religion or trait, read out of
+  the running game instead of out of a save.
+- Reading it from a save is not slightly wrong but almost entirely: memory carries the numbering of
+  the save that was loaded, and against another state 2 of 237 faiths come out right.
+- `tools/ck3/anchor.py` reaches any database of the game state, not only the character store: the
+  class name and the test for a believable address are arguments now.
+- `readmany` bounds the number of addresses per question as well as the size of the answer; asking
+  for 32 bytes each used to put over a thousand addresses in one command, which the DLL refuses.
 - `tools/ck3/model.py`: the character record's layout is derived instead of written down — eighteen
   fields, reproducing at the same offsets the three that had been measured by hand.
 - That derivation is checked at start-up without a save, on four predictions that fail if an offset

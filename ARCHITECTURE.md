@@ -115,15 +115,19 @@ Five independent sources, and their disagreement is the test.
   name, culture and faith in the record, money and levies in sub-objects it points at. No offset is
   written down: the layout is derived against a save, then rechecked at every start without one, on
   predictions that fail if it has moved. `tools/ck3/calibrate.py` holds four hundred characters
-  against the save and names the field that disagrees.
+  against the save and names the field that disagrees. The same walk reaches the other databases of
+  the game state, so `tools/ck3/numbering.py` says which number means which culture, faith, religion
+  or trait — the files on disk decide which field of a record is the key, the running game decides
+  the order.
 - **The `.gui` files** — meaning: which data function fills a widget, which localisation key it
   carries, which tooltip hangs on it. `tools/ck3/guimap.py` parses the format properly rather than
   matching lines, merging the three engine layers and the active mods in load order and expanding a
   window with inheritance, `using` mixins and named slots resolved. This needs no game running.
-- **The save file**, plain text once uncompressed — the ground truth to check against, and where the
-  engine's own numbering of cultures, faiths and traits is written down. Two limits are worth
-  knowing. A save belongs to the state that wrote it, so the numbering in a save made under a
-  different set of mods is a different numbering. And seven fields — the levies and the military
+- **The save file**, plain text once uncompressed — the ground truth to check against. Two limits
+  are worth knowing. A save belongs to the state that wrote it, which is why the numbering of
+  cultures, faiths and religions is read out of the running game and not out of a file: memory
+  carries the numbering of the save that was loaded, and held against the numbering of another
+  state 2 of 237 faiths come out right. And seven fields — the levies and the military
   power — are recomputed around loading, so for those the file a state was loaded from disagrees
   with memory; the answer key has to be a save written from the state now loaded.
 - **The static data files** — province positions and adjacency, the de jure hierarchy, traits — hold

@@ -39,6 +39,7 @@ returns a pair, passed on as one thing, costs a run.
 | `document_paths()` | 2-tuple | Every project path named in a document, checked against the disk. |
 | `mod_windows(part)` | value | Windows in the map whose gui file is not part of the game itself. |
 | `harvest_total(part, field)` | value | A number summed over the harvest records: how big the round was, and how good. |
+| `quoted_numbers(claims)` | 2-tuple | Claims that a public document repeats, checked against the file that repeats them. |
 | `main(all_of_them)` | value | - |
 
 ## ocr.py
@@ -95,14 +96,16 @@ returns a pair, passed on as one thing, costs a run.
 | `grab(pid)` | 3-tuple | Returns (image, width, height) of the game window's drawing area. |
 
 ## ck3\anchor.py
-*The anchor into the game model: from the exe to the character database, without searching.*
+*The anchor into the game model: from the exe to a database of the game state, without searching.*
 
 | call | returns | does |
 |---|---|---|
-| `vtable(pid)` | value | The address of the character database's vtable in the running game. |
-| `find_database(pid)` | value | Find the database by searching memory for its vtable. |
-| `derive_global(pid)` | 2-tuple | The offset of the global variable pointing at the database. |
-| `database(pid)` | value | The database object, from the stored offset or else derived again. |
+| `vtables(pid, name=CLASS)` | list | Every vtable address of the class carrying exactly this RTTI name. |
+| `is_ref_database(address)` | value of bool | Does this address carry a believable TPdxRefDatabase? A table, and counts that are not |
+| `find_objects(pid, name=CLASS, valid=is_ref_database)` | value | Every believable object of this class, in the order memory gives them. |
+| `derive_global(pid, name=CLASS, valid=is_ref_database, tries=4)` | 2-tuple | The offset of the global variable pointing at one of those objects. |
+| `object_of(pid, name=CLASS, valid=is_ref_database)` | value | The object, from the stored offset or else derived again. |
+| `database(pid)` | value | The character database. |
 | `size(pid, db=None)` | 2-tuple | How many blocks, and therefore how many character slots, this game state has. |
 
 ## ck3\calibrate.py
@@ -249,6 +252,16 @@ returns a pair, passed on as one thing, costs a run.
 | `character(pid, handle, records=None)` | value | Every field of one character: the scalars from the record, the rest through the pointers. |
 | `main()` | nothing | - |
 | `compare(pid, save_path, count=400)` | 5-tuple | Every derived field of many characters, laid beside the save. The regression test. |
+
+## ck3\numbering.py
+*Which number means which culture, faith, religion or trait - read from the running game.*
+
+| call | returns | does |
+|---|---|---|
+| `on_disk(kind)` | set | Every key of this database as the files give it, mods merged in the engine's own order. |
+| `keys(pid, kind)` | value | Number -> key, from the running game. Disk is used to prove the reading, never to make it. |
+| `derive_layout(pid, kind)` | value | Where the key sits in a record of this database, kept under the key of this exe. |
+| `main(pid)` | nothing | - |
 
 ## ck3\openers.py
 *Which button opens which window? Clicks them and writes `reports\openers.json`.*

@@ -33,7 +33,6 @@
   "dread": "40 of 40 through the pointer at +0x1a0",
   "domain_limit": "77 of 77 through the pointer at +0x1a0"
  },
- "global_rva": 91275568,
  "name": {
   "offset": 8,
   "form": "string"
@@ -110,5 +109,29 @@
    "form": "int32"
   }
  },
- "derived_on": "80 characters, 0 records unreadable or reused"
+ "derived_on": "80 characters, 0 records unreadable or reused",
+ "globals": {
+  ".?AV?$TPdxRefDatabase@VCCulture@@$07@@": 91278208,
+  ".?AV?$TPdxRefDatabase@VCFaith@@$07@@": 91277096,
+  ".?AV?$TPdxRefDatabase@VCReligion@@$07@@": 91277152,
+  ".?AVCTraitDatabase@@": 91275512
+ },
+ "databases": {
+  "culture": {
+   "record": 2424,
+   "key": 472
+  },
+  "faith": {
+   "record": 1336,
+   "key": 152
+  },
+  "religion": {
+   "record": 424,
+   "key": 48
+  },
+  "trait": {
+   "array": 104,
+   "key": 24
+  }
+ }
 }
