@@ -37,7 +37,11 @@
    "<game>\\game\\gui",
    "*.gui"
   ],
-  "counting_rule": "files with the gui suffix under game\\gui, all subfolders included"
+  "counting_rule": "files with the gui suffix under game\\gui, all subfolders included",
+  "quoted_in": [
+   "brief\\buitenwereld.md",
+   "brief\\stand.md"
+  ]
  },
  {
   "name": "gui files, engine layer",
@@ -47,7 +51,11 @@
    "<game>\\clausewitz\\gui",
    "*.gui"
   ],
-  "counting_rule": "the same under clausewitz\\gui"
+  "counting_rule": "the same under clausewitz\\gui",
+  "quoted_in": [
+   "brief\\buitenwereld.md",
+   "brief\\stand.md"
+  ]
  },
  {
   "name": "gui files, jomini layer",
@@ -57,7 +65,11 @@
    "<game>\\jomini",
    "*.gui"
   ],
-  "counting_rule": "the same under the whole jomini folder: 91 in jomini\\gui plus the encyclopedia in jomini\\jomini\\gui, which a count on jomini\\gui alone would miss"
+  "counting_rule": "the same under the whole jomini folder: 91 in jomini\\gui plus the encyclopedia in jomini\\jomini\\gui, which a count on jomini\\gui alone would miss",
+  "quoted_in": [
+   "brief\\buitenwereld.md",
+   "brief\\stand.md"
+  ]
  },
  {
   "name": "gui files in the game folder, total",
@@ -77,7 +89,12 @@
    "<game>\\game\\localization\\english",
    "*.yml"
   ],
-  "counting_rule": "files with the yml suffix under localization\\english, all subfolders included"
+  "counting_rule": "files with the yml suffix under localization\\english, all subfolders included",
+  "quoted_in": [
+   "BRIEF.md",
+   "brief\\meetwerk.md",
+   "brief\\taken.md"
+  ]
  },
  {
   "name": "lines in shortcuts.shortcuts",
@@ -282,7 +299,9 @@
   ],
   "counting_rule": "records in harvest\\ with opened true; 18 of the 196 windows in the map refuse to open at all, the same 18 as in the round before",
   "quoted_in": [
-   "README.md"
+   "README.md",
+   "brief\\stand.md",
+   "brief\\taken.md"
   ]
  },
  {
@@ -340,7 +359,10 @@
   "arguments": [
    true
   ],
-  "counting_rule": "the same with the five enabled mods on top; the 69 mod files all add and none of them replaces a vanilla virtual path"
+  "counting_rule": "the same with the five enabled mods on top; the 69 mod files all add and none of them replaces a vanilla virtual path",
+  "quoted_in": [
+   "brief\\stand.md"
+  ]
  },
  {
   "name": "global gui templates",
@@ -349,7 +371,10 @@
   "arguments": [
    "global"
   ],
-  "counting_rule": "distinct names declared as `type` or `template` in the merged set, later declarations winning; both keywords reach across files, which is why they share one table"
+  "counting_rule": "distinct names declared as `type` or `template` in the merged set, later declarations winning; both keywords reach across files, which is why they share one table",
+  "quoted_in": [
+   "brief\\stand.md"
+  ]
  },
  {
   "name": "file-local gui templates",
@@ -366,7 +391,8 @@
   "measure": "gui_windows",
   "counting_rule": "`window = { name = ... }` blocks found by the parser in the merged set, at any depth and one entry per name. windows.json holds 197: its line reader met a window block carrying no name in frontend_load.gui and walked on to the next name it saw, which belongs to the template vbox_save_preview, so load_info is in the map and is not a window. Of these 196, 195 can be created with GUI.CreateWidget; colorpicker_window cannot, because that block sits inside a type definition and the console finds only top-level widgets",
   "quoted_in": [
-   "CHANGELOG.md"
+   "CHANGELOG.md",
+   "brief\\stand.md"
   ]
  },
  {
@@ -377,7 +403,10 @@
    "<project>\\reports\\pairing.json",
    "texts"
   ],
-  "counting_rule": "every widget with a non-empty text in the 178 harvested trees, counted while walking, and the walk asserts it saw all 70084 widgets of every record; a live subtree whose parent found no source used to be skipped, which shrank this denominator by dropping exactly the hard cases"
+  "counting_rule": "every widget with a non-empty text in the 178 harvested trees, counted while walking, and the walk asserts it saw all 70084 widgets of every record; a live subtree whose parent found no source used to be skipped, which shrank this denominator by dropping exactly the hard cases",
+  "quoted_in": [
+   "brief\\stand.md"
+  ]
  },
  {
   "name": "harvested texts paired with a place in a gui file",
@@ -457,7 +486,8 @@
   ],
   "counting_rule": "top-level keys in common/culture/cultures, game folder first and the five mods after it in load order, a file replacing the one at the same name. 244 without the mods; RICE brings most of the rest",
   "quoted_in": [
-   "CHANGELOG.md"
+   "CHANGELOG.md",
+   "brief\\stand.md"
   ]
  },
  {
@@ -478,7 +508,10 @@
    "faith",
    "keys"
   ],
-  "counting_rule": "a faith is not a top-level key: it hangs inside a religion under `faiths`, in common/religion/religion_types, and there is no `religions` folder at all. A line reader looking at column zero finds none of them. 140 without the mods"
+  "counting_rule": "a faith is not a top-level key: it hangs inside a religion under `faiths`, in common/religion/religion_types, and there is no `religions` folder at all. A line reader looking at column zero finds none of them. 140 without the mods",
+  "quoted_in": [
+   "brief\\stand.md"
+  ]
  },
  {
   "name": "cultures whose number the file order predicts",
