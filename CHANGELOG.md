@@ -16,6 +16,9 @@ lives in `ARCHITECTURE.md`. This file says only what moved.
   class name and the test for a believable address are arguments now.
 - `readmany` bounds the number of addresses per question as well as the size of the answer; asking
   for 32 bytes each used to put over a thousand addresses in one command, which the DLL refuses.
+- Twenty numbers a document repeats are now held to the measured value where three were: the gui
+  files per layer, the localisation files, the harvested windows, the cultures and faiths, the
+  merged gui set and its templates.
 - `tools/ck3/model.py`: the character record's layout is derived instead of written down — eighteen
   fields, reproducing at the same offsets the three that had been measured by hand.
 - That derivation is checked at start-up without a save, on four predictions that fail if an offset

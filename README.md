@@ -24,11 +24,12 @@ The machinery underneath, and nothing above it:
 - **An event reads end to end** — title, description, options — straight out of memory, checked
   against the localisation files on disk.
 - **178 windows have been harvested** widget by widget, and the `.gui` files are parsed and paired
-  with the live tree on structure, so meaning on disk reaches the three widgets in four that carry
-  no name.
+  with the live tree on structure, so meaning on disk reaches the widgets that carry no name — more
+  than three in four of the ones that show text.
 - **The game state is readable without searching:** any character's name, culture, faith, money and
-  levies. A regression pass holds four hundred of them against the save and names the field that
-  disagrees.
+  levies, and which number means which culture, faith, religion or trait, read out of the running
+  game rather than out of a save file. A regression pass holds four hundred characters against the
+  save and names the field that disagrees.
 
 All of this holds on 1.19.0.6 with every DLC and five content mods loaded. Every number behind it is
 in `reports/claims.json` with the rule it was counted by, and `tools/check.py` recomputes them.

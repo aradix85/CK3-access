@@ -340,7 +340,7 @@ MEASURES = {'bytes': bytes_of, 'lines': lines_of, 'files': files_in,
 
 
 def quoted_numbers(claims):
-    """Claims that a public document repeats, checked against the file that repeats them.
+    """Claims that a document repeats, checked against the file that repeats them.
 
     A number in `claims.json` is recomputed here, but a copy of it in `README.md` is not: it ages
     silently, and the reader outside this project has no way to tell. So a claim may name the files
@@ -405,7 +405,7 @@ def main(all_of_them):
     quotes, counted = quoted_numbers(claims)
     for problem in quotes:
         print('QUOTED  %s' % problem)
-    print('%d of the %d numbers a public document quotes are still the measured ones.'
+    print('%d of the %d numbers a document quotes are still the measured ones.'
           % (counted - len(quotes), counted))
     return 1 if drifted or missing or wrong or quotes else 0
 

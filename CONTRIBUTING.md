@@ -45,9 +45,9 @@ A number that carries a decision belongs in `claims.json` with its counting rule
 where, and how — rather than in prose. Three counts in this project were wrong because a folder was
 not walked, and nobody could see it because the rule was never written down.
 
-**If a public document repeats one of those numbers, say so in the claim.** A claim may list the
-files that quote it under `quoted_in`, and `check.py` then asserts the measured value still occurs
-there. Without that, `README.md` keeps yesterday's number and only a reader from outside notices.
+**If a document repeats one of those numbers, say so in the claim.** A claim may list the files that
+quote it under `quoted_in`, and `check.py` then asserts the measured value still occurs there.
+Without that, `README.md` keeps yesterday's number and only a reader from outside notices.
 
 Two things to expect. On a fresh clone the claims about the executable, the saves and the DLL read
 as drifted until you have built the DLL and have the game on disk; that is the tool working. And

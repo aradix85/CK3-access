@@ -32,11 +32,9 @@ character. That is all. It does **not** know what a county is, and it contains n
 **Python on the other side is fast enough, and that is measured.** NVDA is itself a Python program
 handling every keystroke on the machine; this side sends one question down a pipe and turns a few
 kilobytes into text. Two rules keep it there: let the DLL walk the tree and return a compact answer
-rather than raw bytes, and react to keys and events instead of walking the tree every frame.
-
-**Measure before making the DLL faster.** Re-checking the derivation once took 122 seconds, nearly
-all of it the Python side polling in fixed steps; a growing wait made it 3 seconds without a line of
-C++.
+rather than raw bytes, and react to keys and events instead of walking the tree every frame. And
+measure before making the DLL faster — re-checking the derivation once took 122 seconds, nearly all
+of it the Python side polling in fixed steps; a growing wait made it 3 seconds without a line of C++.
 
 **The pipe is a workbench, not a product.** It answers anything that can open it, and the primitives
 above add up to remote control of the game plus arbitrary memory reads — right for mapping an
@@ -101,8 +99,8 @@ record the point along with the result. `tools/ck3/openers.py` works that way.
 **A modifier key cannot be sent inward, and that is a Windows boundary rather than a gap here.** A
 key message carries no modifier information, and this game reads the state through raw input, where
 posted messages never arrive. Nothing needs it: of 705 bindings that use a modifier, exactly one
-opens a window, and that window has an ordinary button. It does not touch the product either, which
-never sends a key — it intercepts one and acts on it itself.
+opens a window, and that window has an ordinary button. The product never sends a key anyway — it
+intercepts one and acts on it itself.
 
 ## 5. Reading the game
 
@@ -110,15 +108,14 @@ Five independent sources, and their disagreement is the test.
 
 - **The widget tree** — structure, names, rectangles and text: what is on screen right now.
 - **The game model in memory** — the same values raw, plus everything no open window is showing.
-  `tools/ck3/anchor.py` walks from a global in the executable to the character database in four
-  reads; `tools/ck3/model.py` takes it from there and derives what sits where inside a record —
-  name, culture and faith in the record, money and levies in sub-objects it points at. No offset is
-  written down: the layout is derived against a save, then rechecked at every start without one, on
-  predictions that fail if it has moved. `tools/ck3/calibrate.py` holds four hundred characters
-  against the save and names the field that disagrees. The same walk reaches the other databases of
-  the game state, so `tools/ck3/numbering.py` says which number means which culture, faith, religion
-  or trait — the files on disk decide which field of a record is the key, the running game decides
-  the order.
+  `tools/ck3/anchor.py` walks from a global in the executable to a database of the game state in
+  four reads; `tools/ck3/model.py` derives what sits where inside a character record — name, culture
+  and faith in the record, money and levies in sub-objects it points at. No offset is written down:
+  the layout is derived against a save, then rechecked at every start without one, on predictions
+  that fail if it has moved. `tools/ck3/calibrate.py` holds four hundred characters against the save
+  and names the field that disagrees. `tools/ck3/numbering.py` uses the same walk for the culture,
+  faith, religion and trait databases: the files on disk decide which field of a record is the key,
+  the running game decides the order.
 - **The `.gui` files** — meaning: which data function fills a widget, which localisation key it
   carries, which tooltip hangs on it. `tools/ck3/guimap.py` parses the format properly rather than
   matching lines, merging the three engine layers and the active mods in load order and expanding a
@@ -148,12 +145,10 @@ three routes.
 
 **The first two sources are joined by structure, not by name.** `tools/ck3/pairing.py` lays the
 expanded tree from disk against the harvested tree on class and child order, so meaning reaches a
-widget carrying no name — three in four carry none. Names are kept out of the alignment on purpose,
-which leaves them free to score it: 98.4 per cent land right. The alignment has to allow one
-template row on disk to become many live rows, because that is what a data model does.
-
-**Numbering is read rather than derived, because it is not one rule:** cultures come out in exactly
-the file order, faiths only once grouped per religion, traits diverge where mods add theirs.
+widget carrying no name — more than three in four of the ones that show text. Names are kept out of
+the alignment on purpose, which leaves them free to score it: 98.4 per cent land right. The
+alignment has to allow one template row on disk to become many live rows, because that is what a
+data model does.
 
 **Three things about the gui format that a line-based reader gets wrong.** Load order carries
 meaning, because the last definition of a template wins — sorting the file list loses a mod that
