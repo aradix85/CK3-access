@@ -22,6 +22,9 @@ keeps its widgets, so the counter could not have shown it" is.
   first five on the list. A run that finishes without an error is not a result; a prediction that
   came true is.
 - **State the build.** Game version, DLC, mods, and whether debug mode was on.
+- **English only.** Names, comments, docstrings, messages, the channel protocol and the keys in
+  `reports/` are all English, and mixing a second language back in is how a half-finished rename
+  hides.
 - **Derive, do not hard-code.** No memory addresses, field offsets, click coordinates or widget
   positions in source. If you need one, derive it and verify it at runtime.
 - **Do not add game files.** Nothing belonging to Paradox goes in this repository, ever.
@@ -41,6 +44,10 @@ path the documentation names still exists. It has to pass.
 A number that carries a decision belongs in `claims.json` with its counting rule — what was counted,
 where, and how — rather than in prose. Three counts in this project were wrong because a folder was
 not walked, and nobody could see it because the rule was never written down.
+
+**If a public document repeats one of those numbers, say so in the claim.** A claim may list the
+files that quote it under `quoted_in`, and `check.py` then asserts the measured value still occurs
+there. Without that, `README.md` keeps yesterday's number and only a reader from outside notices.
 
 Two things to expect. On a fresh clone the claims about the executable, the saves and the DLL read
 as drifted until you have built the DLL and have the game on disk; that is the tool working. And

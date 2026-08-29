@@ -339,6 +339,33 @@ MEASURES = {'bytes': bytes_of, 'lines': lines_of, 'files': files_in,
 
 
 
+def quoted_numbers(claims):
+    """Claims that a public document repeats, checked against the file that repeats them.
+
+    A number in `claims.json` is recomputed here, but a copy of it in `README.md` is not: it ages
+    silently, and the reader outside this project has no way to tell. So a claim may name the files
+    that quote it in `quoted_in`, and this asserts the measured value still occurs there. It is the
+    same convention as backticks for paths - saying it out loud is what makes it checkable.
+
+    Returns (problems, how many quotes were checked).
+    """
+    problems, seen = [], 0
+    for claim in claims:
+        for name in claim.get('quoted_in', ()):
+            seen += 1
+            path = os.path.join(PROJ, name)
+            if not os.path.exists(path):
+                problems.append('%s quotes %s, which does not exist' % (claim['name'], name))
+                continue
+            measure = MEASURES[claim['measure']]
+            measured = str(measure(*claim.get('arguments', [])))
+            text = open(path, encoding='utf-8').read()
+            if not re.search(r'(?<![\d.])%s(?![\d])' % re.escape(measured), text):
+                problems.append('%s says %s, and %s does not'
+                                % (claim['name'], measured, name))
+    return problems, seen
+
+
 def main(all_of_them):
     claims = json.load(open(os.path.join(PROJ, 'reports', 'claims.json'),
                                 encoding='utf-8'))
@@ -374,7 +401,13 @@ def main(all_of_them):
         print('STALE   %s' % problem)
     print('%d of the %d channel commands named in the documents exist.'
           % (claimed - len(wrong), claimed))
-    return 1 if drifted or missing or wrong else 0
+
+    quotes, counted = quoted_numbers(claims)
+    for problem in quotes:
+        print('QUOTED  %s' % problem)
+    print('%d of the %d numbers a public document quotes are still the measured ones.'
+          % (counted - len(quotes), counted))
+    return 1 if drifted or missing or wrong or quotes else 0
 
 
 if __name__ == '__main__':

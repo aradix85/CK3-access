@@ -1,7 +1,17 @@
 # Architecture
 
-Six parts, separated where the maintenance cost lives — that is, where a game patch is most likely
+Seven parts, separated where the maintenance cost lives — that is, where a game patch is most likely
 to hit.
+
+| | Part | What it is for |
+|---|---|---|
+| 1 | **The channel** — `dll/channel.cpp` | a few primitives over a pipe; knows nothing about the game |
+| 2 | **Derivation** — `tools/ck3/derive.py` | finds every memory offset again at each start |
+| 3 | **Visibility** | which of the tree is really on screen; three mechanisms, all needed |
+| 4 | **Input** | keys taken before the game sees them; clicks posted inward |
+| 5 | **Reading the game** | five independent sources, and their disagreement is the test |
+| 6 | **Presentation** | what gets said and in what order — not built yet |
+| 7 | **Speech** — `tools/nvda/speech.py` | one seam to NVDA, speech and braille together |
 
 **Where this is heading, because it decides where new code belongs.** For a real user, installing
 has to mean one DLL, the NVDA controller client beside it, and a launch option in Steam: no Python,
@@ -165,7 +175,7 @@ within a window either. The structural alignment in section 5 replaces it.
 order and the tree reader keeps the lines that way; the parent offset says who the parent is and
 never in which place. A pass that sorts the children destroys the only copy — which has happened.
 
-## Speech — `tools/nvda/speech.py`
+## 7. Speech — `tools/nvda/speech.py`
 
 One function: text, braille text, mode. **Braille is never optional** — leave it out and the spoken
 text goes to the display, because a seam a caller can forget one channel in loses that channel

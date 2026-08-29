@@ -1,6 +1,7 @@
 # Third-party packages the tooling needs. Versions are the ones this was measured on, August 2026;
 # newer usually works, but the recognition setup is deliberately pinned in spirit: rapidocr 3.x with
-# the OpenVINO engine, and PP-OCRv6 tiny for recognition. See ARCHITECTURE.md, layer 3.
+# the OpenVINO engine, and PP-OCRv6 tiny for recognition. Recognition is a measuring instrument
+# here, not how the game is read; see ARCHITECTURE.md, section 5.
 #
 # Windows only. The DLL additionally needs the Visual Studio Build Tools (MSVC, x64) to compile;
 # dll/build_channel.bat calls vcvars64.bat and does the rest.
