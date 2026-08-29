@@ -19,6 +19,9 @@ One line per change: what changed and why. Dates are the day the work was measur
 - `tools/ck3/savegame.py` took the save folder from a spelled-out path instead of `tools/paths.py`.
 - The claim about the engine's culture numbering names the save it rests on; it used whichever save
   was newest, which made it measure something other than its own counting rule.
+- `ARCHITECTURE.md` says what the pipe is for. It is a workbench: a released build carries none, and
+  the DLL never opens a network connection. Recorded because someone packaging this would otherwise
+  ship remote control of the game as a feature.
 
 ## 2026-08-28
 
