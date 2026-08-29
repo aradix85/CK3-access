@@ -28,13 +28,11 @@ rather than raw bytes, and react to keys and events instead of walking the tree 
 all of it the Python side polling in fixed steps; a growing wait made it 3 seconds without a line of
 C++.
 
-**The pipe is a workbench, not a product.** It answers anything that can open it, with no check on
-who that is, and the primitives above amount to remote control of the game plus arbitrary memory
-reads. That is the right tool for mapping an interface and the wrong thing to ship: it looks like a
-trojan, it is an abuse surface, and in multiplayer it is a cheating tool. So a released build
-carries no pipe at all — the logic moves inside, and the only thing leaving the process is a
-sentence for NVDA. If a debugging entrance is ever needed it stays off by default and offers
-neither arbitrary reads nor calling into the game. The DLL never opens a network connection.
+**The pipe is a workbench, not a product.** It answers anything that can open it, and the primitives
+above add up to remote control of the game plus arbitrary memory reads — right for mapping an
+interface, wrong to ship, and in multiplayer a cheating tool. A released build carries no pipe: the
+logic moves inside, and the only thing leaving the process is a sentence for NVDA. The DLL never
+opens a network connection.
 
 **One rule for anything added here:** a limit either grows or announces itself, never silently. The
 costliest bug in this project was a tree walk that stopped at 20,000 nodes and dropped children
