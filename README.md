@@ -2,6 +2,9 @@
 
 Screen reader access for **Crusader Kings III**, without OCR.
 
+> **Status: research. Not playable yet** — there is no installable mod, and nothing is read aloud
+> during play. What works is the machinery underneath; see below.
+
 The game keeps its whole interface in memory as a widget tree, and it ships the full MSVC RTTI
 tree, so that tree can be located and read directly: names, texts, rectangles, visibility. This
 project injects a small DLL that reads it and hands the result to NVDA.
@@ -9,29 +12,26 @@ project injects a small DLL that reads it and hands the result to NVDA.
 **No game files are copied or redistributed.** Everything is read at runtime from the running
 process and from files already on your disk.
 
-## Status: research, not yet playable
+## What works
 
-There is **no installable mod**, and nothing is read aloud to you during play. What exists is the
-machinery underneath:
+The machinery underneath, and nothing above it:
 
-- The DLL injects and answers about 25 seconds after launch. Mouse and key input is posted from
-  inside the process, so it never takes focus off your screen.
-- Nine memory field offsets are re-derived and re-verified at **every start**, so a patch does not
-  break it. Tested against 1.16.2: one had moved, and it recovered on its own.
-- An event window can be read and answered end to end — title, description, options — straight out
-  of memory, checked against the localisation files on disk.
-- The game state is reachable without searching: from a global in the executable to any character in
-  four reads. A regression pass holds four hundred of them against the save and names the field that
-  disagrees; it runs clean on three game states differing in era, faith, government and mod set.
-- 178 windows have been harvested widget by widget. **A window only carries its data when it is
-  opened the way a player opens it**; built from the console it has its shape and its captions and
-  nothing else.
-- The `.gui` files are parsed rather than grepped, and that expansion is paired with the live tree
-  on structure, so meaning on disk reaches the three widgets in four that carry no name.
-- All of this holds on 1.19.0.6 with every DLC and five content mods loaded.
+- **The channel.** An injected DLL answers about 25 seconds after launch, reads the widget
+  tree, and posts mouse and key input from inside the process — it never takes focus off your screen.
+- **It survives a patch.** Every offset it uses, both in the interface and in the character record,
+  is derived from the running game and rechecked at each start instead of being written down. Tried
+  against build 1.16.2: one offset had moved, and it recovered on its own.
+- **An event reads end to end** — title, description, options — straight out of memory, checked
+  against the localisation files on disk.
+- **178 windows have been harvested** widget by widget, and the `.gui` files are parsed and paired
+  with the live tree on structure, so meaning on disk reaches the three widgets in four that carry
+  no name.
+- **The game state is readable without searching:** any character's name, culture, faith, money and
+  levies. A regression pass holds four hundred of them against the save and names the field that
+  disagrees.
 
-Every number behind these claims is in `reports/claims.json` with the rule it was counted by, and
-`tools/check.py` recomputes them.
+All of this holds on 1.19.0.6 with every DLC and five content mods loaded. Every number behind it is
+in `reports/claims.json` with the rule it was counted by, and `tools/check.py` recomputes them.
 
 What is missing is the half a player would notice: nothing decides *what* to say, in *what order*.
 

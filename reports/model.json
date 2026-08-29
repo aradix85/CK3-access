@@ -14,6 +14,101 @@
   "skill": 164,
   "note": "six times 32 bits; this is what the object was found by, not a separately tested field"
  },
- "evidence": "field offsets relative to the handle field, tested against two saves: 400 characters across 63 blocks in Bohemia 1066 and 400 across 40 blocks in Ghur 867, zero deviations",
- "global_rva": 91275568
+ "evidence": {
+  "culture": "78 of 78 in the record",
+  "faith": "78 of 78 in the record",
+  "dynasty_house": "44 of 44 in the record",
+  "gold": "72 of 72 through the pointer at +0x190",
+  "piety": "80 of 80 through the pointer at +0x190",
+  "prestige": "80 of 80 through the pointer at +0x190",
+  "current_strength": "80 of 80 through the pointer at +0x1a0",
+  "strength": "80 of 80 through the pointer at +0x1a0",
+  "strength_for_liege": "53 of 53 through the pointer at +0x1a0",
+  "strength_without_hires": "78 of 78 through the pointer at +0x1a0",
+  "levy": "71 of 71 through the pointer at +0x1a0",
+  "power": "80 of 80 through the pointer at +0x1a0",
+  "max_power": "80 of 80 through the pointer at +0x1a0",
+  "balance": "71 of 71 through the pointer at +0x1a0",
+  "liege_tax": "54 of 54 through the pointer at +0x1a0",
+  "dread": "40 of 40 through the pointer at +0x1a0",
+  "domain_limit": "77 of 77 through the pointer at +0x1a0"
+ },
+ "global_rva": 91275568,
+ "name": {
+  "offset": 8,
+  "form": "string"
+ },
+ "indirect": {
+  "gold": {
+   "pointer": 400,
+   "offset": 256,
+   "form": "fixed64"
+  },
+  "piety": {
+   "pointer": 400,
+   "offset": 272,
+   "form": "fixed64"
+  },
+  "prestige": {
+   "pointer": 400,
+   "offset": 304,
+   "form": "fixed64"
+  },
+  "current_strength": {
+   "pointer": 416,
+   "offset": 96,
+   "form": "int32"
+  },
+  "strength": {
+   "pointer": 416,
+   "offset": 100,
+   "form": "int32"
+  },
+  "strength_for_liege": {
+   "pointer": 416,
+   "offset": 104,
+   "form": "int32"
+  },
+  "strength_without_hires": {
+   "pointer": 416,
+   "offset": 108,
+   "form": "int32"
+  },
+  "levy": {
+   "pointer": 416,
+   "offset": 112,
+   "form": "int32"
+  },
+  "power": {
+   "pointer": 416,
+   "offset": 128,
+   "form": "fixed64"
+  },
+  "max_power": {
+   "pointer": 416,
+   "offset": 120,
+   "form": "fixed64"
+  },
+  "balance": {
+   "pointer": 416,
+   "offset": 704,
+   "form": "fixed64"
+  },
+  "liege_tax": {
+   "pointer": 416,
+   "offset": 712,
+   "form": "fixed64"
+  },
+  "dread": {
+   "pointer": 416,
+   "offset": 848,
+   "form": "fixed64"
+  },
+  "domain_limit": {
+   "pointer": 416,
+   "offset": 976,
+   "form": "int32"
+  }
+ },
+ "derived_on": "80 characters, 0 records unreadable or reused"
 }

@@ -33,7 +33,7 @@ returns a pair, passed on as one thing, costs a run.
 | `gui_windows()` | value | - |
 | `gui_dlc(what)` | value | How the gui set gates content behind an expansion, counted over the merged files. |
 | `guimap_files()` | value | - |
-| `database_entries(kind, what)` | value | Entries of one of the game's databases, merged the way the engine merges them. |
+| `database_entries(kind, what, save=None)` | value | Entries of one of the game's databases, merged the way the engine merges them. |
 | `gamestate_mb(part)` | value | - |
 | `repo_files()` | value | Counts what a `git init` would take into the repo: everything .gitignore does not exclude. |
 | `document_paths()` | 2-tuple | Every project path named in a document, checked against the disk. |
@@ -95,7 +95,7 @@ returns a pair, passed on as one thing, costs a run.
 | `grab(pid)` | 3-tuple | Returns (image, width, height) of the game window's drawing area. |
 
 ## ck3\anchor.py
-*The anchor into the game model: from the exe to a character, without searching.*
+*The anchor into the game model: from the exe to the character database, without searching.*
 
 | call | returns | does |
 |---|---|---|
@@ -103,7 +103,6 @@ returns a pair, passed on as one thing, costs a run.
 | `find_database(pid)` | value | Find the database by searching memory for its vtable. |
 | `derive_global(pid)` | 2-tuple | The offset of the global variable pointing at the database. |
 | `database(pid)` | value | The database object, from the stored offset or else derived again. |
-| `character(pid, number, db=None)` | 2-tuple | The fields of character N, computed rather than searched for. |
 | `size(pid, db=None)` | 2-tuple | How many blocks, and therefore how many character slots, this game state has. |
 
 ## ck3\calibrate.py
@@ -111,11 +110,10 @@ returns a pair, passed on as one thing, costs a run.
 
 | call | returns | does |
 |---|---|---|
-| `answer_key(save=None)` | 2-tuple | The unpacked save that serves as the answer key, with its path. |
-| `test_model(key_sheet, pid, numbers)` | 4-tuple | Reads characters through the anchor and puts every field beside the save. |
+| `save_named(save=None)` | value | The path of the save that serves as the answer key. |
 | `text_boxes(nodes)` | list | The addresses of the text boxes, found through the vtable that touches the localization files. |
 | `test_ocr(pid, nodes, addresses)` | 4-tuple | Reads every text box actually on screen and puts it beside the widget text. |
-| `main(pid, count=400, step=97, save=None)` | nothing | - |
+| `main(pid, count=400, save=None)` | nothing | - |
 
 ## ck3\channel.py
 *Talks to the channel inside the DLL.*
@@ -228,6 +226,29 @@ returns a pair, passed on as one thing, costs a run.
 | `vtables_by_name(part)` | value of NoneType | Vtable RVAs of classes whose RTTI name contains `part` - NOTE: case sensitive. |
 | `screen_size()` | 2-tuple | - |
 | `type_name_count()` | value | How many RTTI type names the exe contains. |
+
+## ck3\model.py
+*The character record laid out: which offset carries what, derived rather than written down.*
+
+| call | returns | does |
+|---|---|---|
+| `to_fixed(text)` | value | A decimal from the save as the whole number the game keeps: the point moved five places. |
+| `forms(text)` | value | Every byte form this value could be kept in, named. Six of them, and naming them is the |
+| `value_of(chunk, offset, form)` | value | - |
+| `stored()` | value | - |
+| `readmany(addresses, count)` | value | Raw bytes per address, in questions whose answer stays under 32 kB. |
+| `records_for(pid, handles)` | 2-tuple | The bytes of each character's record, keyed by handle, with the wrong ones left out. |
+| `answer_key(save_path, handles=None)` | value | What the save says about every landed character, as the text the save writes. |
+| `string_at(chunk, offset)` | value of NoneType | An MSVC string laid out in place: characters, then length, then capacity. |
+| `long_string_at(chunk, offset)` | 2-tuple of NoneType | (address, length) of a string too long to sit in the record, or None. |
+| `names_of(records, offset)` | value | The name of every record, following the pointer for the long ones in one bulk read. |
+| `derive_all(pid, rows, block_bytes=1024)` | 6-tuple | Every offset, found by laying the save beside the memory of the running game. |
+| `build(pid, rows, block_bytes=1024, against=None)` | value | Derive and fold the result into the model, keeping the offsets relative to the handle |
+| `sample_slots(pid, wanted=200)` | 2-tuple | Slots spread over the whole database, with what their record says about itself. |
+| `check(pid, wanted=400)` | value of list | Does the stored derivation still hold against the game running right now? |
+| `character(pid, handle, records=None)` | value | Every field of one character: the scalars from the record, the rest through the pointers. |
+| `main()` | nothing | - |
+| `compare(pid, save_path, count=400)` | 5-tuple | Every derived field of many characters, laid beside the save. The regression test. |
 
 ## ck3\openers.py
 *Which button opens which window? Clicks them and writes `reports\openers.json`.*

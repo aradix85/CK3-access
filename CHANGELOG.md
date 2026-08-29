@@ -3,6 +3,23 @@
 One line per change: what changed and why. Dates are the day the work was measured. Numbers live in
 `reports/claims.json`, where they can be recomputed; the reasoning lives in `ARCHITECTURE.md`.
 
+## 2026-08-29
+
+- `tools/ck3/model.py`: the character record's layout is derived instead of written down. Eighteen
+  fields, and it reproduced the three that had been measured by hand at the same offsets.
+- Its start-up check needs no save, and was shown to fail before it was trusted: three offsets
+  shifted on purpose raised three different alarms.
+- Seven fields do not survive a load — the levies and military power are recomputed — so the file a
+  state was loaded from disagrees with memory for a third of all characters. `calibrate.py` reports
+  those apart; otherwise a stale answer key reads exactly like a field that moved after a patch.
+- The record holds the name *key*, `SU_rI_` rather than `Sūrī`, and a name over fifteen characters
+  sits behind a pointer. Both handled: names now match the save 400 out of 400.
+- `calibrate.py` uses that comparison instead of its own, covering eighteen fields where it covered
+  three. `anchor.character` went with it — two modules knew the same layout.
+- `tools/ck3/savegame.py` took the save folder from a spelled-out path instead of `tools/paths.py`.
+- The claim about the engine's culture numbering names the save it rests on; it used whichever save
+  was newest, which made it measure something other than its own counting rule.
+
 ## 2026-08-28
 
 - The last two Dutch remnants are gone. `channel.cpp` ended a bulk read with a Dutch word; no caller

@@ -1,4 +1,4 @@
-"""The anchor into the game model: from the exe to a character, without searching.
+"""The anchor into the game model: from the exe to the character database, without searching.
 
 The chain. A character is a `CCharacter` and the storage is `TPdxRefDatabase<CCharacter, 8>`. That
 object has a vtable, so the class can be found by name in the exe. A global variable in the exe
@@ -6,9 +6,10 @@ points at the object; it sits at a fixed place within a build. From there:
 
     global -> database -> block table -> block -> record
 
-Character N lives in block `N // 1024`, record `N % 1024`, and the record starts 24 bytes before
-the field carrying its number. The numbers are slot numbers without any shift: low numbers are
-filled with the dead and with historical characters, the living sit above 32768.
+This module stops at the database. **Walking the block table and reading a record is `model.py`**,
+which also derives what sits where inside one; keeping both here would mean two places knowing the
+same layout. The numbers are slot numbers without any shift: low numbers are filled with the dead
+and with historical characters, the living sit above 32768.
 
 Why this still works after a patch. None of it is written down. The vtable comes from the exe, the
 offset of the global is derived and stored under a key made from that same exe, and at every start
@@ -122,33 +123,6 @@ def database(pid):
     return address
 
 
-def character(pid, number, db=None):
-    """The fields of character N, computed rather than searched for.
-
-    A number outside the blocks is a caller's mistake and not an edge case: the number of blocks
-    is in the database and can be asked for with `size`.
-    """
-    model = _model()
-    db = db or database(pid)
-    header = derive.read(db, 24)
-    table = struct.unpack_from('<Q', header, 8)[0]
-    blocks = struct.unpack_from('<I', header, 16)[0]
-    if number // PER_BLOCK >= blocks:
-        raise ValueError('character %d falls outside the %d blocks (at most %d)'
-                         % (number, blocks, blocks * PER_BLOCK - 1))
-    block = struct.unpack('<Q', derive.read(table + (number // PER_BLOCK) * 8, 8))[0]
-    pos = block + (number % PER_BLOCK) * model['record_length'] + model['number_field_in_record']
-    raw = derive.read(pos, max(model['fields'].values()) + 8)
-    if raw is None:
-        raise ValueError('record of character %d unreadable at %x' % (number, pos))
-    values = {name: struct.unpack_from('<i', raw, offset)[0]
-               for name, offset in model['fields'].items()}
-    handle = struct.unpack_from('<I', raw, 0)[0]
-    values['number'] = handle & model['number_mask']
-    values['generation'] = handle >> 24
-    return pos, values
-
-
 def size(pid, db=None):
     """How many blocks, and therefore how many character slots, this game state has."""
     header = derive.read(db or database(pid), 24)
@@ -160,7 +134,10 @@ if __name__ == '__main__':
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
     pid = int(sys.argv[1])
     db = database(pid)
-    print('database at %x' % db)
+    blocks, slots = size(pid, db)
+    print('database at %x, %d blocks, %d character slots' % (db, blocks, slots))
+    # Reading a character is `model.py`: this module's job ends at the database. Imported here
+    # rather than at the top, because model imports this one.
+    import model
     for number in [int(a) for a in sys.argv[2:]] or [32769]:
-        pos, values = character(pid, number, db)
-        print('%d at %x -> %s' % (number, pos, values))
+        print('%d -> %s' % (number, model.character(pid, number)))

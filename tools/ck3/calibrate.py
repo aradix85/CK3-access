@@ -5,20 +5,24 @@ against it separately and reported separately, because the value is in knowing w
 broken: if a field offset shifts after a patch, only the game model fails and the rest stands.
 
 Usage:
-    python tools\\ck3\\calibrate.py <pid> [<number of characters>] [<step>] [<save>]
+    python tools\\ck3\\calibrate.py <pid> [<number of characters>] [<save>]
 
 The save argument is any part of a save file name, and it is what you reach for when the game has
 something other than the newest save loaded. Recognition is tested against the widget tree, the
-game model against the save. Take a step large
-enough to cross several blocks; within one block you are not testing the block arithmetic.
-The field offsets live in `reports\\model.json` and belong to be derived there, not typed in here.
+game model against the save, and the characters are taken spread across the whole database so that
+the block arithmetic is tested rather than one block.
+
+**Seven fields need a save written from the state now loaded**, not the file that state was loaded
+from: the game recomputes the levies around loading. They are reported apart, so that a
+disagreement there reads as a stale answer key rather than as a moved field.
+The field offsets live in `reports\\model.json` and are derived by `model.py`, not typed in.
 """
 import glob
 import os
 import sys
 
 import derive
-import anchor
+import model
 import savegame
 
 PROJECT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -26,70 +30,24 @@ MODEL = os.path.join(PROJECT, 'reports', 'model.json')
 sys.path.insert(0, os.path.join(PROJECT, 'tools'))  # boxreader and windowgrab sit one folder up
 
 
-def answer_key(save=None):
-    """The unpacked save that serves as the answer key, with its path.
+def save_named(save=None):
+    """The path of the save that serves as the answer key.
 
     Defaults to the newest readable save. Name the save - any part of the file name will do - when
     the game has a different one loaded. Memory carries the state that was loaded, and held against
     another save every field disagrees at once, which reads exactly like a shifted field offset.
+
+    **For the seven fields the game recomputes around loading this is not enough**, and that was
+    measured on two states on 29 August 2026: the file the state was loaded from disagrees with
+    memory for a third of all characters. Those need a save written from the state now loaded.
     """
     if save is None:
-        path = savegame.newest_readable_save()
-    else:
-        matches = [p for p in glob.glob(os.path.join(savegame.SAVE_DIR, '*.ck3'))
-                   if save.lower() in os.path.basename(p).lower()]
-        if len(matches) != 1:
-            raise SystemExit('%d saves carry %r in their name, so it says nothing' % (len(matches), save))
-        path = matches[0]
-    return path, savegame.unpack(path)
-
-
-def test_model(key_sheet, pid, numbers):
-    """Reads characters through the anchor and puts every field beside the save.
-
-    Unknown numbers are counted, not scored as errors: an empty slot is normal, and a character
-    the save does not know is not a shifted field offset. Walk across several blocks, or you are
-    not testing the block arithmetic.
-
-    The database object is fetched once and handed down. Letting `anchor.character` find it again
-    per character is what made this round unusable: measured 28 August 2026, twenty characters cost
-    0.08 s with the object passed in and five cost 9.9 s without, because looking the database up
-    is 1.9 s on its own. Reading a character is 4 ms; everything else was the lookup.
-    """
-    counters = {}
-    index = savegame.character_index(key_sheet)
-    db = anchor.database(pid)
-    unknown, empty, misses = 0, 0, []
-    for number in numbers:
-        pos, from_memory = anchor.character(pid, number, db)
-        if from_memory['number'] != number:
-            empty += 1
-            continue
-        values = savegame.numbers(_character_block(key_sheet, index, number))
-        if not values:
-            unknown += 1
-            continue
-        for field in from_memory:
-            if field not in values:
-                continue
-            ok, total = counters.get(field, (0, 0))
-            matches = from_memory[field] == values[field]
-            counters[field] = (ok + (1 if matches else 0), total + 1)
-            if not matches and len(misses) < 5:
-                misses.append('%s at %d: memory %d, save %d'
-                           % (field, number, from_memory[field], values[field]))
-    return counters, unknown, empty, misses
-
-
-def _character_block(key_sheet, index, number):
-    """The block of a character, and not that of a title with the same number.
-
-    The index carries that distinction - see `savegame.character_index` - and it is what keeps a
-    round of hundreds of characters affordable.
-    """
-    if number not in index:
-        return None
-    return savegame.block(key_sheet, str(number), index[number] - 1)
+        return savegame.newest_readable_save()
+    matches = [p for p in glob.glob(os.path.join(savegame.SAVE_DIR, '*.ck3'))
+               if save.lower() in os.path.basename(p).lower()]
+    if len(matches) != 1:
+        raise SystemExit('%d saves carry %r in their name, so it says nothing' % (len(matches), save))
+    return matches[0]
 
 
 def text_boxes(nodes):
@@ -160,8 +118,8 @@ def test_ocr(pid, nodes, addresses):
     return ok, total, covered, misses
 
 
-def main(pid, count=400, step=97, save=None):
-    path, key_sheet = answer_key(save)
+def main(pid, count=400, save=None):
+    path = save_named(save)
     print('answer key: %s' % os.path.basename(path))
 
     fields = derive.fields_for(pid)[0]
@@ -176,19 +134,33 @@ def main(pid, count=400, step=97, save=None):
     for line in misses:
         print('   %s' % line)
 
-    blocks, places = anchor.size(pid)
-    numbers = list(range(1, places, step))[:count]
-    counters, unknown, empty, misses = test_model(key_sheet, pid, numbers)
-    print('game model: %d characters across %d blocks' % (len(numbers), blocks))
+    counters, read, wrong, misses, places = model.compare(pid, path, count)
+    blocks = places // 1024
+    print('game model: %d characters read across %d blocks, %d slots reused or unreadable'
+          % (read, blocks, wrong))
     for field, (g, t) in sorted(counters.items()):
-        print('   %-14s %d of %d' % (field, g, t))
-    print('   %d empty slots, %d numbers the save did not know' % (empty, unknown))
+        print('   %-24s %d of %d%s' % (field, g, t,
+                                       '   recomputed on load' if field in model.RECOMPUTED_ON_LOAD
+                                       else ''))
     for line in misses:
         print('   %s' % line)
-    # The verdict, because that is the whole point after a patch: which field moved?
-    shifted = ['%s (%d wrong)' % (f, t - g) for f, (g, t) in sorted(counters.items()) if g < t]
+    # The verdict, because that is the whole point after a patch: which field moved? A field that
+    # is recomputed around loading is called out separately - there the likely fault is the answer
+    # key rather than the offset, and saying so is what stops the next session hunting a ghost.
+    shifted = ['%s (%d wrong)' % (f, t - g) for f, (g, t) in sorted(counters.items())
+               if g < t and f not in model.RECOMPUTED_ON_LOAD]
+    stale = ['%s (%d wrong)' % (f, t - g) for f, (g, t) in sorted(counters.items())
+             if g < t and f in model.RECOMPUTED_ON_LOAD]
     print('   %s' % ('fields that disagree with the save: ' + ', '.join(shifted) if shifted
-                     else 'every field agrees with the save'))
+                     else 'every field that survives a load agrees with the save'))
+    if stale:
+        print('   these are recomputed around loading, so this points at the answer key rather '
+              'than at a moved field: %s' % ', '.join(stale))
+        print('   write a save from the state now loaded and hand that one in instead')
+    defects = model.check(pid)
+    print('   the derivation itself %s'
+          % ('holds against the running game' if not defects else 'has defects: '
+             + '; '.join(defects)))
 
 
 if __name__ == '__main__':

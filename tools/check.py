@@ -179,12 +179,18 @@ def guimap_files():
     return guimap.files()
 
 
-def database_entries(kind, what):
+def database_entries(kind, what, save=None):
     """Entries of one of the game's databases, merged the way the engine merges them.
 
     `named` is the check rather than a statistic: a key that also resolves to a sentence in the
     localization files exists in two independent places, so a reader that walked into the wrong
     part of the file would show up here as a gap rather than as a plausible list.
+
+    **`numbered` needs the save named, not the newest one.** The engine's numbering belongs to the
+    state that wrote it, so a save made under a different set of mods gives a different answer:
+    measured 29 August 2026, the claim of 463 fell to 244 the moment a save from before the mods
+    became the newest file in the folder. Reading whichever save is newest makes this claim say
+    something other than what its counting rule says, and the failure looks like a broken reader.
     """
     sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'ck3'))
     import database
@@ -192,8 +198,10 @@ def database_entries(kind, what):
         return len(database.entries(kind))
     if what == 'named':
         return len(database.named(kind))
+    import savegame
     keys = [k for k, _, _ in database.entries(kind)]
-    return sum(1 for n, key in database.numbering(kind).items()
+    text = savegame.unpack(_path(save)) if save else None
+    return sum(1 for n, key in database.numbering(kind, text).items()
                if n < len(keys) and keys[n] == key)
 
 

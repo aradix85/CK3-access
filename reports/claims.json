@@ -268,9 +268,9 @@
  },
  {
   "name": "files that go into the repo",
-  "claimed": 51,
+  "claimed": 52,
   "measure": "repo_files",
-  "counting_rule": "files under the project folder that .gitignore does not exclude; on 23 August 2026 git ls-files --others --exclude-standard counted the same number. 45 until 25 August 2026, when the click round added tools/ck3/openers.py and reports/openers.json; 48 when the gui reader added tools/ck3/guimap.py; 47 when docsearch.py was taken out, because it reads only the working notes; 50 since the NVDA sleep-mode add-on added three files under tools/nvda/addon; 52 since the alignment added tools/ck3/pairing.py and reports/pairing.json; 53 since the database reader added tools/ck3/database.py; 51 since the two text-field reports were dropped on 28 August 2026, being the only files under reports that no claim covered and that nothing read"
+  "counting_rule": "files under the project folder that .gitignore does not exclude; on 23 August 2026 git ls-files --others --exclude-standard counted the same number. 45 until 25 August 2026, when the click round added tools/ck3/openers.py and reports/openers.json; 48 when the gui reader added tools/ck3/guimap.py; 47 when docsearch.py was taken out, because it reads only the working notes; 50 since the NVDA sleep-mode add-on added three files under tools/nvda/addon; 52 since the alignment added tools/ck3/pairing.py and reports/pairing.json; 53 since the database reader added tools/ck3/database.py; 51 since the two text-field reports were dropped on 28 August 2026, being the only files under reports that no claim covered and that nothing read; 52 since 29 August 2026, when the record layout got its own deriver in tools/ck3/model.py"
  },
  {
   "name": "windows opened in the harvest round",
@@ -477,8 +477,9 @@
   "measure": "database_entries",
   "arguments": [
    "culture",
-   "numbered"
+   "numbered",
+   "<documents>\\save games\\Duke_Marianos_of_Nobatia_1067_11_23.ck3"
   ],
-  "counting_rule": "the save of 1067-11-23 carries the engine's own numbering, and for cultures it is exactly the file order - all 463. That does not hold for the other databases: 78 of 237 faiths, 36 of 94 religions, 301 of 342 traits, so the numbering is read from the save and not derived from disk. The faiths do fall into place, all 237, once they are grouped per religion in the engine's religion order; where that religion order comes from is not known"
+  "counting_rule": "the save of 1067-11-23 carries the engine's own numbering, and for cultures it is exactly the file order - all 463. That does not hold for the other databases: 78 of 237 faiths, 36 of 94 religions, 301 of 342 traits, so the numbering is read from the save and not derived from disk. The faiths do fall into place, all 237, once they are grouped per religion in the engine's religion order; where that religion order comes from is not known. The save is named here rather than left to whichever is newest: a save from before the mods gives 244, so reading the newest file made this claim measure something other than what this rule says"
  }
 ]

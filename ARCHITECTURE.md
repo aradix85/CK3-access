@@ -94,17 +94,22 @@ Five independent sources, and their disagreement is the test.
 
 - **The widget tree** — structure, names, rectangles and text: what is on screen right now.
 - **The game model in memory** — the same values raw, plus everything no open window is showing.
-  `tools/ck3/anchor.py` walks from a global in the executable to any character in four reads: name,
-  culture, faith, dynasty house, and gold, piety and prestige in a sub-object behind it. Nothing is
-  searched for and no offset is written down. `tools/ck3/calibrate.py` holds four hundred characters
-  against the save and names the field that disagrees; it runs clean on three game states that
-  differ in era, faith, government and mod set.
+  `tools/ck3/anchor.py` walks from a global in the executable to the character database in four
+  reads; `tools/ck3/model.py` takes it from there and derives what sits where inside a record —
+  name, culture and faith in the record, money and levies in sub-objects it points at. No offset is
+  written down: the layout is derived against a save, then rechecked at every start without one, on
+  predictions that fail if it has moved. `tools/ck3/calibrate.py` holds four hundred characters
+  against the save and names the field that disagrees.
 - **The `.gui` files** — meaning: which data function fills a widget, which localisation key it
   carries, which tooltip hangs on it. `tools/ck3/guimap.py` parses the format properly rather than
   matching lines, merging the three engine layers and the active mods in load order and expanding a
   window with inheritance, `using` mixins and named slots resolved. This needs no game running.
 - **The save file**, plain text once uncompressed — the ground truth to check against, and where the
-  engine's own numbering of cultures, faiths and traits is written down.
+  engine's own numbering of cultures, faiths and traits is written down. Two limits are worth
+  knowing. A save belongs to the state that wrote it, so the numbering in a save made under a
+  different set of mods is a different numbering. And seven fields — the levies and the military
+  power — are recomputed around loading, so for those the file a state was loaded from disagrees
+  with memory; the answer key has to be a save written from the state now loaded.
 - **The static data files** — province positions and adjacency, the de jure hierarchy, traits — hold
   everything that does not change during a game, with no reverse engineering at all.
   `tools/ck3/database.py` reads them the way the engine merges them, so a number out of memory
