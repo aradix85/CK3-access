@@ -386,13 +386,12 @@
  },
  {
   "name": "windows with a name in the merged gui set",
-  "claimed": 196,
+  "claimed": 218,
   "measure": "gui_windows",
-  "counting_rule": "`window = { name = ... }` blocks found by the parser in the merged set, at any depth and one entry per name. windows.json holds 197: its line reader met a window block carrying no name in frontend_load.gui and walked on to the next name it saw, which belongs to the template vbox_save_preview, so load_info is in the map and is not a window. Of these 196, 195 can be created with GUI.CreateWidget; colorpicker_window cannot, because that block sits inside a type definition and the console finds only top-level widgets",
+  "counting_rule": "two shapes: a `window = { name = ... }` block at any depth, one entry per name, plus a top-level block whose type resolves through its inheritance chain to `window`. The second shape was added on 30 August 2026 and brings 22, among them the scheme conclusion events and the confirmation dialogs; it is counted at the top level only, because a window-derived type used inside another window is a part of it. It was 196 while only the first shape was read. windows.json holds 197 from the round of 23 August 2026: its line reader met a window block carrying no name in frontend_load.gui and walked on to the next name it saw, which belongs to the template vbox_save_preview, so load_info is in the map and is not a window. Of the 196 the map knows, 195 can be created with GUI.CreateWidget; colorpicker_window cannot, because that block sits inside a type definition and the console finds only top-level widgets",
   "quoted_in": [
    "CHANGELOG.md",
-   "brief\\stand.md",
-   "brief\\taken.md"
+   "brief\\stand.md"
   ]
  },
  {

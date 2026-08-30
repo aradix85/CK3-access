@@ -370,14 +370,26 @@ def build(key, body, templates, overrides=None, depth=0, in_tooltip=False):
 
 
 def windows(rows=None):
-    """Every `window = { name = ... }` on disk, as name -> (virtual path, its entry).
+    """Every window on disk, as name -> (virtual path, its entry).
 
     The same list `reports\\windows.json` is built from, but with the body attached, so a caller
     can go straight from a window name to what it is made of.
+
+    **Two shapes, and reading only the first missed a whole kind.** A literal `window = { name }`
+    is counted wherever it sits, which is how `colorpicker_window` comes along from inside a type
+    definition. But a window may also be declared through a type of its own that inherits from
+    `window`, and Agami's mod laid bare on 29 August 2026 that the map had never seen those - among
+    them event windows and the confirmation dialogs, which is the one thing a blind player cannot
+    be left without. Those are counted at the top level only: a window-derived type used inside
+    another window is a part of it, not a window of its own.
     """
+    rows = rows if rows is not None else files()
+    table, _ = type_table(rows)
+    root = _root_finder(table)
     out = {}
-    for layer, virtual, full in (rows if rows is not None else files()):
-        for entry in _walk(read(full)):
+    for layer, virtual, full in rows:
+        entries = read(full)
+        for entry in _walk(entries):
             if entry['key'] != 'window' or not entry['body']:
                 continue
             name = None
@@ -387,7 +399,34 @@ def windows(rows=None):
                     break
             if name:
                 out[name] = (virtual, entry)
+        for entry in entries:
+            if entry['key'] == 'window' or not entry['body']:
+                continue
+            if root(entry['key']) != 'window':
+                continue
+            for inner in entry['body']:
+                if inner['key'] == 'name' and inner['value']:
+                    out.setdefault(inner['value'], (virtual, entry))
+                    break
     return out
+
+
+def _root_finder(table):
+    """Type name -> the end of its inheritance chain, remembered, because the walk repeats."""
+    known = {}
+
+    def root(name):
+        if name not in known:
+            seen, walk = set(), name
+            while walk and walk not in seen:
+                seen.add(walk)
+                found = table.get(walk)
+                if not found or found['parent'] == walk:
+                    break
+                walk = found['parent']
+            known[name] = walk
+        return known[name]
+    return root
 
 
 def window(name, table=None, local=None, known=None):

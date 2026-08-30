@@ -17,6 +17,9 @@ lives in `ARCHITECTURE.md`. This file says only what moved.
 - A button whose name sits one level up is now a click target too: the namebearer answers for it and
   the geometry test picks which of its nameless children is the one on screen. 74 rows where there
   were 56, and the 56 come out of the round unchanged.
+- The window reader counts both shapes a window can be declared in: 218 where it read 196, the 22
+  new ones being the scheme conclusions, the event windows and the confirmation dialogs. The map in
+  `reports/windows.json` has not been laid again yet, so the harvest still counts against 196.
 
 ## 2026-08-29
 
