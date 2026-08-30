@@ -271,6 +271,13 @@ returns a pair, passed on as one thing, costs a run.
 | call | returns | does |
 |---|---|---|
 | `buttons_on_disk()` | value | Every widget that opens a window when pressed, with how it does it. |
+| `live_record(game, pid, window)` | 4-tuple | The window that is drawn right now, in the shape the harvest writes and the pairing reads. |
+| `opens_view(source, view)` | 2-tuple | The call this disk block really fires, split into the one that opens `view` and the rest. |
+| `draw_order(record)` | value | Address -> its path of sibling numbers from the window down, which is the drawing order. |
+| `clickable_map(record)` | value | The buttons of a window with their draw order, ready to be asked what a point hits. |
+| `lands_on(buttons, point)` | value | Which widget a click at this point really reaches. |
+| `reachable_point(buttons, widget_address, rect, step=6)` | NoneType of value | A point on this widget that a click really reaches, or None if it is covered everywhere. |
+| `spots_for_view(game, pid, window, view)` | 5-tuple | Every widget of an open window that the files say opens `view`, aligned rather than guessed. |
 | `trigger_spots(row, named, nodes)` | list of value | Where the click for this row could land: the widget itself, or its nameless children. |
 | `on_screen(address, nodes, scales, classes)` | NoneType of str | Why this widget cannot be clicked, or None when it can. |
 | `press(address, nodes, scales, classes, row)` | NoneType of value | Click the middle of a widget, but only if it is really on screen. |
@@ -278,6 +285,7 @@ returns a pair, passed on as one thing, costs a run.
 | `subtree_of(nodes, window)` | value of NoneType | The addresses under the drawn window object of that name, or None. |
 | `try_button(game, row, address, nodes, scales, classes, floor, date, number, total, where, fallback=None)` | value of str | Press one button, record what opened, and put the state back. |
 | `main()` | nothing | - |
+| `chain(pid, window, view, press_it=True)` | value | One chain step: open `window`, find what opens `view` inside it, press it, and put it back. |
 
 ## ck3\pairing.py
 *Pairs the widget tree on disk with the widget tree the game actually built.*
@@ -290,7 +298,7 @@ returns a pair, passed on as one thing, costs a run.
 | `widget_children(node, root)` | value | The children of a node that can reach the live tree, in file order. |
 | `align_row(disk, live, root)` | value | Two rows of children laid against each other on class and order alone. |
 | `live_tree(record)` | 2-tuple | The harvest is a flat list with an address and a parent address; this is it as a tree. |
-| `pairs(window, table, local, known, root)` | value | Every live widget of one window with its source on disk, and the data context it inherits. |
+| `pairs(window, table, local, known, root, record=None)` | value | Every live widget of one window with its source on disk, and the data context it inherits. |
 | `text_source(source, localization)` | value of str | What fills this widget: a key, a data function, both, or a placeholder. |
 | `sweep()` | 3-tuple | Every harvested window paired, as one tally. Takes about three minutes. |
 | `main()` | nothing | - |

@@ -8,6 +8,13 @@ lives in `ARCHITECTURE.md`. This file says only what moved.
 
 ## 2026-08-30
 
+- `openers.py` can do a chain step: `spots_for_view` aligns the window that is open right now
+  against the gui files and points at the widgets whose block carries the call opening a view, so a
+  trigger that has no name and is built from data can still be addressed.
+- Two rules that came out of clicks that went nowhere. A block may write `onclick` twice and only
+  the last one counts, the same last-wins rule that decides which mod redefines a template. And
+  before pressing anything picked by rectangle, ask which button really catches that point: only
+  buttons catch clicks, and a child always beats its parent.
 - The rule that picks a nameless child of a namebearing button holds where it could have failed: on
   an administrative state exactly one of the four government tabs lies inside the screen, and
   pressing it opened the administration window.

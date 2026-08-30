@@ -35,6 +35,7 @@ sys.path.insert(0, os.path.dirname(HERE))
 
 import channel
 import derive
+import guimap
 import paths
 import vtablemap
 import windowmap
@@ -157,6 +158,173 @@ def buttons_on_disk():
 
 
 
+
+
+def live_record(game, pid, window):
+    """The window that is drawn right now, in the shape the harvest writes and the pairing reads.
+
+    The chain cannot use a harvested record: the buttons inside a window sit at addresses of this
+    moment, and half of them are rows built from data that was not there when the harvest ran.
+    """
+    import harvest
+    nodes = game.tree()
+    windows = [a for a, k in nodes.items() if k[0] in game_classes]
+    named = [a for a in windows if nodes[a][6] == window]
+    if not named:
+        raise SystemExit('%s is not in the tree at all' % window)
+    address = drawn_one(named, window)
+    family = harvest.subtree(nodes, address)
+    addresses = [a for a, _, _ in family]
+    scales = derive.scales_for(list(nodes))
+    classes = derive.class_map(pid, {a: k[0] for a, k in nodes.items()})
+    flags = derive.flags_for([a for a in addresses if a in windows])
+    alphas = harvest.alphas_for(addresses)
+    tree = [harvest.widget_record(nodes, a, d, i, scales, classes, flags, alphas)
+            for a, d, i in family]
+    return {'window': window, 'tree': tree}, nodes, scales, classes
+
+
+def opens_view(source, view):
+    """The call this disk block really fires, split into the one that opens `view` and the rest.
+
+    **A block may write `onclick` twice, and only the last one counts.** That is not a detail: in
+    `window_ledger.gui` both orders occur. One row lists the `holding_view` call first and a coat
+    of arms handler after it, another lists them the other way round, and the engine keeps the
+    later definition - the same last-wins rule that decides which mod redefines a template. Taking
+    any occurrence therefore points at rows that cannot open anything, and pressing one is a click
+    that lands somewhere and does something else. Measured 30 August 2026: of the 26 ledger rows
+    the files hang a `holding_view` call on, pressing one whose call is shadowed opened nothing.
+
+    **The accept test of `buttons_on_disk` is deliberately not used here, and that is the point of
+    this route.** That one takes a widget only when its onclick is a view-opening call and nothing
+    else, which is right for an unattended round over a bare screen. Inside a chain the window is
+    already open, the target is known and the state is put back afterwards, so a second call is
+    something to report rather than a reason to skip.
+    """
+    if source is None:
+        return [], []
+    last, others = {}, []
+    for key, value in source.get('attrs', ()):
+        if key not in ('onclick', 'onrightclick') or not value:
+            continue
+        if key in last:
+            others.append('shadowed %s: %s' % (key, last[key]))
+        last[key] = value
+    wanted = []
+    for key, value in last.items():
+        found = re.search(r"(?:Open|Toggle)GameView(?:Data)?\s*\(\s*'([^']+)'", value)
+        if key == 'onclick' and found and found.group(1) == view:
+            wanted.append(value)
+        else:
+            others.append('%s: %s' % (key, value))
+    return wanted, others
+
+
+def draw_order(record):
+    """Address -> its path of sibling numbers from the window down, which is the drawing order.
+
+    The same rule that decides which of a stack of event windows lies on top decides which of two
+    overlapping buttons gets a click: siblings are drawn in list order, so the larger path is drawn
+    later and lies above. `index` is written into every harvest record for exactly this, so it
+    cannot be lost by sorting.
+    """
+    by_address = {w['address']: w for w in record['tree']}
+    paths = {}
+
+    def path_of(address):
+        if address in paths:
+            return paths[address]
+        widget = by_address.get(address)
+        if widget is None or widget['parent'] not in by_address:
+            paths[address] = (widget['index'],) if widget else ()
+        else:
+            paths[address] = path_of(widget['parent']) + (widget['index'],)
+        return paths[address]
+
+    for widget in record['tree']:
+        path_of(widget['address'])
+    return paths
+
+
+def clickable_map(record):
+    """The buttons of a window with their draw order, ready to be asked what a point hits."""
+    paths = draw_order(record)
+    out = []
+    for widget in record['tree']:
+        kind = widget['class'] or ''
+        if 'Button' not in kind and 'Checkbox' not in kind:
+            continue
+        x, y, width, height = widget['screen_rect']
+        if width <= 0 or height <= 0 or widget['clipped']:
+            continue
+        out.append((paths[widget['address']], x, y, width, height, widget))
+    out.sort(key=lambda row: row[0])
+    return out
+
+
+def lands_on(buttons, point):
+    """Which widget a click at this point really reaches.
+
+    **Ask this before pressing anything that was picked by rectangle.** Two ledger rows sit at the
+    same place, one carrying the call that opens `holding_view` and one carrying a coat of arms
+    handler, and only the one drawn later can be hit.
+    **Only widgets that can take a click count.** A layout container drawn after the list covers
+    everything under it geometrically without ever seeing a mouse button, so counting those makes
+    every row look unreachable - the ledger reported `expander` over all 26 of its rows.
+    **A child always beats its parent**, because a child's path is its parent's path with one more
+    number on the end. That is not a quirk to work around: it is why a row that is fully tiled with
+    its own buttons cannot be pressed as a row at all.
+    """
+    best = None
+    for path, x, y, width, height, widget in buttons:
+        if x <= point[0] < x + width and y <= point[1] < y + height:
+            best = widget
+    return best
+
+
+def reachable_point(buttons, widget_address, rect, step=6):
+    """A point on this widget that a click really reaches, or None if it is covered everywhere.
+
+    The middle of a widget is the obvious place to click and it is often the wrong one, so this
+    walks the rectangle instead of trusting its centre. The step is small because the gaps between
+    the buttons a row is tiled with are small.
+    """
+    x, y, width, height = rect
+    for offset_y in range(2, int(height) - 1, step):
+        for offset_x in range(2, int(width) - 1, step):
+            point = (int(x + offset_x), int(y + offset_y))
+            top = lands_on(buttons, point)
+            if top is not None and int(top['address'], 16) == widget_address:
+                return point
+    return None
+
+
+def spots_for_view(game, pid, window, view):
+    """Every widget of an open window that the files say opens `view`, aligned rather than guessed.
+
+    The trigger for a chain step is usually nameless and usually a row built from data, so it can
+    be addressed neither by name nor by eye. What can be addressed is its place: the expansion of
+    the gui file and the live tree line up on class and child order, so the block that carries the
+    call on disk gets an address and a rectangle from the game. Everything that is left after that
+    is a question `on_screen` already answers.
+    """
+    import pairing
+    record, nodes, scales, classes = live_record(game, pid, window)
+    rows = guimap.files()
+    table, local = guimap.type_table(rows)
+    known = guimap.windows(rows)
+    root = pairing.root_finder(table)
+    out = []
+    for source, built, _ in pairing.pairs(window, table, local, known, root, record=record):
+        wanted, others = opens_view(source, view)
+        if not wanted:
+            continue
+        address = int(built['address'], 16)
+        out.append({'address': address, 'rect': built['screen_rect'],
+                    'class': built['class'], 'name': built['name'],
+                    'calls': wanted, 'also_does': others,
+                    'why_not': on_screen(address, nodes, scales, classes)})
+    return out, record, nodes, scales, classes
 
 
 def trigger_spots(row, named, nodes):
@@ -418,6 +586,62 @@ def main():
 
 
 
+def chain(pid, window, view, press_it=True):
+    """One chain step: open `window`, find what opens `view` inside it, press it, and put it back.
+
+    Stops the moment it cannot say which widget it means, because a click on a wrong guess lands on
+    whatever really lies at that point - and inside a window that is nearly always something else
+    that opens.
+    """
+    global game_classes
+    game = windowmap.Game(pid)
+    game_classes = game.window_classes
+    nodes, _, baseline = game.state()
+    if window not in baseline:
+        raise SystemExit('%s is not open; open it first, this only does the step inside it'
+                         % window)
+    spots, record, nodes, scales, classes = spots_for_view(game, pid, window, view)
+    print('%d widgets in %s carry a call that opens %s' % (len(spots), window, view))
+    usable = []
+    buttons = clickable_map(record)
+    for spot in spots:
+        if spot['why_not'] is not None:
+            continue
+        x, y, w, h = spot['rect']
+        point = reachable_point(buttons, spot['address'], spot['rect'])
+        spot['point'] = point
+        if point is not None:
+            usable.append(spot)
+        else:
+            top = lands_on(buttons, (int(x + w / 2), int(y + h / 2)))
+            spot['why_not'] = 'covered everywhere, at its middle by %s' % (
+                (top['name'] or top['class']) if top else 'nothing readable')
+    for spot in spots[:12]:
+        print('   %x %-12s %-18s rect %s %s'
+              % (spot['address'], spot['class'], spot['name'] or '-', spot['rect'],
+                 spot['why_not'] or 'CLICKABLE and reachable'))
+        for call in spot['also_does'][:2]:
+            print('        also: %s' % call[:86])
+    print('%d of them can actually be reached by a click' % len(usable))
+    if not press_it or not usable:
+        return spots
+    spot = usable[0]
+    point = spot['point']
+    print('pressing %x at %d,%d' % (spot['address'], point[0], point[1]))
+    channel.ask('mouse %d %d 1' % point)
+    for _ in range(6):
+        time.sleep(SETTLE)
+        _, _, drawn = game.state()
+        opened = sorted(drawn - baseline)
+        if opened:
+            break
+    print('opened: %s' % (', '.join(opened) or 'nothing'))
+    return spots
+
+
 if __name__ == '__main__':
     sys.stdout.reconfigure(encoding='utf-8', errors='replace', line_buffering=True)
-    main()
+    if len(sys.argv) > 3 and sys.argv[2] == '--chain':
+        chain(int(sys.argv[1]), sys.argv[3], sys.argv[4])
+    else:
+        main()

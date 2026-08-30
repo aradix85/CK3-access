@@ -167,7 +167,7 @@ def live_tree(record):
     return by_parent, min(record['tree'], key=lambda w: w['depth'])
 
 
-def pairs(window, table, local, known, root):
+def pairs(window, table, local, known, root, record=None):
     """Every live widget of one window with its source on disk, and the data context it inherits.
 
     The context rides along because a widget almost never names its own subject: the window says
@@ -178,8 +178,13 @@ def pairs(window, table, local, known, root):
     source of its own. Skipping it looks tidy and quietly shrinks the denominator: everything
     below an unmatched node vanished from the tally, so the share of texts whose origin is known
     was measured against a total that had already dropped the hard cases.
+
+    `record` is normally read from the harvest, but a caller can hand one in that it built from the
+    tree of the moment. That is what the chain needs: to press a button inside a window you have to
+    align the window that is open right now, not the one that was harvested days ago.
     """
-    record = json.load(open(os.path.join(HARVEST, window + '.json'), encoding='utf-8'))
+    if record is None:
+        record = json.load(open(os.path.join(HARVEST, window + '.json'), encoding='utf-8'))
     by_parent, top = live_tree(record)
     disk_tree, _ = guimap.window(window, table, local, known)
 
