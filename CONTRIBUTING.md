@@ -1,7 +1,7 @@
 # Contributing
 
 Contributions are welcome, including ones written with an AI assistant — most of this project was.
-There is one house rule that matters more than style, and it applies to humans and assistants alike.
+There is one house rule that matters more than style.
 
 ## Bring the measurement
 
@@ -23,18 +23,15 @@ keeps its widgets, so the counter could not have shown it" is.
   came true is.
 - **State the build.** Game version, DLC, mods, and whether debug mode was on.
 - **English only.** Names, comments, docstrings, messages, the channel protocol and the keys in
-  `reports/` are all English, and mixing a second language back in is how a half-finished rename
-  hides.
+  `reports/` are all English. Mixing a second language back in is how a half-finished rename hides.
 - **Derive, do not hard-code.** No memory addresses, field offsets, click coordinates or widget
-  positions in source. If you need one, derive it and verify it at runtime.
+  positions in source. Derive it and verify it at runtime.
 - **Do not add game files.** Nothing belonging to Paradox goes in this repository, ever.
 - **Bundle your C++.** A change in `tools/` counts on the next call, but the DLL only enters the
   game at injection, so a running game keeps the old one however often you build. Do the Python
-  first, gather the C++ into one round, build once, restart once. Build even for a rename: the
-  compiler is the only check on a half-finished one.
+  first, gather the C++ into one round, build once, restart once.
 
-Update `CHANGELOG.md` — one line per change, what and why — and `ARCHITECTURE.md` only when a layer
-or a boundary moves. Nothing else.
+Update `CHANGELOG.md`, and `ARCHITECTURE.md` only when a layer or a boundary moves. Nothing else.
 
 ## Before it can be merged: `python tools/check.py`
 
@@ -42,23 +39,13 @@ It recomputes every number in `reports/claims.json` against the disk and verifie
 path the documentation names still exists. It has to pass.
 
 A number that carries a decision belongs in `claims.json` with its counting rule — what was counted,
-where, and how — rather than in prose. Three counts in this project were wrong because a folder was
-not walked, and nobody could see it because the rule was never written down.
+where, and how — rather than in prose. Three counts here were wrong because a folder was not walked,
+and nobody could see it because the rule was never written down. If a document repeats one of those
+numbers, list it under `quoted_in` and `check.py` will hold the document to it.
 
-**If a document repeats one of those numbers, say so in the claim.** A claim may list the files that
-quote it under `quoted_in`, and `check.py` then asserts the measured value still occurs there.
-Without that, `README.md` keeps yesterday's number and only a reader from outside notices.
-
-Two things to expect. On a fresh clone the claims about the executable, the saves and the DLL read
-as drifted until you have built the DLL and have the game on disk; that is the tool working. And
-after any rename run `python -m pyflakes tools` — a rename that compiles can still be half done.
-
-`check.py` also verifies every file name the documentation mentions, including bare names with no
-folder in front. The convention that makes that work: **backticks mean the thing exists.** Name a
-file that was removed in plain text instead.
-
-The maintainer keeps separate working notes, in Dutch, which are not part of this repository. You do
-not need them, and nothing in a pull request should depend on them.
+On a fresh clone the claims about the executable, the saves and the DLL read as drifted until you
+have built the DLL and have the game on disk; that is the tool working. After a rename, also run
+`python -m pyflakes tools` — a rename that compiles can still be half done.
 
 ## Reporting a problem as a blind user
 
