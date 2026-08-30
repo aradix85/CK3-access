@@ -8,6 +8,9 @@ lives in `ARCHITECTURE.md`. This file says only what moved.
 
 ## 2026-08-30
 
+- A number that never moves is a measurement that never changed anything: the seventeen ledger rows
+  said to carry the call are the same seventeen empty shells of the pinned list every time, not the
+  county rows. The alignment itself checks out on filled rows.
 - A click does not bubble: the topmost button owns the point, and a button carrying no action is a
   dead area. Measured with the control that could have sunk it - a silent child opened nothing, a
   child with an action at a point the model gives it opened the title view.
