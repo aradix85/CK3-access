@@ -291,22 +291,21 @@
  },
  {
   "name": "windows opened in the harvest round",
-  "claimed": 178,
+  "claimed": 179,
   "measure": "harvest_total",
   "arguments": [
    "<project>\\harvest",
    "windows"
   ],
-  "counting_rule": "records in harvest\\ with opened true; 18 of the 196 windows in the map refuse to open at all, the same 18 as in the round before",
+  "counting_rule": "records in harvest\\ with opened true; 17 of the 196 windows in the map refuse to open at all. It was 18 until 30 August 2026, when government_administration_window was harvested along a player route on an administrative ruler and its refusal stub was replaced",
   "quoted_in": [
    "README.md",
-   "brief\\stand.md",
-   "brief\\taken.md"
+   "brief\\stand.md"
   ]
  },
  {
   "name": "text boxes in the harvest round",
-  "claimed": 1419,
+  "claimed": 1456,
   "measure": "harvest_total",
   "arguments": [
    "<project>\\harvest",
@@ -316,13 +315,13 @@
  },
  {
   "name": "text boxes the recogniser confirmed",
-  "claimed": 1298,
+  "claimed": 1315,
   "measure": "harvest_total",
   "arguments": [
    "<project>\\harvest",
    "confirmed"
   ],
-  "counting_rule": "summed over the records: of those boxes, the ones an overlapping recognised line says the same thing about. 1298 of 1419 in the round of 28 August 2026. harvest\\ is outside the repo, so on a clone these measure nothing and drift - they belong to a round on one machine"
+  "counting_rule": "summed over the records: of those boxes, the ones an overlapping recognised line says the same thing about. 1315 of 1456 with the two player-route records of 30 August 2026 folded in. harvest\\ is outside the repo, so on a clone these measure nothing and drift - they belong to a round on one machine"
  },
  {
   "name": "text boxes outside the drawing area",
@@ -398,30 +397,30 @@
  },
  {
   "name": "harvested widgets that carry text",
-  "claimed": 1662,
+  "claimed": 1702,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
    "texts"
   ],
-  "counting_rule": "every widget with a non-empty text in the 178 harvested trees, counted while walking, and the walk asserts it saw all 70084 widgets of every record; a live subtree whose parent found no source used to be skipped, which shrank this denominator by dropping exactly the hard cases",
+  "counting_rule": "every widget with a non-empty text in the 179 harvested trees, counted while walking, and the walk asserts it saw all 71588 widgets of every record; a live subtree whose parent found no source used to be skipped, which shrank this denominator by dropping exactly the hard cases",
   "quoted_in": [
    "brief\\stand.md"
   ]
  },
  {
   "name": "harvested texts paired with a place in a gui file",
-  "claimed": 1467,
+  "claimed": 1508,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
    "paired"
   ],
-  "counting_rule": "paired by class and child order only, never by name. 164 of them are a caption: a button carries its own text and the engine hangs a text box under it to draw it, so the box is not in the file and the widget above answers for it. The remaining 195 are texts the files describe nowhere, spread over 37 windows, and 82 of those sit in developer tools - the debug map alone holds 42. They are listed per window in reports\\pairing.json, so the share is recomputable rather than a number that ages"
+  "counting_rule": "paired by class and child order only, never by name. 169 of them are a caption: a button carries its own text and the engine hangs a text box under it to draw it, so the box is not in the file and the widget above answers for it. The remaining 194 are texts the files describe nowhere, spread over 36 windows, and 82 of those sit in developer tools - the debug map alone holds 42. They are listed per window in reports\\pairing.json, so the share is recomputable rather than a number that ages"
  },
  {
   "name": "harvested texts whose gui file names a plain localization key",
-  "claimed": 541,
+  "claimed": 549,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -431,23 +430,23 @@
  },
  {
   "name": "plain keys whose localization matches what was on screen",
-  "claimed": 541,
+  "claimed": 549,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
    "plain key agrees"
   ],
-  "counting_rule": "the check that can fail: game markup stripped from the screen text, style markup and icon tokens from the localization, then compared whole. All 541 agree, which is also what carries the caption model - had a button's caption not been the source of the box under it, those 164 would have disagreed"
+  "counting_rule": "the check that can fail: game markup stripped from the screen text, style markup and icon tokens from the localization, then compared whole. All 549 agree, which is also what carries the caption model - had a button's caption not been the source of the box under it, those 169 would have disagreed"
  },
  {
   "name": "harvested texts filled by a data function",
-  "claimed": 465,
+  "claimed": 493,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
    "data functions together"
   ],
-  "counting_rule": "291 where the gui file carries the call itself and 174 where it carries a key whose localization does; both need the data context of the ancestors to say who the sentence is about"
+  "counting_rule": "313 where the gui file carries the call itself and 180 where it carries a key whose localization does; both need the data context of the ancestors to say who the sentence is about"
  },
  {
   "name": "harvested texts the gui file leaves to code",

@@ -6,6 +6,15 @@ No release yet — see the entry of 2026-08-23 for what "first public source" me
 The numbers live in `reports/claims.json`, where `tools/check.py` recomputes them; the reasoning
 lives in `ARCHITECTURE.md`. This file says only what moved.
 
+## 2026-08-30
+
+- The administration window and the domicile window are in the main harvest with the record of the
+  route a player takes, so the pairing reads the rich version: 179 windows, 1702 texts, 1508 of them
+  placed in a gui file, and the plain-key check still agrees on every one of the 549.
+- A window is not the only thing a gui file can be reached by: five widget names in the decision
+  detail view come from a file a decision names itself, with `widget = { gui = ... }` in
+  `common/decisions`. 58 such names, and a file exists for all 58.
+
 ## 2026-08-29
 
 - `tools/ck3/numbering.py`: which number means which culture, faith, religion or trait, read out of

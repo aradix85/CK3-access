@@ -1,12 +1,12 @@
 {
- "caption of the widget above": 164,
- "data function": 291,
- "data function through key": 174,
- "data functions together": 465,
+ "caption of the widget above": 169,
+ "data function": 313,
+ "data function through key": 180,
+ "data functions together": 493,
  "key not in localization": 2,
- "key quoting another key": 16,
- "no key on disk": 155,
- "no source on disk": 195,
+ "key quoting another key": 20,
+ "no key on disk": 156,
+ "no source on disk": 194,
  "no source on disk, per window": {
   "activity_list": 3,
   "activity_list_detail_host": 2,
@@ -23,7 +23,6 @@
   "debug_tutorial_window": 2,
   "decisiondetail_view": 5,
   "decisions_view": 9,
-  "domicile_window": 1,
   "duel_event": 1,
   "dynasty_house_view": 5,
   "environment_debug_window": 8,
@@ -46,17 +45,17 @@
   "window_tax_slot_assign_vassal": 1,
   "window_tgp_dynastic_cycle": 4
  },
- "paired": 1467,
+ "paired": 1508,
  "placeholder, code fills it": 288,
- "plain key": 541,
- "plain key agrees": 541,
- "texts": 1662,
+ "plain key": 549,
+ "plain key agrees": 549,
+ "texts": 1702,
  "top functions": {
   "ActiveCouncilTask": 6,
   "ActivityType": 11,
   "Add_int32": 16,
   "ArmyComposition": 18,
-  "Character": 40,
+  "Character": 51,
   "CharacterWindow": 7,
   "CourtPositionItem": 9,
   "Decision": 16,
@@ -73,7 +72,7 @@
   "ValueBreakdown": 10,
   "War": 32
  },
- "widgets in harvest": 70084,
- "windows": 178,
- "with data context": 1200
+ "widgets in harvest": 71588,
+ "windows": 179,
+ "with data context": 1241
 }
