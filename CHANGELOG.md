@@ -8,32 +8,24 @@ lives in `ARCHITECTURE.md`. This file says only what moved.
 
 ## 2026-08-30
 
-- A scroll area draws its scrollbar last whatever the file says, and the pairing ran on class and
-  child order - so the content lost its place in the row and everything under it came out with no
-  source. Fixed: paired texts 1517 to 1584, texts with a data context 1245 to 1311, unexplained 204
-  to 137, and the strict test still at everything, 562 of 562. No harvest was rerun; the pairing
-  recomputes from the records already on disk.
-- `openers.py` can take a chain step: `spots_for_view` aligns the window that is open right now
-  against the gui files and returns the widgets whose block carries the call that opens a view, so a
-  trigger with no name, built from data, can still be addressed. Two rules came out of clicks that
-  went nowhere. A block may write `onclick` twice and only the second fires, the same last-wins rule
-  that decides which mod redefines a template. And what catches a click is the last-drawn button
-  carrying an action of its own: a layout container catches nothing, and a button without an action
-  passes it on - ten of ten on the ledger's category tabs. An earlier entry claiming the opposite
-  rested on one case in an empty list and is withdrawn.
-- The ledger cannot open the holding view, and that is the game rather than the tooling: no onclick
-  anywhere above a county name, and the pinned list - the only rows that carry the call - needs a
-  pin that sits at alpha zero and appears on hover.
-- The rule that picks a nameless child of a namebearing button holds where it could have failed: on
-  an administrative state exactly one of the four government tabs lies inside the screen, and
-  pressing it opened the administration window.
-- `model.player` reads who is being played out of the running game. The game keeps no pointer to
-  the player's record - one hit in eleven gigabytes, on the heap - but it keeps the handle, in six
-  places inside the module. All six followed a mod event that moved the player, all six followed a
-  load of another state, and the same six came out of deriving against that other state.
-- The harvest has a fifth stop condition: the player. It goes in the header of every record and is
-  asked before every window, because a state that has been moved to another character looks
-  entirely normal from the tree and everything after it is measured on somebody else's game.
+- A scroll area draws its scrollbar last whatever the file says; the pairing now moves it there
+  before aligning. Paired texts 1517 to 1584, data context 1245 to 1311, unexplained 204 to 137,
+  strict test still 562 of 562. No harvest was rerun.
+- `tools/ck3/openers.py` takes a chain step: `--chain <window> <view>` aligns the window that is
+  open now and returns the widgets whose block carries the call that opens that view.
+- A block may write `onclick` twice and only the second fires — the same last-wins rule that
+  decides which mod redefines a template.
+- What catches a click is the last-drawn button with an action of its own; a container catches
+  nothing and a button without an action passes it on. An entry of the same day claiming the
+  opposite is withdrawn: it rested on one case in an empty list, against ten that disagree.
+- The ledger cannot open the holding view, and that is the game: no onclick above a county name,
+  and the pinned rows need a pin at alpha zero that appears on hover.
+- The rule that picks a nameless child of a namebearing button holds where it could have failed:
+  on an administrative state one of the four government tabs is on screen and opens its window.
+- `model.player` reads the played character out of the running game — a handle, kept in six places
+  inside the module, derived against a save and rechecked at every start.
+- The harvest has a fifth stop condition: the player. It goes in every record header and is asked
+  before every window, because a state moved to another character looks normal from the tree.
 - The administration and domicile windows are in the main harvest with the record of the route a
   player takes, so the pairing reads the rich version instead of the console one.
 - Five widget names in the decision detail view come from a file a decision names itself, with
