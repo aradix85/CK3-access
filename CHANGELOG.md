@@ -8,6 +8,9 @@ lives in `ARCHITECTURE.md`. This file says only what moved.
 
 ## 2026-08-30
 
+- The ledger's county list is read-only: above a county name there is a text box, two boxes, a
+  header widget and a grid item, and not one onclick anywhere. So the only rows in that window that
+  can open the holding view are the pinned ones, and those are empty until something is pinned.
 - A click does bubble, and the earlier entry saying otherwise rested on one rotten case. Ten of the
   ledger's category tabs are covered completely by a child carrying no onclick, and clicking that
   child switched the category every time. `clickable_map` now takes the set of widgets whose gui
