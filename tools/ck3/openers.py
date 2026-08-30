@@ -299,7 +299,16 @@ def reachable_point(buttons, widget_address, rect, step=6):
     return None
 
 
-def spots_for_view(game, pid, window, view):
+def gui_tables():
+    """The expansion tables, read once. Building them walks 563 files, so a sweep that rebuilds
+    them per window spends its time there instead of in the game."""
+    import pairing
+    rows = guimap.files()
+    table, local = guimap.type_table(rows)
+    return table, local, guimap.windows(rows), pairing.root_finder(table)
+
+
+def spots_for_view(game, pid, window, view, tables=None):
     """Every widget of an open window that the files say opens `view`, aligned rather than guessed.
 
     The trigger for a chain step is usually nameless and usually a row built from data, so it can
@@ -310,10 +319,7 @@ def spots_for_view(game, pid, window, view):
     """
     import pairing
     record, nodes, scales, classes = live_record(game, pid, window)
-    rows = guimap.files()
-    table, local = guimap.type_table(rows)
-    known = guimap.windows(rows)
-    root = pairing.root_finder(table)
+    table, local, known, root = tables or gui_tables()
     out = []
     for source, built, _ in pairing.pairs(window, table, local, known, root, record=record):
         wanted, others = opens_view(source, view)
