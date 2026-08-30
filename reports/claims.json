@@ -297,7 +297,7 @@
    "<project>\\harvest",
    "windows"
   ],
-  "counting_rule": "records in harvest\\ with opened true; 17 of the 219 windows in the map refuse to open at all. It was 178 of 196 until 30 August 2026, when the administration window was harvested along a player route and the 22 windows declared through a type of their own were added to the map and harvested",
+  "counting_rule": "records in harvest\\ with opened true. The map holds 219 rows: these 201, the 17 that refuse to open at all, and toolbars_window, which is the baseline state and is never harvested. It was 178 of 196 until 30 August 2026, when the administration window was harvested along a player route and the 22 windows declared through a type of their own were added to the map and harvested",
   "quoted_in": [
    "README.md",
    "brief\\stand.md"
