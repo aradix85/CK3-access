@@ -88,10 +88,17 @@ def buttons_on_disk():
     Blocks are followed by counting braces, not by the shape of a line, because a gui file closes a
     block on a line that also carries content. A block whose name comes after its trigger is common,
     so nothing is decided until the block closes.
+
+    **A trigger whose name sits one level up is taken as well, and answered for by the namebearer.**
+    310 blocks carry a call while carrying no name of their own but hanging directly under one that
+    does; of those, 27 would pass the test above if the namebearer answered for them. They are only
+    added where the name is still free, so a widget that opens a view itself always wins - the
+    child closes before its parent, and without that rule it would shadow the parent's own row.
     """
     windows = set(json.load(open(os.path.join(paths.PROJECT, 'reports', 'windows.json'),
                                  encoding='utf-8'))['windows'])
     found = {}
+    beneath = {}
     for root, _, names in os.walk(paths.GAME):
         for name in sorted(names):
             if not name.endswith('.gui'):
@@ -120,6 +127,15 @@ def buttons_on_disk():
                         if row:
                             row.update({'widget': block['name'], 'file': name})
                             found.setdefault(block['name'], row)
+                        elif not block['name'] and stack and stack[-1]['name']:
+                            if len(block['views']) == 1 and block['views'][0]:
+                                row = {'via': 'onclick', 'target': block['views'][0]}
+                            elif block['shortcut'] in windows:
+                                row = {'via': 'shortcut', 'target': block['shortcut']}
+                            if row:
+                                row.update({'widget': stack[-1]['name'], 'file': name,
+                                            'under': True})
+                                beneath.setdefault(stack[-1]['name'], row)
                     elif stack:
                         if piece.strip():
                             last = piece.strip().splitlines()[-1].strip()
@@ -135,10 +151,26 @@ def buttons_on_disk():
                             stack[-1]['views'].append(only.group(1) if only else None)
                     elif piece.strip():
                         last = piece.strip().splitlines()[-1].strip()
+    for widget, row in beneath.items():
+        found.setdefault(widget, row)
     return sorted(found.values(), key=lambda row: row['widget'])
 
 
 
+
+
+def trigger_spots(row, named, nodes):
+    """Where the click for this row could land: the widget itself, or its nameless children.
+
+    A trigger whose name sits one level up cannot be addressed by name at all. The namebearer can
+    be, and under it hangs one button per case, each with the same call and its own visibility
+    condition - four government types under `tab_government_administration` on 29 August 2026, of
+    which three lie beyond the right edge of a 1600 wide screen while carrying alpha above zero.
+    Which one is meant is therefore a question of geometry, and `on_screen` already asks it.
+    """
+    if not row.get('under'):
+        return named
+    return [a for a in nodes if nodes[a][5] in named and not nodes[a][6]]
 
 
 def on_screen(address, nodes, scales, classes):
@@ -295,7 +327,7 @@ def main():
     print('\nphase one: what is reachable without opening anything first')
     done = {}
     for number, row in enumerate(rows, 1):
-        here = by_name.get(row['widget'], [])
+        here = trigger_spots(row, by_name.get(row['widget'], []), nodes)
         if not here:
             row['reason'] = 'not in the tree from a neutral state'
         elif len(here) > 1:
@@ -346,7 +378,11 @@ def main():
         inside_classes = derive.class_map(pid, {a: k[0] for a, k in inside_nodes.items()})
         found = 0
         for number, row in enumerate(waiting, 1):
-            spots = [a for a in held if inside_nodes[a][6] == row['widget']]
+            spots = trigger_spots(row, [a for a in held
+                                        if inside_nodes[a][6] == row['widget']], inside_nodes)
+            if len(spots) > 1:
+                spots = [a for a in spots
+                         if on_screen(a, inside_nodes, inside_scales, inside_classes) is None]
             if len(spots) != 1:
                 continue
             found += 1

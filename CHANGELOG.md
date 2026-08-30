@@ -14,6 +14,9 @@ lives in `ARCHITECTURE.md`. This file says only what moved.
 - A window is not the only thing a gui file can be reached by: five widget names in the decision
   detail view come from a file a decision names itself, with `widget = { gui = ... }` in
   `common/decisions`. 58 such names, and a file exists for all 58.
+- A button whose name sits one level up is now a click target too: the namebearer answers for it and
+  the geometry test picks which of its nameless children is the one on screen. 74 rows where there
+  were 56, and the 56 come out of the round unchanged.
 
 ## 2026-08-29
 

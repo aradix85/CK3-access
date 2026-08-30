@@ -1,7 +1,16 @@
 {
- "measured": "2026-08-28 15:28",
+ "measured": "2026-08-30 13:50",
  "game_date": "23rd of November, 1067 AD",
  "buttons": [
+  {
+   "via": "onclick",
+   "target": "activity_list_detail_invite_window",
+   "widget": "activity_icon",
+   "file": "map_icon_layer.gui",
+   "under": true,
+   "reason": "not in the tree from a neutral state",
+   "opens": null
+  },
   {
    "via": "onclick",
    "target": "activity_log",
@@ -12,10 +21,37 @@
   },
   {
    "via": "onclick",
+   "target": "tax_slot_obligations",
+   "widget": "assigned vassal",
+   "file": "window_tax_slot_assign_vassal.gui",
+   "under": true,
+   "reason": "2 widgets carry this name and 0 of them are on screen",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "message_settings",
+   "widget": "button_dismiss_all_toasts",
+   "file": "hud_notification_templates.gui",
+   "under": true,
+   "reason": "2 widgets carry this name and 0 of them are on screen",
+   "opens": null
+  },
+  {
+   "via": "onclick",
    "target": "activity_intent_selection",
    "widget": "change_intent",
    "file": "window_activity_locale.gui",
    "reason": "not visible",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "dynasty_tree_view",
+   "widget": "character_container",
+   "file": "window_dynasty_tree.gui",
+   "under": true,
+   "reason": "not in the tree from a neutral state",
    "opens": null
   },
   {
@@ -40,6 +76,15 @@
   },
   {
    "via": "onclick",
+   "target": "confederation_window",
+   "widget": "confederation_icon",
+   "file": "map_icon_layer.gui",
+   "under": true,
+   "reason": "not in the tree from a neutral state",
+   "opens": null
+  },
+  {
+   "via": "onclick",
    "target": "faith_conversion",
    "widget": "convert_faith",
    "file": "window_faith.gui",
@@ -56,6 +101,24 @@
   },
   {
    "via": "onclick",
+   "target": "decision_detail",
+   "widget": "create_title_nomad",
+   "file": "window_title.gui",
+   "under": true,
+   "reason": "2 widgets carry this name and 0 of them are on screen",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "activity_intent_selection",
+   "widget": "current_intent",
+   "file": "window_activity.gui",
+   "under": true,
+   "reason": "26 widgets carry this name and 0 of them are on screen",
+   "opens": null
+  },
+  {
+   "via": "onclick",
    "target": "artifact_details",
    "widget": "details",
    "file": "window_royal_court.gui",
@@ -64,11 +127,41 @@
   },
   {
    "via": "onclick",
+   "target": "my_realm",
+   "widget": "domain_limit",
+   "file": "hud.gui",
+   "under": true,
+   "reason": "6 widgets carry this name and 0 of them are on screen",
+   "opens": null
+  },
+  {
+   "via": "onclick",
    "target": "domicile",
    "widget": "domicile_map_icon",
    "file": "map_icon_layer.gui",
-   "reason": "225 widgets carry this name and 0 of them are on screen",
+   "reason": "105 widgets carry this name and 0 of them are on screen",
    "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "domicile",
+   "widget": "domiciles",
+   "file": "hud_outliner.gui",
+   "under": true,
+   "point": [
+    1401,
+    402
+   ],
+   "box": [
+    1264,
+    325,
+    275,
+    155
+   ],
+   "reason": null,
+   "opens": [],
+   "found_in": "the screen",
+   "state_returned": true
   },
   {
    "via": "onclick",
@@ -137,7 +230,7 @@
    "target": "decision_detail",
    "widget": "gather_provisions_decision",
    "file": "map_icon_layer.gui",
-   "reason": "135 widgets carry this name and 0 of them are on screen",
+   "reason": "63 widgets carry this name and 0 of them are on screen",
    "opens": null
   },
   {
@@ -219,6 +312,15 @@
    "opens": [],
    "found_in": "the screen",
    "state_returned": true
+  },
+  {
+   "via": "onclick",
+   "target": "activity_intent_selection",
+   "widget": "intent",
+   "file": "window_activity_planner.gui",
+   "under": true,
+   "reason": "4 widgets carry this name and 0 of them are on screen",
+   "opens": null
   },
   {
    "via": "onclick",
@@ -306,10 +408,19 @@
   },
   {
    "via": "onclick",
+   "target": "character",
+   "widget": "main_tabs",
+   "file": "hud.gui",
+   "under": true,
+   "reason": "2 widgets carry this name and 0 of them are on screen",
+   "opens": null
+  },
+  {
+   "via": "onclick",
    "target": "move_domicile_planner",
    "widget": "move_camp_quick_button",
    "file": "map_icon_layer.gui",
-   "reason": "135 widgets carry this name and 0 of them are on screen",
+   "reason": "63 widgets carry this name and 0 of them are on screen",
    "opens": null
   },
   {
@@ -366,6 +477,15 @@
   },
   {
    "via": "onclick",
+   "target": "kill_list",
+   "widget": "open_kill_list",
+   "file": "window_character.gui",
+   "under": true,
+   "reason": "2 widgets carry this name and 0 of them are on screen",
+   "opens": null
+  },
+  {
+   "via": "onclick",
    "target": "house_relation_history_window",
    "widget": "open_memories",
    "file": "window_dynasty_house.gui",
@@ -394,6 +514,15 @@
   },
   {
    "via": "onclick",
+   "target": "faith",
+   "widget": "piety",
+   "file": "hud.gui",
+   "under": true,
+   "reason": "9 widgets carry this name and 0 of them are on screen",
+   "opens": null
+  },
+  {
+   "via": "onclick",
    "target": "culture_window",
    "widget": "player_culture_button_tutorial_uses_this",
    "file": "hud.gui",
@@ -405,7 +534,16 @@
    "target": "great_project",
    "widget": "portrait_pin",
    "file": "map_icon_layer.gui",
-   "reason": "45 widgets carry this name and 0 of them are on screen",
+   "reason": "21 widgets carry this name and 0 of them are on screen",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "select_title_troop_assignment",
+   "widget": "reassign_button",
+   "file": "window_military.gui",
+   "under": true,
+   "reason": "7 widgets carry this name and 0 of them are on screen",
    "opens": null
   },
   {
@@ -477,6 +615,15 @@
    "widget": "struggle_involvement_button_tutorial_uses_this",
    "file": "window_struggle.gui",
    "reason": "not visible",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "situation_sub_region_window",
+   "widget": "sub_region_icon",
+   "file": "map_icon_layer.gui",
+   "under": true,
+   "reason": "not in the tree from a neutral state",
    "opens": null
   },
   {
@@ -613,6 +760,15 @@
   },
   {
    "via": "onclick",
+   "target": "government_administration",
+   "widget": "tab_government_administration",
+   "file": "hud.gui",
+   "under": true,
+   "reason": "4 widgets carry this name and 0 of them are on screen",
+   "opens": null
+  },
+  {
+   "via": "onclick",
    "target": "intrigue_window",
    "widget": "tab_intrigue",
    "file": "hud.gui",
@@ -721,6 +877,15 @@
   },
   {
    "via": "onclick",
+   "target": "task_contract",
+   "widget": "task_contract_icon",
+   "file": "map_icon_layer.gui",
+   "under": true,
+   "reason": "not in the tree from a neutral state",
+   "opens": null
+  },
+  {
+   "via": "onclick",
    "target": "dynasty_legacy_window",
    "widget": "top_legacy",
    "file": "window_dynasty_house.gui",
@@ -729,10 +894,19 @@
   },
   {
    "via": "onclick",
+   "target": "treasury_budget_change",
+   "widget": "treasury",
+   "file": "hud.gui",
+   "under": true,
+   "reason": "off screen",
+   "opens": null
+  },
+  {
+   "via": "onclick",
    "target": "decision_detail",
    "widget": "visit_local_settlement_decision",
    "file": "map_icon_layer.gui",
-   "reason": "135 widgets carry this name and 0 of them are on screen",
+   "reason": "63 widgets carry this name and 0 of them are on screen",
    "opens": null
   }
  ]
