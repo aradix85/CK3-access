@@ -43,9 +43,17 @@ where, and how — rather than in prose. Three counts here were wrong because a 
 and nobody could see it because the rule was never written down. If a document repeats one of those
 numbers, list it under `quoted_in` and `check.py` will hold the document to it.
 
-On a fresh clone the claims about the executable, the saves and the DLL read as drifted until you
-have built the DLL and have the game on disk; that is the tool working. After a rename, also run
-`python -m pyflakes tools` — a rename that compiles can still be half done.
+On a fresh clone the claims about the executable, the saves, the DLL and the harvest read as drifted
+until you have built the DLL and have the game on disk; that is the tool working. The harvested
+window records are not in the repository — they are megabytes of one machine's measurements — so the
+claims counted over them measure nothing until you run a harvest of your own. After a rename, also
+run `python -m pyflakes tools` — a rename that compiles can still be half done.
+
+**You are not missing a document.** The maintainer keeps working notes, in Dutch, which are not part
+of this repository and go stale within a day. Nothing in a pull request should depend on them, and
+anything a contributor needs to know belongs here, in `ARCHITECTURE.md`, or in a counting rule in
+`reports/claims.json`. If you hit something that seems to assume knowledge you do not have, that is
+a bug in these files — say so in an issue.
 
 ## Reporting a problem as a blind user
 
