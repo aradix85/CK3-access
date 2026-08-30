@@ -8,6 +8,10 @@ lives in `ARCHITECTURE.md`. This file says only what moved.
 
 ## 2026-08-30
 
+- The ledger has eleven category buttons that set `ledger_tab`, one of them the counties, and the
+  pairing credits none of them to a live widget. Not a blockoverride problem in general - the
+  pinned rows carry their call the same way and do come through - so what is special about these
+  eleven is the open question, and it decides how much "not found" from the pairing can be trusted.
 - A number that never moves is a measurement that never changed anything: the seventeen ledger rows
   said to carry the call are the same seventeen empty shells of the pinned list every time, not the
   county rows. The alignment itself checks out on filled rows.
