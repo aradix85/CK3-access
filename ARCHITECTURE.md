@@ -24,16 +24,20 @@ A DLL injected into `ck3.exe`, exposing a handful of primitives over a named pip
 many addresses at once, walk the widget tree from a root, post a click, a key, a character. That is
 all. It does not know what a county is, and it contains no speech.
 
-Python on the other side is fast enough, measured. Two rules keep it there: let the DLL walk the
-tree and return a compact answer rather than raw bytes, and react to keys and events instead of
-walking the tree every frame.
+Python on the other side is fast enough, and that is measured: re-checking the derivation once took
+122 seconds, nearly all of it the Python side polling in fixed steps, and a growing wait made it 3
+seconds without a line of C++. Two rules keep it there: let the DLL walk the tree and return a
+compact answer rather than raw bytes, and react to keys and events instead of walking the tree every
+frame.
 
 **The pipe is a workbench, not a product.** It answers anything that can open it, and the primitives
 add up to remote control plus arbitrary memory reads — right for mapping an interface, wrong to
 ship, and in multiplayer a cheating tool. A released build carries no pipe. The DLL never opens a
 network connection.
 
-**One rule for anything added here:** a limit either grows or announces itself, never silently.
+**One rule for anything added here:** a limit either grows or announces itself, never silently. The
+costliest bug in this project was a tree walk that stopped at 20,000 nodes and dropped children
+without a word.
 
 ## 2. Derivation — `tools/ck3/derive.py`
 
@@ -107,9 +111,10 @@ a word is at x=262 and the recogniser reads it there, the geometry is right.
 
 **A window has to be opened the way a player opens it, or the first source is half empty.** The
 console builds any window on demand, which makes coverage independent of who is playing, but it
-hands over shape and captions and no data context — a fraction of the text a shortcut or a click
-gives. So structure is collected the cheap way and data the slow way, and `tools/ck3/harvest.py`
-knows all three routes.
+hands over shape and captions and no data context: 6.6 text boxes per window against 23.7 through a
+shortcut and 32.8 through a click. None of the twelve `GUI.` console commands takes a context, so
+there is no way around it. Structure is collected the cheap way and data the slow way, and
+`tools/ck3/harvest.py` knows all three routes.
 
 **The first two sources are joined by structure, not by name.** `tools/ck3/pairing.py` lays the
 expanded tree from disk against the harvested tree on class and child order, so meaning reaches a
@@ -129,6 +134,11 @@ and it is the one place measurement cannot answer the question.
 
 Two rules are fixed: output is not sorted by screen position, which is a sighted reader's order; and
 one keystroke produces one unit of speech plus braille. It belongs in data rather than in code.
+
+**A third rule was fixed and has since been withdrawn: addressing a widget by name.** The intent
+stands, since an index among siblings breaks the moment a mod adds a row inside a vanilla window,
+but only about a fifth of the widgets that carry text have a name, and a name is not unique within a
+window either. The structural alignment in section 5 replaces it.
 
 **Draw order lives in exactly one place.** The channel walks each child list in the engine's own
 order and the tree reader keeps the lines that way; the parent offset never says in which place. A
