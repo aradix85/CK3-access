@@ -22,6 +22,7 @@ maximum. Each of those can fail on a shifted offset, which is what makes them wo
 Usage:
     python tools\ck3\model.py <pid>                 check the stored derivation
     python tools\ck3\model.py <pid> <save>          derive again against that save
+    python tools\ck3\model.py <pid> --player <save> derive where the player is kept
 """
 import json
 import os
@@ -517,12 +518,100 @@ def character(pid, handle, records=None):
     return values
 
 
+MODULE_SPAN = 0x6000000
+
+
+def derive_player(pid, number):
+    """Where the module keeps the handle of the character being played, derived against a save.
+
+    The game does not keep a pointer to the player's record: searching all of memory for the
+    address of that record gave exactly one hit, on the heap, with no class around it. What it
+    keeps is the handle, the way it refers to a character everywhere else, and it keeps it inside
+    the module, where a place is fixed within a build.
+
+    Measured 30 August 2026 on the administrative state: six places in the module held 50149, the
+    number the save writes down for its player. All six followed a mod event that moved the player
+    to another character, and all six followed a load of another state. So they are kept as six
+    witnesses rather than narrowed down to one: four bytes is a weak pattern, and a disagreement
+    between them is worth hearing about instead of being resolved by picking a favourite.
+
+    **Search on all four bytes.** The seven-byte search `anchor.derive_global` has to use for
+    addresses would be wrong here for another reason: records sit next to each other, so a pattern
+    that leaves out the low byte matches every neighbour in the block, and the DLL stops reporting
+    at two hundred hits long before the real one appears.
+    """
+    base = vtablemap.module_base(pid)
+    pattern = struct.pack('<I', number).hex()
+    if pattern[:2] == '00':
+        raise SystemExit('character %d begins with a zero byte, so it cannot lead a search; '
+                         'derive against a state whose player has another number' % number)
+    answer = channel.ask('findin %x %x %s' % (base, base + MODULE_SPAN, pattern), timeout=900)
+    spots = [int(line.split('\t')[1], 16) - base
+             for line in answer.split('\n') if line.startswith('t\t')]
+    if not spots:
+        raise SystemExit('no place in the module holds %d; either this is not the player of the '
+                         'state that is loaded, or the game keeps him somewhere else now' % number)
+    model = json.load(open(MODEL, encoding='utf-8'))
+    model['key'] = derive.build_key()
+    model['player_spots'] = ['%x' % spot for spot in sorted(spots)]
+    model['player_derived_on'] = time.strftime('%Y-%m-%d %H:%M') + ' against character %d' % number
+    _store(model)
+    return sorted(spots)
+
+
+def player(pid):
+    """The handle of the character being played, and the name that goes with it.
+
+    Every stored place has to say the same thing and the answer has to be a character the database
+    knows, because a stop condition that quietly returns nonsense is worse than none: a state that
+    has been moved to another character looks perfectly normal from the tree - the date is right,
+    the windows are there - and everything measured after it is about somebody else.
+    """
+    model = stored()
+    if model is None or not model.get('player_spots'):
+        raise SystemExit('there is no derivation of where the player is kept for this build; '
+                         'run `python tools\\ck3\\model.py <pid> --player <save>` on the state '
+                         'that save belongs to')
+    base = vtablemap.module_base(pid)
+    spots = [base + int(spot, 16) for spot in model['player_spots']]
+    raw = readmany(spots, 4)
+    missing = [s for s in spots if s not in raw]
+    if missing:
+        raise SystemExit('%d of the %d places the player is kept in cannot be read'
+                         % (len(missing), len(spots)))
+    values = {struct.unpack('<I', raw[s])[0] for s in spots}
+    if len(values) > 1:
+        raise SystemExit('the %d places that hold the player disagree: %s. One of them is not the '
+                         'player after all, so the derivation has to be done again'
+                         % (len(spots), ', '.join(str(v) for v in sorted(values))))
+    handle = values.pop()
+    good, _ = records_for(pid, [handle])
+    if handle not in good:
+        raise SystemExit('the player reads as %d, and the character database has no such '
+                         'character; the derivation no longer holds' % handle)
+    name = names_of(good, stored()['name']['offset']).get(handle)
+    return handle, name
+
+
 def main():
     if len(sys.argv) < 2:
         raise SystemExit(__doc__.strip().splitlines()[-2].strip())
     pid = int(sys.argv[1])
     vtablemap.configure(pid)
     derive.configure_channel(derive.stored())
+
+    if len(sys.argv) > 3 and sys.argv[2] == '--player':
+        path = sys.argv[3]
+        if not os.path.isabs(path):
+            path = os.path.join(savegame.SAVE_DIR, path)
+        number = savegame.player(savegame.unpack(path))
+        spots = derive_player(pid, int(number))
+        print('%s says its player is %s; %d places in the module hold it: %s'
+              % (os.path.basename(path), number, len(spots),
+                 ', '.join('+%x' % spot for spot in spots)))
+        handle, name = player(pid)
+        print('reading it back gives %d, %s' % (handle, name))
+        return
 
     if len(sys.argv) > 2:
         path = sys.argv[2]

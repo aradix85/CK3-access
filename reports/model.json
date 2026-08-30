@@ -134,5 +134,14 @@
    "array": 104,
    "key": 24
   }
- }
+ },
+ "player_spots": [
+  "4f4650c",
+  "4f465a0",
+  "4f465c8",
+  "4f46660",
+  "4fe7ee0",
+  "57c7ce0"
+ ],
+ "player_derived_on": "2026-08-30 18:12 against character 29733"
 }

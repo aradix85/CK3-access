@@ -8,6 +8,13 @@ lives in `ARCHITECTURE.md`. This file says only what moved.
 
 ## 2026-08-30
 
+- `model.player` reads who is being played out of the running game. The game keeps no pointer to
+  the player's record - one hit in eleven gigabytes, on the heap - but it keeps the handle, in six
+  places inside the module. All six followed a mod event that moved the player, all six followed a
+  load of another state, and the same six came out of deriving against that other state.
+- The harvest has a fifth stop condition: the player. It goes in the header of every record and is
+  asked before every window, because a state that has been moved to another character looks
+  entirely normal from the tree and everything after it is measured on somebody else's game.
 - The administration and domicile windows are in the main harvest with the record of the route a
   player takes, so the pairing reads the rich version instead of the console one.
 - Five widget names in the decision detail view come from a file a decision names itself, with

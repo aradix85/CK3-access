@@ -39,7 +39,7 @@ returns a pair, passed on as one thing, costs a run.
 | `document_paths()` | 2-tuple | Every project path named in a document, checked against the disk. |
 | `mod_windows(part)` | value | Windows in the map whose gui file is not part of the game itself. |
 | `harvest_total(part, field)` | value | A number summed over the harvest records: how big the round was, and how good. |
-| `quoted_numbers(claims)` | 2-tuple | Claims that a public document repeats, checked against the file that repeats them. |
+| `quoted_numbers(claims)` | 2-tuple | Claims that a document repeats, checked against the file that repeats them. |
 | `main(all_of_them)` | value | - |
 
 ## ocr.py
@@ -187,7 +187,7 @@ returns a pair, passed on as one thing, costs a run.
 | `read(path)` | value | - |
 | `type_table(rows=None)` | 2-tuple | Every template the engine knows, as name -> definition. |
 | `build(key, body, templates, overrides=None, depth=0, in_tooltip=False)` | value of dict | One widget, fully expanded: inherited defaults, mixed-in templates, slots filled. |
-| `windows(rows=None)` | value | Every `window = { name = ... }` on disk, as name -> (virtual path, its entry). |
+| `windows(rows=None)` | value | Every window on disk, as name -> (virtual path, its entry). |
 | `window(name, table=None, local=None, known=None)` | 2-tuple | A window resolved into a widget tree, with a Templates carrying what went wrong. |
 | `localization(language='english')` | value | Key -> sentence, from the localization files of the game and of the active mods. |
 | `widgets(node, path=(), context=())` | nothing | One row per widget that carries a name, with where its content comes from. |
@@ -250,6 +250,8 @@ returns a pair, passed on as one thing, costs a run.
 | `sample_slots(pid, wanted=200)` | 2-tuple | Slots spread over the whole database, with what their record says about itself. |
 | `check(pid, wanted=400)` | value of list | Does the stored derivation still hold against the game running right now? |
 | `character(pid, handle, records=None)` | value | Every field of one character: the scalars from the record, the rest through the pointers. |
+| `derive_player(pid, number)` | value | Where the module keeps the handle of the character being played, derived against a save. |
+| `player(pid)` | 2-tuple | The handle of the character being played, and the name that goes with it. |
 | `main()` | nothing | - |
 | `compare(pid, save_path, count=400)` | 5-tuple | Every derived field of many characters, laid beside the save. The regression test. |
 
@@ -269,6 +271,7 @@ returns a pair, passed on as one thing, costs a run.
 | call | returns | does |
 |---|---|---|
 | `buttons_on_disk()` | value | Every widget that opens a window when pressed, with how it does it. |
+| `trigger_spots(row, named, nodes)` | list of value | Where the click for this row could land: the widget itself, or its nameless children. |
 | `on_screen(address, nodes, scales, classes)` | NoneType of str | Why this widget cannot be clicked, or None when it can. |
 | `press(address, nodes, scales, classes, row)` | NoneType of value | Click the middle of a widget, but only if it is really on screen. |
 | `back_to(game, baseline, tries=4)` | value of bool | Shut whatever opened. Escape only when something is open, or it opens the pause menu. |

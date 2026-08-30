@@ -9,10 +9,13 @@ and check that the state before it returns.
 understanding, and a second pass would need the game running again. Numbers are cheap to store and
 expensive to re-measure.
 
-**Four stop conditions, all measurable**, because a round of two hundred windows that goes wrong in
+**Five stop conditions, all measurable**, because a round of two hundred windows that goes wrong in
 the middle is worse than one that stops: too little free memory, a channel that stops answering, a
-window that will not open after three tries, and a state that does not come back. The last one
-matters most - if something stays open, every later measurement is contaminated.
+window that will not open after three tries, a state that does not come back, and the player being
+moved to another character. The state one matters most - if something stays open, every later
+measurement is contaminated. The player one is the quiet one: a mod event can move the player
+mid-round, and nothing about the tree says so - the date is right, the windows are there, and
+every window after it is harvested from somebody else's game.
 
 Resumable: what is already on disk is skipped, so a stopped round continues where it left off.
 
@@ -42,6 +45,7 @@ sys.path.insert(0, os.path.dirname(HERE))
 
 import channel
 import derive
+import model
 import ocr
 import paths
 import windowgrab
@@ -444,11 +448,14 @@ def main():
         game.set_console(False)
     time.sleep(1.0)
     nodes, _, baseline = game.state()
+    player, player_name = model.player(pid)
     header = {'measured': time.strftime('%Y-%m-%d %H:%M'), 'exe': derive.build_key(),
               'game_date': game_date(nodes), 'baseline': sorted(baseline),
+              'player': player, 'player_name': player_name,
               'fields': {k: v for k, v in game.fields.items() if isinstance(v, int)}}
-    print('baseline %s, date %s, free memory %.1f GB'
-          % (sorted(baseline) or 'nothing drawn', header['game_date'], free_memory()))
+    print('baseline %s, date %s, player %s (%d), free memory %.1f GB'
+          % (sorted(baseline) or 'nothing drawn', header['game_date'], player_name, player,
+             free_memory()))
 
     left_over = [n for n in names if n in baseline and n not in ALWAYS_DRAWN]
     if left_over:
@@ -469,6 +476,16 @@ def main():
                              % (free_memory(), FREE_MEMORY_FLOOR))
         if 'channel' not in channel.ask('hello'):
             raise SystemExit('stopping: the channel no longer answers')
+        # The fifth stop condition. Cheap enough to ask every window - six four-byte reads in one
+        # question - and it is the only thing that catches a state that has been moved to another
+        # character. Measured 29 August 2026: a mod event did exactly that in the middle of a
+        # round and nothing said so.
+        now, now_name = model.player(pid)
+        if now != player:
+            raise SystemExit('stopping before %s: the player is no longer %s (%d) but %s (%d). '
+                             'Everything after this would be measured on somebody else\'s game; '
+                             'reload the state and start the round again.'
+                             % (name, player_name, player, now_name, now))
         record, reason = harvest(game, name, windows[name], baseline, header)
         json.dump(record, open(target, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
         if reason == 'state did not come back':
