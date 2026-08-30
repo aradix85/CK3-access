@@ -8,10 +8,13 @@ lives in `ARCHITECTURE.md`. This file says only what moved.
 
 ## 2026-08-30
 
-- The ledger has eleven category buttons that set `ledger_tab`, one of them the counties, and the
-  pairing credits none of them to a live widget. Not a blockoverride problem in general - the
-  pinned rows carry their call the same way and do come through - so what is special about these
-  eleven is the open question, and it decides how much "not found" from the pairing can be trusted.
+- A scroll area draws its scrollbar last, whatever the file says, and the pairing ran on class and
+  order - so the content lost the row and everything under it came out without a source. Fixed:
+  paired texts 1517 to 1584, texts with a data context 1245 to 1311, unexplained 204 to 137, and
+  the strict test stayed at everything, 562 of 562. No harvest was rerun; the pairing recomputes
+  from the records that were already on disk.
+- The eleven ledger category buttons that set `ledger_tab`, the counties among them, were credited
+  to no live widget at all. That is what led to the scroll area above.
 - A number that never moves is a measurement that never changed anything: the seventeen ledger rows
   said to carry the call are the same seventeen empty shells of the pinned list every time, not the
   county rows. The alignment itself checks out on filled rows.

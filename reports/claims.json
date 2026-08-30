@@ -409,17 +409,17 @@
  },
  {
   "name": "harvested texts paired with a place in a gui file",
-  "claimed": 1517,
+  "claimed": 1584,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
    "paired"
   ],
-  "counting_rule": "paired by class and child order only, never by name. 172 of them are a caption: a button carries its own text and the engine hangs a text box under it to draw it, so the box is not in the file and the widget above answers for it. The remaining 204 are texts the files describe nowhere, spread over 44 windows, and 82 of those sit in ten developer windows - the debug map alone holds 42. They are listed per window in reports\\pairing.json, so the share is recomputable rather than a number that ages"
+  "counting_rule": "paired by class and child order only, never by name. 172 of them are a caption: a button carries its own text and the engine hangs a text box under it to draw it, so the box is not in the file and the widget above answers for it. The remaining 137 are texts the files describe nowhere, spread over 44 windows, and 82 of those sit in ten developer windows - the debug map alone holds 42. They are listed per window in reports\\pairing.json, so the share is recomputable rather than a number that ages"
  },
  {
   "name": "harvested texts whose gui file names a plain localization key",
-  "claimed": 557,
+  "claimed": 562,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -429,27 +429,27 @@
  },
  {
   "name": "plain keys whose localization matches what was on screen",
-  "claimed": 557,
+  "claimed": 562,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
    "plain key agrees"
   ],
-  "counting_rule": "the check that can fail: game markup stripped from the screen text, style markup and icon tokens from the localization, then compared whole. All 557 agree, which is also what carries the caption model - had a button's caption not been the source of the box under it, those 172 would have disagreed"
+  "counting_rule": "the check that can fail: game markup stripped from the screen text, style markup and icon tokens from the localization, then compared whole. All 562 agree, which is also what carries the caption model - had a button's caption not been the source of the box under it, those 172 would have disagreed"
  },
  {
   "name": "harvested texts filled by a data function",
-  "claimed": 493,
+  "claimed": 514,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
    "data functions together"
   ],
-  "counting_rule": "313 where the gui file carries the call itself and 180 where it carries a key whose localization does; both need the data context of the ancestors to say who the sentence is about"
+  "counting_rule": "331 where the gui file carries the call itself and 183 where it carries a key whose localization does; both need the data context of the ancestors to say who the sentence is about"
  },
  {
   "name": "harvested texts the gui file leaves to code",
-  "claimed": 288,
+  "claimed": 311,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",

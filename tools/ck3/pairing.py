@@ -92,6 +92,13 @@ def widget_children(node, root):
     against 5892 live ones; taking them out leaves 23699, and the rest of that gap is property
     blocks. A block that is not a widget is still walked through, because a widget can sit inside
     one and then belongs at its parent's place.
+
+    **Inside a scroll area the engine puts the scrollbar last, whatever the file says.** Measured
+    30 August 2026 on the ledger: the file declares the scrollbar and then the content, the game
+    built the content and then the scrollbar, and since this alignment runs on class and order the
+    two rows could not both match. The content lost, so the whole list under it came out with no
+    source - eleven category buttons of the ledger, the counties among them, and everything below
+    them. Reordering here rather than in the alignment keeps the rule where the reason for it is.
     """
     out = []
     for child in node['children']:
@@ -101,6 +108,8 @@ def widget_children(node, root):
             out.append(child)
         else:
             out += widget_children(child, root)
+    if root(node['type']) == 'scrollarea' and len(out) > 1:
+        out.sort(key=lambda child: root(child['type']) == 'scrollbar')
     return out
 
 
