@@ -8,6 +8,9 @@ lives in `ARCHITECTURE.md`. This file says only what moved.
 
 ## 2026-08-30
 
+- The rule that picks a nameless child of a namebearing button holds where it could have failed: on
+  an administrative state exactly one of the four government tabs lies inside the screen, and
+  pressing it opened the administration window.
 - `model.player` reads who is being played out of the running game. The game keeps no pointer to
   the player's record - one hit in eleven gigabytes, on the heap - but it keeps the handle, in six
   places inside the module. All six followed a mod event that moved the player, all six followed a
