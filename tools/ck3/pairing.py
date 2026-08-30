@@ -79,11 +79,6 @@ def attribute(node, key):
     return None
 
 
-def name_of(node):
-    value = attribute(node, 'name')
-    return value if value and not value.startswith('_') else None
-
-
 def widget_children(node, root):
     """The children of a node that can reach the live tree, in file order.
 

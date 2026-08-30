@@ -149,7 +149,6 @@ returns a pair, passed on as one thing, costs a run.
 | `tree(root)` | value | - |
 | `use_fields(fields)` | nothing | Publish the two visibility offsets for this build. |
 | `flags_for(addresses)` | value | The window flag of many objects in as few channel questions as possible. |
-| `is_drawn(nodes, address, flags, window_classes)` | bool | Is this widget really on screen? |
 | `widgets(root)` | value | The whole tree with fields attached: address -> (vtable, x, y, width, height, parent, name, text). |
 | `scales_for(addresses)` | value | Per widget (own scale, scale from above). The two sit next to each other, so one read round. |
 | `screen_pos(nodes, address, scales, anchors=None)` | 2-tuple | The place on screen: the own position plus that of every parent, with the scale applied. |
@@ -295,7 +294,6 @@ returns a pair, passed on as one thing, costs a run.
 |---|---|---|
 | `root_finder(table)` | value | Type name -> the end of its inheritance chain, remembered, because the walk repeats itself |
 | `attribute(node, key)` | NoneType of value | - |
-| `name_of(node)` | value | - |
 | `widget_children(node, root)` | value | The children of a node that can reach the live tree, in file order. |
 | `align_row(disk, live, root)` | value | Two rows of children laid against each other on class and order alone. |
 | `live_tree(record)` | 2-tuple | The harvest is a flat list with an address and a parent address; this is it as a tree. |

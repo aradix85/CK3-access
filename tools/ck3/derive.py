@@ -119,27 +119,6 @@ def flags_for(addresses):
     return out
 
 
-def is_drawn(nodes, address, flags, window_classes):
-    """Is this widget really on screen?
-
-    Alpha is not enough: measured 29 July 2026, 30 of 259 windows sat at an alpha above zero while
-    only two were being drawn. The window flag does decide it: 0x00 means drawn, any other value
-    means not. Of 259 windows exactly two held 0x00, and those were exactly the two that were open
-    - confirmed because the text recogniser found those windows' own text in their own place. Held
-    afterwards on F2, F3 and F4, which open `my_realm_window`, `military_view` and `council_window`
-    respectively: every time the flag flipped to 0x00 and the recogniser confirmed it.
-
-    The values look like bit flags - 0x08, 0x10 and 0x20 in combinations - so "drawn" is "no flag
-    set at all".
-    """
-    p, steps = address, 0
-    while p in nodes and steps < 24:
-        if nodes[p][0] in window_classes and flags.get(p, 0) != 0x00:
-            return False
-        p, steps = nodes[p][5], steps + 1
-    return True
-
-
 def widgets(root):
     """The whole tree with fields attached: address -> (vtable, x, y, width, height, parent, name, text).
 
