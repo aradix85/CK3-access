@@ -8,6 +8,9 @@ lives in `ARCHITECTURE.md`. This file says only what moved.
 
 ## 2026-08-30
 
+- A click does not bubble: the topmost button owns the point, and a button carrying no action is a
+  dead area. Measured with the control that could have sunk it - a silent child opened nothing, a
+  child with an action at a point the model gives it opened the title view.
 - `openers.py` can do a chain step: `spots_for_view` aligns the window that is open right now
   against the gui files and points at the widgets whose block carries the call opening a view, so a
   trigger that has no name and is built from data can still be addressed.
