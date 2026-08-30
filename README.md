@@ -23,7 +23,7 @@ The machinery underneath, and nothing above it:
   against build 1.16.2: one offset had moved, and it recovered on its own.
 - **An event reads end to end** — title, description, options — straight out of memory, checked
   against the localisation files on disk.
-- **179 windows have been harvested** widget by widget, and the `.gui` files are parsed and paired
+- **201 windows have been harvested** widget by widget, and the `.gui` files are parsed and paired
   with the live tree on structure, so meaning on disk reaches the widgets that carry no name — more
   than three in four of the ones that show text.
 - **The game state is readable without searching:** any character's name, culture, faith, money and

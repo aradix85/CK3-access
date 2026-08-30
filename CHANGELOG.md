@@ -9,8 +9,7 @@ lives in `ARCHITECTURE.md`. This file says only what moved.
 ## 2026-08-30
 
 - The administration window and the domicile window are in the main harvest with the record of the
-  route a player takes, so the pairing reads the rich version: 179 windows, 1702 texts, 1508 of them
-  placed in a gui file, and the plain-key check still agrees on every one of the 549.
+  route a player takes, so the pairing reads the rich version instead of the console one.
 - A window is not the only thing a gui file can be reached by: five widget names in the decision
   detail view come from a file a decision names itself, with `widget = { gui = ... }` in
   `common/decisions`. 58 such names, and a file exists for all 58.
@@ -18,8 +17,13 @@ lives in `ARCHITECTURE.md`. This file says only what moved.
   the geometry test picks which of its nameless children is the one on screen. 74 rows where there
   were 56, and the 56 come out of the round unchanged.
 - The window reader counts both shapes a window can be declared in: 218 where it read 196, the 22
-  new ones being the scheme conclusions, the event windows and the confirmation dialogs. The map in
-  `reports/windows.json` has not been laid again yet, so the harvest still counts against 196.
+  new ones being the scheme conclusions, the event windows and the confirmation dialogs.
+- Those 22 are in the map and harvested: 201 windows, 74294 widgets, 1721 texts, 1517 of them placed
+  in a gui file, and the plain-key check agrees on every one of the 557. All 22 could be created and
+  all 22 were drawn.
+- A window declared through a type of its own is now expanded under that type instead of under
+  `window`. Built as a plain window it came out as two nodes against 283 live ones, and every text
+  in those 22 was left without a source.
 
 ## 2026-08-29
 

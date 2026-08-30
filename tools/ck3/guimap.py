@@ -430,7 +430,14 @@ def _root_finder(table):
 
 
 def window(name, table=None, local=None, known=None):
-    """A window resolved into a widget tree, with a Templates carrying what went wrong."""
+    """A window resolved into a widget tree, with a Templates carrying what went wrong.
+
+    **Build it under the key the block was written with, not under `window`.** A window declared
+    through a type of its own inherits everything it is made of from that type, and building it as
+    a plain `window` throws all of that away: measured 30 August 2026, `scheme_failed_event` came
+    out as two nodes against 283 live ones, and every text in the 22 windows of that shape was left
+    without a source. Under its own key it expands like any other.
+    """
     rows = files()
     if table is None:
         table, local = type_table(rows)
@@ -439,7 +446,7 @@ def window(name, table=None, local=None, known=None):
         raise GuiError('no window named %r on disk' % name)
     virtual, entry = known[name]
     templates = Templates(table, local, virtual)
-    return build('window', entry['body'], templates), templates
+    return build(entry['key'], entry['body'], templates), templates
 
 
 LOCALIZATION = re.compile(r'^\s*([^\s:#][^\s:]*):\s*\d*\s*"(.*)"\s*$')

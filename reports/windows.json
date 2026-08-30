@@ -1,6 +1,34 @@
 {
  "exe": "95206008-1785183508",
  "measured": "2026-08-23 21:49",
+ "measured_new": {
+  "exe": "95206008-1785183508",
+  "names": [
+   "artifact_kill_list",
+   "basic_confirmation_popup",
+   "basic_image_info_popup",
+   "basic_info_popup",
+   "big_event_window",
+   "compound_node_window",
+   "curvesampler_node_window",
+   "default_search_list_node",
+   "dynasty_perk_confirmation_popup",
+   "emitter_node_window",
+   "graphinterface_node_window",
+   "kill_list",
+   "property_node_window",
+   "rename_popup",
+   "scheme_conclusion_event_no_header",
+   "scheme_failed_event",
+   "scheme_successful_event",
+   "texture_node_window",
+   "tutorial_window",
+   "userdata_node_input_window",
+   "userdata_node_output_window",
+   "visit_settlement_window"
+  ],
+  "when": "2026-08-30"
+ },
  "windows": {
   "JominiMusicPlayerView": {
    "cleaned_up": true,
@@ -252,6 +280,16 @@
    "seconds": 8.5,
    "shortcut": null
   },
+  "artifact_kill_list": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_kill_list.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 8.0,
+   "shortcut": null
+  },
   "attach_to_army_window": {
    "cleaned_up": true,
    "created": true,
@@ -272,6 +310,36 @@
    "seconds": 7.4,
    "shortcut": null
   },
+  "basic_confirmation_popup": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/shared/dialogs.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.4,
+   "shortcut": null
+  },
+  "basic_image_info_popup": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/shared/dialogs.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
+  "basic_info_popup": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/shared/dialogs.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.2,
+   "shortcut": null
+  },
   "battle_summary": {
    "cleaned_up": true,
    "created": true,
@@ -280,6 +348,16 @@
    "message": "",
    "nodes_added": 2,
    "seconds": 7.0,
+   "shortcut": null
+  },
+  "big_event_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/event_windows/big_event_window.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.2,
    "shortcut": null
   },
   "blackmail_interaction_window": {
@@ -472,6 +550,16 @@
    "seconds": 8.9,
    "shortcut": null
   },
+  "compound_node_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/node_editor/node_editor.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
   "concubine_interaction_window": {
    "cleaned_up": true,
    "created": true,
@@ -572,6 +660,16 @@
    "seconds": 7.2,
    "shortcut": null
   },
+  "curvesampler_node_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/node_editor/node_editor.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.2,
+   "shortcut": null
+  },
   "debug_tutorial_window": {
    "cleaned_up": true,
    "created": true,
@@ -607,6 +705,16 @@
    "created": true,
    "drawn": true,
    "file": "gui/interaction_declare_war.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
+  "default_search_list_node": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/node_editor/search_list_window.gui",
    "message": "",
    "nodes_added": 2,
    "seconds": 7.1,
@@ -722,6 +830,16 @@
    "seconds": 8.8,
    "shortcut": null
   },
+  "dynasty_perk_confirmation_popup": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_dynasty_legacy.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.4,
+   "shortcut": null
+  },
   "dynasty_tree_view": {
    "cleaned_up": true,
    "created": true,
@@ -730,6 +848,16 @@
    "message": "",
    "nodes_added": 2,
    "seconds": 9.4,
+   "shortcut": null
+  },
+  "emitter_node_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/particle_editor/particle_nodes.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.2,
    "shortcut": null
   },
   "environment_debug_window": {
@@ -860,6 +988,16 @@
    "message": "",
    "nodes_added": 2,
    "seconds": 7.3,
+   "shortcut": null
+  },
+  "graphinterface_node_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/node_editor/node_editor.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.2,
    "shortcut": null
   },
   "great_holy_war_window": {
@@ -1040,6 +1178,16 @@
    "message": "",
    "nodes_added": 2,
    "seconds": 7.1,
+   "shortcut": null
+  },
+  "kill_list": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_kill_list.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.2,
    "shortcut": null
   },
   "knight_permissions": {
@@ -1332,6 +1480,16 @@
    "seconds": 7.3,
    "shortcut": null
   },
+  "property_node_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/node_editor/node_editor.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.2,
+   "shortcut": null
+  },
   "raid_intent_selection_window": {
    "cleaned_up": true,
    "created": true,
@@ -1370,6 +1528,16 @@
    "message": "",
    "nodes_added": 2,
    "seconds": 7.4,
+   "shortcut": null
+  },
+  "rename_popup": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/shared/dialogs.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.3,
    "shortcut": null
   },
   "replace_pillar_window": {
@@ -1432,6 +1600,26 @@
    "seconds": 7.1,
    "shortcut": null
   },
+  "scheme_conclusion_event_no_header": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/event_windows/scheme_conclusion_event_no_header.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.3,
+   "shortcut": null
+  },
+  "scheme_failed_event": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/event_windows/scheme_failed_event.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
+   "shortcut": null
+  },
   "scheme_preparations_event": {
    "cleaned_up": true,
    "created": true,
@@ -1440,6 +1628,16 @@
    "message": "",
    "nodes_added": 2,
    "seconds": 7.0,
+   "shortcut": null
+  },
+  "scheme_successful_event": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/event_windows/scheme_successful_event.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.1,
    "shortcut": null
   },
   "search": {
@@ -1562,6 +1760,16 @@
    "seconds": 7.0,
    "shortcut": null
   },
+  "texture_node_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/node_editor/node_editor.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.3,
+   "shortcut": null
+  },
   "title_add_law_window": {
    "cleaned_up": true,
    "created": true,
@@ -1682,6 +1890,16 @@
    "seconds": 7.0,
    "shortcut": null
   },
+  "tutorial_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/window_tutorial.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.3,
+   "shortcut": null
+  },
   "unit_watch_window": {
    "cleaned_up": true,
    "created": true,
@@ -1690,6 +1908,36 @@
    "message": "",
    "nodes_added": 2,
    "seconds": 7.0,
+   "shortcut": null
+  },
+  "userdata_node_input_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/particle_editor/particle_nodes.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.6,
+   "shortcut": null
+  },
+  "userdata_node_output_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/particle_editor/particle_nodes.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.3,
+   "shortcut": null
+  },
+  "visit_settlement_window": {
+   "cleaned_up": true,
+   "created": true,
+   "drawn": true,
+   "file": "gui/event_windows/visit_settlement_window.gui",
+   "message": "",
+   "nodes_added": 2,
+   "seconds": 7.3,
    "shortcut": null
   },
   "war_declared_overview": {
