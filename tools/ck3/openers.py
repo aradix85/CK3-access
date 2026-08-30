@@ -246,13 +246,27 @@ def draw_order(record):
     return paths
 
 
-def clickable_map(record):
-    """The buttons of a window with their draw order, ready to be asked what a point hits."""
+def clickable_map(record, acting=None):
+    """The buttons of a window that can handle a click, with their draw order.
+
+    **A button without an action of its own passes the click on**, so it does not belong here.
+    Measured 30 August 2026 on the ledger, ten cases out of ten: every one of the category tabs is
+    covered completely by a child called `tab_icon_frame_texture` that carries no onclick at all,
+    and clicking the middle of that child switched the category every time. An earlier round
+    concluded the opposite from a single case, and that case was rotten - the row it pressed sat in
+    the pinned list, which was empty, so its call had no province behind it and could not have done
+    anything whatever caught the click.
+
+    `acting` is the set of addresses whose gui block carries an onclick. Without it every button
+    counts, which is the old behaviour and is only right when nothing better is known.
+    """
     paths = draw_order(record)
     out = []
     for widget in record['tree']:
         kind = widget['class'] or ''
         if 'Button' not in kind and 'Checkbox' not in kind:
+            continue
+        if acting is not None and widget['address'] not in acting:
             continue
         x, y, width, height = widget['screen_rect']
         if width <= 0 or height <= 0 or widget['clipped']:
@@ -263,17 +277,11 @@ def clickable_map(record):
 
 
 def lands_on(buttons, point):
-    """Which widget a click at this point really reaches.
+    """Which widget handles a click at this point.
 
-    **Ask this before pressing anything that was picked by rectangle.** Two ledger rows sit at the
-    same place, one carrying the call that opens `holding_view` and one carrying a coat of arms
-    handler, and only the one drawn later can be hit.
-    **Only widgets that can take a click count.** A layout container drawn after the list covers
-    everything under it geometrically without ever seeing a mouse button, so counting those makes
-    every row look unreachable - the ledger reported `expander` over all 26 of its rows.
-    **A child always beats its parent**, because a child's path is its parent's path with one more
-    number on the end. That is not a quirk to work around: it is why a row that is fully tiled with
-    its own buttons cannot be pressed as a row at all.
+    Of two buttons that can act at the same place the later one is drawn on top and gets it; a
+    button that cannot act is not in this list at all, because it hands the click on to whatever
+    is under it.
     """
     best = None
     for path, x, y, width, height, widget in buttons:
@@ -320,8 +328,11 @@ def spots_for_view(game, pid, window, view, tables=None):
     import pairing
     record, nodes, scales, classes = live_record(game, pid, window)
     table, local, known, root = tables or gui_tables()
-    out = []
+    out, acting = [], set()
     for source, built, _ in pairing.pairs(window, table, local, known, root, record=record):
+        if source is not None and any(key == 'onclick' and value
+                                      for key, value in source.get('attrs', ())):
+            acting.add(built['address'])
         wanted, others = opens_view(source, view)
         if not wanted:
             continue
@@ -330,7 +341,7 @@ def spots_for_view(game, pid, window, view, tables=None):
                     'class': built['class'], 'name': built['name'],
                     'calls': wanted, 'also_does': others,
                     'why_not': on_screen(address, nodes, scales, classes)})
-    return out, record, nodes, scales, classes
+    return out, record, acting, nodes, scales, classes
 
 
 def trigger_spots(row, named, nodes):
@@ -606,10 +617,10 @@ def chain(pid, window, view, press_it=True):
     if window not in baseline:
         raise SystemExit('%s is not open; open it first, this only does the step inside it'
                          % window)
-    spots, record, nodes, scales, classes = spots_for_view(game, pid, window, view)
+    spots, record, acting, nodes, scales, classes = spots_for_view(game, pid, window, view)
     print('%d widgets in %s carry a call that opens %s' % (len(spots), window, view))
     usable = []
-    buttons = clickable_map(record)
+    buttons = clickable_map(record, acting)
     for spot in spots:
         if spot['why_not'] is not None:
             continue

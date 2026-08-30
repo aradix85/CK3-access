@@ -8,6 +8,10 @@ lives in `ARCHITECTURE.md`. This file says only what moved.
 
 ## 2026-08-30
 
+- A click does bubble, and the earlier entry saying otherwise rested on one rotten case. Ten of the
+  ledger's category tabs are covered completely by a child carrying no onclick, and clicking that
+  child switched the category every time. `clickable_map` now takes the set of widgets whose gui
+  block really carries an onclick and ignores the rest.
 - A scroll area draws its scrollbar last, whatever the file says, and the pairing ran on class and
   order - so the content lost the row and everything under it came out without a source. Fixed:
   paired texts 1517 to 1584, texts with a data context 1245 to 1311, unexplained 204 to 137, and
@@ -18,9 +22,8 @@ lives in `ARCHITECTURE.md`. This file says only what moved.
 - A number that never moves is a measurement that never changed anything: the seventeen ledger rows
   said to carry the call are the same seventeen empty shells of the pinned list every time, not the
   county rows. The alignment itself checks out on filled rows.
-- A click does not bubble: the topmost button owns the point, and a button carrying no action is a
-  dead area. Measured with the control that could have sunk it - a silent child opened nothing, a
-  child with an action at a point the model gives it opened the title view.
+- Withdrawn the same day: an entry here said a click does not bubble and that a button without an
+  action is a dead area. It rested on a single case in an empty list; see the corrected entry above.
 - `openers.py` can do a chain step: `spots_for_view` aligns the window that is open right now
   against the gui files and points at the widgets whose block carries the call opening a view, so a
   trigger that has no name and is built from data can still be addressed.

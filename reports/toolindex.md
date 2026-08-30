@@ -274,10 +274,11 @@ returns a pair, passed on as one thing, costs a run.
 | `live_record(game, pid, window)` | 4-tuple | The window that is drawn right now, in the shape the harvest writes and the pairing reads. |
 | `opens_view(source, view)` | 2-tuple | The call this disk block really fires, split into the one that opens `view` and the rest. |
 | `draw_order(record)` | value | Address -> its path of sibling numbers from the window down, which is the drawing order. |
-| `clickable_map(record)` | value | The buttons of a window with their draw order, ready to be asked what a point hits. |
-| `lands_on(buttons, point)` | value | Which widget a click at this point really reaches. |
+| `clickable_map(record, acting=None)` | value | The buttons of a window that can handle a click, with their draw order. |
+| `lands_on(buttons, point)` | value | Which widget handles a click at this point. |
 | `reachable_point(buttons, widget_address, rect, step=6)` | NoneType of value | A point on this widget that a click really reaches, or None if it is covered everywhere. |
-| `spots_for_view(game, pid, window, view)` | 5-tuple | Every widget of an open window that the files say opens `view`, aligned rather than guessed. |
+| `gui_tables()` | 4-tuple | The expansion tables, read once. Building them walks 563 files, so a sweep that rebuilds |
+| `spots_for_view(game, pid, window, view, tables=None)` | 6-tuple | Every widget of an open window that the files say opens `view`, aligned rather than guessed. |
 | `trigger_spots(row, named, nodes)` | list of value | Where the click for this row could land: the widget itself, or its nameless children. |
 | `on_screen(address, nodes, scales, classes)` | NoneType of str | Why this widget cannot be clicked, or None when it can. |
 | `press(address, nodes, scales, classes, row)` | NoneType of value | Click the middle of a widget, but only if it is really on screen. |
