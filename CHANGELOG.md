@@ -8,6 +8,10 @@ lives in `ARCHITECTURE.md`. This file says only what moved.
 
 ## 2026-08-30
 
+- The ledger cannot open the holding view at all, and that is the game and not the tooling. Its
+  county list carries no onclick anywhere above a county name, and the pinned list - the only rows
+  that do carry the call - can only be filled with a pin that sits at alpha zero and appears on
+  hover, which this project cannot do.
 - The ledger's county list is read-only: above a county name there is a text box, two boxes, a
   header widget and a grid item, and not one onclick anywhere. So the only rows in that window that
   can open the holding view are the pinned ones, and those are empty until something is pinned.

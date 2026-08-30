@@ -259,8 +259,17 @@ def clickable_map(record, acting=None):
 
     `acting` is the set of addresses whose gui block carries an onclick. Without it every button
     counts, which is the old behaviour and is only right when nothing better is known.
+
+    **A widget that is not drawn takes no clicks either, and geometry alone will not tell you.**
+    The ledger keeps all eleven of its categories in one tree, laid out on top of each other at the
+    same place; ten of them are switched off by alpha rather than moved away or clipped. Counting
+    those made every row of the category that *is* on show look covered - the province pin came out
+    as unreachable under six rows of categories nobody could see. Alpha is a property of the whole
+    parent chain, so it is multiplied along it, exactly as the harvest does when it decides which
+    text boxes the recogniser ought to find.
     """
     paths = draw_order(record)
+    by_address = {widget['address']: widget for widget in record['tree']}
     out = []
     for widget in record['tree']:
         kind = widget['class'] or ''
@@ -270,6 +279,13 @@ def clickable_map(record, acting=None):
             continue
         x, y, width, height = widget['screen_rect']
         if width <= 0 or height <= 0 or widget['clipped']:
+            continue
+        alpha, node, steps = 1.0, widget, 0
+        while node is not None and steps < 40:
+            alpha *= node['alpha'] if node['alpha'] is not None else 1.0
+            node = by_address.get(node['parent'])
+            steps += 1
+        if alpha <= 0.0:
             continue
         out.append((paths[widget['address']], x, y, width, height, widget))
     out.sort(key=lambda row: row[0])
