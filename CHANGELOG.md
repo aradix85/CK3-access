@@ -8,36 +8,22 @@ lives in `ARCHITECTURE.md`. This file says only what moved.
 
 ## 2026-08-30
 
-- The ledger cannot open the holding view at all, and that is the game and not the tooling. Its
-  county list carries no onclick anywhere above a county name, and the pinned list - the only rows
-  that do carry the call - can only be filled with a pin that sits at alpha zero and appears on
-  hover, which this project cannot do.
-- The ledger's county list is read-only: above a county name there is a text box, two boxes, a
-  header widget and a grid item, and not one onclick anywhere. So the only rows in that window that
-  can open the holding view are the pinned ones, and those are empty until something is pinned.
-- A click does bubble, and the earlier entry saying otherwise rested on one rotten case. Ten of the
-  ledger's category tabs are covered completely by a child carrying no onclick, and clicking that
-  child switched the category every time. `clickable_map` now takes the set of widgets whose gui
-  block really carries an onclick and ignores the rest.
-- A scroll area draws its scrollbar last, whatever the file says, and the pairing ran on class and
-  order - so the content lost the row and everything under it came out without a source. Fixed:
-  paired texts 1517 to 1584, texts with a data context 1245 to 1311, unexplained 204 to 137, and
-  the strict test stayed at everything, 562 of 562. No harvest was rerun; the pairing recomputes
-  from the records that were already on disk.
-- The eleven ledger category buttons that set `ledger_tab`, the counties among them, were credited
-  to no live widget at all. That is what led to the scroll area above.
-- A number that never moves is a measurement that never changed anything: the seventeen ledger rows
-  said to carry the call are the same seventeen empty shells of the pinned list every time, not the
-  county rows. The alignment itself checks out on filled rows.
-- Withdrawn the same day: an entry here said a click does not bubble and that a button without an
-  action is a dead area. It rested on a single case in an empty list; see the corrected entry above.
-- `openers.py` can do a chain step: `spots_for_view` aligns the window that is open right now
-  against the gui files and points at the widgets whose block carries the call opening a view, so a
-  trigger that has no name and is built from data can still be addressed.
-- Two rules that came out of clicks that went nowhere. A block may write `onclick` twice and only
-  the last one counts, the same last-wins rule that decides which mod redefines a template. And
-  before pressing anything picked by rectangle, ask which button really catches that point: only
-  buttons catch clicks, and a child always beats its parent.
+- A scroll area draws its scrollbar last whatever the file says, and the pairing ran on class and
+  child order - so the content lost its place in the row and everything under it came out with no
+  source. Fixed: paired texts 1517 to 1584, texts with a data context 1245 to 1311, unexplained 204
+  to 137, and the strict test still at everything, 562 of 562. No harvest was rerun; the pairing
+  recomputes from the records already on disk.
+- `openers.py` can take a chain step: `spots_for_view` aligns the window that is open right now
+  against the gui files and returns the widgets whose block carries the call that opens a view, so a
+  trigger with no name, built from data, can still be addressed. Two rules came out of clicks that
+  went nowhere. A block may write `onclick` twice and only the second fires, the same last-wins rule
+  that decides which mod redefines a template. And what catches a click is the last-drawn button
+  carrying an action of its own: a layout container catches nothing, and a button without an action
+  passes it on - ten of ten on the ledger's category tabs. An earlier entry claiming the opposite
+  rested on one case in an empty list and is withdrawn.
+- The ledger cannot open the holding view, and that is the game rather than the tooling: no onclick
+  anywhere above a county name, and the pinned list - the only rows that carry the call - needs a
+  pin that sits at alpha zero and appears on hover.
 - The rule that picks a nameless child of a namebearing button holds where it could have failed: on
   an administrative state exactly one of the four government tabs lies inside the screen, and
   pressing it opened the administration window.

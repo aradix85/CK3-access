@@ -54,13 +54,18 @@ six did not. Nothing downstream needs to care.
 ## 3. Visibility — which of it is actually on screen
 
 Every window is built up front and kept in the tree, so "it is in the tree" says nothing about
-whether a player can see it. Three mechanisms decide that, and all three are needed:
+whether a player can see it. Four mechanisms decide that, and all four are needed:
 
 - **A window flag** says whether a window is drawn at all. Alpha does not: windows sit at alpha 1
   without being drawn.
 - **Alpha along the whole parent chain**, not on the widget itself.
-- **Sibling draw order** decides which of several drawn windows is on top. Without it the tooling
-  reads the wrong event when two are stacked.
+- **Clipping.** A row scrolled past the end of its list keeps alpha 1 and a rectangle; what decides
+  it is the frame of the nearest scroll area above it.
+- **Geometry.** A widget can be laid outside the drawing area entirely — four tabs side by side at
+  x1555 to x1690 on a screen 1600 wide, all at alpha 1, one of them visible.
+
+Sibling draw order is a separate question and answers a different one: which of several drawn
+windows is on top. Without it the tooling reads the wrong event when two are stacked.
 
 Anything that clicks needs the flag as well as the alpha: a widget can pass every alpha and geometry
 test and still sit inside a shut window, and the click then lands on the map.
@@ -78,7 +83,10 @@ the interface is being mapped.
 
 **A posted click lands on whatever is topmost at that point, not on the widget you aimed at.** So a
 click is a measurement with a witness, never an assumption: press, read the drawn set, put the state
-back, record the point with the result. `tools/ck3/openers.py` works that way.
+back, record the point with the result. `tools/ck3/openers.py` works that way. What "topmost" means
+is measured: the last-drawn button that carries an action of its own. A layout container catches
+nothing, and a button with no action passes the click on to what is under it — ten of ten on the
+ledger's category tabs, each of which is covered completely by such a button.
 
 **A modifier key cannot be sent inward** — a key message carries no modifier state and the game
 reads that through raw input. Nothing needs it: of 705 bindings using a modifier, one opens a
@@ -118,14 +126,20 @@ there is no way around it. Structure is collected the cheap way and data the slo
 
 **The first two sources are joined by structure, not by name.** `tools/ck3/pairing.py` lays the
 expanded tree from disk against the harvested tree on class and child order, so meaning reaches a
-widget carrying no name — more than three in four of the ones that show text. Names are kept out of
+widget carrying no name — more than nine in ten of the ones that show text. Names are kept out of
 the alignment on purpose, which leaves them free to score it: 98.4 per cent land right. One template
 row on disk has to be allowed to become many live rows.
 
-**Three things about the gui format that a line-based reader gets wrong.** Load order carries
-meaning, because the last definition of a template wins. `block "x"` and `block = "x"` both occur.
-And a tooltip contains widgets with tooltips of their own, without end, so the expansion has to stop
-there.
+**Four things about the gui format that a line-based reader gets wrong.** Load order carries
+meaning, because the last definition of a template wins. The same last-wins rule applies inside a
+block: `onclick` may be written twice, and only the second one fires. `block "x"` and `block = "x"`
+both occur. And a tooltip contains widgets with tooltips of their own, without end, so the expansion
+has to stop there.
+
+**And one thing the engine does that no file says.** A scroll area draws its scrollbar last whatever
+the order on disk, so an alignment that runs on child order has to move it there first. Until that
+was found, every list declared the other way round lost its whole content: 67 texts, and with them
+the buttons that switch the ledger between its eleven categories.
 
 ## 6. Presentation — not built yet
 
