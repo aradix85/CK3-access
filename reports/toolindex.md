@@ -42,6 +42,15 @@ returns a pair, passed on as one thing, costs a run.
 | `quoted_numbers(claims)` | 2-tuple | Claims that a document repeats, checked against the file that repeats them. |
 | `main(all_of_them)` | value | - |
 
+## never_silent.py
+*The proof behind the beta gate: every failure speaks, and none of them is silent.*
+
+| call | returns | does |
+|---|---|---|
+| `link_taken_away()` | nothing | Ask the channel something over a pipe name that cannot exist. |
+| `field_moved(pid, fields)` | nothing | Move an offset in a copy of the derivation and let the ordinary start path trip over it. |
+| `main()` | nothing | Ask for the game first, because that answer decides how honest the first step can be. |
+
 ## ocr.py
 *Reads the text on screen, with positions attached.*
 
@@ -365,4 +374,5 @@ returns a pair, passed on as one thing, costs a run.
 | `nvda_running()` | value | - |
 | `silence()` | nothing | - |
 | `output(text, mode=REPLACE, braille=None)` | nothing | Speak and write to the braille display. braille=None means: the same text. |
+| `failure(where, what, remedy, mode=REPLACE)` | value | The exit for a failure: one sentence carrying where, what, and what to do now. |
 

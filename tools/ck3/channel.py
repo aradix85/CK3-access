@@ -10,9 +10,13 @@ process, and that is exactly where handling does belong.
 """
 import ctypes
 import msvcrt
+import os
 import sys
 import time
 from ctypes import wintypes
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'nvda'))
+import speech
 
 PIPE = r'\\.\pipe\ck3_access'
 _k32 = ctypes.WinDLL('kernel32', use_last_error=True)
@@ -36,12 +40,19 @@ def _drain(file):
 
 
 def _connect(attempts=20):
+    """Open the pipe, and say out loud when it stays shut.
+
+    This is the hardest of the four cases that have to speak: with the channel gone there is no
+    game information left either, so nothing further down can report it. The speech seam sits
+    outside the game process for exactly this reason - it is still alive when the game is not.
+    """
     for _ in range(attempts):
         try:
             return open(PIPE, 'r+b', buffering=0)
         except OSError:
             _k32.WaitNamedPipeW(ctypes.c_wchar_p(PIPE), 500)
-    raise OSError('the channel does not answer; is the game running with channel.dll inside it?')
+    raise OSError(speech.failure('the game', 'the link with it is gone',
+                                 'start the game again and try what you were doing once more'))
 
 
 def close():

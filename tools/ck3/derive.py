@@ -21,9 +21,11 @@ import time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'nvda'))
 import vtablemap
 import memory
 import channel
+import speech
 import windowgrab
 
 EXE = memory.EXE
@@ -1000,6 +1002,8 @@ def fields_for(pid):
             use_fields(fields)
             return fields, 'stored derivation holds'
         reason = 'stored derivation fails: ' + '; '.join(defects)
+        speech.failure('the game reading', 'a field has moved, most likely a game update',
+                       'it is working out the new places; that takes a few minutes')
     else:
         reason = 'no derivation for this version of the game'
     fields = derive_all(pid)

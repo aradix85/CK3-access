@@ -20,6 +20,7 @@ overtaking it.
 """
 import ctypes
 import os
+import sys
 
 DLL = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'nvdaControllerClient.dll')
 REPLACE, QUEUE = 'replace', 'queue'
@@ -49,3 +50,24 @@ def output(text, mode=REPLACE, braille=None):
     error = _client.nvdaController_brailleMessage(ctypes.c_wchar_p(braille or text))
     if error:
         raise OSError('NVDA returned error code %d on braille' % error)
+
+
+def failure(where, what, remedy, mode=REPLACE):
+    """The exit for a failure: one sentence carrying where, what, and what to do now.
+
+    No error code, no path, no exclamation mark without words. A player cannot act on an offset
+    or a traceback, and a tester who hears nothing cannot report anything at all.
+
+    This is the one place in the seam that is allowed to swallow, and the reason is the rule
+    itself. Everywhere else an exception breaks where it happens, but an exit that raises while
+    carrying a failure loses that failure. So the sentence goes to stderr first, which cannot
+    fail, and only then to NVDA. It returns the sentence, so a caller can raise with the same
+    words the player just heard.
+    """
+    sentence = '%s: %s, %s' % (where, what, remedy)
+    print(sentence, file=sys.stderr, flush=True)
+    try:
+        output(sentence, mode)
+    except Exception as trouble:
+        print('that sentence did not reach NVDA: %s' % trouble, file=sys.stderr, flush=True)
+    return sentence

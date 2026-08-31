@@ -8,6 +8,15 @@ lives in `ARCHITECTURE.md`. This file says only what moved.
 
 ## 2026-08-31
 
+- A failure now has an exit of its own. `speech.failure(where, what, remedy)` turns a failure into
+  one sentence a player can act on, writes it to stderr first and then speaks it, so an exit that
+  cannot reach NVDA still cannot lose the message. Two places that used to fail without a word are
+  on it: the channel that will not open, and a stored field derivation that no longer holds.
+- `tools/never_silent.py` is the proof behind that: it takes the link with the game away, moves a
+  field offset in a copy of the derivation, and counts the sentences that reached the seam. It runs
+  the untouched derivation first and requires silence there, because a recheck turns down a good
+  derivation on the main menu and the moved offset would otherwise prove nothing. The first step
+  passes; the second waits for a loaded game.
 - The two windows that had never been open are open. `houses_list` came in one chain step through
   the house button on the HUD; `knight_permissions` in two, through F3 and the knights button.
   Both in one attempt, with the baseline state, the date, the player and the paused clock unchanged
