@@ -25,6 +25,10 @@ process and from files already on your disk.
 - **203 windows have been harvested** widget by widget, and the `.gui` files are parsed and paired
   with the live tree on structure, so meaning on disk reaches the widgets that carry no name — more
   than nine in ten of the ones that show text.
+- **A failure says so.** Anything that goes wrong leaves through one exit as a single sentence with
+  three parts — what did not work, where, and what you can do now — and never as silence or an error
+  code. `tools/never_silent.py` proves it by taking the link with the game away and moving a field
+  offset, and counting the sentences that arrived.
 - **The game state is readable without searching:** any character's name, culture, faith, money and
   levies, and which number means which culture, faith, religion or trait, out of the running game
   rather than out of a save. A regression pass holds four hundred characters against the save and

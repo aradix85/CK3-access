@@ -175,6 +175,15 @@ Two modes, replace and queue. Priority-with-resume was rejected: it interrupts a
 with the old sentence. Keeping the seam thin is deliberate — swapping in Prism or SRAL for other
 screen readers should be a day's work.
 
+**A failure has its own exit beside that one.** `failure(where, what, remedy)` turns a failure into
+one sentence a player can act on — no error code, no path, no exclamation mark without words —
+because a tester who hears nothing cannot report anything at all. It writes the sentence out before
+it speaks it, so an exit that cannot reach NVDA still cannot lose the message it was carrying, and
+it returns the sentence so a caller can break with the same words the player just heard. That is
+the one place in the seam allowed to swallow; everywhere else a failure breaks where it happens.
+`tools/never_silent.py` is the proof: it takes the link with the game away, moves a field offset in
+a copy of the derivation, and counts the sentences that reached the seam.
+
 ## What is deliberately not done
 
 - No decompiling or rebuilding the engine. Reading memory and data files is ordinary modding;
