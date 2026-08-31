@@ -1,12 +1,12 @@
 # Changelog
 
-One item per change: what changed, and the measurement that decided it. Newest first, dated the day
-the work was measured. No release yet — see the entry of 2026-08-23 for what "first public source"
-means here. An entry that a later measurement overturns is not edited; the newer entry withdraws it
-by date, so the reasoning stays reviewable.
+One item per change: what changed and why, in a line or two. Newest first, dated the day the work
+was measured. No release yet — see the entry of 2026-08-23 for what "first public source" means
+here. An entry that a later measurement overturns is not edited; the newer entry withdraws it by
+date, so the reasoning stays reviewable.
 
-The numbers that carry a decision live in `reports/claims.json`, where `tools/check.py` recomputes
-them, and the reasoning lives in `ARCHITECTURE.md`. This file says what moved and why.
+The numbers live in `reports/claims.json`, where `tools/check.py` recomputes them; the reasoning
+lives in `ARCHITECTURE.md`. This file says only what moved.
 
 ## 2026-08-31
 
@@ -27,23 +27,22 @@ them, and the reasoning lives in `ARCHITECTURE.md`. This file says what moved an
 ## 2026-08-30
 
 - A scroll area draws its scrollbar last whatever the file says; the pairing now moves it there
-  before aligning. Paired texts 1517 to 1584, data context 1245 to 1311, unexplained 204 to 137,
-  strict test still 562 of 562. No harvest was rerun.
+  before aligning. Paired texts 1517 to 1584, unexplained 204 to 137, no harvest rerun.
 - `tools/ck3/openers.py` takes a chain step: `--chain <window> <view>` aligns the window that is
   open now and returns the widgets whose block carries the call that opens that view.
 - A block may write `onclick` twice and only the second fires — the same last-wins rule that
   decides which mod redefines a template.
 - What catches a click is the last-drawn button with an action of its own; a container catches
-  nothing and a button without an action passes it on. An entry of the same day claiming the
-  opposite is withdrawn: it rested on one case in an empty list, against ten that disagree.
+  nothing and a button without an action passes it on. An entry of the same day is withdrawn: it
+  rested on one case in an empty list, against ten that disagree.
 - The ledger cannot open the holding view, and that is the game: no onclick above a county name,
   and the pinned rows need a pin at alpha zero that appears on hover.
 - The rule that picks a nameless child of a namebearing button holds where it could have failed:
   on an administrative state one of the four government tabs is on screen and opens its window.
 - `model.player` reads the played character out of the running game — a handle, kept in six places
   inside the module, derived against a save and rechecked at every start.
-- The harvest has a fifth stop condition: the player. It goes in every record header and is asked
-  before every window, because a state moved to another character looks normal from the tree.
+- The harvest has a fifth stop condition: the player, asked before every window, because a state
+  moved to another character looks normal from the tree.
 - The administration and domicile windows are in the main harvest with the record of the route a
   player takes, so the pairing reads the rich version instead of the console one.
 - Five widget names in the decision detail view come from a file a decision names itself, with
@@ -51,8 +50,7 @@ them, and the reasoning lives in `ARCHITECTURE.md`. This file says what moved an
 - A button whose name sits one level up is a click target too: the namebearer answers for it and the
   geometry test picks which of its nameless children is on screen. 74 rows where there were 56.
 - The window reader counts both shapes a window is declared in: 218 where it read 196. The 22 new
-  ones are the scheme conclusions, the event windows and the confirmation dialogs, and all 22 are
-  now harvested.
+  ones are the scheme conclusions, the event windows and the confirmation dialogs, all now harvested.
 - A window declared through a type of its own is expanded under that type instead of under `window`.
   Built as a plain window it came out as two nodes against 283 live ones.
 

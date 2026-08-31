@@ -17,18 +17,14 @@ process and from files already on your disk.
 
 - **The channel.** An injected DLL answers about 25 seconds after launch, reads the widget tree, and
   posts mouse and key input from inside the process — it never takes focus off your screen.
-- **It survives a patch.** Every offset, in the interface and in the character record, is derived
-  from the running game and rechecked at each start. Tried against build 1.16.2: one offset had
-  moved, and it recovered on its own.
+- **It survives a patch.** Every offset is derived from the running game and rechecked at each
+  start. Against build 1.16.2 one had moved, and it recovered on its own.
 - **An event reads end to end** — title, description, options — straight out of memory, checked
   against the localisation files on disk.
-- **203 windows have been harvested** widget by widget, and the `.gui` files are parsed and paired
-  with the live tree on structure, so meaning on disk reaches the widgets that carry no name — more
-  than nine in ten of the ones that show text.
-- **The tooling never fails silently.** Anything that goes wrong leaves through one exit as a single
-  sentence with three parts — what did not work, where, and what you can do now — rather than as an
-  error code or nothing at all. `tools/never_silent.py` proves it by taking the link with the game
-  away and moving a field offset, and counting the sentences that arrived.
+- **203 windows have been harvested** widget by widget and paired with the parsed `.gui` files on
+  structure, so meaning on disk reaches the nameless widgets: nine in ten of the ones showing text.
+- **The tooling never fails silently.** Anything that goes wrong leaves through one exit as a
+  sentence saying what failed, where, and what to do — never as an error code or as nothing.
 - **The game state is readable without searching:** any character's name, culture, faith, money and
   levies, and which number means which culture, faith, religion or trait, out of the running game
   rather than out of a save. A regression pass holds four hundred characters against the save and
