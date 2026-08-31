@@ -15,8 +15,9 @@ lives in `ARCHITECTURE.md`. This file says only what moved.
 - `tools/never_silent.py` is the proof behind that: it takes the link with the game away, moves a
   field offset in a copy of the derivation, and counts the sentences that reached the seam. It runs
   the untouched derivation first and requires silence there, because a recheck turns down a good
-  derivation on the main menu and the moved offset would otherwise prove nothing. The first step
-  passes; the second waits for a loaded game.
+  derivation on the main menu and the moved offset would otherwise prove nothing. Both halves pass
+  on a loaded game: two different sentences, no silence, and the untouched derivation stayed quiet.
+  No debug mode needed - channel, derivation and speech all work without it.
 - The two windows that had never been open are open. `houses_list` came in one chain step through
   the house button on the HUD; `knight_permissions` in two, through F3 and the knights button.
   Both in one attempt, with the baseline state, the date, the player and the paused clock unchanged
