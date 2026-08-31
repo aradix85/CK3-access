@@ -1,10 +1,12 @@
 # Changelog
 
-One item per change: what changed and why, in a line or two. Newest first, dated the day the work
-was measured. No release yet — see the entry of 2026-08-23 for what "first public source" means here.
+One item per change: what changed, and the measurement that decided it. Newest first, dated the day
+the work was measured. No release yet — see the entry of 2026-08-23 for what "first public source"
+means here. An entry that a later measurement overturns is not edited; the newer entry withdraws it
+by date, so the reasoning stays reviewable.
 
-The numbers live in `reports/claims.json`, where `tools/check.py` recomputes them; the reasoning
-lives in `ARCHITECTURE.md`. This file says only what moved.
+The numbers that carry a decision live in `reports/claims.json`, where `tools/check.py` recomputes
+them, and the reasoning lives in `ARCHITECTURE.md`. This file says what moved and why.
 
 ## 2026-08-31
 
@@ -29,10 +31,9 @@ lives in `ARCHITECTURE.md`. This file says only what moved.
 - A shortcut that opens nothing from a bare screen says nothing about the route. The button
   carrying it lives inside the window it belongs to, so on a bare screen it does not exist. An
   entry of 30 August calling that route dead is withdrawn.
-- What the two new windows moved: harvested widgets 74294 to 74548, texts 1721 to 1754, paired
-  1584 to 1617, data context 1311 to 1321, recogniser 1329 of 1470 to 1362 of 1503. The strict
-  test went from 562 of 562 to 578 of 578 with no new disagreement, and the unexplained remainder
-  stayed at exactly 137 — two windows the project had never seen brought no new gap.
+- What the two new windows moved: paired texts 1584 to 1617 out of 1754, and the unexplained
+  remainder stayed at exactly 137 — two windows the project had never seen brought no new gap. The
+  rest of the counts are in `reports/claims.json`.
 
 ## 2026-08-30
 

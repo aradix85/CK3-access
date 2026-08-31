@@ -96,6 +96,8 @@ window, and that window has an ordinary button.
 
 Five independent sources, and their disagreement is the test.
 
+### The five sources
+
 - **The widget tree** — structure, names, rectangles and text: what is on screen right now.
 - **The game model in memory** — the same values raw, plus what no open window is showing.
   `tools/ck3/anchor.py` walks from a global in the executable to a database of the game state;
@@ -117,6 +119,8 @@ Five independent sources, and their disagreement is the test.
 Optical character recognition sits beside these as a witness, never as the product: if the tree says
 a word is at x=262 and the recogniser reads it there, the geometry is right.
 
+### Getting a window open, which decides how much the first source holds
+
 **A window has to be opened the way a player opens it, or the first source is half empty.** The
 console builds any window on demand, which makes coverage independent of who is playing, but it
 hands over shape and captions and no data context: 6.6 text boxes per window against 23.7 through a
@@ -130,6 +134,8 @@ and acting inside it. `tools/ck3/openers.py`, behind `--chain`, reads the target
 line to learn what has to happen, aligns the open window against the files to find the widget that
 does it, and presses it only when it can say which widget it means. That is what the last two
 closed windows needed.
+
+### Joining the tree to the files
 
 **The first two sources are joined by structure, not by name.** `tools/ck3/pairing.py` lays the
 expanded tree from disk against the harvested tree on class and child order, so meaning reaches a
@@ -177,12 +183,10 @@ screen readers should be a day's work.
 
 **A failure has its own exit beside that one.** `failure(where, what, remedy)` turns a failure into
 one sentence a player can act on — no error code, no path, no exclamation mark without words —
-because a tester who hears nothing cannot report anything at all. It writes the sentence out before
-it speaks it, so an exit that cannot reach NVDA still cannot lose the message it was carrying, and
-it returns the sentence so a caller can break with the same words the player just heard. That is
-the one place in the seam allowed to swallow; everywhere else a failure breaks where it happens.
-`tools/never_silent.py` is the proof: it takes the link with the game away, moves a field offset in
-a copy of the derivation, and counts the sentences that reached the seam.
+because a tester who hears nothing cannot report anything at all. It is the one place in the seam
+allowed to swallow: it writes the sentence out before it speaks it, so an exit that cannot reach
+NVDA still cannot lose the message. Everywhere else a failure breaks where it happens.
+`tools/never_silent.py` is the proof, and it is the gate in front of a beta.
 
 ## What is deliberately not done
 
