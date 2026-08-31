@@ -6,7 +6,7 @@ Seven parts, split where a game patch is most likely to hit.
 |---|---|---|
 | 1 | **The channel** — `dll/channel.cpp` | a few primitives over a pipe; knows nothing about the game |
 | 2 | **Derivation** — `tools/ck3/derive.py` | finds every memory offset again at each start |
-| 3 | **Visibility** | which of the tree is really on screen; three mechanisms, all needed |
+| 3 | **Visibility** | which of the tree is really on screen; four mechanisms, all needed |
 | 4 | **Input** | keys taken before the game sees them; clicks posted inward |
 | 5 | **Reading the game** | five independent sources, and their disagreement is the test |
 | 6 | **Presentation** | what gets said and in what order — not built yet |
@@ -123,6 +123,13 @@ hands over shape and captions and no data context: 6.6 text boxes per window aga
 shortcut and 32.8 through a click. None of the twelve `GUI.` console commands takes a context, so
 there is no way around it. Structure is collected the cheap way and data the slow way, and
 `tools/ck3/harvest.py` knows all three routes.
+
+**A fourth route reaches what no single action opens: the chain.** Some windows wait on a state
+rather than on a button — a variable another window sets — so they are reached by opening one window
+and acting inside it. `tools/ck3/openers.py`, behind `--chain`, reads the target's own `visible`
+line to learn what has to happen, aligns the open window against the files to find the widget that
+does it, and presses it only when it can say which widget it means. That is what the last two
+closed windows needed.
 
 **The first two sources are joined by structure, not by name.** `tools/ck3/pairing.py` lays the
 expanded tree from disk against the harvested tree on class and child order, so meaning reaches a
