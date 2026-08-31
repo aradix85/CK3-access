@@ -1,11 +1,11 @@
 {
- "caption of the widget above": 172,
- "data function": 331,
- "data function through key": 183,
- "data functions together": 514,
+ "caption of the widget above": 173,
+ "data function": 334,
+ "data function through key": 188,
+ "data functions together": 522,
  "key not in localization": 2,
- "key quoting another key": 20,
- "no key on disk": 175,
+ "key quoting another key": 21,
+ "no key on disk": 182,
  "no source on disk": 137,
  "no source on disk, per window": {
   "activity_list": 3,
@@ -47,11 +47,11 @@
   "window_situation_list": 1,
   "window_tax_slot_assign_vassal": 1
  },
- "paired": 1584,
- "placeholder, code fills it": 311,
- "plain key": 562,
- "plain key agrees": 562,
- "texts": 1721,
+ "paired": 1617,
+ "placeholder, code fills it": 312,
+ "plain key": 578,
+ "plain key agrees": 578,
+ "texts": 1754,
  "top functions": {
   "ActiveCouncilTask": 6,
   "ActivityType": 11,
@@ -74,7 +74,7 @@
   "ValueBreakdown": 10,
   "War": 32
  },
- "widgets in harvest": 74294,
- "windows": 201,
- "with data context": 1311
+ "widgets in harvest": 74548,
+ "windows": 203,
+ "with data context": 1321
 }

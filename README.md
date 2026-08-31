@@ -22,7 +22,7 @@ process and from files already on your disk.
   moved, and it recovered on its own.
 - **An event reads end to end** — title, description, options — straight out of memory, checked
   against the localisation files on disk.
-- **201 windows have been harvested** widget by widget, and the `.gui` files are parsed and paired
+- **203 windows have been harvested** widget by widget, and the `.gui` files are parsed and paired
   with the live tree on structure, so meaning on disk reaches the widgets that carry no name — more
   than nine in ten of the ones that show text.
 - **The game state is readable without searching:** any character's name, culture, faith, money and

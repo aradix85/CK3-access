@@ -8,11 +8,21 @@ lives in `ARCHITECTURE.md`. This file says only what moved.
 
 ## 2026-08-31
 
+- The two windows that had never been open are open. `houses_list` came in one chain step through
+  the house button on the HUD; `knight_permissions` in two, through F3 and the knights button.
+  Both in one attempt, with the baseline state, the date, the player and the paused clock unchanged
+  afterwards. The harvest stands at 203 windows and 15 refusals.
 - A chain step no longer has to aim at a view. `--chain <window> <target>` reads the target's own
   `visible` line and takes the condition from there: a view that opens, a variable that must hold
   a value, or one that must merely exist. Tested on disk without the game — one candidate for each
-  of `houses_list` and `knight_permissions`, with the twin that sets the variable back and the call
-  that clears it both refused.
+  of the two, with the twin that sets the variable back and the call that clears it both refused.
+- A shortcut that opens nothing from a bare screen says nothing about the route. The button
+  carrying it lives inside the window it belongs to, so on a bare screen it does not exist. An
+  entry of 30 August calling that route dead is withdrawn.
+- What the two new windows moved: harvested widgets 74294 to 74548, texts 1721 to 1754, paired
+  1584 to 1617, data context 1311 to 1321, recogniser 1329 of 1470 to 1362 of 1503. The strict
+  test went from 562 of 562 to 578 of 578 with no new disagreement, and the unexplained remainder
+  stayed at exactly 137 — two windows the project had never seen brought no new gap.
 
 ## 2026-08-30
 
