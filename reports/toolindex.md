@@ -271,13 +271,15 @@ returns a pair, passed on as one thing, costs a run.
 |---|---|---|
 | `buttons_on_disk()` | value | Every widget that opens a window when pressed, with how it does it. |
 | `live_record(game, pid, window)` | 4-tuple | The window that is drawn right now, in the shape the harvest writes and the pairing reads. |
-| `opens_view(source, view)` | 2-tuple | The call this disk block really fires, split into the one that opens `view` and the rest. |
+| `goal_of(target, known=None)` | 3-tuple | What has to happen before `target` is drawn: a view opens, or a variable is set. |
+| `reaches(value, goal)` | bool of value | Does this onclick reach the goal? Setting a variable counts, clearing it does not. |
+| `fires_for(source, goal)` | 2-tuple | The call this disk block really fires, split into the one that reaches `goal` and the rest. |
 | `draw_order(record)` | value | Address -> its path of sibling numbers from the window down, which is the drawing order. |
 | `clickable_map(record, acting=None)` | value | The buttons of a window that can handle a click, with their draw order. |
 | `lands_on(buttons, point)` | value | Which widget handles a click at this point. |
 | `reachable_point(buttons, widget_address, rect, step=6)` | NoneType of value | A point on this widget that a click really reaches, or None if it is covered everywhere. |
 | `gui_tables()` | 4-tuple | The expansion tables, read once. Building them walks 563 files, so a sweep that rebuilds |
-| `spots_for_view(game, pid, window, view, tables=None)` | 6-tuple | Every widget of an open window that the files say opens `view`, aligned rather than guessed. |
+| `spots_for_goal(game, pid, window, goal, tables=None)` | 6-tuple | Every widget of an open window that the files say reaches `goal`, aligned rather than guessed. |
 | `trigger_spots(row, named, nodes)` | list of value | Where the click for this row could land: the widget itself, or its nameless children. |
 | `on_screen(address, nodes, scales, classes)` | NoneType of str | Why this widget cannot be clicked, or None when it can. |
 | `press(address, nodes, scales, classes, row)` | NoneType of value | Click the middle of a widget, but only if it is really on screen. |
@@ -285,7 +287,7 @@ returns a pair, passed on as one thing, costs a run.
 | `subtree_of(nodes, window)` | value of NoneType | The addresses under the drawn window object of that name, or None. |
 | `try_button(game, row, address, nodes, scales, classes, floor, date, number, total, where, fallback=None)` | value of str | Press one button, record what opened, and put the state back. |
 | `main()` | nothing | - |
-| `chain(pid, window, view, press_it=True)` | value | One chain step: open `window`, find what opens `view` inside it, press it, and put it back. |
+| `chain(pid, window, target, press_it=True)` | value | One chain step: open `window`, find what brings `target` up inside it, press it, put it back. |
 
 ## ck3\pairing.py
 *Pairs the widget tree on disk with the widget tree the game actually built.*

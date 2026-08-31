@@ -184,8 +184,50 @@ def live_record(game, pid, window):
     return {'window': window, 'tree': tree}, nodes, scales, classes
 
 
-def opens_view(source, view):
-    """The call this disk block really fires, split into the one that opens `view` and the rest.
+CONDITION = re.compile(r"GetVariableSystem\.(HasValue|Exists)\(\s*'([^']+)'(?:\s*,\s*'([^']*)')?")
+SETS = re.compile(r"GetVariableSystem\.(Set|Toggle|Clear)\(\s*'([^']+)'(?:\s*,\s*'([^']*)')?")
+
+
+def goal_of(target, known=None):
+    """What has to happen before `target` is drawn: a view opens, or a variable is set.
+
+    Read from the target's own `visible` line, because that is where the game states its own
+    condition, and both forms occur: `houses_list` waits on a variable holding a value,
+    `knight_permissions` on one merely existing. A target without such a condition is taken to be
+    a view that some button opens, which is what every chain step before 31 August 2026 was.
+    """
+    entry = (known if known is not None else guimap.windows()).get(target, (None, None))[1]
+    for item in (entry or {}).get('body', ()):
+        if item.get('key') == 'visible' and item.get('value'):
+            found = CONDITION.search(item['value'])
+            if found:
+                return ('variable', found.group(2), found.group(3) or None)
+    return ('view', target, None)
+
+
+def reaches(value, goal):
+    """Does this onclick reach the goal? Setting a variable counts, clearing it does not.
+
+    The trap this exists for is a twin: next to the button that sets `dynasty_view_expand` to
+    `houses` sits a nameless button with the same text and tooltip that sets it back to `none`.
+    They differ only in their visibility condition, so a rule that matched the variable name alone
+    would offer both and press the wrong one half the time.
+    """
+    if goal[0] == 'view':
+        found = re.search(r"(?:Open|Toggle)GameView(?:Data)?\s*\(\s*'([^']+)'", value)
+        return bool(found and found.group(1) == goal[1])
+    for how, name, held in SETS.findall(value):
+        if name != goal[1] or how == 'Clear':
+            continue
+        if goal[2] is None and how in ('Set', 'Toggle'):
+            return True
+        if goal[2] is not None and how == 'Set' and held == goal[2]:
+            return True
+    return False
+
+
+def fires_for(source, goal):
+    """The call this disk block really fires, split into the one that reaches `goal` and the rest.
 
     **A block may write `onclick` twice, and only the last one counts.** That is not a detail: in
     `window_ledger.gui` both orders occur. One row lists the `holding_view` call first and a coat
@@ -212,8 +254,7 @@ def opens_view(source, view):
         last[key] = value
     wanted = []
     for key, value in last.items():
-        found = re.search(r"(?:Open|Toggle)GameView(?:Data)?\s*\(\s*'([^']+)'", value)
-        if key == 'onclick' and found and found.group(1) == view:
+        if key == 'onclick' and reaches(value, goal):
             wanted.append(value)
         else:
             others.append('%s: %s' % (key, value))
@@ -332,8 +373,8 @@ def gui_tables():
     return table, local, guimap.windows(rows), pairing.root_finder(table)
 
 
-def spots_for_view(game, pid, window, view, tables=None):
-    """Every widget of an open window that the files say opens `view`, aligned rather than guessed.
+def spots_for_goal(game, pid, window, goal, tables=None):
+    """Every widget of an open window that the files say reaches `goal`, aligned rather than guessed.
 
     The trigger for a chain step is usually nameless and usually a row built from data, so it can
     be addressed neither by name nor by eye. What can be addressed is its place: the expansion of
@@ -349,7 +390,7 @@ def spots_for_view(game, pid, window, view, tables=None):
         if source is not None and any(key == 'onclick' and value
                                       for key, value in source.get('attrs', ())):
             acting.add(built['address'])
-        wanted, others = opens_view(source, view)
+        wanted, others = fires_for(source, goal)
         if not wanted:
             continue
         address = int(built['address'], 16)
@@ -619,8 +660,8 @@ def main():
 
 
 
-def chain(pid, window, view, press_it=True):
-    """One chain step: open `window`, find what opens `view` inside it, press it, and put it back.
+def chain(pid, window, target, press_it=True):
+    """One chain step: open `window`, find what brings `target` up inside it, press it, put it back.
 
     Stops the moment it cannot say which widget it means, because a click on a wrong guess lands on
     whatever really lies at that point - and inside a window that is nearly always something else
@@ -633,8 +674,15 @@ def chain(pid, window, view, press_it=True):
     if window not in baseline:
         raise SystemExit('%s is not open; open it first, this only does the step inside it'
                          % window)
-    spots, record, acting, nodes, scales, classes = spots_for_view(game, pid, window, view)
-    print('%d widgets in %s carry a call that opens %s' % (len(spots), window, view))
+    tables = gui_tables()
+    goal = goal_of(target, tables[2])
+    if goal[0] == 'view':
+        print('%s is reached by opening the view %s' % (target, goal[1]))
+    else:
+        print('%s is reached by setting %s to %s'
+              % (target, goal[1], goal[2] if goal[2] is not None else 'anything'))
+    spots, record, acting, nodes, scales, classes = spots_for_goal(game, pid, window, goal, tables)
+    print('%d widgets in %s carry a call that does that' % (len(spots), window))
     usable = []
     buttons = clickable_map(record, acting)
     for spot in spots:

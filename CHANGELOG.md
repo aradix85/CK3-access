@@ -6,6 +6,14 @@ was measured. No release yet — see the entry of 2026-08-23 for what "first pub
 The numbers live in `reports/claims.json`, where `tools/check.py` recomputes them; the reasoning
 lives in `ARCHITECTURE.md`. This file says only what moved.
 
+## 2026-08-31
+
+- A chain step no longer has to aim at a view. `--chain <window> <target>` reads the target's own
+  `visible` line and takes the condition from there: a view that opens, a variable that must hold
+  a value, or one that must merely exist. Tested on disk without the game — one candidate for each
+  of `houses_list` and `knight_permissions`, with the twin that sets the variable back and the call
+  that clears it both refused.
+
 ## 2026-08-30
 
 - A scroll area draws its scrollbar last whatever the file says; the pairing now moves it there
