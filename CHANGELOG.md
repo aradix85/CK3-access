@@ -10,30 +10,19 @@ them, and the reasoning lives in `ARCHITECTURE.md`. This file says what moved an
 
 ## 2026-08-31
 
-- A failure now has an exit of its own. `speech.failure(where, what, remedy)` turns a failure into
-  one sentence a player can act on, writes it to stderr first and then speaks it, so an exit that
-  cannot reach NVDA still cannot lose the message. Two places that used to fail without a word are
-  on it: the channel that will not open, and a stored field derivation that no longer holds.
-- `tools/never_silent.py` is the proof behind that: it takes the link with the game away, moves a
-  field offset in a copy of the derivation, and counts the sentences that reached the seam. It runs
-  the untouched derivation first and requires silence there, because a recheck turns down a good
-  derivation on the main menu and the moved offset would otherwise prove nothing. Both halves pass
-  on a loaded game: two different sentences, no silence, and the untouched derivation stayed quiet.
-  No debug mode needed - channel, derivation and speech all work without it.
-- The two windows that had never been open are open. `houses_list` came in one chain step through
-  the house button on the HUD; `knight_permissions` in two, through F3 and the knights button.
-  Both in one attempt, with the baseline state, the date, the player and the paused clock unchanged
-  afterwards. The harvest stands at 203 windows and 15 refusals.
-- A chain step no longer has to aim at a view. `--chain <window> <target>` reads the target's own
-  `visible` line and takes the condition from there: a view that opens, a variable that must hold
-  a value, or one that must merely exist. Tested on disk without the game — one candidate for each
-  of the two, with the twin that sets the variable back and the call that clears it both refused.
-- A shortcut that opens nothing from a bare screen says nothing about the route. The button
-  carrying it lives inside the window it belongs to, so on a bare screen it does not exist. An
-  entry of 30 August calling that route dead is withdrawn.
-- What the two new windows moved: paired texts 1584 to 1617 out of 1754, and the unexplained
-  remainder stayed at exactly 137 — two windows the project had never seen brought no new gap. The
-  rest of the counts are in `reports/claims.json`.
+- `speech.failure(where, what, remedy)`: one exit for a failure, three parts, written out before it
+  is spoken. The channel that will not open and a derivation that no longer holds are on it.
+- `tools/never_silent.py`, the gate before a beta: link taken away, offset moved in a copy, silences
+  counted. Both halves pass on a loaded game — two sentences, no silence. It demands silence from
+  the untouched derivation first, or the main menu would fail it either way. No debug mode needed.
+- `houses_list` and `knight_permissions` are open, in one and two chain steps, first attempt, with
+  the baseline state back afterwards. The harvest stands at 203 windows and 15 refusals.
+- `--chain <window> <target>` now reads the target's own `visible` line, so a step can aim at a
+  variable instead of a view. Checked on disk: the twin that sets the variable back was refused.
+- A shortcut that opens nothing from a bare screen proves nothing — the button carrying it lives
+  inside the window it belongs to. The 30 August entry calling that route dead is withdrawn.
+- Paired texts 1584 to 1617 of 1754, and the unexplained remainder stayed at 137: two windows the
+  project had never seen brought no new gap.
 
 ## 2026-08-30
 
