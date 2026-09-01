@@ -384,6 +384,56 @@ def shortcuts(what):
     raise KeyError('no such shortcut count: %r' % what)
 
 
+def shortcut_words(what):
+    """How far a shortcut can be given a meaning from disk alone.
+
+    A binding names itself and its keys and says nothing about what it does. The widget that
+    declares `shortcut = "<name>"` carries a text key and a tooltip key, and those resolve
+    through the localisation the engine merges. This counts how far that join reaches, because a
+    help list for a player is only worth the meanings in it.
+
+    `declared` counts bindings that at least one widget declares; `worded` counts those whose text
+    or tooltip key is in the localisation. The difference is texts that are a data function and
+    therefore need the running game.
+    """
+    import guimap
+    text = open(os.path.join(paths.GAME, 'game', 'gui', 'shortcuts.shortcuts'),
+                encoding='utf-8-sig', errors='replace').read()
+    rows = re.findall(r'^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"([^"]*)"', text, re.M)
+    bindings = {n for n, _ in rows if not n.startswith('_')}
+
+    def value_of(body, key):
+        for child in body or []:
+            if child.get('key') == key:
+                return child.get('value')
+        return None
+
+    found = {}
+
+    def walk(nodes):
+        for node in nodes:
+            body = node.get('body')
+            if not body:
+                continue
+            name = value_of(body, 'shortcut')
+            if name:
+                found.setdefault(name.strip('"'), []).append(
+                    (value_of(body, 'text'), value_of(body, 'tooltip')))
+            walk(body)
+
+    for _, _, full in guimap.files():
+        walk(guimap.parse(open(full, encoding='utf-8-sig', errors='replace').read()))
+    declared = bindings & set(found)
+    if what == 'declared':
+        return len(declared)
+    words = guimap.localization()
+    worded = {n for n in declared
+              if any((k or '').strip('"') in words for pair in found[n] for k in pair)}
+    if what == 'worded':
+        return len(worded)
+    raise KeyError('no such shortcut word count: %r' % what)
+
+
 MEASURES = {'bytes': bytes_of, 'lines': lines_of, 'files': files_in,
             'json_field': json_field, 'json_keys': json_keys,
             'type_names': type_names_in_exe, 'widget_vtables': widget_vtables,
@@ -392,7 +442,7 @@ MEASURES = {'bytes': bytes_of, 'lines': lines_of, 'files': files_in,
             'gui_merged': gui_merged, 'gui_templates': gui_templates,
             'gui_windows': gui_windows, 'gui_dlc': gui_dlc,
             'database_entries': database_entries, 'map_layer': map_layer,
-            'shortcuts': shortcuts}
+            'shortcuts': shortcuts, 'shortcut_words': shortcut_words}
 
 
 

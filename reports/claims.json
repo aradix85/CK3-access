@@ -700,5 +700,23 @@
    "modified"
   ],
   "counting_rule": "named actions whose keys carry alt, ctrl or shift; the complement of the claim above, counted from the same file in the same pass"
+ },
+ {
+  "name": "shortcuts a widget declares",
+  "claimed": 161,
+  "measure": "shortcut_words",
+  "arguments": [
+   "declared"
+  ],
+  "counting_rule": "named bindings for which at least one widget in the merged gui set carries shortcut = \"<name>\"; the rest are handled in code and name nothing"
+ },
+ {
+  "name": "shortcuts that resolve to a sentence on disk",
+  "claimed": 92,
+  "measure": "shortcut_words",
+  "arguments": [
+   "worded"
+  ],
+  "counting_rule": "of the declared ones, those whose text or tooltip key is in the merged localisation. The difference is texts that are a data function and therefore need the running game, such as [GetPlayer.Custom(...)]"
  }
 ]
