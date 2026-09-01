@@ -285,9 +285,9 @@
  },
  {
   "name": "files that go into the repo",
-  "claimed": 56,
+  "claimed": 57,
   "measure": "repo_files",
-  "counting_rule": "files under the project folder that .gitignore does not exclude; on 23 August 2026 git ls-files --others --exclude-standard counted the same number. 45 until 25 August 2026, when the click round added tools/ck3/openers.py and reports/openers.json; 48 when the gui reader added tools/ck3/guimap.py; 47 when docsearch.py was taken out, because it reads only the working notes; 50 since the NVDA sleep-mode add-on added three files under tools/nvda/addon; 52 since the alignment added tools/ck3/pairing.py and reports/pairing.json; 53 since the database reader added tools/ck3/database.py; 51 since the two text-field reports were dropped on 28 August 2026, being the only files under reports that no claim covered and that nothing read; 52 since 29 August 2026, when the record layout got its own deriver in tools/ck3/model.py; 53 since 29 August 2026, when the numbering moved out of the save into tools/ck3/numbering.py; 54 since 31 August 2026, when the beta gate added tools/never_silent.py; 55 since 1 September 2026, when the static map layer added tools/ck3/mapdata.py; 56 since 1 September 2026, when the chain from a character to a place added tools/ck3/place.py"
+  "counting_rule": "files under the project folder that .gitignore does not exclude; on 23 August 2026 git ls-files --others --exclude-standard counted the same number. 45 until 25 August 2026, when the click round added tools/ck3/openers.py and reports/openers.json; 48 when the gui reader added tools/ck3/guimap.py; 47 when docsearch.py was taken out, because it reads only the working notes; 50 since the NVDA sleep-mode add-on added three files under tools/nvda/addon; 52 since the alignment added tools/ck3/pairing.py and reports/pairing.json; 53 since the database reader added tools/ck3/database.py; 51 since the two text-field reports were dropped on 28 August 2026, being the only files under reports that no claim covered and that nothing read; 52 since 29 August 2026, when the record layout got its own deriver in tools/ck3/model.py; 53 since 29 August 2026, when the numbering moved out of the save into tools/ck3/numbering.py; 54 since 31 August 2026, when the beta gate added tools/never_silent.py; 55 since 1 September 2026, when the static map layer added tools/ck3/mapdata.py; 56 since 1 September 2026, when the chain from a character to a place added tools/ck3/place.py; 57 since 1 September 2026, when tools/unclaimed.py was added - the sweep for counts that close a door, which is the half check.py cannot see"
  },
  {
   "name": "windows opened in the harvest round",
@@ -685,12 +685,12 @@
  },
  {
   "name": "shortcuts a posted key can reach",
-  "claimed": 119,
+  "claimed": 115,
   "measure": "shortcuts",
   "arguments": [
    "plain"
   ],
-  "counting_rule": "named actions whose keys carry no alt, ctrl or shift. The rest need a modifier, and a modifier cannot be posted into the game - measured 1 September 2026, see brief\\machine.md"
+  "counting_rule": "named actions whose keys carry no alt, ctrl or shift AND have a key at all. Four named actions are bound to an empty string and were counted here until 1 September 2026, when the round that presses them found 115 where the claim said 119. A modifier cannot be posted into the game - measured the same day, see brief\\machine.md"
  },
  {
   "name": "shortcuts that need a modifier",
@@ -699,7 +699,7 @@
   "arguments": [
    "modified"
   ],
-  "counting_rule": "named actions whose keys carry alt, ctrl or shift; the complement of the claim above, counted from the same file in the same pass"
+  "counting_rule": "named actions with a key that carries alt, ctrl or shift; counted from the same file in the same pass as the claim above, so the two plus the unbound four make up the named actions"
  },
  {
   "name": "shortcuts a widget declares",
@@ -718,5 +718,14 @@
    "worded"
   ],
   "counting_rule": "of the declared ones, those whose text or tooltip key is in the merged localisation. The difference is texts that are a data function and therefore need the running game, such as [GetPlayer.Custom(...)]"
+ },
+ {
+  "name": "named actions bound to no key at all",
+  "claimed": 4,
+  "measure": "shortcuts",
+  "arguments": [
+   "unbound"
+  ],
+  "counting_rule": "named actions whose key string is empty - event_option_14, menu_14, sub_tab_14, tab_14. They are declared and reachable by nothing, and counting them among the pressable keys is what made 119 out of 115"
  }
 ]

@@ -40,6 +40,8 @@ returns a pair, passed on as one thing, costs a run.
 | `mod_windows(part)` | value | Windows in the map whose gui file is not part of the game itself. |
 | `harvest_total(part, field)` | value | A number summed over the harvest records: how big the round was, and how good. |
 | `map_layer(what)` | value | A count of the static map layer, recomputed from the game files. |
+| `shortcuts(what)` | value | How many key bindings the game defines, counted by kind. |
+| `shortcut_words(what)` | NoneType of value | How far a shortcut can be given a meaning from disk alone. |
 | `quoted_numbers(claims)` | 2-tuple | Claims that a document repeats, checked against the file that repeats them. |
 | `main(all_of_them)` | value | - |
 
@@ -97,6 +99,17 @@ returns a pair, passed on as one thing, costs a run.
 | `signature(node)` | value | - |
 | `return_shape(node)` | value of str | The shape of what comes out, because that is what the mistakes were about. |
 | `files()` | nothing | - |
+
+## unclaimed.py
+*Sentences that count something and then claim the count is complete, and constants in code.*
+
+| call | returns | does |
+|---|---|---|
+| `files(suffixes)` | nothing | - |
+| `sentences(text)` | nothing | Rough split. A claim rarely spans a blank line, and that is all this needs. |
+| `closing_counts()` | value | Per document, the sentences that count and then close a door. |
+| `literals()` | value | Numbers in code outside comments and docstrings: a measurement, or an assumption? |
+| `main(show_all)` | nothing | - |
 
 ## windowgrab.py
 *Grabs an image of the game window without it having to be in the foreground.*

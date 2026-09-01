@@ -370,17 +370,23 @@ def shortcuts(what):
     text = open(path, encoding='utf-8-sig', errors='replace').read()
     rows = re.findall(r'^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"([^"]*)"', text, re.M)
     named = [(n, k) for n, k in rows if not n.startswith('_')]
-    plain = [(n, k) for n, k in named if not re.search(r'alt|ctrl|shift', k, re.I)]
+    # A binding with an empty key string is declared and bound to nothing - `event_option_14`,
+    # `menu_14`, `sub_tab_14`, `tab_14`. Counting those among the keys we could press was wrong
+    # here on 1 September 2026 and the sweep found it: 119 became 115 the moment a key was needed.
+    bound = [(n, k) for n, k in named if k.strip()]
+    plain = [(n, k) for n, k in bound if not re.search(r'alt|ctrl|shift', k, re.I)]
     if what == 'bindings':
         return len(rows)
     if what == 'generic':
         return len(rows) - len(named)
     if what == 'named':
         return len(named)
+    if what == 'unbound':
+        return len(named) - len(bound)
     if what == 'plain':
         return len(plain)
     if what == 'modified':
-        return len(named) - len(plain)
+        return len(bound) - len(plain)
     raise KeyError('no such shortcut count: %r' % what)
 
 
