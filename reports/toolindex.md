@@ -48,6 +48,9 @@ returns a pair, passed on as one thing, costs a run.
 | call | returns | does |
 |---|---|---|
 | `link_taken_away()` | nothing | Ask the channel something over a pipe name that cannot exist. |
+| `said_nothing()` | nothing | A keystroke that does its work and says nothing. The detector has to notice. |
+| `said_something()` | nothing | The counter-test: a keystroke that answers keeps its own sentence and gets no other. |
+| `broke_without_a_word()` | nothing | A keystroke whose work raises and says nothing. |
 | `field_moved(pid, fields)` | nothing | Move an offset in a copy of the derivation and let the ordinary start path trip over it. |
 | `main()` | nothing | Ask for the game first, because that answer decides how honest the first step can be. |
 
@@ -310,6 +313,9 @@ returns a pair, passed on as one thing, costs a run.
 | `live_tree(record)` | 2-tuple | The harvest is a flat list with an address and a parent address; this is it as a tree. |
 | `pairs(window, table, local, known, root, record=None)` | value | Every live widget of one window with its source on disk, and the data context it inherits. |
 | `text_source(source, localization)` | value of str | What fills this widget: a key, a data function, both, or a placeholder. |
+| `developer_window(name, path)` | value | Is this window the developers' own tooling rather than something a player opens? |
+| `bare_number(text)` | value of bool | A text that is only a number. This is the case the origin question exists for: `150` |
+| `unexplained(count, kind, context, built, developer)` | nothing | The texts the gui files do not predict, split the way the decision needed them. |
 | `sweep()` | 3-tuple | Every harvested window paired, as one tally. Takes about three minutes. |
 | `main()` | nothing | - |
 

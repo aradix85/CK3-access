@@ -10,6 +10,13 @@ lives in `ARCHITECTURE.md`. This file says only what moved.
 
 ## 2026-09-01
 
+- `speech.answering(where)`: a block that has to produce a sentence and says so itself when it
+  does not. An exception on its way out counts as silence as well, and is left to carry on. A
+  block that already reported its own failure stays quiet, because that was a sentence.
+- Three more steps in `tools/never_silent.py`, none of which needs a running game: a keystroke
+  that says nothing must speak, one that answers must not get a second sentence on top, and one
+  that breaks without a word must speak and still let the exception through.
+
 - The pairing splits the texts the gui files cannot foretell: 631 of 1754, of which 417 inherit
   a data context and 161 sit in the developers' own windows. Of the 470 left in windows a player
   opens, exactly four are a bare number. Five claims recompute it.

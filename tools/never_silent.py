@@ -1,8 +1,9 @@
 """The proof behind the beta gate: every failure speaks, and none of them is silent.
 
 Run it before every beta with `python tools/never_silent.py`. It takes the link with the game
-away and it moves a field offset, and it counts the sentences that reached the speech seam. Two
-different sentences and no silence is a pass; anything else names the step that stayed quiet.
+away, it moves a field offset, it lets a keystroke say nothing and lets another break without a word,
+and it counts the sentences that reached the speech seam. Different sentences and no silence is a
+pass; anything else names the step that stayed quiet.
 
 Counting rather than listening, because nothing can read back what NVDA said: this wraps the one
 exit every sentence passes through and records what was handed to it. The player hears that same
@@ -87,6 +88,47 @@ def link_taken_away():
         channel.close()
 
 
+def _only_its_own(step, work):
+    """A handler that does speak must not get a second sentence on top.
+
+    Without this the detector would double every answer the player hears, and doubling is a
+    fault a tester would report as the tool talking over itself.
+    """
+    before = len(_spoken)
+    work()
+    said = _spoken[before:]
+    if len(said) != 1:
+        raise SystemExit('%s produced %d sentences where exactly one belongs: %s'
+                         % (step, len(said), said))
+
+
+def said_nothing():
+    """A keystroke that does its work and says nothing. The detector has to notice."""
+    with speech.answering('the decisions window'):
+        pass
+
+
+def said_something():
+    """The counter-test: a keystroke that answers keeps its own sentence and gets no other."""
+    with speech.answering('the decisions window'):
+        speech.output('26 decisions')
+
+
+def broke_without_a_word():
+    """A keystroke whose work raises and says nothing.
+
+    A traceback is silence as far as the player is concerned, so this has to speak - and the
+    exception has to carry on regardless, because a detector that swallowed it would hide the
+    fault it just announced.
+    """
+    try:
+        with speech.answering('the ledger'):
+            raise KeyError('a widget nobody expected')
+    except KeyError:
+        return
+    raise SystemExit('the exception never came through; the detector swallowed it, which is worse than the silence it was built for')
+
+
 class _Enough(Exception):
     """Stops the run once the sentence is out."""
 
@@ -142,10 +184,16 @@ def main():
                              'it speaks.')
         said['the link with the game gone'] = _spoken[:]
 
+    said['a keystroke that said nothing'] = _sentences_from(
+        'a keystroke that said nothing', said_nothing)
+    _only_its_own('a keystroke that answered', said_something)
+    said['a keystroke that broke without a word'] = _sentences_from(
+        'a keystroke that broke without a word', broke_without_a_word)
+
     if pid is None:
-        raise SystemExit('The first step spoke. The second needs a game with the channel inside '
-                         'it, and there is none, so this proof is not finished. Start the game '
-                         'and run it again.')
+        raise SystemExit('Every step that needs no game spoke. The last one needs a game '
+                         'with the channel inside it, and there is none, so this proof is not '
+                         'finished. Start the game and run it again.')
 
     said['the link with the game taken away'] = _sentences_from(
         'the link with the game taken away', link_taken_away)

@@ -27,6 +27,10 @@ REPLACE, QUEUE = 'replace', 'queue'
 
 _client = ctypes.windll.LoadLibrary(DLL)
 
+# Sentences that have left this seam. The silence detector below counts with it; nothing else
+# should read it, because a number that only goes up says nothing on its own.
+_said = 0
+
 
 def nvda_running():
     return _client.nvdaController_testIfRunning() == 0
@@ -43,9 +47,11 @@ def output(text, mode=REPLACE, braille=None):
     elif mode != QUEUE:
         raise ValueError('unknown mode: %r' % mode)
 
+    global _said
     error = _client.nvdaController_speakText(ctypes.c_wchar_p(text))
     if error:
         raise OSError('NVDA returned error code %d on speech' % error)
+    _said += 1
 
     error = _client.nvdaController_brailleMessage(ctypes.c_wchar_p(braille or text))
     if error:
@@ -64,10 +70,40 @@ def failure(where, what, remedy, mode=REPLACE):
     fail, and only then to NVDA. It returns the sentence, so a caller can raise with the same
     words the player just heard.
     """
+    global _said
     sentence = '%s: %s, %s' % (where, what, remedy)
+    _said += 1
     print(sentence, file=sys.stderr, flush=True)
     try:
         output(sentence, mode)
     except Exception as trouble:
         print('that sentence did not reach NVDA: %s' % trouble, file=sys.stderr, flush=True)
     return sentence
+
+
+class answering:
+    """A block that has to produce a sentence, and says so itself when it does not.
+
+    Everything a keystroke sets off belongs inside one of these. A keystroke that yields
+    nothing is a fault of its own: the player cannot tell an empty window from a tool that
+    fell over from a game that never saw the key, and all three sound exactly the same.
+
+    It counts the sentences that left the seam and speaks when the count did not move. **An
+    exception on its way out counts as silence too**, because a traceback is not something a
+    player hears - and it is left to carry on, so this never swallows anything. A block that
+    already reported its own failure stays quiet here, because that failure was a sentence.
+    """
+
+    def __init__(self, where, remedy='press the key again'):
+        self.where = where
+        self.remedy = remedy
+        self.at = None
+
+    def __enter__(self):
+        self.at = _said
+        return self
+
+    def __exit__(self, kind, trouble, traceback):
+        if _said == self.at:
+            failure(self.where, 'nothing came back', self.remedy)
+        return False
