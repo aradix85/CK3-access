@@ -377,14 +377,35 @@ static bool ensure_window(void)
     return true;
 }
 
+// **Until 1 September 2026 this took a button number and ignored it**: every value that was not
+// zero produced a left click, and the reply said "mouse x y 2" as if button two had been sent.
+// A boundary that reports the wrong thing is worse than one that refuses, so an unknown button
+// now says so. Nothing was calling it with anything but 0 or 1, checked over every caller.
+// **Right is measured, 1 September 2026:** on the ledger button of the hud a left click toggles
+// the window and a right click leaves it alone, with the left click proving itself first. The
+// middle button is not here because nothing needs it and nothing has tested it.
+#define CLICK_NONE   0
+#define CLICK_LEFT   1
+#define CLICK_RIGHT  2
+
 static void cmd_mouse(int x, int y, int button)
 {
     if (!ensure_window()) return;
+    UINT down = 0, up = 0;
+    WPARAM held = 0;
+    switch (button) {
+        case CLICK_NONE:                                                              break;
+        case CLICK_LEFT:  down = WM_LBUTTONDOWN; up = WM_LBUTTONUP; held = MK_LBUTTON; break;
+        case CLICK_RIGHT: down = WM_RBUTTONDOWN; up = WM_RBUTTONUP; held = MK_RBUTTON; break;
+        default:
+            emit("error: button %d is not known; 0 only moves, 1 is left, 2 is right\n", button);
+            return;
+    }
     LPARAM spot = MAKELPARAM(x, y);
     PostMessageW(g_window, WM_MOUSEMOVE, 0, spot);
-    if (button) {
-        PostMessageW(g_window, WM_LBUTTONDOWN, MK_LBUTTON, spot);
-        PostMessageW(g_window, WM_LBUTTONUP, 0, spot);
+    if (down) {
+        PostMessageW(g_window, down, held, spot);
+        PostMessageW(g_window, up, 0, spot);
     }
     emit("mouse\t%d\t%d\t%d\n", x, y, button);
 }
@@ -412,6 +433,18 @@ static LPARAM key_lparam(unsigned code, bool key_up)
     return l;
 }
 
+// **A modifier cannot be posted, measured 1 September 2026, and the reason is still open.**
+// Holding shift, ctrl or alt down as its own posted key and marking the key with the context bit
+// was built and tried: F1 alone opens the character window, and shift+F1, ctrl+F1 and alt+F1 all
+// three open *nothing* - not the plain binding either. So the game notices something is different
+// and still does not reach the bound combination. That code is gone rather than left in place
+// pretending, and what would decide it is a counter on `GetKeyState` and `GetAsyncKeyState`:
+// does the game ask Windows for the keyboard state, which a posted message never changes?
+// The counter comes before the hook; an import-table patcher was once built for a mechanism the
+// game turned out to call zero times.
+// **It is worth little to a player and something to this workbench.** She presses alt+s on a real
+// keyboard, where Windows sets the state and it simply works. What we cannot do is open the
+// windows behind those 110 bindings ourselves in order to measure them.
 static void cmd_sendkey(unsigned code)
 {
     if (!ensure_window()) return;
