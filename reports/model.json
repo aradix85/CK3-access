@@ -115,7 +115,8 @@
   ".?AV?$TPdxRefDatabase@VCFaith@@$07@@": 91277096,
   ".?AV?$TPdxRefDatabase@VCReligion@@$07@@": 91277152,
   ".?AVCTraitDatabase@@": 91275512,
-  ".?AV?$TPdxRefDatabase@VCCharacter@@$07@@": 91275568
+  ".?AV?$TPdxRefDatabase@VCCharacter@@$07@@": 91275568,
+  ".?AV?$TPdxRefDatabase@VCLandedTitle@@$07@@": 91276304
  },
  "databases": {
   "culture": {
