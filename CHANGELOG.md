@@ -20,6 +20,9 @@ keeps the numbers with the rule they were counted by. A changelog that may never
 - Any title now resolves to the county under it: a barony through its province, a county is one,
   and anything above through the capital it names on disk. 17577 of 17620 titles land, the rest
   being titular titles that name no capital, and every `realm_capital` in three saves resolves.
+- The model derives a nineteenth field, `realm_capital`, which is the title a character calls its
+  seat. Going from that number to the title's key is arithmetic on the database blocks rather than
+  a scan, checked over three hundred slots against the save.
 - `speech.answering(where)`: a block that has to produce a sentence and says so when it does
   not. An exception counts as silence too, and is left to carry on.
 - Three more steps in `tools/never_silent.py`, none of them needing a running game.

@@ -15,23 +15,24 @@
   "note": "six times 32 bits; this is what the object was found by, not a separately tested field"
  },
  "evidence": {
-  "culture": "78 of 78 in the record",
-  "faith": "78 of 78 in the record",
-  "dynasty_house": "44 of 44 in the record",
+  "culture": "71 of 71 in the record",
+  "faith": "71 of 71 in the record",
+  "dynasty_house": "43 of 43 in the record",
   "gold": "72 of 72 through the pointer at +0x190",
   "piety": "80 of 80 through the pointer at +0x190",
   "prestige": "80 of 80 through the pointer at +0x190",
   "current_strength": "80 of 80 through the pointer at +0x1a0",
   "strength": "80 of 80 through the pointer at +0x1a0",
-  "strength_for_liege": "53 of 53 through the pointer at +0x1a0",
-  "strength_without_hires": "78 of 78 through the pointer at +0x1a0",
-  "levy": "71 of 71 through the pointer at +0x1a0",
+  "strength_for_liege": "55 of 55 through the pointer at +0x1a0",
+  "strength_without_hires": "79 of 79 through the pointer at +0x1a0",
+  "levy": "68 of 68 through the pointer at +0x1a0",
   "power": "80 of 80 through the pointer at +0x1a0",
   "max_power": "80 of 80 through the pointer at +0x1a0",
   "balance": "71 of 71 through the pointer at +0x1a0",
-  "liege_tax": "54 of 54 through the pointer at +0x1a0",
-  "dread": "40 of 40 through the pointer at +0x1a0",
-  "domain_limit": "77 of 77 through the pointer at +0x1a0"
+  "liege_tax": "60 of 60 through the pointer at +0x1a0",
+  "dread": "35 of 35 through the pointer at +0x1a0",
+  "domain_limit": "79 of 79 through the pointer at +0x1a0",
+  "realm_capital": "70 of 70 through the pointer at +0x1a0"
  },
  "name": {
   "offset": 8,
@@ -107,9 +108,14 @@
    "pointer": 416,
    "offset": 976,
    "form": "int32"
+  },
+  "realm_capital": {
+   "pointer": 416,
+   "offset": 504,
+   "form": "int32"
   }
  },
- "derived_on": "80 characters, 0 records unreadable or reused",
+ "derived_on": "2026-09-01, 80 characters, 0 records unreadable or reused, against Duke_Marianos_of_Nobatia_1067_11_23_reload.ck3",
  "globals": {
   ".?AV?$TPdxRefDatabase@VCCulture@@$07@@": 91278208,
   ".?AV?$TPdxRefDatabase@VCFaith@@$07@@": 91277096,

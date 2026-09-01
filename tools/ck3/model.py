@@ -65,6 +65,7 @@ WANTED = [
     ('liege_tax', 'landed', None),
     ('dread', 'landed', None),
     ('domain_limit', 'landed', None),
+    ('realm_capital', 'landed', None),
 ]
 
 # Relations that hold by definition, used to check the derivation without a save. Skipped for a
