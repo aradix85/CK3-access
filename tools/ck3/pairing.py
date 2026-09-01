@@ -235,6 +235,54 @@ def text_source(source, localization):
     return 'key quoting another key' if '$' in value else 'plain key'
 
 
+UNEXPLAINED = ('placeholder, code fills it', 'no key on disk', 'no source on disk')
+
+# Digits plus the punctuation a number carries. Everything with a letter left over is a word,
+# and a word says what it is; a bare number does not.
+NUMBER_NOISE = set('+-.,%()/:kKmM ')
+
+
+def developer_window(name, path):
+    """Is this window the developers' own tooling rather than something a player opens?
+
+    Counting rule: its gui file sits under `gui/debug/`, or its name carries the word debug.
+    Fourteen of the 203 harvested windows. They are set apart because a leftover text in them
+    needs no origin - nobody reads them.
+    """
+    return path.startswith('gui/debug/') or 'debug' in name
+
+
+def bare_number(text):
+    """A text that is only a number. This is the case the origin question exists for: `150`
+    with no word beside it, which cannot be read out as a sentence.
+    """
+    if not any(character.isdigit() for character in text):
+        return False
+    return not ''.join(character for character in text
+                       if not character.isdigit() and character not in NUMBER_NOISE)
+
+
+def unexplained(count, kind, context, built, developer):
+    """The texts the gui files do not predict, split the way the decision needed them.
+
+    Three questions decide whether the missing origin costs anything: does the widget inherit a
+    data context, so that it is at least known what the text is about; does it sit in a window a
+    player ever opens; and is it a bare number, which is the only shape that cannot be read out
+    as it stands. Measured 1 September 2026 over the whole harvest.
+    """
+    if kind not in UNEXPLAINED:
+        return
+    count['unexplained'] += 1
+    if context:
+        count['unexplained with data context'] += 1
+    if developer:
+        count['unexplained in developer windows'] += 1
+        return
+    count['unexplained in player windows'] += 1
+    if bare_number(derive.strip_markup(built['text'] or '').strip()):
+        count['unexplained bare number in player windows'] += 1
+
+
 REPORT = os.path.join(paths.PROJECT, 'reports', 'pairing.json')
 
 
@@ -256,6 +304,7 @@ def sweep():
             continue
         count['windows'] += 1
         count['widgets in harvest'] += len(record['tree'])
+        developer = developer_window(window, known[window][0])
         seen = 0
         rows_here = pairs(window, table, local, known, root)
         by_address = {built['address']: source for source, built, _ in rows_here}
@@ -276,6 +325,7 @@ def sweep():
                 else:
                     count['no source on disk'] += 1
                     unplaced[window] += 1
+                    unexplained(count, 'no source on disk', context, built, developer)
                     continue
             count['paired'] += 1
             if context:
@@ -283,6 +333,7 @@ def sweep():
             key = attribute(source, 'text')
             kind = text_source(key, localization)
             count[kind] += 1
+            unexplained(count, kind, context, built, developer)
             if kind == 'data function':
                 for name in FUNCTION.findall(key):
                     functions[name] += 1

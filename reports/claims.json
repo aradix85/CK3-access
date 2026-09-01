@@ -522,5 +522,71 @@
    "<documents>\\save games\\Duke_Marianos_of_Nobatia_1067_11_23.ck3"
   ],
   "counting_rule": "the save of 1067-11-23 carries the engine's own numbering, and for cultures it is exactly the file order - all 463. That does not hold for the other databases: 78 of 237 faiths, 36 of 94 religions, 301 of 342 traits, so the numbering is read from the save and not derived from disk. The faiths do fall into place, all 237, once they are grouped per religion in the engine's religion order; where that religion order comes from is not known. The save is named here rather than left to whichever is newest: a save from before the mods gives 244, so reading the newest file made this claim measure something other than what this rule says"
+ },
+ {
+  "name": "harvested texts the gui files do not predict",
+  "claimed": 631,
+  "measure": "json_field",
+  "arguments": [
+   "<project>\\reports\\pairing.json",
+   "unexplained"
+  ],
+  "counting_rule": "of the 1754 harvested texts, the three kinds the files cannot foretell: the gui file says the code sets it, or the widget has a place on disk but no text source, or the alignment finds it no place at all",
+  "quoted_in": [
+   "brief\\stand.md"
+  ]
+ },
+ {
+  "name": "unexplained texts that inherit a data context",
+  "claimed": 417,
+  "measure": "json_field",
+  "arguments": [
+   "<project>\\reports\\pairing.json",
+   "unexplained with data context"
+  ],
+  "counting_rule": "of those 631, the ones whose ancestors carry a datacontext, so that what the text is about is known even though where it comes from is not",
+  "quoted_in": [
+   "brief\\stand.md"
+  ]
+ },
+ {
+  "name": "unexplained texts in the developers' own windows",
+  "claimed": 161,
+  "measure": "json_field",
+  "arguments": [
+   "<project>\\reports\\pairing.json",
+   "unexplained in developer windows"
+  ],
+  "counting_rule": "of those 631, the ones in a window whose gui file sits under gui/debug/ or whose name carries the word debug; fourteen windows, and nobody reads them",
+  "quoted_in": [
+   "brief\\stand.md"
+  ]
+ },
+ {
+  "name": "unexplained texts in windows a player opens",
+  "claimed": 470,
+  "measure": "json_field",
+  "arguments": [
+   "<project>\\reports\\pairing.json",
+   "unexplained in player windows"
+  ],
+  "counting_rule": "the 631 minus the developers' own windows, over 126 windows",
+  "quoted_in": [
+   "brief\\stand.md"
+  ]
+ },
+ {
+  "name": "unexplained bare numbers in windows a player opens",
+  "claimed": 4,
+  "measure": "json_field",
+  "arguments": [
+   "<project>\\reports\\pairing.json",
+   "unexplained bare number in player windows"
+  ],
+  "counting_rule": "of those 470, the texts that are only digits and the punctuation a number carries, so that no word says what they are; two war scores in the ledger and two in the war overview",
+  "quoted_in": [
+   "brief\\stand.md",
+   "brief\\taken.md"
+  ]
  }
 ]

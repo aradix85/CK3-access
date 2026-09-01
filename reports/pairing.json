@@ -74,6 +74,11 @@
   "ValueBreakdown": 10,
   "War": 32
  },
+ "unexplained": 631,
+ "unexplained bare number in player windows": 4,
+ "unexplained in developer windows": 161,
+ "unexplained in player windows": 470,
+ "unexplained with data context": 417,
  "widgets in harvest": 74548,
  "windows": 203,
  "with data context": 1321

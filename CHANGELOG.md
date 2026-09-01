@@ -8,6 +8,16 @@ date, so the reasoning stays reviewable.
 The numbers live in `reports/claims.json`, where `tools/check.py` recomputes them; the reasoning
 lives in `ARCHITECTURE.md`. This file says only what moved.
 
+## 2026-09-01
+
+- The pairing splits the texts the gui files cannot foretell: 631 of 1754, of which 417 inherit
+  a data context and 161 sit in the developers' own windows. Of the 470 left in windows a player
+  opens, exactly four are a bare number. Five claims recompute it.
+- That withdraws the reason for chasing those origins before the reading layer: a text with no
+  source on disk is almost always a caption that names itself, not a value without a word beside
+  it. The console route is not hiding the case either - it has the larger unexplained share, not
+  the smaller.
+
 ## 2026-08-31
 
 - `speech.failure(where, what, remedy)`: one exit for a failure, three parts, written out before it
