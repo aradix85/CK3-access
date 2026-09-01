@@ -164,12 +164,15 @@ def _value(block, key):
     return None
 
 
-def counties():
-    """County key -> its baronies' provinces, the de jure titles above it, and its name.
+def titles():
+    """Title key -> what it is, what land sits under it, which title it calls its capital, the de
+    jure titles above it, and its name.
 
-    The de jure chain is not a field: it is where the county sits in the nesting of
-    `landed_titles`, so it comes out of the walk for free. Measured 1 September 2026: 3476 counties
-    carry provinces, 11297 baronies between them, and none of them lacks a chain.
+    The de jure chain is not a field: it is where the title sits in the nesting of
+    `landed_titles`, so it comes out of the walk for free. Measured 1 September 2026: 17620 titles,
+    of which 11297 baronies carry a province, 3476 counties carry baronies and none of them lacks a
+    chain. 2804 titles name a capital and every one of those capitals is a county, so the way from
+    a title to a place is one hop rather than a walk.
 
     **A later file that names a county without baronies does not empty it.** Mods do that to add a
     single line, and overwriting on every mention cost 1228 counties their provinces before this
@@ -182,17 +185,25 @@ def counties():
             key = block.get('key') or ''
             tier = TIERS.get(key[:1]) if key[1:2] == '_' else None
             below = chain + [key] if tier else chain
-            if tier == 'county':
-                provinces = []
-                for child in block.get('body') or []:
-                    if (child.get('key') or '').startswith('b_'):
-                        number = _value(child, 'province')
-                        if number and number.isdigit():
-                            provinces.append(int(number))
-                row = out.setdefault(key, {})
-                if provinces or 'provinces' not in row:
-                    row['provinces'] = provinces
+            if tier:
+                row = out.setdefault(key, {'tier': tier})
                 row['chain'] = chain
+                capital = _value(block, 'capital')
+                if capital:
+                    row['capital'] = capital
+                if tier == 'barony':
+                    number = _value(block, 'province')
+                    if number and number.isdigit():
+                        row['province'] = int(number)
+                if tier == 'county':
+                    provinces = []
+                    for child in block.get('body') or []:
+                        if (child.get('key') or '').startswith('b_'):
+                            number = _value(child, 'province')
+                            if number and number.isdigit():
+                                provinces.append(int(number))
+                    if provinces or 'provinces' not in row:
+                        row['provinces'] = provinces
             if block.get('body'):
                 walk(block['body'], below)
 
@@ -216,7 +227,9 @@ class Map:
         numbers = province_image()
         self.centres = centres(numbers)
         self.kinds = province_kinds()
-        self.counties = counties()
+        self.titles = titles()
+        self.counties = {key: row for key, row in self.titles.items()
+                         if row['tier'] == 'county'}
         self.county_of = {}
         for key, row in self.counties.items():
             for province in row.get('provinces') or []:
@@ -236,6 +249,25 @@ class Map:
 
     def name(self, county):
         return self.counties.get(county, {}).get('name') or county
+
+    def county_for(self, title):
+        """The county a title stands on, which is what turns a title held in the game into a place.
+
+        A barony sits in one, a county with land is one, and everything above names a capital on
+        disk - and every capital in the files is a county, so this is one hop and not a walk.
+        Measured 1 September 2026: 17577 of the 17620 titles land on a county. The 43 that do not
+        are titular duchies, kingdoms and empires that name no capital, k_ottoman and the beyliks
+        among them; a title with no land under it has no place, and that is an answer rather than
+        a gap.
+        """
+        row = self.titles.get(title)
+        if row is None:
+            return None
+        if 'province' in row:
+            return self.county_of.get(row['province'])
+        if row.get('provinces'):
+            return title
+        return row.get('capital')
 
     def where(self, county):
         """The point of a county: the mean of its capital barony's province."""
@@ -317,9 +349,13 @@ class Map:
 def main():
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
     world = Map()
-    print('%d provinces on the map, %d counties with land, %d with neighbours'
+    print('%d provinces on the map, %d counties with land, %d with neighbours, %d titles'
           % (len(world.centres), len(world.county_of and set(world.county_of.values())),
-             len(world.neighbours)))
+             len(world.neighbours), len(world.titles)))
+    placed = sum(1 for title in world.titles if world.county_for(title))
+    print('%d of %d titles land on a county' % (placed, len(world.titles)))
+    for title in ('b_praha', 'd_bohemia', 'k_bohemia', 'e_west_slavia', 'k_ottoman'):
+        print('   %s sits on %s' % (title, world.county_for(title)))
     for county in ('c_praha', 'c_roma'):
         print()
         for line in world.describe(county):

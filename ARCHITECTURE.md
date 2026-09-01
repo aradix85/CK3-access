@@ -115,7 +115,8 @@ Five independent sources, and their disagreement is the test.
 - **The static data files** — the de jure hierarchy, traits, and the map itself.
   `tools/ck3/database.py` reads them the way the engine merges them, so a number out of memory
   becomes the name a player sees; `tools/ck3/mapdata.py` turns the province image and the title
-  nesting into where a county is, what it borders and how far away it lies.
+  nesting into where a county is, what it borders and how far away it lies, and it takes any title
+  down to the county under it, so a capital a character holds resolves to a place.
 
 Optical character recognition sits beside these as a witness, never as the product: if the tree says
 a word is at x=262 and the recogniser reads it there, the geometry is right.

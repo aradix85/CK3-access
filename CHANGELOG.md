@@ -17,6 +17,9 @@ keeps the numbers with the rule they were counted by. A changelog that may never
   province or the build stops. 12750 provinces, 3448 counties with neighbours.
 - Distance is approximate on purpose: a fitted projection measured worse than a fixed scale on
   counties it had not seen. Travel days come from a save's own `travel_plans`.
+- Any title now resolves to the county under it: a barony through its province, a county is one,
+  and anything above through the capital it names on disk. 17577 of 17620 titles land, the rest
+  being titular titles that name no capital, and every `realm_capital` in three saves resolves.
 - `speech.answering(where)`: a block that has to produce a sentence and says so when it does
   not. An exception counts as silence too, and is left to carry on.
 - Three more steps in `tools/never_silent.py`, none of them needing a running game.
