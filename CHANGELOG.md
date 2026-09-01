@@ -11,28 +11,18 @@ lives in `ARCHITECTURE.md`. This file says only what moved.
 ## 2026-09-01
 
 - `tools/ck3/mapdata.py`, the static map layer: where a county is, what it borders, how far and
-  how long away another one is, and the de jure titles above it. Disk only - no save, no running
-  game - and nothing cached, because a cached map quietly disagrees with the player's own after
-  a patch or a new mod.
-- Province centres and adjacency come out of `provinces.png` itself: every pixel resolves to a
-  province or the build stops. 12750 provinces, 3476 counties with land, 3448 with neighbours.
-- Distance is approximate on purpose. A fixed 1.509 km per pixel spreads a third because the map
-  stretches with latitude, and a fitted projection measured worse on counties it had not seen.
-- Travel days come from the save's own `travel_plans`: 2.5 pixels a day over 234 plans.
-- `speech.answering(where)`: a block that has to produce a sentence and says so itself when it
-  does not. An exception on its way out counts as silence as well, and is left to carry on. A
-  block that already reported its own failure stays quiet, because that was a sentence.
-- Three more steps in `tools/never_silent.py`, none of which needs a running game: a keystroke
-  that says nothing must speak, one that answers must not get a second sentence on top, and one
-  that breaks without a word must speak and still let the exception through.
-
+  how long away another one is, and the de jure titles above it. Disk only, nothing cached.
+- Province centres and adjacency come out of `provinces.png` itself — every pixel resolves to a
+  province or the build stops. 12750 provinces, 3448 counties with neighbours.
+- Distance is approximate on purpose: a fitted projection measured worse than a fixed scale on
+  counties it had not seen. Travel days come from a save's own `travel_plans`.
+- `speech.answering(where)`: a block that has to produce a sentence and says so when it does
+  not. An exception counts as silence too, and is left to carry on.
+- Three more steps in `tools/never_silent.py`, none of them needing a running game.
 - The pairing splits the texts the gui files cannot foretell: 631 of 1754, of which 417 inherit
-  a data context and 161 sit in the developers' own windows. Of the 470 left in windows a player
-  opens, exactly four are a bare number. Five claims recompute it.
+  a data context. Of the 470 in windows a player opens, four are a bare number.
 - That withdraws the reason for chasing those origins before the reading layer: a text with no
-  source on disk is almost always a caption that names itself, not a value without a word beside
-  it. The console route is not hiding the case either - it has the larger unexplained share, not
-  the smaller.
+  source on disk is almost always a caption that names itself.
 
 ## 2026-08-31
 

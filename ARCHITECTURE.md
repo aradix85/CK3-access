@@ -112,9 +112,10 @@ Five independent sources, and their disagreement is the test.
   a save belongs to the state that wrote it, so the numbering of cultures and faiths is read out of
   the running game instead; and the levies and military power are recomputed around loading, so the
   answer key has to be a save written from the state now loaded.
-- **The static data files** — province positions, the de jure hierarchy, traits.
+- **The static data files** — the de jure hierarchy, traits, and the map itself.
   `tools/ck3/database.py` reads them the way the engine merges them, so a number out of memory
-  becomes the name a player sees.
+  becomes the name a player sees; `tools/ck3/mapdata.py` turns the province image and the title
+  nesting into where a county is, what it borders and how far away it lies.
 
 Optical character recognition sits beside these as a witness, never as the product: if the tree says
 a word is at x=262 and the recogniser reads it there, the geometry is right.
@@ -187,6 +188,11 @@ because a tester who hears nothing cannot report anything at all. It is the one 
 allowed to swallow: it writes the sentence out before it speaks it, so an exit that cannot reach
 NVDA still cannot lose the message. Everywhere else a failure breaks where it happens.
 `tools/never_silent.py` is the proof, and it is the gate in front of a beta.
+
+**And a keystroke that produces nothing says so.** `answering(where)` counts the sentences that
+leave the seam around a block and speaks when the count did not move — an exception on its way out
+counts as silence as well, and is left to carry on. Silence is the failure a blind tester cannot
+report.
 
 ## What is deliberately not done
 

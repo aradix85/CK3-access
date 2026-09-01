@@ -25,6 +25,9 @@ process and from files already on your disk.
   structure, so meaning on disk reaches the nameless widgets: nine in ten of the ones showing text.
 - **The tooling never fails silently.** Anything that goes wrong leaves through one exit as a
   sentence saying what failed, where, and what to do — never as an error code or as nothing.
+- **Where a county is, from the files alone.** Its neighbours out to three rings, the seas and
+  rivers it touches, the de jure titles above it, and the distance, bearing and travel days to
+  another one — no save, no running game.
 - **The game state is readable without searching:** any character's name, culture, faith, money and
   levies, and which number means which culture, faith, religion or trait, out of the running game
   rather than out of a save. A regression pass holds four hundred characters against the save and
