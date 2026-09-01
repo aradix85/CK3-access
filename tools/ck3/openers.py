@@ -407,8 +407,9 @@ def trigger_spots(row, named, nodes):
     A trigger whose name sits one level up cannot be addressed by name at all. The namebearer can
     be, and under it hangs one button per case, each with the same call and its own visibility
     condition - four government types under `tab_government_administration` on 29 August 2026, of
-    which three lie beyond the right edge of a 1600 wide screen while carrying alpha above zero.
-    Which one is meant is therefore a question of geometry, and `on_screen` already asks it.
+    which three lay beyond the right edge of the drawing area of that day, 1600 wide, while
+    carrying alpha above zero. Which one is meant is therefore a question of geometry, and
+    `on_screen` already asks it - against the drawing area of this run, not that one.
     """
     if not row.get('under'):
         return named
@@ -427,6 +428,12 @@ def on_screen(address, nodes, scales, classes):
     The four cheap tests come first and the flag is asked last, because that one is a channel
     question and the disambiguation below runs this over every widget carrying a name - one of
     them 225 times.
+
+    **The edges come from the running game, and until 1 September 2026 they did not.** 1600x900
+    stood here as a constant. The drawing area became 1920x1200 that day, after which every
+    widget past x1600 or y900 was turned down as "off screen" - a sentence that reads like a
+    measurement while being an assumption. `load_button` on the front end sits at 845,931 and was
+    refused by it. `derive.drawing_area` asks Windows once per run instead.
     """
     if not derive.is_visible(nodes, address) or derive.is_clipped(nodes, address, scales, classes):
         return 'not visible'
@@ -434,7 +441,8 @@ def on_screen(address, nodes, scales, classes):
     width, height = derive.screen_size(nodes, address, scales)
     if width <= 0 or height <= 0:
         return 'no size'
-    if x < 0 or y < 0 or x + width > 1600 or y + height > 900:
+    screen_width, screen_height = derive.drawing_area()
+    if x < 0 or y < 0 or x + width > screen_width or y + height > screen_height:
         return 'off screen'
     node = nodes[address][5]
     while node in nodes:

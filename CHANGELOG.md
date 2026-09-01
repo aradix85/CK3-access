@@ -30,6 +30,10 @@ keeps the numbers with the rule they were counted by. A changelog that may never
   a data context. Of the 470 in windows a player opens, four are a bare number.
 - That withdraws the reason for chasing those origins before the reading layer: a text with no
   source on disk is almost always a caption that names itself.
+- Whether a widget can be clicked is judged against the drawing area of the running game rather
+  than the 1600x900 that stood in the code. On this machine's 1920x1200 that constant refused 8995
+  named widgets out of hand, among them over half the text the recogniser reads back off the
+  screen, each with the word "off screen" that reads like a measurement.
 
 ## 2026-08-31
 

@@ -160,6 +160,8 @@ returns a pair, passed on as one thing, costs a run.
 | `read(address, count)` | value | - |
 | `scan(from_address, to_address)` | value | Address -> vtable. Both come from the vtable comparison and do not depend on the field |
 | `tree(root)` | value | - |
+| `use_screen(pid)` | value | Publish the drawing area of this run, because it is not a property of the build. |
+| `drawing_area()` | value | - |
 | `use_fields(fields)` | nothing | Publish the two visibility offsets for this build. |
 | `flags_for(addresses)` | value | The window flag of many objects in as few channel questions as possible. |
 | `widgets(root)` | value | The whole tree with fields attached: address -> (vtable, x, y, width, height, parent, name, text). |

@@ -80,6 +80,29 @@ def tree(root):
 
 ALPHA = None
 WINDOW_FLAG = None
+DRAWING_AREA = None
+
+
+def use_screen(pid):
+    """Publish the drawing area of this run, because it is not a property of the build.
+
+    Asked once and remembered: it is fixed while the game runs - the size is set in
+    `pdx_settings.txt` while the game is shut - and `on_screen` asks for it per widget, one of
+    them 225 times in a single round. Like the two offsets above it starts as None and stays
+    loud when unset: a guessed screen size rejects perfectly good widgets with the words "off
+    screen", which reads exactly like a measurement and is not one. That is what 1600x900
+    written into `openers.on_screen` did once the drawing area became 1920x1200.
+    """
+    global DRAWING_AREA
+    DRAWING_AREA = window_size(pid)
+    return DRAWING_AREA
+
+
+def drawing_area():
+    if DRAWING_AREA is None:
+        raise SystemExit('the drawing area is not known yet: call use_screen(pid) first, or '
+                         'fields_for(pid), which does it')
+    return DRAWING_AREA
 
 
 def use_fields(fields):
@@ -994,6 +1017,7 @@ def fields_for(pid):
     also has to prove itself every time.
     """
     vtablemap.configure(pid)          # vtables first, or no scan finds anything
+    use_screen(pid)                   # and the drawing area, which every geometric answer needs
     fields = stored()
     if fields:
         root, nodes = quick_root(fields, pid)
