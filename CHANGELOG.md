@@ -10,6 +10,15 @@ lives in `ARCHITECTURE.md`. This file says only what moved.
 
 ## 2026-09-01
 
+- `tools/ck3/mapdata.py`, the static map layer: where a county is, what it borders, how far and
+  how long away another one is, and the de jure titles above it. Disk only - no save, no running
+  game - and nothing cached, because a cached map quietly disagrees with the player's own after
+  a patch or a new mod.
+- Province centres and adjacency come out of `provinces.png` itself: every pixel resolves to a
+  province or the build stops. 12750 provinces, 3476 counties with land, 3448 with neighbours.
+- Distance is approximate on purpose. A fixed 1.509 km per pixel spreads a third because the map
+  stretches with latitude, and a fitted projection measured worse on counties it had not seen.
+- Travel days come from the save's own `travel_plans`: 2.5 pixels a day over 234 plans.
 - `speech.answering(where)`: a block that has to produce a sentence and says so itself when it
   does not. An exception on its way out counts as silence as well, and is left to carry on. A
   block that already reported its own failure stays quiet, because that was a sentence.

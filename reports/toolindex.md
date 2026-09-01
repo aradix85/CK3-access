@@ -231,6 +231,20 @@ returns a pair, passed on as one thing, costs a run.
 |---|---|---|
 | `start_with_dll(exe_path, dll_path, arguments='')` | value | Starts exe_path suspended, loads dll_path into it, resumes the process. Returns the pid. |
 
+## ck3\mapdata.py
+*The static map layer: where a county is, what it borders, and how far away things are.*
+
+| call | returns | does |
+|---|---|---|
+| `province_colours()` | value | Colour -> province number, from `definition.csv`. The colour is the only link between the |
+| `province_image()` | value | The map as province numbers, one per pixel. |
+| `centres(numbers=None)` | dict | Province number -> (x, y), the mean of its pixels. |
+| `touching(numbers=None)` | value | Every pair of provinces whose pixels lie next to each other. |
+| `special_links()` | value | The connections the image cannot show: straits and ferries from `adjacencies.csv`. |
+| `province_kinds()` | value | Province number -> what it is, from `default.map`: sea, lake, river, impassable. |
+| `counties()` | value | County key -> its baronies' provinces, the de jure titles above it, and its name. |
+| `main()` | nothing | - |
+
 ## ck3\memory.py
 *Reads the interface of a running CK3 out of process memory.*
 
