@@ -285,9 +285,9 @@
  },
  {
   "name": "files that go into the repo",
-  "claimed": 55,
+  "claimed": 56,
   "measure": "repo_files",
-  "counting_rule": "files under the project folder that .gitignore does not exclude; on 23 August 2026 git ls-files --others --exclude-standard counted the same number. 45 until 25 August 2026, when the click round added tools/ck3/openers.py and reports/openers.json; 48 when the gui reader added tools/ck3/guimap.py; 47 when docsearch.py was taken out, because it reads only the working notes; 50 since the NVDA sleep-mode add-on added three files under tools/nvda/addon; 52 since the alignment added tools/ck3/pairing.py and reports/pairing.json; 53 since the database reader added tools/ck3/database.py; 51 since the two text-field reports were dropped on 28 August 2026, being the only files under reports that no claim covered and that nothing read; 52 since 29 August 2026, when the record layout got its own deriver in tools/ck3/model.py; 53 since 29 August 2026, when the numbering moved out of the save into tools/ck3/numbering.py; 54 since 31 August 2026, when the beta gate added tools/never_silent.py; 55 since 1 September 2026, when the static map layer added tools/ck3/mapdata.py"
+  "counting_rule": "files under the project folder that .gitignore does not exclude; on 23 August 2026 git ls-files --others --exclude-standard counted the same number. 45 until 25 August 2026, when the click round added tools/ck3/openers.py and reports/openers.json; 48 when the gui reader added tools/ck3/guimap.py; 47 when docsearch.py was taken out, because it reads only the working notes; 50 since the NVDA sleep-mode add-on added three files under tools/nvda/addon; 52 since the alignment added tools/ck3/pairing.py and reports/pairing.json; 53 since the database reader added tools/ck3/database.py; 51 since the two text-field reports were dropped on 28 August 2026, being the only files under reports that no claim covered and that nothing read; 52 since 29 August 2026, when the record layout got its own deriver in tools/ck3/model.py; 53 since 29 August 2026, when the numbering moved out of the save into tools/ck3/numbering.py; 54 since 31 August 2026, when the beta gate added tools/never_silent.py; 55 since 1 September 2026, when the static map layer added tools/ck3/mapdata.py; 56 since 1 September 2026, when the chain from a character to a place added tools/ck3/place.py"
  },
  {
   "name": "windows opened in the harvest round",
@@ -664,5 +664,41 @@
    "placed"
   ],
   "counting_rule": "titles for which county_for returns a county: a barony through its province, a county being one, anything above through its capital. The rest name no capital and hold no land, so they have no place at all"
+ },
+ {
+  "name": "key bindings in shortcuts.shortcuts",
+  "claimed": 909,
+  "measure": "shortcuts",
+  "arguments": [
+   "bindings"
+  ],
+  "counting_rule": "every name = \"keys\" line in game\\gui\\shortcuts.shortcuts, generic entries included; a name starting with an underscore is the engine generic entry for one key combination and not an action of the game; those are counted apart from the named actions"
+ },
+ {
+  "name": "named game actions with a shortcut",
+  "claimed": 229,
+  "measure": "shortcuts",
+  "arguments": [
+   "named"
+  ],
+  "counting_rule": "bindings whose name does not start with an underscore; a name starting with an underscore is the engine generic entry for one key combination and not an action of the game; those are counted apart from the named actions"
+ },
+ {
+  "name": "shortcuts a posted key can reach",
+  "claimed": 119,
+  "measure": "shortcuts",
+  "arguments": [
+   "plain"
+  ],
+  "counting_rule": "named actions whose keys carry no alt, ctrl or shift. The rest need a modifier, and a modifier cannot be posted into the game - measured 1 September 2026, see brief\\machine.md"
+ },
+ {
+  "name": "shortcuts that need a modifier",
+  "claimed": 110,
+  "measure": "shortcuts",
+  "arguments": [
+   "modified"
+  ],
+  "counting_rule": "named actions whose keys carry alt, ctrl or shift; the complement of the claim above, counted from the same file in the same pass"
  }
 ]

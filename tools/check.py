@@ -354,6 +354,36 @@ def map_layer(what):
     return _MAP[what]
 
 
+def shortcuts(what):
+    """How many key bindings the game defines, counted by kind.
+
+    **This claim exists because the number that stood here before was nine.** `windowmap` pressed
+    the function keys, found nine windows that way, and the documents carried "nine shortcuts" as
+    if that were the total. It was the total of what had been tried. The file binds 909.
+
+    The counting rule, and it matters because the raw total flatters: a name starting with an
+    underscore is the engine's generic entry for one key combination - `_alt_f7` - and not an
+    action of the game. Those are counted apart. What is left are the named game actions, split
+    by whether the binding needs shift, ctrl or alt.
+    """
+    path = os.path.join(paths.GAME, 'game', 'gui', 'shortcuts.shortcuts')
+    text = open(path, encoding='utf-8-sig', errors='replace').read()
+    rows = re.findall(r'^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"([^"]*)"', text, re.M)
+    named = [(n, k) for n, k in rows if not n.startswith('_')]
+    plain = [(n, k) for n, k in named if not re.search(r'alt|ctrl|shift', k, re.I)]
+    if what == 'bindings':
+        return len(rows)
+    if what == 'generic':
+        return len(rows) - len(named)
+    if what == 'named':
+        return len(named)
+    if what == 'plain':
+        return len(plain)
+    if what == 'modified':
+        return len(named) - len(plain)
+    raise KeyError('no such shortcut count: %r' % what)
+
+
 MEASURES = {'bytes': bytes_of, 'lines': lines_of, 'files': files_in,
             'json_field': json_field, 'json_keys': json_keys,
             'type_names': type_names_in_exe, 'widget_vtables': widget_vtables,
@@ -361,7 +391,8 @@ MEASURES = {'bytes': bytes_of, 'lines': lines_of, 'files': files_in,
             'mod_windows': mod_windows, 'harvest_total': harvest_total,
             'gui_merged': gui_merged, 'gui_templates': gui_templates,
             'gui_windows': gui_windows, 'gui_dlc': gui_dlc,
-            'database_entries': database_entries, 'map_layer': map_layer}
+            'database_entries': database_entries, 'map_layer': map_layer,
+            'shortcuts': shortcuts}
 
 
 
