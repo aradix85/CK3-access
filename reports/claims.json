@@ -588,5 +588,81 @@
    "brief\\stand.md",
    "brief\\taken.md"
   ]
+ },
+ {
+  "name": "provinces that appear on the map image",
+  "claimed": 12750,
+  "measure": "map_layer",
+  "arguments": [
+   "provinces"
+  ],
+  "counting_rule": "distinct province numbers whose colour occurs in map_data\\provinces.png; the definitions list more, and the difference is provinces no pixel carries",
+  "quoted_in": [
+   "brief\\meetwerk.md",
+   "brief\\taken.md"
+  ]
+ },
+ {
+  "name": "counties that hold land",
+  "claimed": 3476,
+  "measure": "map_layer",
+  "arguments": [
+   "counties"
+  ],
+  "counting_rule": "counties in landed_titles with at least one barony that names a province, mods merged in load order",
+  "quoted_in": [
+   "brief\\meetwerk.md"
+  ]
+ },
+ {
+  "name": "counties that have a neighbour",
+  "claimed": 3448,
+  "measure": "map_layer",
+  "arguments": [
+   "neighboured"
+  ],
+  "counting_rule": "counties with at least one other county touching them, over the touching provinces plus the special links in adjacencies.csv; lower than the counties with land because an island county can have none",
+  "quoted_in": [
+   "brief\\meetwerk.md"
+  ]
+ },
+ {
+  "name": "provinces that touch on the map image",
+  "claimed": 38506,
+  "measure": "map_layer",
+  "arguments": [
+   "pairs"
+  ],
+  "counting_rule": "unordered pairs of different province numbers that share an edge in provinces.png, water and impassables included; the special links of adjacencies.csv are not in this number"
+ },
+ {
+  "name": "titles in landed_titles",
+  "claimed": 17620,
+  "measure": "map_layer",
+  "arguments": [
+   "titles"
+  ],
+  "counting_rule": "blocks in landed_titles whose key starts with a tier letter, at every level of the nesting, mods merged in load order"
+ },
+ {
+  "name": "titles that name a capital",
+  "claimed": 2804,
+  "measure": "map_layer",
+  "arguments": [
+   "capitals"
+  ],
+  "counting_rule": "titles carrying a capital line; every one of those capitals is itself a county, which is what makes the step from a title to a place one hop",
+  "quoted_in": [
+   "brief\\meetwerk.md"
+  ]
+ },
+ {
+  "name": "titles that resolve to a county",
+  "claimed": 17577,
+  "measure": "map_layer",
+  "arguments": [
+   "placed"
+  ],
+  "counting_rule": "titles for which county_for returns a county: a barony through its province, a county being one, anything above through its capital. The rest name no capital and hold no land, so they have no place at all"
  }
 ]

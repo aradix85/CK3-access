@@ -39,6 +39,7 @@ returns a pair, passed on as one thing, costs a run.
 | `document_paths()` | 2-tuple | Every project path named in a document, checked against the disk. |
 | `mod_windows(part)` | value | Windows in the map whose gui file is not part of the game itself. |
 | `harvest_total(part, field)` | value | A number summed over the harvest records: how big the round was, and how good. |
+| `map_layer(what)` | value | A count of the static map layer, recomputed from the game files. |
 | `quoted_numbers(claims)` | 2-tuple | Claims that a document repeats, checked against the file that repeats them. |
 | `main(all_of_them)` | value | - |
 
@@ -242,7 +243,7 @@ returns a pair, passed on as one thing, costs a run.
 | `touching(numbers=None)` | value | Every pair of provinces whose pixels lie next to each other. |
 | `special_links()` | value | The connections the image cannot show: straits and ferries from `adjacencies.csv`. |
 | `province_kinds()` | value | Province number -> what it is, from `default.map`: sea, lake, river, impassable. |
-| `counties()` | value | County key -> its baronies' provinces, the de jure titles above it, and its name. |
+| `titles()` | value | Title key -> what it is, what land sits under it, which title it calls its capital, the de |
 | `main()` | nothing | - |
 
 ## ck3\memory.py

@@ -328,6 +328,32 @@ def harvest_total(part, field):
     return total
 
 
+_MAP = {}
+
+
+def map_layer(what):
+    """A count of the static map layer, recomputed from the game files.
+
+    Every one of these is held on the first call, because building the layer walks a 9216x4608
+    image: the first claim pays for it and the rest come free. They are here because the map layer
+    ships and a player hears what it says - how many counties border yours, and whether the capital
+    a title names resolves to a place at all. A mod that adds a county moves these numbers, and
+    that is exactly what a claim is for.
+    """
+    import mapdata
+    if not _MAP:
+        numbers = mapdata.province_image()
+        _MAP['pairs'] = len(mapdata.touching(numbers))
+        world = mapdata.Map()
+        _MAP['provinces'] = len(world.centres)
+        _MAP['counties'] = len(set(world.county_of.values()))
+        _MAP['neighboured'] = len(world.neighbours)
+        _MAP['titles'] = len(world.titles)
+        _MAP['capitals'] = sum(1 for row in world.titles.values() if 'capital' in row)
+        _MAP['placed'] = sum(1 for key in world.titles if world.county_for(key))
+    return _MAP[what]
+
+
 MEASURES = {'bytes': bytes_of, 'lines': lines_of, 'files': files_in,
             'json_field': json_field, 'json_keys': json_keys,
             'type_names': type_names_in_exe, 'widget_vtables': widget_vtables,
@@ -335,7 +361,7 @@ MEASURES = {'bytes': bytes_of, 'lines': lines_of, 'files': files_in,
             'mod_windows': mod_windows, 'harvest_total': harvest_total,
             'gui_merged': gui_merged, 'gui_templates': gui_templates,
             'gui_windows': gui_windows, 'gui_dlc': gui_dlc,
-            'database_entries': database_entries}
+            'database_entries': database_entries, 'map_layer': map_layer}
 
 
 
