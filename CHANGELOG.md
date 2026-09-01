@@ -34,6 +34,15 @@ keeps the numbers with the rule they were counted by. A changelog that may never
   than the 1600x900 that stood in the code. On this machine's 1920x1200 that constant refused 8995
   named widgets out of hand, among them over half the text the recogniser reads back off the
   screen, each with the word "off screen" that reads like a measurement.
+- Titles join the numbering read out of the running game, as a third shape: a database whose
+  record carries no key but a pointer to the object that does. Where that pointer sits and where
+  the key sits behind it are derived, not written down. All 17620 titles the files carry come out
+  of it, and the 819 the game holds beyond them are the save's own dynamic templates.
+- What a key may look like is now taken from the files rather than written by hand. That test had
+  been wrong four times - `yi`, `RICE_hafsa`, `d_al-qays`, `b_ka'abir` - and each time it threw
+  away a perfect reading while looking exactly like a moved offset.
+- `tools/ck3/place.py` walks the whole chain in one call: a character, the title it calls its
+  seat, that title's key from the running game, and the county the files put under it.
 
 ## 2026-08-31
 

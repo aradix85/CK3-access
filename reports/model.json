@@ -140,6 +140,11 @@
   "trait": {
    "array": 104,
    "key": 24
+  },
+  "title": {
+   "record": 1136,
+   "pointer": 352,
+   "key": 24
   }
  },
  "player_spots": [

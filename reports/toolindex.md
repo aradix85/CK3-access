@@ -288,7 +288,7 @@ returns a pair, passed on as one thing, costs a run.
 
 | call | returns | does |
 |---|---|---|
-| `on_disk(kind)` | set | Every key of this database as the files give it, mods merged in the engine's own order. |
+| `on_disk(kind)` | set of value | Every key of this database as the files give it, mods merged in the engine's own order. |
 | `keys(pid, kind)` | value | Number -> key, from the running game. Disk is used to prove the reading, never to make it. |
 | `derive_layout(pid, kind)` | value | Where the key sits in a record of this database, kept under the key of this exe. |
 | `main(pid)` | nothing | - |
@@ -335,6 +335,13 @@ returns a pair, passed on as one thing, costs a run.
 | `unexplained(count, kind, context, built, developer)` | nothing | The texts the gui files do not predict, split the way the decision needed them. |
 | `sweep()` | 3-tuple | Every harvested window paired, as one tally. Takes about three minutes. |
 | `main()` | nothing | - |
+
+## ck3\place.py
+*From a character in the running game to a place on the map.*
+
+| call | returns | does |
+|---|---|---|
+| `main(pid)` | nothing | Walk the chain and let it fail: the player, the coverage, and what memory holds extra. |
 
 ## ck3\savegame.py
 *Reads the game state from a save file - the answer key for searching in memory.*

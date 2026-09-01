@@ -32,34 +32,65 @@ sys.path.insert(0, os.path.dirname(HERE))
 import anchor
 import database
 import derive
+import mapdata
 import model
 
 PROJECT = os.path.dirname(os.path.dirname(HERE))
 MODEL = os.path.join(PROJECT, 'reports', 'model.json')
-# A key is an identifier, and both ends of that are wider than they look: two letters is enough,
-# because culture 49 is `yi`, and capitals occur, because RICE names its traits `RICE_hafsa`.
-# Asking for three lower-case letters rejected two perfectly good readings, and a rejected reading
-# looks exactly like a moved offset.
-KEY = re.compile(r'^[A-Za-z][A-Za-z0-9_]+$')
 
-# The class of each database, and which of the two shapes it has.
+# The class of each database, and which of the three shapes it has.
 CLASSES = {
     'culture': ('.?AV?$TPdxRefDatabase@VCCulture@@$07@@', 'blocks'),
     'faith': ('.?AV?$TPdxRefDatabase@VCFaith@@$07@@', 'blocks'),
     'religion': ('.?AV?$TPdxRefDatabase@VCReligion@@$07@@', 'blocks'),
     'trait': ('.?AVCTraitDatabase@@', 'array'),
+    'title': ('.?AV?$TPdxRefDatabase@VCLandedTitle@@$07@@', 'indirect'),
 }
-# Inside the header of a TPdxRefDatabase. These four are not derived, so every read proves them
+# Inside the header of a TPdxRefDatabase. These three are not derived, so every read proves them
 # again: the keys that come out have to be the keys the files on disk carry.
-HEAD = {'table': 8, 'blocks': 16, 'block_size': 40, 'count': 60}
+HEAD = {'table': 8, 'blocks': 16, 'count': 60}
+# **The field at +40 is not the block size, measured 1 September 2026.** It reads 1024 for
+# cultures, faiths and religions - the size they really use - and it read as the block size here
+# until titles came along, where it says 32768 while the database works in blocks of 1024, and
+# characters, where it says 131072. Three databases where the two coincided is a coincidence and
+# not a counting rule. `anchor.py` has carried 1024 by hand all along and that turns out to be
+# right; taking it from the header would have indexed the character database at 131072 and read
+# every field behind it quietly wrong.
+BLOCK = 1024
 CHUNK = 65536
 STRING = 32
 SAMPLE = 32
 POINTER = (0x10000000000, 0x800000000000)
 
 
+def _key_test(known):
+    """What a key of this database may look like, taken from the files rather than imagined.
+
+    **Written by hand this was wrong four times, and every time it looked like a moved offset.**
+    Three lower-case letters turned down `yi`, culture 49. Lower case only turned down
+    `RICE_hafsa`, which is how RICE names its traits. No hyphen turned down 379 titles -
+    `d_al-qays`, `k_galicia-volhynia`, `b_starodub-on-the-klyazma`. No apostrophe turned down
+    `b_mansa'l-kharaz` and `b_ka'abir`. Each of those readings was perfect and each was thrown
+    away by the judge rather than by the reading.
+
+    So the character set is the one the files use for this database, and a rejection now means
+    the game holds a key no file could have written. It stays a real test: the offsets that lose
+    here read struct padding and pointer halves, which carry bytes no key does.
+    """
+    letters = ''.join(sorted(set(''.join(known))))
+    return re.compile('^[A-Za-z][%s]+$' % re.escape(letters))
+
+
 def on_disk(kind):
-    """Every key of this database as the files give it, mods merged in the engine's own order."""
+    """Every key of this database as the files give it, mods merged in the engine's own order.
+
+    Titles come from `mapdata.titles` rather than `database.entries`, because `landed_titles`
+    nests five levels deep and a title is told from the other keys inside a block by its tier
+    letter. That walk lives in one place; repeating the rule here would give two answers to the
+    question of what a title key is.
+    """
+    if kind == 'title':
+        return set(mapdata.titles())
     return {key for key, _, _ in database.entries(kind)}
 
 
@@ -97,12 +128,18 @@ def _members(found, how_many=8):
 
 def _object(pid, kind):
     name, shape = CLASSES[kind]
-    valid = anchor.is_ref_database if shape == 'blocks' else _is_array_database
+    valid = _is_array_database if shape == 'array' else anchor.is_ref_database
     return anchor.object_of(pid, name, valid), shape
 
 
 def _places(pid, kind, layout):
-    """Per number the address where its key sits. The count comes from the database itself."""
+    """Per number the address where its key sits. The count comes from the database itself.
+
+    Three shapes end here. An array of definitions hands out its members directly. A block
+    database lays its records end to end and carries the key inside one. A title record carries
+    no key but a pointer to the object that does, so that one costs a read round before the
+    addresses are even known.
+    """
     address, shape = _object(pid, kind)
     if shape == 'array':
         head = derive.read(address, 256)
@@ -111,11 +148,21 @@ def _places(pid, kind, layout):
         return {n: struct.unpack_from('<Q', raw, n * 8)[0] + layout['key'] for n in range(count)}
     head = derive.read(address, 64)
     table, blocks = struct.unpack_from('<QI', head, HEAD['table'])
-    size = struct.unpack_from('<I', head, HEAD['block_size'])[0]
     count = struct.unpack_from('<I', head, HEAD['count'])[0]
     starts = struct.unpack('<%dQ' % blocks, derive.read(table, blocks * 8))
-    return {n: starts[n // size] + (n % size) * layout['record'] + layout['key']
-            for n in range(count)}
+    records = {n: starts[n // BLOCK] + (n % BLOCK) * layout['record'] for n in range(count)}
+    if shape == 'blocks':
+        return {n: at + layout['key'] for n, at in records.items()}
+    spots = {n: at + layout['pointer'] for n, at in records.items()}
+    raw = model.readmany(sorted(spots.values()), 8)
+    out = {}
+    for number, at in spots.items():
+        chunk = raw.get(at)
+        if chunk and len(chunk) == 8:
+            target = struct.unpack('<Q', chunk)[0]
+            if POINTER[0] <= target < POINTER[1]:
+                out[number] = target + layout['key']
+    return out
 
 
 def _read(pid, kind, layout):
@@ -129,9 +176,10 @@ def _holds(kind, count, found):
     """Does this reading prove itself? Every number has a well-formed key, and the great
     majority are keys the files carry. Not all of them: a player can found a faith or a culture,
     and those carry a key no file has - which is exactly why the numbering is read here."""
-    if len(found) != count or any(not KEY.match(text) for text in found.values()):
-        return False
     known = on_disk(kind)
+    shaped = _key_test(known)
+    if len(found) != count or any(not shaped.match(text) for text in found.values()):
+        return False
     return sum(1 for text in found.values() if text in known) >= 0.9 * count
 
 
@@ -153,11 +201,11 @@ def keys(pid, kind):
     return found
 
 
-def _key_at(chunk, at):
+def _key_at(chunk, at, shaped):
     """Is there a key here at all - short enough to sit in place, or behind a pointer?"""
     text = model.string_at(chunk, at)
     if text is not None:
-        return bool(KEY.match(text))
+        return bool(shaped.match(text))
     return model.long_string_at(chunk, at) is not None
 
 
@@ -207,7 +255,8 @@ def _derive_blocks(address, known):
     filled = struct.unpack_from('<I', head, HEAD['count'])[0]
     first = struct.unpack('<Q', derive.read(table, 8))[0]
     block = derive.read(first, CHUNK)
-    spots = [at for at in range(0, len(block) - STRING, 8) if _key_at(block, at)]
+    shaped = _key_test(known)
+    spots = [at for at in range(0, len(block) - STRING, 8) if _key_at(block, at, shaped)]
     record = _step(spots)
     # A block holds a thousand slots and a state fills far fewer, so only the filled ones count.
     # Religion has 424 bytes to a record: 154 of them fit in the chunk and 49 are filled, and
@@ -230,6 +279,7 @@ def _derive_array(address, known):
     the one whose order is the numbering.
     """
     head = derive.read(address, 256)
+    shaped = _key_test(known)
     scores = {}
     for at in range(0, 224, 8):
         found = _array_at(head, at)
@@ -240,7 +290,7 @@ def _derive_array(address, known):
         if len(chunks) < len(entries):
             continue
         for inside in sorted({spot for one in chunks.values()
-                              for spot in range(0, 512 - STRING, 8) if _key_at(one, spot)}):
+                              for spot in range(0, 512 - STRING, 8) if _key_at(one, spot, shaped)}):
             hits = _agrees(chunks, inside, known)
             if hits:
                 scores[(at, inside)] = hits
@@ -248,6 +298,65 @@ def _derive_array(address, known):
         raise SystemExit('no array of definitions in this database')
     at, inside = _winner(scores, 'array of definitions')
     return {'array': at, 'key': inside}
+
+
+def _pointers_at(block, at, rows, record):
+    """The value at this offset in every one of the first `rows` records, if all are pointers.
+
+    All of them, not most: an offset that is a pointer in nine records out of ten is a field that
+    sometimes holds one, and following it would read whatever happens to sit at a stray address.
+    """
+    out = {}
+    for n in range(rows):
+        value = struct.unpack_from('<Q', block, n * record + at)[0]
+        if not POINTER[0] <= value < POINTER[1]:
+            return None
+        out[n] = value
+    return out
+
+
+def _derive_indirect(address, known):
+    """A block database whose record holds no key but a pointer to the object that carries one.
+
+    The record length comes from the spacing of the pointers, the same way the block shape takes
+    it from the spacing of the keys: every record has the same layout, so the distance that turns
+    up most often between two pointer-shaped values is the record. Which of the pointers is the
+    one, and where the key sits behind it, is settled by the files on disk - exactly one pair
+    yields keys the files carry.
+
+    **The offset is kept relative to the pointer's value and not to the object it belongs to.**
+    Measured 1 September 2026: a title record points eight bytes past the start of its object,
+    and the key sits at +0x20 in that object, so the number stored here is 24. Folding the eight
+    in means nothing has to remember it, and nothing here has to know what the object is.
+    """
+    head = derive.read(address, 64)
+    table = struct.unpack_from('<Q', head, HEAD['table'])[0]
+    filled = struct.unpack_from('<I', head, HEAD['count'])[0]
+    first = struct.unpack('<Q', derive.read(table, 8))[0]
+    block = derive.read(first, CHUNK)
+    spots = [at for at in range(0, len(block) - 8, 8)
+             if POINTER[0] <= struct.unpack_from('<Q', block, at)[0] < POINTER[1]]
+    record = _step(spots)
+    rows = min(filled, len(block) // record, SAMPLE)
+    shaped = _key_test(known)
+    scores = {}
+    for at in sorted({spot % record for spot in spots}):
+        targets = _pointers_at(block, at, rows, record)
+        if not targets:
+            continue
+        chunks = model.readmany(sorted(set(targets.values())), 512)
+        by_slot = {n: chunks[where] for n, where in targets.items() if where in chunks}
+        if len(by_slot) < rows:
+            continue
+        for inside in sorted({spot for one in by_slot.values()
+                              for spot in range(0, 512 - STRING, 8) if _key_at(one, spot, shaped)}):
+            hits = _agrees(by_slot, inside, known)
+            if hits:
+                scores[(at, inside)] = hits
+    if not scores:
+        raise SystemExit('no pointer in a record of this database leads to a key on disk')
+    at, inside = _winner(scores, 'pointer to the key')
+    return {'record': record, 'pointer': at, 'key': inside}
 
 
 def _stored(kind):
@@ -261,7 +370,12 @@ def derive_layout(pid, kind):
     """Where the key sits in a record of this database, kept under the key of this exe."""
     address, shape = _object(pid, kind)
     known = on_disk(kind)
-    layout = _derive_blocks(address, known) if shape == 'blocks' else _derive_array(address, known)
+    if shape == 'blocks':
+        layout = _derive_blocks(address, known)
+    elif shape == 'indirect':
+        layout = _derive_indirect(address, known)
+    else:
+        layout = _derive_array(address, known)
     stored = json.load(open(MODEL, encoding='utf-8'))
     stored['key'] = derive.build_key()
     stored.setdefault('databases', {})[kind] = layout
