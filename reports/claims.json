@@ -598,8 +598,7 @@
   ],
   "counting_rule": "distinct province numbers whose colour occurs in map_data\\provinces.png; the definitions list more, and the difference is provinces no pixel carries",
   "quoted_in": [
-   "brief\\meetwerk.md",
-   "brief\\taken.md"
+   "brief\\meetwerk.md"
   ]
  },
  {
@@ -727,5 +726,32 @@
    "unbound"
   ],
   "counting_rule": "named actions whose key string is empty - event_option_14, menu_14, sub_tab_14, tab_14. They are declared and reachable by nothing, and counting them among the pressable keys is what made 119 out of 115"
+ },
+ {
+  "name": "building boxes in the ledger",
+  "claimed": 18,
+  "measure": "ledger_buildings",
+  "arguments": [
+   "boxes"
+  ],
+  "counting_rule": "widget_building_item_ledger nodes in the expanded ledger_window; the boxes that show a holding’s buildings"
+ },
+ {
+  "name": "widgets in a ledger building box that can act",
+  "claimed": 18,
+  "measure": "ledger_buildings",
+  "arguments": [
+   "acting"
+  ],
+  "counting_rule": "widgets inside those boxes carrying onclick, onrightclick, shortcut or ondoubleclick - exactly one per box, the building_button itself, so nothing drawn over it can swallow a click"
+ },
+ {
+  "name": "ledger building buttons that still reach the holding view",
+  "claimed": 0,
+  "measure": "ledger_buildings",
+  "arguments": [
+   "opens_holding_view"
+  ],
+  "counting_rule": "of those acting widgets, the ones whose surviving action names holding_view; the call on line 8338 is overwritten by the onclick on 8339, so this is zero and the last untried route to the holding view is shut"
  }
 ]

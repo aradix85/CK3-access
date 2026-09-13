@@ -149,6 +149,55 @@ def gui_windows():
     return len(guimap.windows())
 
 
+_LEDGER = {}
+
+
+def ledger_buildings(what):
+    """What a building box in the ledger can actually do when it is clicked.
+
+    **This claim exists because a door was called open for a fortnight on a
+    reading of the file.** `window_ledger.gui` gives `building_button` two
+    onclicks: line 8338 opens `holding_view`, line 8339 calls
+    `GUIBuildingItem.OnClick`. Two keys in one block mean the later one wins, so
+    the expansion keeps only the second and the holding view is never opened -
+    the same shadowing that killed the camp window's move button. Measured
+    13 September 2026 and confirmed by three clicks on three different boxes in
+    the running game, none of which drew `holding_view`.
+
+    `boxes` counts `widget_building_item_ledger` nodes in the expanded ledger.
+    `acting` counts widgets inside those boxes carrying onclick, onrightclick,
+    shortcut or ondoubleclick - one per box, so nothing lies on top that could
+    swallow the click. `opens_holding_view` counts the ones that still reach the
+    holding view, and it is the number that shuts the door.
+    """
+    import guimap
+    doing = ('onclick', 'onrightclick', 'shortcut', 'ondoubleclick')
+
+    def walk(node):
+        yield node
+        for child in node.get('children') or ():
+            if isinstance(child, dict):
+                yield from walk(child)
+
+    if not _LEDGER:
+        tree, _ = guimap.window('ledger_window')
+        boxes = [n for n in walk(tree) if n.get('type') == 'widget_building_item_ledger']
+        acting = 0
+        reaching = 0
+        for box in boxes:
+            for node in walk(box):
+                pairs = {k: v for k, v in (node.get('attrs') or ()) if k}
+                actions = [pairs[k] for k in doing if k in pairs]
+                if actions:
+                    acting += 1
+                if any('holding_view' in str(value) for value in actions):
+                    reaching += 1
+        _LEDGER.update(boxes=len(boxes), acting=acting, opens_holding_view=reaching)
+    if what not in _LEDGER:
+        raise KeyError('no such ledger building count: %r' % what)
+    return _LEDGER[what]
+
+
 DLC_CHECK = re.compile(r"HasDlcFeature\(\s*'([^']+)'\s*\)")
 
 
@@ -447,6 +496,7 @@ MEASURES = {'bytes': bytes_of, 'lines': lines_of, 'files': files_in,
             'mod_windows': mod_windows, 'harvest_total': harvest_total,
             'gui_merged': gui_merged, 'gui_templates': gui_templates,
             'gui_windows': gui_windows, 'gui_dlc': gui_dlc,
+            'ledger_buildings': ledger_buildings,
             'database_entries': database_entries, 'map_layer': map_layer,
             'shortcuts': shortcuts, 'shortcut_words': shortcut_words}
 

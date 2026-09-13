@@ -9,6 +9,21 @@ and an entry a later measurement overturns is taken out rather than left standin
 beside it: git keeps the text, `ARCHITECTURE.md` keeps the reasoning, and `reports/claims.json`
 keeps the numbers with the rule they were counted by. A changelog that may never forget only grows.
 
+## 2026-09-13
+
+- The map layer is done. The two windows that were still hanging off it are not open work but a
+  measured property of the game: neither the move-domicile planner nor the holding view can be
+  opened from anything this project can drive. Three claims in `reports/claims.json` carry the
+  number that shuts the door.
+- The ledger's building button is the case worth knowing, because it reads as a working route in
+  the file: `window_ledger.gui` gives it two onclicks, the first opening the holding view and the
+  second calling `GUIBuildingItem.OnClick`. Two keys in one block mean the later one wins, so the
+  expansion keeps only the second and the holding view is never reached. Confirmed by clicking
+  three different boxes in a running game; none drew the window.
+- `check.py` gained `ledger_buildings`, which counts this from the expanded gui set without the
+  game running. The lesson generalises: for a button with two onclicks, ask the expansion what
+  survives before reaching for the game.
+
 ## 2026-09-01
 
 - `tools/ck3/mapdata.py`, the static map layer: where a county is, what it borders, how far and
