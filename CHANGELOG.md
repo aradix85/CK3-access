@@ -67,58 +67,42 @@ keeps the numbers with the rule they were counted by. A changelog that may never
 
 ## 2026-08-24 – 2026-08-30 — the sweep, and joining the tree to the files
 
-- **The sweep.** 203 of the 218 windows the gui files declare are harvested widget by widget, with
-  a capture and the recogniser's reading beside each one. The fifteen refusals are records with a
-  reason, not gaps: they wait on a state, not on a culture or an era.
-- **A window has to be opened the way a player opens it**, or the record holds captions and no data:
-  6.6 text boxes per window through the console against 23.7 through a shortcut and 32.8 through a
-  click. `tools/ck3/harvest.py` knows all the routes; `tools/ck3/openers.py` measures which button
-  opens which window by pressing it, because nothing on disk binds a view name to a window.
-- **`tools/ck3/pairing.py` joins the two trees on structure rather than on name**, so meaning in the
-  gui files reaches the widgets that carry none — more than nine in ten of the ones showing text.
-  Names stay out of the alignment and score it instead: 98.4 per cent land right.
-- **`tools/ck3/guimap.py` parses the gui format properly** and expands a window into the tree the
-  engine would build, off disk, with the three engine layers and the active mods merged in load
-  order. Load order carries meaning: the last definition of a template wins.
-- **`tools/ck3/model.py` derives the character record instead of writing it down** — eighteen
-  fields, reproducing at the same offsets the three that had been measured by hand — and checks
-  itself at start-up on four predictions that fail if an offset moved. `tools/ck3/calibrate.py`
-  holds four hundred characters against a save and names the field that disagrees.
-- **Seven fields are recomputed around loading**, so the save a state was loaded *from* is not a
-  valid answer key for them; `calibrate.py` reports those apart from a genuinely moved offset.
-- **Numbers become names without a save.** `tools/ck3/database.py` reads the game's own databases
-  the way the engine merges them — all 463 culture keys also resolve in the localisation files,
-  which is what says the reader read the right part — and `tools/ck3/numbering.py` takes the
-  numbering out of the running game, because memory carries the numbering of the save that was
-  loaded and against another state 2 of 237 faiths come out right.
-- **`model.player` reads the played character out of the running game**, kept in six places inside
-  the module; the harvest asks before every window, because a state moved to another character
-  looks perfectly normal from the tree.
-- **Visibility got its remaining two mechanisms.** Alpha and the window flag are derived by changing
-  the state rather than hard-coded; a row scrolled out of its list keeps alpha 1.0; and anything
-  that clicks needs the nearest window ancestor to be drawn, not just alpha and size.
+- **The sweep.** 203 of the 218 windows the gui files declare are harvested widget by widget. The
+  fifteen refusals are records with a reason: they wait on a state, not on a culture or an era.
+- **A window has to be opened the way a player opens it**, or the record holds captions and no
+  data: 6.6 text boxes per window through the console, 23.7 through a shortcut, 32.8 through a
+  click. `harvest.py` knows all the routes; `openers.py` measures which button opens which window
+  by pressing it, because nothing on disk binds a view name to a window.
+- **`pairing.py` joins the two trees on structure rather than name**, so meaning reaches the
+  widgets carrying none — more than nine in ten of those showing text. Names stay out of the
+  alignment and score it instead: 98.4 per cent land right.
+- **`guimap.py` parses the gui format properly** and expands a window off disk, three engine layers
+  and active mods merged in load order — which carries meaning, since the last definition wins.
+- **`model.py` derives the character record instead of writing it down**, and checks itself at
+  start-up on predictions that fail if an offset moved. `calibrate.py` holds four hundred
+  characters against a save and names the field that disagrees. Seven fields are recomputed around
+  loading, so the save a state was loaded *from* is not a valid answer key for them.
+- **Numbers become names without a save.** `database.py` reads the game's own databases the way the
+  engine merges them; `numbering.py` takes the numbering out of the running game, because memory
+  carries the numbering of the save that was loaded — against another state, 2 of 237 faiths are
+  right.
+- **`model.player` reads the played character out of the running game**, and the harvest asks
+  before every window: a state moved to another character looks perfectly normal from the tree.
+- **Visibility got its remaining mechanisms**, all derived rather than hard-coded, and anything
+  that clicks needs the nearest window ancestor to be drawn — not just alpha and size.
 - **Draw order lives in one place and was nearly lost:** the harvest sorted children by address and
-  destroyed the engine's order, which decides what is drawn on top. Every widget now records its
-  sibling index, and with that kept the two trees line up child by child.
-- **A capture is taken with the console shut**, after a whole sweep came out blind on the left third
-  of the screen with nothing to say so; each record now carries how many of its own text boxes the
-  recogniser read back.
-- **The window reader counts both shapes a window is declared in: 218 where it read 196.** The 22 it
-  had missed are the scheme conclusions, the event windows and the confirmation dialogs — the ones a
-  player cannot get past.
-- **No window is gated behind an expansion.** Over all of them, not one window block carries a DLC
-  check: a missing expansion takes away parts of a window, never the window.
-- **`tools/nvda/speech.py`: braille is no longer optional**, and the call is `output` rather than
-  `speak`, since speaking is half of what it does. `tools/nvda/addon/` puts NVDA in sleep mode while
-  the game has focus, so the reader is not talked over and keeps the keys it needs.
-- **Everything public is English** — names, comments, messages, the channel protocol, report keys.
-- **`tools/check.py` grew two teeth:** a number a public document quotes is held to the measured
-  value, and a bare file name in backticks has to exist. The second closed a real hole — the
-  documentation promised a recovery file that was never there.
-- **A modifier key cannot be posted into the game**, which reads raw input from the device. Nothing
-  in the product needs one; see `ARCHITECTURE.md`, section 4.
-- **Hovering cannot be provoked from outside the process.** That settles that the game does not see
-  our cursor — not that tooltips live outside the widget tree.
+  destroyed the engine's order. Every widget now records its sibling index.
+- **The window reader counts both shapes a window is declared in: 218 where it read 196.** The 22
+  it missed are the event windows and confirmation dialogs — the ones a player cannot get past.
+- **No window is gated behind an expansion:** a missing DLC takes away parts of a window, never the
+  window.
+- **Braille is no longer optional** in the speech seam, and `tools/nvda/addon/` puts NVDA in sleep
+  mode while the game has focus, so the reader is not talked over and keeps the keys it needs.
+- **Everything public is English**, and `check.py` grew two teeth: a number a public document
+  quotes is held to the measured value, and a bare file name in backticks has to exist.
+- **A modifier key cannot be posted into the game**, and **hovering cannot be provoked from outside
+  the process** — which settles that the game does not see our cursor, not that tooltips live
+  outside the widget tree.
 
 ## 2026-08-23 — first public source
 
