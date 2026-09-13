@@ -61,8 +61,10 @@ whether a player can see it. Four mechanisms decide that, and all four are neede
 - **Alpha along the whole parent chain**, not on the widget itself.
 - **Clipping.** A row scrolled past the end of its list keeps alpha 1 and a rectangle; what decides
   it is the frame of the nearest scroll area above it.
-- **Geometry.** A widget can be laid outside the drawing area entirely — four tabs side by side at
-  x1555 to x1690 on a screen 1600 wide, all at alpha 1, one of them visible.
+- **Geometry.** A widget can be laid outside the drawing area entirely, and not marginally: across
+  the harvested windows, 76 of 203 place a drawn button outside it, some as far as x2315 — wider
+  than this machine's screen. A larger resolution only half solves it and a tester has other
+  measurements anyway, so it is a property to live with rather than a setting.
 
 Sibling draw order is a separate question and answers a different one: which of several drawn
 windows is on top. Without it the tooling reads the wrong event when two are stacked.
@@ -89,8 +91,8 @@ nothing, and a button with no action passes the click on to what is under it —
 ledger's category tabs, each of which is covered completely by such a button.
 
 **A modifier key cannot be sent inward** — a key message carries no modifier state and the game
-reads that through raw input. Nothing needs it: of 705 bindings using a modifier, one opens a
-window, and that window has an ordinary button.
+reads that through raw input. Nothing needs it: exactly one binding that uses a modifier names a
+window in the map, the ledger on shift+F1, and that window opens with an ordinary button.
 
 ## 5. Reading the game
 
@@ -147,7 +149,9 @@ row on disk has to be allowed to become many live rows.
 
 **Four things about the gui format that a line-based reader gets wrong.** Load order carries
 meaning, because the last definition of a template wins. The same last-wins rule applies inside a
-block: `onclick` may be written twice, and only the second one fires. `block "x"` and `block = "x"`
+block: `onclick` may be written twice, and only the second one fires. That is not a curiosity — it
+has killed two routes that read as working in the file, so check what the expansion keeps before
+concluding a button opens anything. `block "x"` and `block = "x"`
 both occur. And a tooltip contains widgets with tooltips of their own, without end, so the expansion
 has to stop there.
 

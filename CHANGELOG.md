@@ -11,18 +11,15 @@ keeps the numbers with the rule they were counted by. A changelog that may never
 
 ## 2026-09-13
 
-- The map layer is done. The two windows that were still hanging off it are not open work but a
-  measured property of the game: neither the move-domicile planner nor the holding view can be
-  opened from anything this project can drive. Three claims in `reports/claims.json` carry the
-  number that shuts the door.
-- The ledger's building button is the case worth knowing, because it reads as a working route in
-  the file: `window_ledger.gui` gives it two onclicks, the first opening the holding view and the
-  second calling `GUIBuildingItem.OnClick`. Two keys in one block mean the later one wins, so the
-  expansion keeps only the second and the holding view is never reached. Confirmed by clicking
-  three different boxes in a running game; none drew the window.
-- `check.py` gained `ledger_buildings`, which counts this from the expanded gui set without the
-  game running. The lesson generalises: for a button with two onclicks, ask the expansion what
-  survives before reaching for the game.
+- The map layer is done. The two windows still hanging off it are not open work but a measured
+  property of the game: neither the move-domicile planner nor the holding view can be opened by
+  anything this project can drive.
+- The ledger's building button is the case worth knowing, because the file reads like a working
+  route: it carries two onclicks, the first opening the holding view and the second not, and only
+  the second fires. Clicking three of them in a running game drew nothing, as the expansion had
+  already said it would.
+- `check.py` gained `ledger_buildings`, which counts that off disk with no game running. For a
+  button with two onclicks, ask the expansion what survives before starting the game.
 
 ## 2026-09-01
 

@@ -15,8 +15,8 @@ process and from files already on your disk.
 
 ## What works
 
-- **The channel.** An injected DLL answers about 25 seconds after launch, reads the widget tree, and
-  posts mouse and key input from inside the process — it never takes focus off your screen.
+- **The channel.** An injected DLL answers about twenty seconds after launch, reads the widget tree,
+  and posts mouse and key input from inside the process — it never takes focus off your screen.
 - **It survives a patch.** Every offset is derived from the running game and rechecked at each
   start. Against build 1.16.2 one had moved, and it recovered on its own.
 - **An event reads end to end** — title, description, options — straight out of memory, checked
@@ -58,8 +58,10 @@ goes today.
     python tools\paths.py                       prints where it found the game and your saves
     python tools\ck3\start_game.py              starts CK3 with the channel inside it
 
-`start_game.py` returns as soon as the channel answers, about 25 seconds in; the interface needs
-several minutes more before there is anything to ask about. From there `tools/ck3/derive.py` derives
+`start_game.py` returns as soon as the channel answers, about twenty seconds in; the interface needs
+another five to nine minutes before there is anything to ask about — measured at eight and a half on
+a machine that was busy. It is loading, not hung: the game's working set climbs past 13 GB before
+the main menu appears. From there `tools/ck3/derive.py` derives
 the field offsets, `tools/ck3/channel.py` talks to the DLL, and `reports/toolindex.md` lists every
 call with its arguments and the shape of what it returns.
 
