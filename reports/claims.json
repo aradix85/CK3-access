@@ -485,7 +485,6 @@
   ],
   "counting_rule": "top-level keys in common/culture/cultures, game folder first and the five mods after it in load order, a file replacing the one at the same name. 244 without the mods; RICE brings most of the rest",
   "quoted_in": [
-   "CHANGELOG.md",
    "brief\\stand.md"
   ]
  },
