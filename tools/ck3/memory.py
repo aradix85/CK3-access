@@ -3,7 +3,11 @@
 Finds the field offsets again at every start instead of writing them down, so that a patch which
 shifts the layout gives a clear failure instead of nonsense.
 """
-import ctypes, struct, re, os, sys
+import ctypes
+import struct
+import re
+import os
+import sys
 from ctypes import wintypes
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

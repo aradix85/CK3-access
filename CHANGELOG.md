@@ -9,6 +9,28 @@ and an entry a later measurement overturns is taken out rather than left standin
 beside it: git keeps the text, `ARCHITECTURE.md` keeps the reasoning, and `reports/claims.json`
 keeps the numbers with the rule they were counted by. A changelog that may never forget only grows.
 
+## 2026-09-16
+
+- An empty result stays quiet. A keystroke that turns up nothing says nothing, and the wrapper
+  that used to speak on every empty handler is gone along with the counter under it. Only a real
+  fault speaks, through `failure`. A sentence at every end of a list is noise you hear again on
+  every list.
+- The speech seam is two functions, `output` and `failure`, and 82 lines shorter. What went with
+  the wrapper: a three-class sink hierarchy replaced by one swappable module attribute, which is
+  all Python needs to let a test put a recorder in the client's place.
+- The beta gate is two steps instead of five, both of them a real failure path. The three that
+  exercised the detector against handlers written to make it fire proved nothing about the
+  product. It needs no screen reader now, so it talks over nobody, and it checks that braille
+  arrived beside every spoken sentence — the one defect measured in the Fallout 4 accessibility
+  mod, and invisible to anyone who only listens.
+- First tests and first lint configuration: `pytest` over `tests/`, `ruff` over everything, both
+  configured in `pyproject.toml`. Five tests on the seam, validated by breaking it — dropping
+  braille fails two, dropping the failure sentence fails three.
+- tools/nvda/test_speech.py is now `tools/nvda/check_speech_by_ear.py`. Under the old name pytest
+  collected it, and importing it runs it, so a test run would have started speaking.
+- A braille text may differ from the spoken one, as the exception it was meant to be, with the
+  reason at the call site.
+
 ## 2026-09-13
 
 - The map layer is done. The two windows still hanging off it are not open work but a measured
@@ -35,8 +57,6 @@ keeps the numbers with the rule they were counted by. A changelog that may never
 - The model derives a nineteenth field, `realm_capital`, which is the title a character calls its
   seat. Going from that number to the title's key is arithmetic on the database blocks rather than
   a scan, checked over three hundred slots against the save.
-- `speech.answering(where)`: a block that has to produce a sentence and says so when it does
-  not. An exception counts as silence too, and is left to carry on.
 - Three more steps in `tools/never_silent.py`, none of them needing a running game.
 - The pairing splits the texts the gui files cannot foretell: 631 of 1754, of which 417 inherit
   a data context. Of the 470 in windows a player opens, four are a bare number.

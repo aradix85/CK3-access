@@ -1,0 +1,26 @@
+# Tooling configuration. Windows only; what to install is in requirements.txt.
+#
+# There is no package here to build: `tools\` is a set of scripts that are run in place, and the
+# imports rely on that. This file exists for ruff and pytest and nothing else.
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+# The default set is E4, E7, E9 and F, and that is the whole selection. **No line-length rule**,
+# decided 16 September 2026 after measuring what one would cost: 20 lines between 101 and 107
+# characters across ten files, none of them hard to read, and the maintainer does not read the
+# source at all. A rule that produces twenty chores on the day it is switched on, for a reader who
+# does not exist yet, is the kind of check people learn to ignore. Add one when a contributor asks.
+
+# **E402 is ignored, and this is the reason rather than a shrug.** Almost every script here puts
+# `tools`, `tools\nvda` and `tools\ck3` on the path before importing from them, because they are
+# run in place and are not a package. That places imports after code by design, 55 times measured
+# on 16 September 2026. Leaving the rule on would mean 55 deliberate hits beside any real one,
+# and that is how a check gets ignored.
+ignore = ["E402"]
+
+[tool.pytest.ini_options]
+# Only `tests\` is collected. Anything under `tools\` that is run by hand speaks through NVDA and
+# sleeps, so collecting it would make a test run talk - see tools\nvda\check_speech_by_ear.py.
+testpaths = ["tests"]

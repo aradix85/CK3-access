@@ -31,6 +31,7 @@ returns a pair, passed on as one thing, costs a run.
 | `gui_merged(with_mods)` | value | Gui files as the engine sees them: the three layers merged, mods on top. |
 | `gui_templates(scope)` | value | Templates in the merged set. `type` and `template` are global, `local_type` is not. |
 | `gui_windows()` | value | - |
+| `ledger_buildings(what)` | value | What a building box in the ledger can actually do when it is clicked. |
 | `gui_dlc(what)` | value | How the gui set gates content behind an expansion, counted over the merged files. |
 | `guimap_files()` | value | - |
 | `database_entries(kind, what, save=None)` | value | Entries of one of the game's databases, merged the way the engine merges them. |
@@ -46,14 +47,11 @@ returns a pair, passed on as one thing, costs a run.
 | `main(all_of_them)` | value | - |
 
 ## never_silent.py
-*The proof behind the beta gate: every failure speaks, and none of them is silent.*
+*The proof behind the beta gate: a failure speaks instead of falling silent.*
 
 | call | returns | does |
 |---|---|---|
 | `link_taken_away()` | nothing | Ask the channel something over a pipe name that cannot exist. |
-| `said_nothing()` | nothing | A keystroke that does its work and says nothing. The detector has to notice. |
-| `said_something()` | nothing | The counter-test: a keystroke that answers keeps its own sentence and gets no other. |
-| `broke_without_a_word()` | nothing | A keystroke whose work raises and says nothing. |
 | `field_moved(pid, fields)` | nothing | Move an offset in a copy of the derivation and let the ordinary start path trip over it. |
 | `main()` | nothing | Ask for the game first, because that answer decides how honest the first step can be. |
 
@@ -414,8 +412,9 @@ returns a pair, passed on as one thing, costs a run.
 
 | call | returns | does |
 |---|---|---|
+| `client()` | value | - |
 | `nvda_running()` | value | - |
 | `silence()` | nothing | - |
-| `output(text, mode=REPLACE, braille=None)` | nothing | Speak and write to the braille display. braille=None means: the same text. |
+| `output(text, mode=REPLACE, braille=None)` | nothing | Speak, and write to the braille display in the same breath. |
 | `failure(where, what, remedy, mode=REPLACE)` | value | The exit for a failure: one sentence carrying where, what, and what to do now. |
 

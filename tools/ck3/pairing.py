@@ -151,13 +151,17 @@ def align_row(disk, live, root):
     while i or j:
         step = came[i][j]
         if step == 'pair':
-            out.append((disk[i - 1], live[j - 1])); i -= 1; j -= 1
+            out.append((disk[i - 1], live[j - 1]))
+            i -= 1
+            j -= 1
         elif step == 'repeat':
-            out.append((disk[i - 1], live[j - 1])); j -= 1
+            out.append((disk[i - 1], live[j - 1]))
+            j -= 1
         elif step == 'disk':
             i -= 1
         else:
-            out.append((None, live[j - 1])); j -= 1
+            out.append((None, live[j - 1]))
+            j -= 1
     return list(reversed(out))
 
 

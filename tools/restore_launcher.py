@@ -4,7 +4,10 @@ Meant for one case: the game no longer starts. Run it with
 `python tools/restore_launcher.py`; it says out loud whether it worked, and if you hear nothing at
 all it did not run. Steam's own "verify integrity of game files" is the second net behind this one.
 """
-import hashlib, os, shutil, sys
+import hashlib
+import os
+import shutil
+import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'nvda'))
@@ -23,9 +26,9 @@ def sha256(path):
 shutil.copyfile(ORIGINAL, TARGET)
 
 if sha256(ORIGINAL) == sha256(TARGET):
-    message, braille = 'Launcher restored to the original. Start the game through Steam.', 'restored'
+    message = 'Launcher restored to the original. Start the game through Steam.'
 else:
-    message, braille = 'Restore failed. The files still differ.', 'failed'
+    message = 'Restore failed. The files still differ.'
 
-speech.output(message, braille=braille)
+speech.output(message)
 print(message)

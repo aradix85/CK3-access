@@ -179,25 +179,36 @@ pass that sorts the children destroys the only copy.
 
 ## 7. Speech — `tools/nvda/speech.py`
 
-One function: text, braille text, mode. **Braille is never optional** — a seam a caller can forget a
-channel in loses that channel eventually. Behind it, the official NVDA controller client rather than
-Tolk. **It is LGPL 2.1, so it must be linked dynamically and shipped unchanged.**
+Two functions. `output(text, mode, braille)` says something; `failure(where, what, remedy)` says
+something went wrong. That is the whole layer and it is meant to stay that way.
+
+**Braille is never optional** — a seam a caller can forget a channel in loses that channel
+eventually. The Fallout 4 accessibility mod lost its braille display that way, and the Skyrim
+Access mod never calls `brailleMessage` at all. A braille text that differs from the speech is
+allowed but is the exception and needs a reason at the call site; a shorter wording of the same
+sentence is not one. Behind it, the official NVDA controller client rather than Tolk. **It is
+LGPL 2.1, so it must be linked dynamically and shipped unchanged.**
 
 Two modes, replace and queue. Priority-with-resume was rejected: it interrupts and then carries on
-with the old sentence. Keeping the seam thin is deliberate — swapping in Prism or SRAL for other
-screen readers should be a day's work.
+with the old sentence. NVDA's own `next` priority is not used either — it can discard speech that
+is already waiting rather than overtaking it. Keeping the seam thin is deliberate: swapping in
+Prism or SRAL for other screen readers should be a day's work.
 
-**A failure has its own exit beside that one.** `failure(where, what, remedy)` turns a failure into
-one sentence a player can act on — no error code, no path, no exclamation mark without words —
-because a tester who hears nothing cannot report anything at all. It is the one place in the seam
-allowed to swallow: it writes the sentence out before it speaks it, so an exit that cannot reach
-NVDA still cannot lose the message. Everywhere else a failure breaks where it happens.
-`tools/never_silent.py` is the proof, and it is the gate in front of a beta.
+**Nothing speaks when there is nothing to say.** A keystroke that turns up an empty list stays
+quiet, and there is no wrapper that checks whether a handler produced anything. Only a real fault
+speaks. `failure` turns one into a sentence a player can act on — no error code, no path, no
+exclamation mark without words. It is the one place in the seam allowed to swallow: it writes the
+sentence out before it speaks it, so an exit that cannot reach NVDA still cannot lose the message.
+Everywhere else a failure breaks where it happens. `tools/never_silent.py` is the proof, two real
+failure paths, and it is the gate in front of a beta.
 
-**And a keystroke that produces nothing says so.** `answering(where)` counts the sentences that
-leave the seam around a block and speaks when the count did not move — an exception on its way out
-counts as silence as well, and is left to carry on. Silence is the failure a blind tester cannot
-report.
+The NVDA client is a module attribute built on first use, so a test can put a recorder in its
+place. That one indirection is all the seam has, and it is why the tests and the gate need no
+screen reader.
+
+No worker thread: this runs in its own process beside the game and handing over a sentence costs
+0.44 ms, so there is nothing to absorb. A plugin living inside the game needs one, which is why
+the Skyrim Access mod has it.
 
 ## What is deliberately not done
 

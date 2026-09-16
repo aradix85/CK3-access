@@ -1,18 +1,16 @@
-"""The proof behind the beta gate: every failure speaks, and none of them is silent.
+"""The proof behind the beta gate: a failure speaks instead of falling silent.
 
 Run it before every beta with `python tools/never_silent.py`. It takes the link with the game
-away, it moves a field offset, it lets a keystroke say nothing and lets another break without a word,
-and it counts the sentences that reached the speech seam. Different sentences and no silence is a
-pass; anything else names the step that stayed quiet.
+away and it moves a field offset, and both have to produce a sentence. Two steps, both of them a
+real failure path in the product - there is nothing here that exercises the seam against handlers
+written to make it fire.
 
-Counting rather than listening, because nothing can read back what NVDA said: this wraps the one
-exit every sentence passes through and records what was handed to it. The player hears that same
-seam, so a sentence counted here is a sentence spoken - and it really is spoken, the wrapper
-passes it on.
+It puts a recorder in place of the NVDA client, so it needs no screen reader, talks over nobody,
+and can check that braille arrived beside every spoken sentence. That last one is the defect
+measured in the Fallout 4 mod and invisible to anyone who only listens.
 
-Silence is the failure mode a blind tester cannot report. A tester who hears nothing does not
-know whether the window was empty, the tool fell over, or the game did something else, so this
-proof is the gate: without it every other test is worth less than it looks.
+**An empty answer is not a failure.** A keystroke that turns up nothing stays quiet; only a fault
+speaks. So this proves what the failure exit does, and nothing about how much the layer says.
 """
 import json
 import os
@@ -29,23 +27,15 @@ import derive
 
 sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 
-_spoken = []
-_seam = speech.output
-
-
-def _record(text, mode=speech.REPLACE, braille=None):
-    _spoken.append(text)
-    _seam(text, mode, braille)
-
-
-speech.output = _record
+heard = speech.Recorder()
+speech._client = heard
 
 
 def _sentences_from(step, work):
     """Run one step and return the sentences it produced, or stop if it produced none."""
-    before = len(_spoken)
+    before = len(heard.spoken)
     work()
-    said = _spoken[before:]
+    said = heard.spoken[before:]
     if not said:
         raise SystemExit('SILENT: %s failed without a word. That is the whole point of this '
                          'proof, so nothing else here matters until it speaks.' % step)
@@ -59,13 +49,13 @@ def _silence_expected(step, work):
     step would speak whether or not anything was moved - a measurement that does not move with
     what you change. So first prove the untouched derivation stays quiet.
     """
-    before = len(_spoken)
+    before = len(heard.spoken)
     work()
-    if len(_spoken) > before:
+    if len(heard.spoken) > before:
         raise SystemExit('%s spoke, and it had no reason to: %s\nThat is most likely a game '
                          'sitting on the main menu, where the recheck turns down a derivation '
                          'that is perfectly good. Load a save and run this again.'
-                         % (step, _spoken[-1]))
+                         % (step, heard.spoken[-1]))
 
 
 def link_taken_away():
@@ -86,47 +76,6 @@ def link_taken_away():
     finally:
         channel.PIPE = real
         channel.close()
-
-
-def _only_its_own(step, work):
-    """A handler that does speak must not get a second sentence on top.
-
-    Without this the detector would double every answer the player hears, and doubling is a
-    fault a tester would report as the tool talking over itself.
-    """
-    before = len(_spoken)
-    work()
-    said = _spoken[before:]
-    if len(said) != 1:
-        raise SystemExit('%s produced %d sentences where exactly one belongs: %s'
-                         % (step, len(said), said))
-
-
-def said_nothing():
-    """A keystroke that does its work and says nothing. The detector has to notice."""
-    with speech.answering('the decisions window'):
-        pass
-
-
-def said_something():
-    """The counter-test: a keystroke that answers keeps its own sentence and gets no other."""
-    with speech.answering('the decisions window'):
-        speech.output('26 decisions')
-
-
-def broke_without_a_word():
-    """A keystroke whose work raises and says nothing.
-
-    A traceback is silence as far as the player is concerned, so this has to speak - and the
-    exception has to carry on regardless, because a detector that swallowed it would hide the
-    fault it just announced.
-    """
-    try:
-        with speech.answering('the ledger'):
-            raise KeyError('a widget nobody expected')
-    except KeyError:
-        return
-    raise SystemExit('the exception never came through; the detector swallowed it, which is worse than the silence it was built for')
 
 
 class _Enough(Exception):
@@ -170,30 +119,19 @@ def main():
 
     With no game running the link really is gone, and asking it anything is the first step
     itself - no pretending needed. With a game running the pipe has to be pointed somewhere
-    nobody opened to reach the same place. Asking first also keeps the proof from saying the
-    same sentence twice, which would leave a listener wondering which one was the test.
+    nobody opened to reach the same place.
     """
     said = {}
-    pid = None
     try:
         pid = int(channel.ask('hello').split('\t')[1])
     except OSError:
-        if not _spoken:
+        if not heard.spoken:
             raise SystemExit('SILENT: the link with the game is gone and nothing said so. That is '
                              'the whole point of this proof, so nothing else here matters until '
                              'it speaks.')
-        said['the link with the game gone'] = _spoken[:]
-
-    said['a keystroke that said nothing'] = _sentences_from(
-        'a keystroke that said nothing', said_nothing)
-    _only_its_own('a keystroke that answered', said_something)
-    said['a keystroke that broke without a word'] = _sentences_from(
-        'a keystroke that broke without a word', broke_without_a_word)
-
-    if pid is None:
-        raise SystemExit('Every step that needs no game spoke. The last one needs a game '
-                         'with the channel inside it, and there is none, so this proof is not '
-                         'finished. Start the game and run it again.')
+        raise SystemExit('The link with the game is gone and it said so, which is the first step. '
+                         'The second needs a game with the channel inside it, so this proof is '
+                         'not finished. Start the game and run it again.')
 
     said['the link with the game taken away'] = _sentences_from(
         'the link with the game taken away', link_taken_away)
@@ -206,16 +144,21 @@ def main():
     said['a field offset moved'] = _sentences_from(
         'a field offset moved', lambda: field_moved(pid, fields))
 
+    if heard.brailled != heard.spoken:
+        raise SystemExit('speech and braille came out different, so one of the two channels is '
+                         'dropping sentences:\nspoken:   %s\nbrailled: %s'
+                         % (heard.spoken, heard.brailled))
+
     for step, sentences in said.items():
         print('%s spoke %d time(s):' % (step, len(sentences)))
         for sentence in sentences:
             print('   ', sentence)
 
-    heard = {sentence for sentences in said.values() for sentence in sentences}
-    if len(heard) < 2:
+    if len(set(heard.spoken)) < 2:
         raise SystemExit('Both steps spoke, but with the same words, so a tester cannot tell them '
                          'apart. That counts as a failure.')
-    print('\nTwo failures, %d different sentences, no silence.' % len(heard))
+    print('\nTwo real failures, %d different sentences, no silence, braille alongside every one.'
+          % len(set(heard.spoken)))
 
 
 if __name__ == '__main__':

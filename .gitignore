@@ -13,6 +13,11 @@ dll/*.pdb
 __pycache__/
 *.pyc
 
+# Caches of the checks themselves. Added 16 September 2026, the day pytest and ruff arrived:
+# between them they left 21 files in the project folder, and nothing excluded them yet.
+.pytest_cache/
+.ruff_cache/
+
 # the built DLL belongs to a release, not to the history
 dll/channel.dll
 

@@ -33,10 +33,15 @@ keeps its widgets, so the counter could not have shown it" is.
 
 Update `CHANGELOG.md`, and `ARCHITECTURE.md` only when a layer or a boundary moves. Nothing else.
 
-## Before it can be merged: `python tools/check.py`
+## Before it can be merged: `python tools/check.py`, `python -m pytest`, `python -m ruff check .`
 
-It recomputes every number in `reports/claims.json` against the disk and verifies that every project
-path the documentation names still exists. It has to pass.
+`check.py` recomputes every number in `reports/claims.json` against the disk and verifies that every
+project path the documentation names still exists. `pytest` runs the suite in `tests/`; `ruff`
+lints everything, configured in `pyproject.toml`. All three have to pass.
+
+Do not name a script `test_*.py` unless pytest should collect it. Anything under `tools/` that is
+run by hand speaks through NVDA and sleeps, so collecting it would make a test run talk — that is
+why the speech round is `tools/nvda/check_speech_by_ear.py` and not test_speech.py.
 
 A number that carries a decision belongs in `claims.json` with its counting rule — what was counted,
 where, and how — rather than in prose. Three counts here were wrong because a folder was not walked,

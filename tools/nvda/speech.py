@@ -1,5 +1,8 @@
 """Thin seam to NVDA. Everything the user needs to hear passes through here.
 
+Two functions: `output` says something, `failure` says something went wrong. That is the whole
+layer, and it is meant to stay that way.
+
 Two modes:
   REPLACE - silence anything speaking and speak. For an answer to a keystroke.
   QUEUE   - join the back of the line. For a run of lines that belong together.
@@ -7,16 +10,30 @@ Two modes:
 Deliberately no interrupt-and-resume: it interrupts and then carries on with the old sentence,
 which feels as though nothing happened.
 
-Braille always goes with it. There is no call here that only speaks, because that is exactly
-how the Fallout 4 accessibility mod lost its braille display: one omission in one place is
-enough to lose a whole channel.
+Braille always goes with it. There is no call here that only speaks, because that is exactly how
+the Fallout 4 accessibility mod lost its braille display, and the Skyrim Access mod this project
+takes as a reference never calls brailleMessage at all. One omission in one place is enough to
+lose a whole channel. A braille text that differs from the speech is allowed but is the
+exception, and needs a reason at the call site; a shorter wording of the same sentence is not one.
 
-The DLL can do more than this seam uses. nvdaController_speakSsml takes a symbol level and a
-priority - NORMAL 0, NEXT 1, NOW 2 - and setOnSsmlMarkReachedCallback reports back where the
-speech is. See nvdaController.h next to this file. Two measured facts before building on it:
-passing speakSsml's fourth parameter, asynchronous, as false blocks until the speech finishes and
-then returns error 1223; and NEXT can discard speech that is already waiting rather than merely
+**Nothing speaks when there is nothing to say.** A keystroke that turns up an empty list stays
+quiet - decided 16 September 2026 - and there is no wrapper here that checks whether a handler
+produced anything. Only a real fault speaks, through `failure`.
+
+The client is a module attribute and is built on first use, so a test can put a recorder in its
+place and this file imports on a machine with no NVDA. That one indirection is all the seam has.
+
+The DLL can do more than this uses. nvdaController_speakSsml takes a symbol level and a priority
+- NORMAL 0, NEXT 1, NOW 2 - and setOnSsmlMarkReachedCallback reports back where the speech is.
+See nvdaController.h next to this file. Two measured facts before building on it: passing
+speakSsml's fourth parameter, asynchronous, as false blocks until the speech finishes and then
+returns error 1223; and NEXT can discard speech that is already waiting rather than merely
 overtaking it.
+
+No worker thread, and that is measured rather than skipped. The Skyrim Access mod hands its text
+to one because nvdaController_* reaches NVDA over SendMessage and would stall the game's input
+thread. This seam runs in its own process beside the game, and handing over a sentence costs
+0.44 ms (27 July 2026, `brief\\niet_doen.md`), so there is nothing to absorb.
 """
 import ctypes
 import os
@@ -25,35 +42,66 @@ import sys
 DLL = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'nvdaControllerClient.dll')
 REPLACE, QUEUE = 'replace', 'queue'
 
-_client = ctypes.windll.LoadLibrary(DLL)
+_client = None
 
-# Sentences that have left this seam. The silence detector below counts with it; nothing else
-# should read it, because a number that only goes up says nothing on its own.
-_said = 0
+
+def client():
+    global _client
+    if _client is None:
+        _client = ctypes.windll.LoadLibrary(DLL)
+    return _client
+
+
+class Recorder:
+    """A stand-in client that keeps what it was given. For tests and for the beta gate."""
+
+    def __init__(self):
+        self.spoken = []
+        self.brailled = []
+        self.cancels = 0
+
+    def nvdaController_testIfRunning(self):
+        return 0
+
+    def nvdaController_speakText(self, text):
+        self.spoken.append(text.value)
+        return 0
+
+    def nvdaController_brailleMessage(self, text):
+        self.brailled.append(text.value)
+        return 0
+
+    def nvdaController_cancelSpeech(self):
+        self.cancels += 1
+        return 0
 
 
 def nvda_running():
-    return _client.nvdaController_testIfRunning() == 0
+    return client().nvdaController_testIfRunning() == 0
 
 
 def silence():
-    _client.nvdaController_cancelSpeech()
+    client().nvdaController_cancelSpeech()
 
 
 def output(text, mode=REPLACE, braille=None):
-    """Speak and write to the braille display. braille=None means: the same text."""
+    """Speak, and write to the braille display in the same breath.
+
+    braille=None means the same text, which is what almost every call wants: the user reads
+    braille and listens at once, so two forms that can drift apart are two forms that can no
+    longer be checked against each other.
+    """
     if mode == REPLACE:
         silence()
     elif mode != QUEUE:
         raise ValueError('unknown mode: %r' % mode)
 
-    global _said
-    error = _client.nvdaController_speakText(ctypes.c_wchar_p(text))
+    error = client().nvdaController_speakText(ctypes.c_wchar_p(text))
     if error:
         raise OSError('NVDA returned error code %d on speech' % error)
-    _said += 1
 
-    error = _client.nvdaController_brailleMessage(ctypes.c_wchar_p(braille or text))
+    error = client().nvdaController_brailleMessage(
+        ctypes.c_wchar_p(text if braille is None else braille))
     if error:
         raise OSError('NVDA returned error code %d on braille' % error)
 
@@ -70,40 +118,10 @@ def failure(where, what, remedy, mode=REPLACE):
     fail, and only then to NVDA. It returns the sentence, so a caller can raise with the same
     words the player just heard.
     """
-    global _said
     sentence = '%s: %s, %s' % (where, what, remedy)
-    _said += 1
     print(sentence, file=sys.stderr, flush=True)
     try:
         output(sentence, mode)
     except Exception as trouble:
         print('that sentence did not reach NVDA: %s' % trouble, file=sys.stderr, flush=True)
     return sentence
-
-
-class answering:
-    """A block that has to produce a sentence, and says so itself when it does not.
-
-    Everything a keystroke sets off belongs inside one of these. A keystroke that yields
-    nothing is a fault of its own: the player cannot tell an empty window from a tool that
-    fell over from a game that never saw the key, and all three sound exactly the same.
-
-    It counts the sentences that left the seam and speaks when the count did not move. **An
-    exception on its way out counts as silence too**, because a traceback is not something a
-    player hears - and it is left to carry on, so this never swallows anything. A block that
-    already reported its own failure stays quiet here, because that failure was a sentence.
-    """
-
-    def __init__(self, where, remedy='press the key again'):
-        self.where = where
-        self.remedy = remedy
-        self.at = None
-
-    def __enter__(self):
-        self.at = _said
-        return self
-
-    def __exit__(self, kind, trouble, traceback):
-        if _said == self.at:
-            failure(self.where, 'nothing came back', self.remedy)
-        return False
