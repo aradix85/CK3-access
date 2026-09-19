@@ -367,6 +367,16 @@ returns a pair, passed on as one thing, costs a run.
 | `ordered_models(found)` | value | The data models in the order they first appear, because a set would shuffle them. |
 | `main()` | nothing | - |
 
+## ck3\quit_game.py
+*Shuts the game down the way a player does, and never any other way.*
+
+| call | returns | does |
+|---|---|---|
+| `look(root, pid, window_classes)` | 3-tuple | The tree of this moment, with what is drawn and where it is. |
+| `press(nodes, scales, name, drawn_in=None)` | value of NoneType | Click the middle of a named widget. Returns what it clicked, or None if it is not there. |
+| `gone(pid, seconds=40)` | bool | Wait until the channel stops answering, which is the game being gone. |
+| `quit_game(pid)` | nothing | - |
+
 ## ck3\reading.py
 *The generic reading rule: a window as the sentences that come out of it.*
 
@@ -374,10 +384,14 @@ returns a pair, passed on as one thing, costs a run.
 |---|---|---|
 | `models(node, model=None, out=None)` | value | Per widget on disk, the data model of the nearest repeated container above it. |
 | `live_order(by_parent, top)` | value | The live widgets depth first in child order - the order the game draws them in. |
-| `name_of(model)` | value | A data model as a word for the player: GetOptions -> options. |
+| `words_of(word)` | value | A name in the game's spelling as words: GetSoldierCount -> soldier count, MAACap -> MAA cap. |
+| `name_of(model)` | value | A data function as a word for the player: GetOptions -> options, GetGold|0 -> gold. |
+| `fills(source)` | NoneType of value | The data function the gui file puts in this widget, if it puts one there. |
 | `units(window, table, local, known, root, record)` | value | Every unit this window says, in order, each with the list it belongs to. |
+| `spoken(unit)` | value | One unit as it is said. |
 | `sentences(found)` | value | The units as the lines a player hears, with a list saying its size and its end. |
 | `read(window, table=None, local=None, known=None, root=None)` | value | One harvested window as the lines it says. |
+| `live(pid, window=None)` | 2-tuple of value | The window that is on top in the running game, as the lines it says. |
 | `main()` | nothing | - |
 
 ## ck3\savegame.py

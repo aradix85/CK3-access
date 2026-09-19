@@ -11,6 +11,18 @@ keeps the numbers with the rule they were counted by. A changelog that may never
 
 ## 2026-09-19
 
+- The reading rule runs on the running game as well: it takes the window that is on top by draw
+  order, reads the tree of this moment, and says the same lines. Proven on a loaded save, where
+  the character window came out as 46 lines.
+- A bare number says what it is. The gui file names the data function that fills each text box,
+  and that function names the thing, so 89 reads as gold 89 and +83 as opinion of +83. Over the
+  harvest, 153 of 169 bare numbers get a label that way — 91 per cent — against a fifth for the
+  nearest label on screen, which drops to a tiebreak. Three things come off such a name: the
+  formatting tail, the arguments, and a wrapper that only counts or adds.
+- `tools/ck3/quit_game.py` shuts the game down the way a player does — pause menu, Exit to
+  Desktop — and there is deliberately no fallback that kills it. Of every shutdown in two months
+  exactly one wrote the exit autosave the game writes when it ends properly.
+
 - `tools/ck3/reading.py`, the generic reading rule, in the half that needs no running game: given
   a harvested window it returns the lines that window says. Four rules, all of them general — a
   widget without text is not a unit, child order is reading order, a repeated container becomes a

@@ -16,6 +16,7 @@ first. What it cannot show is how it feels to step through it one key at a time 
 live half, and this is what that half will call.
 """
 import os
+import re
 import sys
 import time
 
@@ -66,16 +67,84 @@ def live_order(by_parent, top):
     return out
 
 
+CHAIN = re.compile(r"[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*")
+QUOTED = re.compile(r"'([^']+)'")
+# Engine helpers that wrap a value without saying anything about it. Skipping them is what turns
+# `GetDataModelSize(LedgerWindow.GetWars)` into wars instead of into data model size.
+PLUMBING = ('GetDataModelSize', 'Add_int32', 'Subtract_int32', 'Multiply_int32', 'Divide_int32',
+            'Select_int32', 'Select_CString', 'Select_float', 'Select_CFixedPoint',
+            'FixedPointToInt', 'Concatenate', 'AddTextIf', 'Localize')
+GENERIC = ('value', 'text', 'name', 'size', 'count', 'string')
+
+
+def words_of(word):
+    """A name in the game's spelling as words: GetSoldierCount -> soldier count, MAACap -> MAA cap.
+
+    A run of capitals stays a run: the military view says MAA, and m a a is not a word.
+    """
+    out, piece = [], ''
+    for at, letter in enumerate(word):
+        following = word[at + 1] if at + 1 < len(word) else ''
+        starts = letter.isupper() and piece and (not piece[-1].isupper() or following.islower())
+        if starts:
+            out.append(piece)
+            piece = ''
+        piece += letter
+    out.append(piece)
+    return ' '.join(part if part.isupper() and len(part) > 1 else part.lower()
+                    for part in out if part).strip()
+
+
 def name_of(model):
-    """A data model as a word for the player: GetOptions -> options."""
-    word = model.strip('[]').split('.')[-1].split('(')[0]
+    """A data function as a word for the player: GetOptions -> options, GetGold|0 -> gold.
+
+    Three things have to come off, and each of them was a label that read as machinery. The tail
+    after `|` is a formatting code. The arguments are not the subject - `GetOpinionOf( GetLiege )`
+    is an opinion and not a liege - so the first call in the line wins over what sits inside it.
+    And a wrapper that only counts or adds says nothing, so it is stepped over.
+
+    Where the name that remains is generic, something else says it: a quoted argument is the
+    game's own key for the thing - `GetTabItemsCount('family')` is the family - and failing that
+    the type takes over, so `SkillItem.GetValue` reads as skill.
+    """
+    call = model.strip('[]').split('|')[0].strip()
+    chains = [one for one in CHAIN.findall(call) if one.split('.')[-1] not in PLUMBING]
+    head = chains[0] if chains else call
+    kind = head.split('.')[0]
+    word = head.split('.')[-1]
     for prefix in ('Get', 'Access'):
         if word.startswith(prefix):
             word = word[len(prefix):]
-    out = ''
-    for letter in word:
-        out += (' ' if out and letter.isupper() else '') + letter.lower()
-    return out
+    for suffix in ('String', 'Text'):
+        if word.endswith(suffix) and len(word) > len(suffix):
+            word = word[:-len(suffix)]
+
+    spelled = words_of(word)
+    parts = spelled.lower().split()
+    if any(part in GENERIC for part in parts):
+        quoted = QUOTED.findall(call)
+        if quoted:
+            return quoted[-1].replace('_', ' ').strip()
+    if spelled.lower() in GENERIC:
+        word = kind
+        for suffix in ('Item', 'Window', 'View', 'Data'):
+            if word.endswith(suffix) and len(word) > len(suffix):
+                word = word[:-len(suffix)]
+        spelled = words_of(word)
+    return spelled.strip()
+
+
+NUMBER = re.compile(r'^[\d+\-.,%/ ]+$')
+
+
+def fills(source):
+    """The data function the gui file puts in this widget, if it puts one there."""
+    if source is None:
+        return None
+    for key, value in source['attrs']:
+        if key == 'text' and value and '[' in value:
+            return value
+    return None
 
 
 def units(window, table, local, known, root, record):
@@ -93,8 +162,27 @@ def units(window, table, local, known, root, record):
         if not text:
             continue
         source = source_of.get(id(node))
-        out.append({'text': text, 'model': model_of.get(id(source)) if source else None})
+        out.append({'text': text, 'model': model_of.get(id(source)) if source else None,
+                    'fills': fills(source)})
     return out
+
+
+def spoken(unit):
+    """One unit as it is said.
+
+    A number says nothing on its own: 89 is gold or prestige or a count of men, and a player who
+    cannot see the icon beside it has no way to tell. The gui file does know - it says which data
+    function fills that box - so the label comes from there. Measured 19 September 2026 over ten
+    windows holding data: of 93 bare numbers, 83 carry such a function.
+
+    Only a number gets one. A text that is already a word says what it is, and prefixing that
+    would turn `Duke Marianos of Nobatia` into a form to be filled in.
+    """
+    if unit['fills'] and NUMBER.match(unit['text']):
+        label = name_of(unit['fills'])
+        if label:
+            return '%s %s' % (label, unit['text'])
+    return unit['text']
 
 
 def sentences(found):
@@ -103,12 +191,12 @@ def sentences(found):
     while at < len(found):
         model = found[at]['model']
         if model is None:
-            out.append(found[at]['text'])
+            out.append(spoken(found[at]))
             at += 1
             continue
         rows = []
         while at < len(found) and found[at]['model'] == model:
-            rows.append(found[at]['text'])
+            rows.append(spoken(found[at]))
             at += 1
         word = name_of(model)
         out.append('%d %s:' % (len(rows), word))
@@ -131,9 +219,68 @@ def read(window, table=None, local=None, known=None, root=None):
     return sentences(units(window, table, local, known, root, record))
 
 
+def live(pid, window=None):
+    """The window that is on top in the running game, as the lines it says.
+
+    This is the other half of the same rule: the units come from the tree of this moment instead
+    of from a harvested record, and everything after that is shared. Which window is on top is
+    the draw order - siblings are drawn in list order and the tree keeps that order, so the
+    highest path of sibling numbers is the one lying over the rest.
+    """
+    import collections
+    import openers
+    import windowmap
+
+    game = windowmap.Game(pid)
+    openers.game_classes = game.window_classes      # live_record reads this module global
+    nodes = game.tree()
+    windows = [a for a, k in nodes.items() if k[0] in game.window_classes]
+    flags = derive.flags_for(windows)
+
+    index, seen = {}, collections.Counter()
+    for address, node in nodes.items():
+        index[address] = seen[node[5]]
+        seen[node[5]] += 1
+
+    def path(address):
+        out = []
+        while address in nodes:
+            out.append(index[address])
+            address = nodes[address][5]
+        return tuple(reversed(out))
+
+    drawn = [a for a in windows if flags.get(a) == 0]
+    if window is None:
+        if not drawn:
+            return None, []
+        window = nodes[max(drawn, key=path)][6]
+
+    record, _, _, _ = openers.live_record(game, pid, window)
+    rows = guimap.files()
+    table, local = guimap.type_table(rows)
+    known = guimap.windows(rows)
+    root = pairing.root_finder(table)
+    return window, sentences(units(window, table, local, known, root, record))
+
+
 def main():
     windows = [name for name in sys.argv[1:] if not name.startswith('--')]
     aloud = '--speak' in sys.argv
+
+    if '--live' in sys.argv:
+        pid = int(windows[0])
+        name, lines = live(pid, windows[1] if len(windows) > 1 else None)
+        if name is None:
+            print('no window is drawn; this is the main menu, and that is panels and not windows')
+            return
+        print('%s, %d lines' % (name, len(lines)))
+        for line in lines:
+            print('    ' + line)
+        if aloud:
+            for line in lines:
+                speech.output(line, speech.QUEUE)
+        return
+
     if not windows:
         windows = ['ingame_resign_confirmation']
 
