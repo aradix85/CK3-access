@@ -48,6 +48,12 @@ tools/ocr_models/
 tools/nvda/nvdaControllerClient.dll
 tools/nvda/*.exe
 
+# Not published for now: the machine's draft screen files, one per window. They are generated
+# from the gui files in about three minutes with tools/ck3/propose.py, they say nothing a general
+# reading rule does not already do, and 218 of them would go stale with every patch - which is
+# exactly how the mod before this one fell over. Delete this line to publish them.
+drafts/
+
 # machine-specific copies of settings
 pdx_settings.origineel.txt
 launcher-settings.original.json
