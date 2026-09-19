@@ -354,6 +354,19 @@ returns a pair, passed on as one thing, costs a run.
 |---|---|---|
 | `main(pid)` | nothing | Walk the chain and let it fail: the player, the coverage, and what memory holds extra. |
 
+## ck3\propose.py
+*A first draft of a screen file, from what the gui files alone can already decide.*
+
+| call | returns | does |
+|---|---|---|
+| `attribute(node, key)` | NoneType of value | - |
+| `texts(node, context=(), inside=None, out=None)` | value | Every text a window holds, in file order, with its subject and the list it sits in. |
+| `says(value, localization)` | value | What this text will say: the sentence behind a key, or the function that fills it. |
+| `draft(window, table, local, known, localization)` | 2-tuple | One window as a screen file to correct. |
+| `comment(sentence, subject)` | value | The part a human reads. One line, so a long sentence is cut rather than wrapped. |
+| `ordered_models(found)` | value | The data models in the order they first appear, because a set would shuffle them. |
+| `main()` | nothing | - |
+
 ## ck3\savegame.py
 *Reads the game state from a save file - the answer key for searching in memory.*
 

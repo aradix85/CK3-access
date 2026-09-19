@@ -17,6 +17,13 @@ keeps the numbers with the rule they were counted by. A changelog that may never
   windows and says what is read first, what stays silent, and how an option reads — with its
   state before its words, and the explain key mapped to what the game puts in the tooltip.
   Nothing is announced on arrival: the count of a list sits against the list it is about.
+- `tools/ck3/propose.py` writes a draft screen file for every window straight from the gui files,
+  with no harvest and no running game, so a window nobody ever opened gets one too: reading order
+  is file order, a repeated container becomes a list, the subject comes from the data context
+  inherited, and behind each line stands what it will say. 218 windows, 12,158 texts, 5,150 of
+  them rows of a list. Drafts are for correcting, so they are written outside the repository.
+- A screen file names no decoration to silence. A widget without text says nothing by itself, and
+  text only ever comes out of a text box, so the list of things to keep quiet was doing nothing.
 - An option says what it will do to you, in words: the game marks four kinds of consequence per
   option and hands them over as a list — a trait gained or lost, stress up, down or critical, a
   scheme, and death — so they are spoken with the option rather than left inside a tooltip. Gold

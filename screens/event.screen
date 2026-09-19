@@ -31,18 +31,6 @@ screen = {
 		read = "[EventWindowData.GetOptions]"
 	}
 
-	# Decoration: it carries no words, so it stays silent. A theme header is a picture of a
-	# mood, and a spacer is a hole.
-	silent = {
-		widget = "theme_header"
-		widget = "theme_icon"
-		widget = "bottom_characters_bg"
-		widget = "background_shader_vfx_container"
-		widget = "foreground_shader_vfx_container"
-		widget = "text_spacer"
-		widget = "characters_spacer"
-	}
-
 	# The options. This is the part that has to be right: an event without its options is a
 	# message, and this one is waiting for an answer.
 	#
