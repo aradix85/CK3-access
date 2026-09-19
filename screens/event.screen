@@ -45,15 +45,15 @@ screen = {
 
 	# The options. This is the part that has to be right: an event without its options is a
 	# message, and this one is waiting for an answer.
+	#
+	# Inside a block the order of the lines is the order of the reading. A `state` goes in front
+	# of the line it belongs to; `key` and `explain` are not read along with it.
 	list = {
 		of = "[EventWindowData.GetOptions]"
 		count = before                        # "four options"
 		close = after                         # "end of the options"
 
 		item = {
-			read = "[EventOption.GetText]"
-			key = "shift and the number of the option"
-
 			# State before the words. A state that arrives after the sentence arrives too
 			# late to act on, and these three are exactly what a seeing player is shown by
 			# the glow around the button and by the button being dead.
@@ -61,8 +61,30 @@ screen = {
 			state = { when = "[EventOption.HasFlag('special')]" say = "special" }
 			state = { when = "[Not(EventOption.IsValid)]" say = "unavailable" }
 
+			read = "[EventOption.GetText]"
+
+			# What the option does to you. The game marks exactly these four kinds and
+			# hands them over as a list, so they are words rather than a reading of the
+			# tooltip: gold and prestige are not in here, they are in the tooltip only.
+			# An item that is not a trait has no trait to name, and a nothing stays quiet.
+			list = {
+				of = "[EventOption.Effects]"
+				item = {
+					state = { when = "[OptionEffectItem.IsDeath]" say = "death" }
+					state = { when = "[And(OptionEffectItem.IsStress, OptionEffectItem.IsCritical)]" say = "critical stress" }
+					state = { when = "[And(OptionEffectItem.IsStress, OptionEffectItem.IsGain)]" say = "gain stress" }
+					state = { when = "[And(OptionEffectItem.IsStress, OptionEffectItem.IsLoss)]" say = "lose stress" }
+					state = { when = "[And(OptionEffectItem.IsTrait, OptionEffectItem.IsGain)]" say = "gain" }
+					state = { when = "[And(OptionEffectItem.IsTrait, OptionEffectItem.IsLoss)]" say = "lose" }
+					state = { when = "[OptionEffectItem.IsScheme]" say = "scheme" }
+					read = "[OptionEffectItem.GetTrait]"
+				}
+			}
+
+			key = "shift and the number of the option"
+
 			# What the explain key reads out while standing on this option: what the game
-			# itself puts in the tooltip, which is what it will do to you.
+			# itself puts in the tooltip, which is the whole of what it will do to you.
 			explain = "[EventOption.GetTooltip]"
 		}
 	}

@@ -17,6 +17,10 @@ keeps the numbers with the rule they were counted by. A changelog that may never
   windows and says what is read first, what stays silent, and how an option reads — with its
   state before its words, and the explain key mapped to what the game puts in the tooltip.
   Nothing is announced on arrival: the count of a list sits against the list it is about.
+- An option says what it will do to you, in words: the game marks four kinds of consequence per
+  option and hands them over as a list — a trait gained or lost, stress up, down or critical, a
+  scheme, and death — so they are spoken with the option rather than left inside a tooltip. Gold
+  and prestige are not among them; those live in the tooltip only.
 - A screen file carries exceptions only. Whatever it does not name is read in the order the gui
   files give, so a file left behind by a patch costs detail and never the screen.
 - `tools/ck3/screens.py` checks every reference in a screen file against the expanded gui tree:
