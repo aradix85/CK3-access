@@ -16,6 +16,7 @@ keeps the numbers with the rule they were counted by. A changelog that may never
   parser the project already has. The first one, `screens/event.screen`, covers the three event
   windows and says what is read first, what stays silent, and how an option reads — with its
   state before its words, and the explain key mapped to what the game puts in the tooltip.
+  Nothing is announced on arrival: the count of a list sits against the list it is about.
 - A screen file carries exceptions only. Whatever it does not name is read in the order the gui
   files give, so a file left behind by a patch costs detail and never the screen.
 - `tools/ck3/screens.py` checks every reference in a screen file against the expanded gui tree:

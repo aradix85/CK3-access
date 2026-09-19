@@ -19,20 +19,15 @@ screen = {
 	window = "fullscreen_event"
 	window = "letter_event"
 
-	# One sentence when the event arrives, before anything else is read. It has to carry enough
-	# to decide whether to act now: what it is, and how much is waiting for an answer.
-	opening = {
-		say = "Event"
-		read = "[EventWindowData.GetTitle]"
-		count = { of = "[EventWindowData.GetOptions]" say = "options" }
-	}
-
-	# The reading order. What is not named here follows after it, in file order.
+	# The reading order. What is not named here follows after it, in file order - which is where
+	# the people in the picture, the artifacts and the travel line come from.
+	#
+	# Nothing is announced on arrival beyond the window's own first line. The count of the
+	# options sits against the options, where it is about to be useful, and not in a sentence
+	# you have to hear before every event.
 	order = {
 		read = "[EventWindowData.GetTitle]"
 		read = "[EventWindowData.GetDescription]"
-		read = "[EventWindowData.GetPortraitCharacter('left_portrait')]"
-		read = "[EventWindowData.GetPortraitCharacter('right_portrait')]"
 		read = "[EventWindowData.GetOptions]"
 	}
 
@@ -66,10 +61,9 @@ screen = {
 			state = { when = "[EventOption.HasFlag('special')]" say = "special" }
 			state = { when = "[Not(EventOption.IsValid)]" say = "unavailable" }
 
-			# What the explain key reads out while standing on this option: what it will do,
-			# and why it is open to you at all - a trait, a skill, dread, an appointment.
+			# What the explain key reads out while standing on this option: what the game
+			# itself puts in the tooltip, which is what it will do to you.
 			explain = "[EventOption.GetTooltip]"
-			explain = "[EventOption.Reasons]"
 		}
 	}
 }
