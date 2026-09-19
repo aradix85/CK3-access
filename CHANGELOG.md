@@ -11,6 +11,16 @@ keeps the numbers with the rule they were counted by. A changelog that may never
 
 ## 2026-09-19
 
+- `tools/ck3/reading.py`, the generic reading rule, in the half that needs no running game: given
+  a harvested window it returns the lines that window says. Four rules, all of them general — a
+  widget without text is not a unit, child order is reading order, a repeated container becomes a
+  list that says its size and its end, and the game's markup bytes come off. `--speak` sends the
+  lines through NVDA. Over the harvest: 1,753 units, 286 of them rows of a list, 22 windows
+  carrying a list. The longest single unit is 318 characters, so roughly three sentences.
+- `pairing.pairs` takes the expanded tree as an argument. A caller that has already expanded a
+  window must hand in that same tree: the nodes handed back belong to the tree that was used, so
+  two trees means every lookup on the caller's side misses without saying so.
+
 - Screen files: the presentation layer's tuning lives in data, in the game's own format
   (`key = value`, blocks, `#` comments), one file per screen under `screens/`, read with the gui
   parser the project already has. The first one, `screens/event.screen`, covers the three event

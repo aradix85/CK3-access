@@ -339,7 +339,7 @@ returns a pair, passed on as one thing, costs a run.
 | `widget_children(node, root)` | value | The children of a node that can reach the live tree, in file order. |
 | `align_row(disk, live, root)` | value | Two rows of children laid against each other on class and order alone. |
 | `live_tree(record)` | 2-tuple | The harvest is a flat list with an address and a parent address; this is it as a tree. |
-| `pairs(window, table, local, known, root, record=None)` | value | Every live widget of one window with its source on disk, and the data context it inherits. |
+| `pairs(window, table, local, known, root, record=None, disk_tree=None)` | value | Every live widget of one window with its source on disk, and the data context it inherits. |
 | `text_source(source, localization)` | value of str | What fills this widget: a key, a data function, both, or a placeholder. |
 | `developer_window(name, path)` | value | Is this window the developers' own tooling rather than something a player opens? |
 | `bare_number(text)` | value of bool | A text that is only a number. This is the case the origin question exists for: `150` |
@@ -365,6 +365,19 @@ returns a pair, passed on as one thing, costs a run.
 | `draft(window, table, local, known, localization)` | 2-tuple | One window as a screen file to correct. |
 | `comment(sentence, subject)` | value | The part a human reads. One line, so a long sentence is cut rather than wrapped. |
 | `ordered_models(found)` | value | The data models in the order they first appear, because a set would shuffle them. |
+| `main()` | nothing | - |
+
+## ck3\reading.py
+*The generic reading rule: a window as the sentences that come out of it.*
+
+| call | returns | does |
+|---|---|---|
+| `models(node, model=None, out=None)` | value | Per widget on disk, the data model of the nearest repeated container above it. |
+| `live_order(by_parent, top)` | value | The live widgets depth first in child order - the order the game draws them in. |
+| `name_of(model)` | value | A data model as a word for the player: GetOptions -> options. |
+| `units(window, table, local, known, root, record)` | value | Every unit this window says, in order, each with the list it belongs to. |
+| `sentences(found)` | value | The units as the lines a player hears, with a list saying its size and its end. |
+| `read(window, table=None, local=None, known=None, root=None)` | value | One harvested window as the lines it says. |
 | `main()` | nothing | - |
 
 ## ck3\savegame.py

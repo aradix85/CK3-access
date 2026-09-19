@@ -175,7 +175,7 @@ def live_tree(record):
     return by_parent, min(record['tree'], key=lambda w: w['depth'])
 
 
-def pairs(window, table, local, known, root, record=None):
+def pairs(window, table, local, known, root, record=None, disk_tree=None):
     """Every live widget of one window with its source on disk, and the data context it inherits.
 
     The context rides along because a widget almost never names its own subject: the window says
@@ -190,11 +190,18 @@ def pairs(window, table, local, known, root, record=None):
     `record` is normally read from the harvest, but a caller can hand one in that it built from the
     tree of the moment. That is what the chain needs: to press a button inside a window you have to
     align the window that is open right now, not the one that was harvested days ago.
+
+    `disk_tree` is the same story for the other half. Expanding a window costs a second or two, and
+    a caller that has already expanded it - to mark which widgets sit inside a repeated container,
+    say - must hand that same tree in rather than let this build a second one: the nodes that come
+    back are nodes of the tree that was used, so two trees means every lookup on the caller's side
+    silently misses.
     """
     if record is None:
         record = json.load(open(os.path.join(HARVEST, window + '.json'), encoding='utf-8'))
     by_parent, top = live_tree(record)
-    disk_tree, _ = guimap.window(window, table, local, known)
+    if disk_tree is None:
+        disk_tree, _ = guimap.window(window, table, local, known)
 
     out, work = [], [(disk_tree, top, ())]
     while work:
