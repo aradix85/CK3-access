@@ -1,0 +1,75 @@
+# Event - how an event is read aloud.
+#
+# Exceptions only. Whatever this file does not name is read in the order the gui files give, so a
+# file left behind by a patch costs detail and never the screen itself.
+#
+# Point at what the gui file says a widget shows - a data function or a name - never at a position
+# in the child list and never at a coordinate. One mod adding a row inside a vanilla window shifts
+# every index, and a reader that counts would quietly read the wrong field.
+#
+# The format is the game's own: key = value, blocks, # for a comment.
+# Check it with: python tools\ck3\screens.py
+
+screen = {
+	name = "event"
+	say = "Event"
+
+	# Three windows, one way of reading. They differ in decoration, not in what they hold.
+	window = "character_event"
+	window = "fullscreen_event"
+	window = "letter_event"
+
+	# One sentence when the event arrives, before anything else is read. It has to carry enough
+	# to decide whether to act now: what it is, and how much is waiting for an answer.
+	opening = {
+		say = "Event"
+		read = "[EventWindowData.GetTitle]"
+		count = { of = "[EventWindowData.GetOptions]" say = "options" }
+	}
+
+	# The reading order. What is not named here follows after it, in file order.
+	order = {
+		read = "[EventWindowData.GetTitle]"
+		read = "[EventWindowData.GetDescription]"
+		read = "[EventWindowData.GetPortraitCharacter('left_portrait')]"
+		read = "[EventWindowData.GetPortraitCharacter('right_portrait')]"
+		read = "[EventWindowData.GetOptions]"
+	}
+
+	# Decoration: it carries no words, so it stays silent. A theme header is a picture of a
+	# mood, and a spacer is a hole.
+	silent = {
+		widget = "theme_header"
+		widget = "theme_icon"
+		widget = "bottom_characters_bg"
+		widget = "background_shader_vfx_container"
+		widget = "foreground_shader_vfx_container"
+		widget = "text_spacer"
+		widget = "characters_spacer"
+	}
+
+	# The options. This is the part that has to be right: an event without its options is a
+	# message, and this one is waiting for an answer.
+	list = {
+		of = "[EventWindowData.GetOptions]"
+		count = before                        # "four options"
+		close = after                         # "end of the options"
+
+		item = {
+			read = "[EventOption.GetText]"
+			key = "shift and the number of the option"
+
+			# State before the words. A state that arrives after the sentence arrives too
+			# late to act on, and these three are exactly what a seeing player is shown by
+			# the glow around the button and by the button being dead.
+			state = { when = "[EventOption.HasFlag('dangerous')]" say = "dangerous" }
+			state = { when = "[EventOption.HasFlag('special')]" say = "special" }
+			state = { when = "[Not(EventOption.IsValid)]" say = "unavailable" }
+
+			# What the explain key reads out while standing on this option: what it will do,
+			# and why it is open to you at all - a trait, a skill, dread, an appointment.
+			explain = "[EventOption.GetTooltip]"
+			explain = "[EventOption.Reasons]"
+		}
+	}
+}

@@ -9,6 +9,21 @@ and an entry a later measurement overturns is taken out rather than left standin
 beside it: git keeps the text, `ARCHITECTURE.md` keeps the reasoning, and `reports/claims.json`
 keeps the numbers with the rule they were counted by. A changelog that may never forget only grows.
 
+## 2026-09-19
+
+- Screen files: the presentation layer's tuning lives in data, in the game's own format
+  (`key = value`, blocks, `#` comments), one file per screen under `screens/`, read with the gui
+  parser the project already has. The first one, `screens/event.screen`, covers the three event
+  windows and says what is read first, what stays silent, and how an option reads — with its
+  state before its words, and the explain key mapped to what the game puts in the tooltip.
+- A screen file carries exceptions only. Whatever it does not name is read in the order the gui
+  files give, so a file left behind by a patch costs detail and never the screen.
+- `tools/ck3/screens.py` checks every reference in a screen file against the expanded gui tree:
+  windows, data functions and widget names. Validated by breaking it — an invented data function,
+  widget name and window are each reported, while the real file passes. A selector may match more
+  than one widget on disk (four in `letter_event` show the description, one per letter layout);
+  that is not an error, and the live tree decides which one is on screen.
+
 ## 2026-09-16
 
 - An empty result stays quiet. A keystroke that turns up nothing says nothing, and the wrapper

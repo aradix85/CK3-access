@@ -368,6 +368,18 @@ returns a pair, passed on as one thing, costs a run.
 | `numbers(content, prefix='', depth=0)` | value | Every whole number in a block, with its path as the name. Whole numbers only, because that |
 | `player(text)` | value | The character number of the player. |
 
+## ck3\screens.py
+*The screen files: what the product says about a screen, and in which order.*
+
+| call | returns | does |
+|---|---|---|
+| `entries(nodes)` | nothing | Every entry in a screen file, at any depth. |
+| `read(path)` | value | One screen file, parsed. |
+| `references(nodes)` | 3-tuple | What a screen file points at: its windows, its data functions, its widget names. |
+| `window_contents(node, text, names)` | nothing | Every attribute value and every widget name below this node. |
+| `check(folder=SCREENS)` | value | Every screen file against the gui files as they are on disk right now. |
+| `main()` | nothing | - |
+
 ## ck3\start_game.py
 *Starts CK3 with the channel inside it, in one action.*
 

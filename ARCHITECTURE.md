@@ -9,7 +9,7 @@ Seven parts, split where a game patch is most likely to hit.
 | 3 | **Visibility** | which of the tree is really on screen; four mechanisms, all needed |
 | 4 | **Input** | keys taken before the game sees them; clicks posted inward |
 | 5 | **Reading the game** | five independent sources, and their disagreement is the test |
-| 6 | **Presentation** | what gets said and in what order — not built yet |
+| 6 | **Presentation** — `screens/`, `tools/ck3/screens.py` | what gets said and in what order — the data is there, the reader is not |
 | 7 | **Speech** — `tools/nvda/speech.py` | one seam to NVDA, speech and braille together |
 
 **Where this is heading, because it decides where new code belongs.** Installing has to end up
@@ -160,13 +160,24 @@ the order on disk, so an alignment that runs on child order has to move it there
 was found, every list declared the other way round lost its whole content: 67 texts, and with them
 the buttons that switch the ledger between its eleven categories.
 
-## 6. Presentation — not built yet
+## 6. Presentation — the data is there, the reader is not
 
 What gets spoken, in what order, and what is left out. This decides whether the result is usable,
 and it is the one place measurement cannot answer the question.
 
 Two rules are fixed: output is not sorted by screen position, which is a sighted reader's order; and
 one keystroke produces one unit of speech plus braille. It belongs in data rather than in code.
+
+**That data is a screen file, one per screen, under `screens/`.** It is written in the game's own
+format and read with the gui parser of section 5, so there is no second parser to keep working and
+a tester who mods already knows the syntax. A screen file holds exceptions and never a description
+of a whole screen: what to read first, what stays silent, how a repeated row reads, which state
+goes in front of the words, what the explain key reaches for. Whatever it does not name is read in
+the order the gui files give. A file that falls behind a patch therefore costs detail and never the
+screen itself, which is the difference between this and a mod that replaces the window outright.
+`tools/ck3/screens.py` checks each file against the expanded gui tree and names every window, data
+function and widget name that is gone — the same idea as checking every path a document mentions.
+A selector is allowed to match several widgets on disk; the live tree decides which one is there.
 
 **A third rule was fixed and has since been withdrawn: addressing a widget by name.** The intent
 stands, since an index among siblings breaks the moment a mod adds a row inside a vanilla window,
