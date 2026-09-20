@@ -260,6 +260,7 @@ def units(window, table, local, known, root, record):
         out.append({'text': text, 'model': model_of.get(id(source)) if source else None,
                     'fills': fills(source),
                     'name': node['name'],
+                    'state': state_word(node, by_address),
                     'explain': explanation(node['address'], by_address, source_of, words),
                     'address': node['address'], 'parent': node['parent']})
     return out
@@ -329,6 +330,31 @@ def in_order(window, found):
     return sorted(found, key=place_of)
 
 
+UNUSABLE = 0x06
+
+
+def state_word(node, by_address):
+    """`unavailable` in front of a line whose button the game has switched off, or nothing.
+
+    **Measured 20 September 2026, and it is a field rather than a rule per screen.** The state
+    byte at the offset the window flag sits at carries the low bits 0x02 and 0x04 together on a
+    button the game has disabled: the save dialog's save button went from 0x00 to 0x06 and back
+    while the name field was emptied and typed into, and the cancel button beside it - which the
+    file leaves enabled - did not move. Over three windows and 6906 widgets no widget carried
+    those bits without an `enabled` condition on itself or an ancestor.
+
+    The word goes in front, because a state that arrives after the sentence arrives too late to
+    act on (`brief\\schermen.md`). It is looked for up the chain: the text sits inside the button,
+    and it is the button that is switched off.
+    """
+    walk, depth = node, 0
+    while walk is not None and depth < 12:
+        if (walk.get('state') or 0) & UNUSABLE:
+            return 'unavailable'
+        walk, depth = by_address.get(walk['parent']), depth + 1
+    return None
+
+
 def spoken(unit):
     """One unit as it is said.
 
@@ -339,12 +365,16 @@ def spoken(unit):
 
     Only a number gets one. A text that is already a word says what it is, and prefixing that
     would turn `Duke Marianos of Nobatia` into a form to be filled in.
+
+    A state word goes in front of all of it, because it has to arrive before the words it changes
+    the meaning of.
     """
-    if unit['fills'] and NUMBER.match(unit['text']):
+    said = unit['text']
+    if unit['fills'] and NUMBER.match(said):
         label = name_of(unit['fills'])
         if label:
-            return '%s %s' % (label, unit['text'])
-    return unit['text']
+            said = '%s %s' % (label, said)
+    return '%s, %s' % (unit['state'], said) if unit.get('state') else said
 
 
 def joined(found):

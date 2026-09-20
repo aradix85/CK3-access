@@ -197,7 +197,7 @@ def live_record(game, pid, window, address=None, nodes=None):
         walk = nodes[walk][5]
     scales = derive.scales_for(needed)
     classes = derive.class_map(pid, {a: nodes[a][0] for a in needed})
-    flags = derive.flags_for([a for a in addresses if a in windows])
+    flags = derive.flags_for(addresses)      # every widget: it says drawn and it says usable
     alphas = harvest.alphas_for(addresses)
     tree = [harvest.widget_record(nodes, a, d, i, scales, classes, flags, alphas)
             for a, d, i in family]

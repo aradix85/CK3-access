@@ -162,7 +162,7 @@ def widget_record(nodes, address, depth, index, scales, classes, flags, alphas):
             'own_rect': [x, y, width, height],
             'screen_rect': [screen_x, screen_y, drawn_width, drawn_height],
             'scale': [own, above], 'alpha': alphas.get(address),
-            'window_flag': flags.get(address),
+            'state': flags.get(address),
             'clipped': derive.is_clipped(nodes, address, scales, classes)}
 
 
@@ -401,7 +401,12 @@ def harvest(game, name, row, baseline, header):
     addresses = [a for a, _, _ in family]
     scales = derive.scales_for(list(nodes))
     classes = derive.class_map(game.pid, {a: k[0] for a, k in nodes.items()})
-    flags = derive.flags_for([a for a in addresses if a in windows])
+    # **The byte at that offset is asked of every widget and not only of the windows.**
+    # Measured 20 September 2026: it is one state byte with more than one meaning - on a
+    # window object zero means drawn, and on a button the low bits mean it cannot be used.
+    # Over three windows and 6906 widgets no widget carried those bits without the gui file
+    # putting an `enabled` condition on it or on an ancestor.
+    flags = derive.flags_for(addresses)
     alphas = alphas_for(addresses)
     record = dict(header)
     record.update({
