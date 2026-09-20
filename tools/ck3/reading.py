@@ -15,6 +15,7 @@ It runs on a harvested window, so it needs no running game: that is the point of
 first. `live` is the other half, on the tree of this moment, and `reader.py` is what turns either
 into one line per keystroke.
 """
+import glob
 import os
 import re
 import sys
@@ -198,6 +199,46 @@ def expansion(window, table, local, known):
     return EXPANDED[window]
 
 
+WORDS = None
+
+
+def words_table():
+    """The localisation, read once. 1173 files, so not per keystroke."""
+    global WORDS
+    if WORDS is None:
+        WORDS = guimap.localization()
+    return WORDS
+
+
+GAP = re.compile(r'\[[^\]]*\]|\$[^$]*\$')
+
+
+def explanation(address, by_address, source_of, localization):
+    """What the game would show if you could hover here: the nearest tooltip up the chain.
+
+    **A tooltip hangs on the button, not on the text inside it.** Counted over the harvest on
+    20 September 2026: of 1581 units 49 carry a tooltip themselves and 301 more have one on an
+    ancestor, two hundred of those one single level up. Asking only the unit's own widget reaches
+    three per cent of the screen; walking up reaches twenty-two.
+
+    Returns the sentence when it is whole, and the key when it is not - because a tooltip with
+    gaps in it is the game's own sum, and reading a skeleton full of holes is worse than saying
+    that the build-up is missing. Of the 350 that have one, 190 resolve to a sentence and 32 of
+    those have no gap at all; the rest is what taak 10 subtaak f has to rebuild.
+    """
+    while address in by_address:
+        source = source_of.get(id(by_address[address]))
+        attrs = dict(source.get('attrs', ())) if source else {}
+        key = attrs.get('tooltip') or attrs.get('tooltip_text')
+        if key:
+            sentence = localization.get(key.strip('"[] '))
+            if sentence and not GAP.search(sentence):
+                return guimap.strip_style(sentence).strip()
+            return None
+        address = by_address[address]['parent']
+    return None
+
+
 def units(window, table, local, known, root, record):
     """Every unit this window says, in order, each with the list it belongs to."""
     tree = expansion(window, table, local, known)
@@ -207,6 +248,7 @@ def units(window, table, local, known, root, record):
                                                        tree)}
 
     area = record['size'] if 'size' in record else derive.drawing_area()
+    words = words_table()
     by_address = {node['address']: node for node in record['tree']}
     by_parent, top = pairing.live_tree(record)
     out = []
@@ -216,8 +258,75 @@ def units(window, table, local, known, root, record):
             continue
         source = source_of.get(id(node))
         out.append({'text': text, 'model': model_of.get(id(source)) if source else None,
-                    'fills': fills(source)})
+                    'fills': fills(source),
+                    'name': node['name'],
+                    'explain': explanation(node['address'], by_address, source_of, words),
+                    'address': node['address'], 'parent': node['parent']})
     return out
+
+
+SCREENS = None
+
+
+def screen_order():
+    """Per window, the data functions a screen file wants read before the rest.
+
+    **A screen file is an exception on top of the reading rule, and this is where it is applied.**
+    The format and its check have existed since 19 September 2026; nothing read them, so a file
+    could be written, pass the check and change nothing at all. This reads the `order` block: the
+    lines it names come first, in the order it names them, and everything it does not name keeps
+    following in the order the gui files give.
+
+    A patch that takes a function away costs its line its place and nothing else - it falls back
+    into file order, and `tools\\ck3\\screens.py` says which one is gone.
+    """
+    global SCREENS
+    if SCREENS is None:
+        import screens
+        SCREENS = {}
+        for path in glob.glob(os.path.join(screens.SCREENS, '*.screen')):
+            nodes = screens.read(path)
+            for entry in screens.entries(nodes):
+                if entry['key'] != 'order' or not entry['body']:
+                    continue
+                wanted = [_function(line['value']) for line in entry['body']
+                          if line['key'] == 'read' and line['value']]
+                for window in screens.references(nodes)[0]:
+                    SCREENS[window] = wanted
+    return SCREENS
+
+
+def _function(value):
+    """A data function as a key to compare on: brackets and the format tail taken off."""
+    return (value or '').strip().lstrip('[').rstrip(']').split('|')[0].strip()
+
+
+def in_order(window, found):
+    """The units with what a screen file names first, first. Stable, so the rest keeps its order.
+
+    A unit that belongs to a list takes the rank of its list, so a group never gets torn apart by
+    one of its rows matching.
+
+    **A line may name a widget instead of a data function, and it has to.** Not every text box is
+    filled by one: `character_name` carries the name of the character and no function at all, so a
+    screen file that points at `GetNameNoTooltip` matches nothing - while `tools\\ck3\\screens.py`
+    reports it as fine, because that function does exist elsewhere in the gui set. That check
+    proves a name is not gone; it does not prove it points at the widget you meant.
+    """
+    wanted = screen_order().get(window)
+    if not wanted:
+        return found
+    rank = {name: place for place, name in enumerate(wanted)}
+
+    def place_of(unit):
+        for key in (_function(unit['model']) if unit['model'] else None,
+                    _function(unit['fills']) if unit['fills'] else None,
+                    unit['name']):
+            if key and key in rank:
+                return rank[key]
+        return len(wanted)
+
+    return sorted(found, key=place_of)
 
 
 def spoken(unit):
@@ -238,23 +347,78 @@ def spoken(unit):
     return unit['text']
 
 
-def sentences(found):
-    """The units as the lines a player hears, with a list saying its size and its end."""
+def joined(found):
+    """A bare number and the label beside it under the same parent are one unit, label first.
+
+    **The file order puts the value before the thing it is about**, so a reader that speaks one
+    unit per keystroke says `56` and only then `Duke Marianos of Nobatia,`. Whoever is listening
+    has to hold the number until the next press to know what it was, and in a list of ten that
+    happens ten times.
+
+    **The same parent is the whole rule, and it is narrow on purpose.** Counted over the harvest on
+    20 September 2026: of 141 bare numbers, 13 have a label under the same parent, 78 have one
+    beside them under a different parent, and 50 have no text beside them at all. Joining across
+    parents is what looks tempting and is not safe - in that group of 78 the label sits before the
+    number in some and after it in others, so half of them would be glued to the wrong word. Those
+    13 are clean: `Duke Marianos of Nobatia, 56`, `Family 3`, `Courtiers 9`, `Ongoing Wars 54`,
+    `Monthly Maintenance: -0.4`.
+    **That number is a floor**: the harvest is mostly the console route and those windows carry
+    captions without values, so a window with data holds far more numbers than this counts.
+
+    **What it deliberately does not solve** is the opinion beside a portrait, which is what raised
+    the question. Measured the same day on the character window: `+83` sits three levels below the
+    ancestor it shares with `Spouse` and the label sits two, and the three portraits are each built
+    differently. That is not a shape to write a rule on; it belongs in a screen file.
+    """
+    out, taken = [], set()
+    for index, unit in enumerate(found):
+        if index in taken:
+            continue
+        if not NUMBER.match(unit['text']):
+            out.append(unit)
+            continue
+        partner = None
+        for other in (index - 1, index + 1):
+            if other < 0 or other >= len(found) or other in taken:
+                continue
+            beside = found[other]
+            if not NUMBER.match(beside['text']) and beside['parent'] == unit['parent']:
+                partner = other
+                break
+        if partner is None:
+            out.append(unit)
+            continue
+        label = found[partner]
+        taken.add(partner)
+        if partner < index and out and out[-1] is label:
+            out.pop()
+        out.append(dict(label, text='%s %s' % (label['text'], unit['text'])))
+    return out
+
+
+def sentences(found, window=None):
+    """The units as the lines a player hears: each one what it says, and what explains it.
+
+    **A line is a pair and not a string, since 20 September 2026.** The explain key needs the
+    tooltip that belongs to the line the reader is standing on, and a list of strings has nowhere
+    to keep it. The lines a list adds around its rows - its size and its end - explain nothing.
+    """
+    found = in_order(window, joined(found)) if window else joined(found)
     out, at = [], 0
     while at < len(found):
         model = found[at]['model']
         if model is None:
-            out.append(spoken(found[at]))
+            out.append({'say': spoken(found[at]), 'explain': found[at]['explain']})
             at += 1
             continue
         rows = []
         while at < len(found) and found[at]['model'] == model:
-            rows.append(spoken(found[at]))
+            rows.append({'say': spoken(found[at]), 'explain': found[at]['explain']})
             at += 1
         word = name_of(model)
-        out.append('%d %s:' % (len(rows), word))
+        out.append({'say': '%d %s:' % (len(rows), word), 'explain': None})
         out += rows
-        out.append('end of the %s' % word)
+        out.append({'say': 'end of the %s' % word, 'explain': None})
     return out
 
 
@@ -269,7 +433,7 @@ def read(window, table=None, local=None, known=None, root=None):
     import json
     with open(os.path.join(HARVEST, window + '.json'), encoding='utf-8') as handle:
         record = json.load(handle)
-    return sentences(units(window, table, local, known, root, record))
+    return sentences(units(window, table, local, known, root, record), window)
 
 
 def live(pid, window=None, game=None, tables=None):
@@ -322,7 +486,7 @@ def live(pid, window=None, game=None, tables=None):
         known = guimap.windows(rows)
         tables = (table, local, known, pairing.root_finder(table))
     table, local, known, root = tables
-    return window, sentences(units(window, table, local, known, root, record))
+    return window, sentences(units(window, table, local, known, root, record), window)
 
 
 def main():
@@ -337,10 +501,10 @@ def main():
             return
         print('%s, %d lines' % (name, len(lines)))
         for line in lines:
-            print('    ' + line)
+            print('    %-60s %s' % (line['say'], line['explain'] or ''))
         if aloud:
             for line in lines:
-                speech.output(line, speech.QUEUE)
+                speech.output(line['say'], speech.QUEUE)
         return
 
     if not windows:
@@ -358,10 +522,10 @@ def main():
         lines = read(window, table, local, known, root)
         print('\n%s, %d lines, %.2f s' % (window, len(lines), time.time() - start))
         for line in lines:
-            print('    ' + line)
+            print('    %-60s %s' % (line['say'], line['explain'] or ''))
         if aloud:
             for line in lines:
-                speech.output(line, speech.QUEUE)
+                speech.output(line['say'], speech.QUEUE)
 
 
 if __name__ == '__main__':

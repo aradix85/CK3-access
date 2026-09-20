@@ -44,15 +44,20 @@ import reading
 import speech
 import windowmap
 
-UP, DOWN, TOGGLE = 38, 40, 123
+UP, DOWN, TOGGLE, EXPLAIN = 38, 40, 123, 46
 POLL = 400          # milliseconds the DLL waits for a key before answering with nothing
 
 
 def gui_tables():
-    """The templates of every gui file, once. Three seconds, and they do not change while it runs."""
+    """The templates of every gui file, once. Three seconds, and they do not change while it runs.
+
+    The localisation is warmed here for the same reason: it is 1173 files, and paid at the first
+    keystroke it would be five seconds of silence on the first window rather than on the start.
+    """
     rows = guimap.files()
     table, local = guimap.type_table(rows)
     known = guimap.windows(rows)
+    reading.words_table()
     return table, local, known, pairing.root_finder(table)
 
 
@@ -86,7 +91,7 @@ class Reader(object):
         F12 is claimed even when the reader is off, because otherwise there is nothing left to
         switch it back on with. It costs the game nothing: it binds F12 to nothing.
         """
-        codes = [TOGGLE] + ([UP, DOWN] if self.on else [])
+        codes = [TOGGLE] + ([UP, DOWN, EXPLAIN] if self.on else [])
         channel.ask('swallow ' + ' '.join(str(code) for code in codes))
 
     def refresh(self):
@@ -116,7 +121,7 @@ class Reader(object):
                            'open one with F1 and it will speak')
             return None
         if lines:
-            speech.output(lines[0])
+            speech.output(lines[0]['say'])
         return window
 
     def move(self, step):
@@ -125,7 +130,21 @@ class Reader(object):
         if not self.lines or goal < 0 or goal >= len(self.lines):
             return
         self.at = goal
-        speech.output(self.lines[goal])
+        speech.output(self.lines[goal]['say'])
+
+    def explain(self):
+        """What the game would show on hover here, when it is a sentence and not a sum.
+
+        **A tooltip hangs on the button and not on the text inside it**, so this looks up the
+        chain; measured over the harvest on 20 September 2026, one unit in five has one that way
+        and two hundred of those sit one single level up. Where the sentence has gaps in it the
+        game is adding something up, and that is `brief\\taken.md`, taak 10 subtaak f - so it says
+        that rather than reading out a skeleton full of holes.
+        """
+        if not self.lines:
+            return
+        found = self.lines[self.at]['explain']
+        speech.output(found if found else 'no explanation here that is not a sum')
 
     def toggle(self):
         self.on = not self.on
@@ -165,6 +184,8 @@ def loop(reader):
                 reader.move(-1)
             elif code == DOWN:
                 reader.move(1)
+            elif code == EXPLAIN:
+                reader.explain()
             else:
                 reader.refresh()
         if not reader.on:

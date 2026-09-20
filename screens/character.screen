@@ -1,0 +1,33 @@
+# Character window - how the F1 screen is read aloud.
+#
+# Exceptions only. Whatever this file does not name is read in the order the gui files give, so a
+# file left behind by a patch costs detail and never the screen itself.
+#
+# Point at what the gui file says a widget shows - a data function or a name - never at a position
+# in the child list and never at a coordinate.
+#
+# Check it with: python tools\ck3\screens.py
+
+screen = {
+	name = "character"
+	say = "Character"
+
+	window = "character_window"
+
+	# Identity first. The file puts the three portraits at the top - spouse, liege, heir, each a
+	# number and a word - so a reader that follows the file opens with somebody else's opinion
+	# and reaches your own name four presses later. Measured 20 September 2026 on the Nobatia
+	# state: the name was the seventh unit of forty-two.
+	#
+	# What is not named here keeps following in file order, so the portraits come straight after
+	# these three and nothing is lost.
+	#
+	# The first line names a widget and not a data function, and that is not a shortcut: the box
+	# holding the name is filled by the game itself and carries no function to point at. Pointing
+	# at one that does not fill it passes the check and reads nothing.
+	order = {
+		read = "character_name"
+		read = "[Character.GetRelationToString( GetPlayer )]"
+		read = "[CharacterWindow.GetSkills]"
+	}
+}
