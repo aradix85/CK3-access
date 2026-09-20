@@ -11,6 +11,55 @@ keeps the numbers with the rule they were counted by. A changelog that may never
 
 ## 2026-09-20
 
+- **A button the game has switched off says so before its words.** The byte the window flag sits
+  at is one state byte with more than one meaning: on a window object zero means drawn, and on a
+  button the low bits mean it cannot be used. Measured by emptying the save dialog's name field,
+  with the cancel button beside it as the counter-example, and crossed against the files over
+  three windows and 6906 widgets - no widget carries those bits without an `enabled` condition on
+  itself or an ancestor. So every button in the game can say whether it is usable, without a rule
+  written per screen.
+- **The window map was rebuilt and now holds all 265.** Of the 189 windows declared at the top
+  level of a file, 189 were created and 177 drawn; the other 76 are not tried at all and carry the
+  reason their shape has no console route - `GUI.CreateWidget` looks only at the top level, so
+  writing them down as failures produced a map claiming a third of the windows do not exist.
+  Checked against the running game afterwards: of the 204 window names the engine built, none is
+  missing from the map.
+- The window round stops when the state does not come back instead of adopting it. That is how a
+  previous round carried on with a search filter window standing open, after which a window that
+  was perfectly fine reported failure with no error line at all. A trial run also takes window
+  names rather than a count, because the first five of a list are the easy five, and it writes
+  beside the map rather than over it.
+- Shutting the game down picks the copy that is really on screen. A name is not an address:
+  `GUI.CreateWidget` leaves a parked second window object of the same name behind, and a posted
+  click lands on whatever lies on top. A refusal now carries the reason, and if the confirmation
+  does not come up it says which windows are drawn - this is the one route that may never fall
+  back on killing the process.
+- **Screen files are applied, not only checked.** The format and its checker existed; nothing read
+  them, so a file could be written, pass and change nothing. `order` decides which lines come
+  first - the character window opens with your own name instead of three portraits and somebody
+  else's opinion of you - and `key` is said once against the line that counts a list. The other
+  three blocks are deliberately left unwired and the file says so: `list` repeats what the generic
+  rule already does, `state` is a field now, and `explain` names a data function nothing here can
+  evaluate.
+- A bare number and the label beside it under the same parent are one line, label first. The file
+  order puts the value before the thing it is about, so a reader saying one unit per keystroke
+  said `56` and only then `Duke Marianos of Nobatia,`. Thirteen of the 141 bare numbers in the
+  harvest, and the rule stays at the same parent on purpose: of the 78 with a label under a
+  different parent, some have it before and some after, so half would be glued to the wrong word.
+- **A line carries what explains it, and there is a key for it.** The explain key reads the
+  tooltip the gui files put on the widget, looked for up the chain - a tooltip hangs on the
+  button and the text sits inside it. Asking only the unit's own widget reaches 49 of 1581 units;
+  walking up reaches 350, two hundred of them one level up. Of those, 190 resolve to a sentence
+  and 32 have no gaps at all; the rest is the game adding something up, and it says that instead
+  of reading out a skeleton full of holes.
+- **A window reads in about three seconds instead of fourteen.** Measured rather than guessed, and
+  the guess was wrong: 7.2 of 11.3 seconds went to parsing the executable's RTTI, because the
+  class map is rebuilt for every read and the reader reads per window. The executable does not
+  change while the game runs. Before that: the tree was walked twice per read, the scales of every
+  widget in the tree were asked where only the window's own subtree is used - four hundred
+  addresses per channel question, so two hundred questions instead of two - and the window was
+  expanded from the gui files on every keystroke. The lines that come out are the same lines.
+
 - **An event reads out loud, live.** The description as one unit, then the options with their count
   and an end line, then the character on screen with their opinion. That is the requirement this
   project exists for, and until today it could not be measured: the event windows in the harvest

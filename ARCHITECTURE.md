@@ -57,7 +57,12 @@ Every window is built up front and kept in the tree, so "it is in the tree" says
 whether a player can see it. Four mechanisms decide that, and all four are needed:
 
 - **A window flag** says whether a window is drawn at all. Alpha does not: windows sit at alpha 1
-  without being drawn.
+  without being drawn. **The same byte says a second thing on a button:** its low bits mean the
+  game has switched that button off. Measured by emptying the save dialog's name field, with the
+  cancel button beside it as the counter-example, and crossed against the gui files over three
+  windows and 6906 widgets - no widget carries those bits without an `enabled` condition on itself
+  or an ancestor. So it is one state byte read for every widget, and a screen no longer needs a
+  rule of its own to say a button is dead.
 - **Alpha along the whole parent chain**, not on the widget itself.
 - **Clipping.** A row scrolled past the end of its list keeps alpha 1 and a rectangle; what decides
   it is the frame of the nearest scroll area above it.
@@ -196,6 +201,20 @@ screen itself, which is the difference between this and a mod that replaces the 
 `tools/ck3/screens.py` checks each file against the expanded gui tree and names every window, data
 function and widget name that is gone — the same idea as checking every path a document mentions.
 A selector is allowed to match several widgets on disk; the live tree decides which one is there.
+
+**Two of the five blocks are applied, and the other three deliberately are not.** The format and
+its checker came first and nothing read them, so a file could be written, pass the check and
+change nothing at all - which it did until 20 September 2026. `order` decides which lines come
+first. `key` names the key that does something on a row and is said once against the line that
+counts the list, because it is the same key for every row and a sentence per row is noise. Of the
+rest: `list` with its count and its closing line is what the generic rule already does for every
+repeated container; `state` is a field now, read for every widget, and only the event flags
+`dangerous` and `special` still want a way out; and `explain` names a data function that nothing
+here can evaluate, so wiring it would be machinery for a case that cannot occur. **A line may name
+a widget instead of a data function, and sometimes it has to** - the box holding a character's
+name carries no function at all, and pointing at one that does not fill it passes the check and
+reads nothing. That check proves a name is not gone; it does not prove it points at the widget
+you meant.
 
 **A third rule was fixed and has since been withdrawn: addressing a widget by name.** The intent
 stands, since an index among siblings breaks the moment a mod adds a row inside a vanilla window,
