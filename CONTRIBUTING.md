@@ -51,7 +51,9 @@ numbers, list it under `quoted_in` and `check.py` will hold the document to it.
 On a fresh clone the claims about the executable, the saves, the DLL and the harvest read as drifted
 until you have built the DLL and have the game on disk; that is the tool working. The harvested
 window records are not in the repository — they are megabytes of one machine's measurements — so the
-claims counted over them measure nothing until you run a harvest of your own. After a rename, also
+claims counted over them measure nothing until you run a harvest of your own. Some claims are also
+quoted in the maintainer's working notes, which `.gitignore` keeps out; `check.py` counts those as
+unverifiable here rather than reporting them as missing files. After a rename, also
 run `python -m pyflakes tools` — a rename that compiles can still be half done.
 
 **You are not missing a document.** The maintainer keeps working notes, in Dutch, which are not part

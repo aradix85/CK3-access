@@ -12,8 +12,8 @@ The rules it applies, and every one of them is generic:
   - the game's markup codes come off, because they are bytes and not words.
 
 It runs on a harvested window, so it needs no running game: that is the point of doing this half
-first. What it cannot show is how it feels to step through it one key at a time - that needs the
-live half, and this is what that half will call.
+first. `live` is the other half, on the tree of this moment, and `reader.py` is what turns either
+into one line per keystroke.
 """
 import os
 import re

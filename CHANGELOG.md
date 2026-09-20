@@ -11,6 +11,12 @@ keeps the numbers with the rule they were counted by. A changelog that may never
 
 ## 2026-09-20
 
+- `check.py` no longer fails on a clone over documents that are not in the repository. A claim may
+  name the files that quote its number, and some of those are the maintainer's working notes, which
+  `.gitignore` keeps out — twenty-eight of them, each reported as a missing file to anyone else.
+  The question it asks now is the one `git init` asks: does `.gitignore` exclude this? Absent and
+  excluded is counted as unverifiable here; absent and expected is still a problem. Validated both
+  ways.
 - The reading rule has a keyboard: `tools/ck3/reader.py` hands out one unit per keystroke, spoken
   and brailled together. Up and down step; F12 switches the reader off and on again, and is the
   only key in the F row the game's own shortcuts bind to nothing. Three keys and no more until

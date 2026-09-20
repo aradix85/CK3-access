@@ -262,21 +262,36 @@ def gamestate_mb(part):
         return round(package.infolist()[0].file_size / 1048576.0, 1)
 
 
+_ignore_lines = None
+
+
+def ignored(relative):
+    """Does `.gitignore` exclude this path? The same question `git init` asks.
+
+    Two callers need it for opposite reasons: counting what goes into the repo, and knowing that
+    a document which is *not* in the repo is expected to be missing from a clone. The file is read
+    once - the walk below asks this for every file on disk, harvest rounds included.
+    """
+    global _ignore_lines
+    if _ignore_lines is None:
+        _ignore_lines = []
+        for line in open(os.path.join(PROJ, '.gitignore'), encoding='utf-8'):
+            line = line.split('#')[0].strip().rstrip('/')
+            if line:
+                _ignore_lines.append(line)
+    parts = relative.replace('\\', '/').split('/')
+    branches = ['/'.join(parts[:i + 1]) for i in range(len(parts))]
+    return any(fnmatch.fnmatch(branch, line) for line in _ignore_lines for branch in branches)
+
+
 def repo_files():
     """Counts what a `git init` would take into the repo: everything .gitignore does not exclude."""
-    lines = []
-    for line in open(os.path.join(PROJ, '.gitignore'), encoding='utf-8'):
-        line = line.split('#')[0].strip().rstrip('/')
-        if line:
-            lines.append(line)
     count = 0
     for map_, _, files in os.walk(PROJ):
         if '.git' in map_.split(os.sep):
             continue
         for name in files:
-            parts = os.path.relpath(os.path.join(map_, name), PROJ).replace('\\', '/').split('/')
-            branches = ['/'.join(parts[:i + 1]) for i in range(len(parts))]
-            if not any(fnmatch.fnmatch(branch, line) for line in lines for branch in branches):
+            if not ignored(os.path.relpath(os.path.join(map_, name), PROJ)):
                 count += 1
     return count
 
@@ -510,23 +525,32 @@ def quoted_numbers(claims):
     that quote it in `quoted_in`, and this asserts the measured value still occurs there. It is the
     same convention as backticks for paths - saying it out loud is what makes it checkable.
 
-    Returns (problems, how many quotes were checked).
+    **A quoted document that `.gitignore` excludes may simply not be there, and that is not a
+    problem.** The maintainer's working notes quote these numbers and stay out of the repo, so on
+    anyone else's clone those files are absent by design - reporting them would hand a contributor
+    a page of failures about documents `CONTRIBUTING.md` tells them they are not missing. A file
+    that *should* be in the repo and is gone is still a problem.
+
+    Returns (problems, how many quotes were checked, how many were not on this disk).
     """
-    problems, seen = [], 0
+    problems, seen, absent = [], 0, 0
     for claim in claims:
         for name in claim.get('quoted_in', ()):
-            seen += 1
             path = os.path.join(PROJ, name)
             if not os.path.exists(path):
+                if ignored(name):
+                    absent += 1
+                    continue
                 problems.append('%s quotes %s, which does not exist' % (claim['name'], name))
                 continue
+            seen += 1
             measure = MEASURES[claim['measure']]
             measured = str(measure(*claim.get('arguments', [])))
             text = open(path, encoding='utf-8').read()
             if not re.search(r'(?<![\d.])%s(?![\d])' % re.escape(measured), text):
                 problems.append('%s says %s, and %s does not'
                                 % (claim['name'], measured, name))
-    return problems, seen
+    return problems, seen, absent
 
 
 def main(all_of_them):
@@ -565,11 +589,13 @@ def main(all_of_them):
     print('%d of the %d channel commands named in the documents exist.'
           % (claimed - len(wrong), claimed))
 
-    quotes, counted = quoted_numbers(claims)
+    quotes, counted, absent = quoted_numbers(claims)
     for problem in quotes:
         print('QUOTED  %s' % problem)
-    print('%d of the %d numbers a document quotes are still the measured ones.'
-          % (counted - len(quotes), counted))
+    print('%d of the %d numbers a document quotes are still the measured ones.%s'
+          % (counted - len(quotes), counted,
+             '' if not absent else ' %d more are quoted only in documents that are not in this '
+                                   'repository, so they cannot be checked here.' % absent))
     return 1 if drifted or missing or wrong or quotes else 0
 
 
