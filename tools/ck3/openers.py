@@ -160,7 +160,7 @@ def buttons_on_disk():
 
 
 
-def live_record(game, pid, window, address=None):
+def live_record(game, pid, window, address=None, nodes=None):
     """The window that is drawn right now, in the shape the harvest writes and the pairing reads.
 
     The chain cannot use a harvested record: the buttons inside a window sit at addresses of this
@@ -170,9 +170,12 @@ def live_record(game, pid, window, address=None):
     drawn windows: two events stack, both called `character_event`, and `drawn_one` then refuses
     rather than guess - which is right, and leaves the caller stuck if it threw away what it knew.
     The draw order says which is on top, so a caller that worked that out passes the address.
+
+    **Hand in the tree as well when you already have one.** A caller that picked the window out of
+    the drawn set has just walked it; walking it again costs seconds and cannot see anything new.
     """
     import harvest
-    nodes = game.tree()
+    nodes = nodes if nodes is not None else game.tree()
     windows = [a for a, k in nodes.items() if k[0] in game_classes]
     if address is None:
         named = [a for a in windows if nodes[a][6] == window]
@@ -181,8 +184,19 @@ def live_record(game, pid, window, address=None):
         address = drawn_one(named, window)
     family = harvest.subtree(nodes, address)
     addresses = [a for a, _, _ in family]
-    scales = derive.scales_for(list(nodes))
-    classes = derive.class_map(pid, {a: k[0] for a, k in nodes.items()})
+    # **Ask the scales for this window, not for the whole tree.** They come back four hundred
+    # addresses per channel question, so over eighty-seven thousand nodes that is two hundred
+    # questions where two will do - and on a keystroke that was most of the wait. What
+    # `screen_pos` and `is_clipped` walk is this subtree plus the chain from the window up to the
+    # root, so that is what is asked for, and the whole chain: a scale that was never asked for
+    # reads back as 1.0 without saying so.
+    needed = set(addresses)
+    walk = address
+    while walk in nodes:
+        needed.add(walk)
+        walk = nodes[walk][5]
+    scales = derive.scales_for(needed)
+    classes = derive.class_map(pid, {a: nodes[a][0] for a in needed})
     flags = derive.flags_for([a for a in addresses if a in windows])
     alphas = harvest.alphas_for(addresses)
     tree = [harvest.widget_record(nodes, a, d, i, scales, classes, flags, alphas)

@@ -23,6 +23,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(HERE), 'nvda'))
 
 import channel
 import derive
+import openers
 import vtablemap
 import windowmap
 
@@ -30,27 +31,44 @@ PAUSE_MENU, CONFIRMATION = 'ingame_pausemenu', 'ingame_resign_confirmation'
 
 
 def look(root, pid, window_classes):
-    """The tree of this moment, with what is drawn and where it is."""
+    """The tree of this moment, with what is drawn, where it is, and what class each node is."""
     nodes = derive.widgets(root)
     windows = [a for a, k in nodes.items() if k[0] in window_classes]
     flags = derive.flags_for(windows)
     drawn = {nodes[a][6] for a in windows if flags.get(a) == 0}
-    return nodes, derive.scales_for(list(nodes)), drawn
+    classes = derive.class_map(pid, {a: k[0] for a, k in nodes.items()})
+    return nodes, derive.scales_for(list(nodes)), drawn, classes
 
 
-def press(nodes, scales, name, drawn_in=None):
-    """Click the middle of a named widget. Returns what it clicked, or None if it is not there."""
+def press(nodes, scales, classes, name):
+    """Click the widget with this name that is really on screen. Returns None, or why not.
+
+    **Taking the first widget with the right name is what broke this.** Measured 20 September
+    2026: after an aborted window round the pause menu was drawn and this still reported three
+    times over that the confirmation never came up. A name is not an address - `GUI.CreateWidget`
+    leaves a parked second window object of the same name behind, and a posted click lands on
+    whatever lies on top rather than on what you pointed at. `openers.on_screen` asks both
+    questions per copy: alpha along the parent chain, a size, a rectangle inside the drawing area,
+    and the flag byte of the window it hangs in. The copy that answers None is the one on screen.
+
+    **A refusal carries the reason**, because a shutdown route that says only "it did not work"
+    leaves the game standing with nothing to go on - and this is the one route that may never be
+    replaced by a hard kill.
+    """
     found = [a for a, k in nodes.items() if k[6] == name]
-    if drawn_in is not None:
-        found = [a for a in found if a in drawn_in]
     if not found:
-        return None
-    x, y = derive.screen_pos(nodes, found[0], scales)
-    width, height = derive.screen_size(nodes, found[0], scales)
-    if width <= 0 or height <= 0:
-        return None
-    channel.ask('mouse %d %d 1' % (int(x + width / 2), int(y + height / 2)))
-    return name
+        return 'there is no widget called %s' % name
+    refused = []
+    for address in found:
+        reason = openers.on_screen(address, nodes, scales, classes)
+        if reason is None:
+            x, y = derive.screen_pos(nodes, address, scales)
+            width, height = derive.screen_size(nodes, address, scales)
+            channel.ask('mouse %d %d 1' % (int(x + width / 2), int(y + height / 2)))
+            return None
+        refused.append(reason)
+    return '%s is in the tree %d time(s) and none of them can be clicked: %s' % (
+        name, len(found), ', '.join(sorted(set(refused))))
 
 
 def gone(pid, seconds=40):
@@ -74,13 +92,15 @@ def quit_game(pid):
         fields, _ = derive.fields_for(pid)      # only a loaded game can derive them
     derive.configure_channel(fields)
     derive.use_fields(fields)           # flags_for reads the offsets from here, not from the DLL
+    derive.use_screen(pid)              # on_screen asks the drawing area of this run, not a constant
     vtablemap.configure(pid)
     window_classes = windowmap.classes(pid)
+    openers.game_classes = window_classes
     root, _ = derive.quick_root(fields, pid)
 
-    nodes, scales, drawn = look(root, pid, window_classes)
+    nodes, scales, drawn, classes = look(root, pid, window_classes)
 
-    if press(nodes, scales, 'exit_game_button'):
+    if press(nodes, scales, classes, 'exit_game_button') is None:
         print('pressed exit game on the main menu')
     else:
         # Escape shuts one open window at a time and only opens the pause menu when nothing is
@@ -90,17 +110,20 @@ def quit_game(pid):
                 break
             channel.ask('sendkey 27')
             time.sleep(2.0)
-            nodes, scales, drawn = look(root, pid, window_classes)
+            nodes, scales, drawn, classes = look(root, pid, window_classes)
         if PAUSE_MENU not in drawn:
             raise SystemExit('the pause menu did not come up, so nothing was pressed')
-        if not press(nodes, scales, 'exit_button'):
-            raise SystemExit('the pause menu is up but carries no exit button')
+        why = press(nodes, scales, classes, 'exit_button')
+        if why:
+            raise SystemExit('the pause menu is up but %s' % why)
         time.sleep(2.0)
-        nodes, scales, drawn = look(root, pid, window_classes)
+        nodes, scales, drawn, classes = look(root, pid, window_classes)
         if CONFIRMATION not in drawn:
-            raise SystemExit('the confirmation did not come up; the game is untouched')
-        if not press(nodes, scales, 'descktop_button'):
-            raise SystemExit('the confirmation is up but carries no exit to desktop button')
+            raise SystemExit('the exit button was pressed and the confirmation did not come up. '
+                             'Drawn right now: %s' % (', '.join(sorted(drawn)) or 'nothing'))
+        why = press(nodes, scales, classes, 'descktop_button')
+        if why:
+            raise SystemExit('the confirmation is up but %s' % why)
         print('pressed exit to desktop')
 
     if gone(pid):

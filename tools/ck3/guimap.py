@@ -460,11 +460,18 @@ def window(name, table=None, local=None, known=None):
     a plain `window` throws all of that away: measured 30 August 2026, `scheme_failed_event` came
     out as two nodes against 283 live ones, and every text in the 22 windows of that shape was left
     without a source. Under its own key it expands like any other.
+
+    **The file list is only walked when it is needed.** It used to be fetched at the top whatever
+    the caller handed in, and with the tables passed in that is dead work: measured 20 September
+    2026, walking 4595 folders cost 0,76 of the 2,8 seconds a read of the character window took -
+    on every single read.
     """
-    rows = files()
+    rows = None
     if table is None:
+        rows = files()
         table, local = type_table(rows)
-    known = known if known is not None else windows(rows)
+    if known is None:
+        known = windows(rows if rows is not None else files())
     if name not in known:
         raise GuiError('no window named %r on disk' % name)
     virtual, entry = known[name]

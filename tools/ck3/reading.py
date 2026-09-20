@@ -179,9 +179,28 @@ def on_screen(node, by_address, area):
     return True
 
 
+EXPANDED = {}
+
+
+def expansion(window, table, local, known):
+    """The window as the gui files describe it, expanded once and then kept.
+
+    **What this holds does not change while the game runs**: it comes from the gui files on disk,
+    and those are read at startup and never written by this project. What does change is the live
+    tree beside it, and that is read again every time.
+
+    Measured 20 September 2026 on the character window: expanding it costs 1,9 of the 2,8 seconds
+    a read takes, so a reader that opens the same window twice paid it twice. `brief\\stand.md`
+    said this already happened; it did not.
+    """
+    if window not in EXPANDED:
+        EXPANDED[window] = guimap.window(window, table, local, known)[0]
+    return EXPANDED[window]
+
+
 def units(window, table, local, known, root, record):
     """Every unit this window says, in order, each with the list it belongs to."""
-    tree, _ = guimap.window(window, table, local, known)
+    tree = expansion(window, table, local, known)
     model_of = models(tree)
     source_of = {id(built): source
                  for source, built, _ in pairing.pairs(window, table, local, known, root, record,
@@ -296,7 +315,7 @@ def live(pid, window=None, game=None, tables=None):
         here = max(drawn, key=path)
         window = nodes[here][6]
 
-    record, _, _, _ = openers.live_record(game, pid, window, here)
+    record, _, _, _ = openers.live_record(game, pid, window, here, nodes)
     if tables is None:
         rows = guimap.files()
         table, local = guimap.type_table(rows)

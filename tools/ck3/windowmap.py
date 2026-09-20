@@ -4,7 +4,10 @@ Writes reports\windows.json: per window, whether GUI.CreateWidget produces it, w
 opens it, and if not, what the engine says about it. Runs on a loaded, paused game started with
 -debug_mode.
 
-Usage:  python tools\ck3\windowmap.py <pid> [<count>]
+Usage:  python tools\ck3\windowmap.py <pid> [<count> | <window> <window> ...]
+
+A count or a list of window names makes it a trial run, and a trial run writes its result beside
+the map instead of over it.
 """
 import collections
 import json
@@ -30,12 +33,20 @@ KEYS = {112: 'F1', 113: 'F2', 114: 'F3', 115: 'F4', 116: 'F5',
 
 
 def windows_on_disk():
-    """Every window the gui files declare, with the path the console wants.
+    """Every window the gui files declare, with the path the console wants and how it is declared.
 
     **The enumeration comes from `guimap.windows`, not from a second reader here.** This one used
     to match lines for `window = { name = ... }`, which is one of three shapes a window is declared
     in: on 20 September 2026 it counted 197 where the parser counted 265, so a round run from it
     would have written a map worse than the one it replaced. One reader, one answer.
+
+    **Only one of those three shapes has a console route, and saying so is the point of this.**
+    `GUI.CreateWidget` looks a widget up by name in a file and finds only what is declared there at
+    depth zero. A window declared through a type of its own, or as a block inside another window,
+    answers `could not find widget` - which is a property of the route and not of the window.
+    Writing that down as `created: False` produces a map claiming a third of the windows do not
+    exist, and overwrites one that knew better. So the shape is decided here, before anything is
+    pressed, and the windows without a console route are never tried.
 
     The engine merges the three layers into one virtual folder: `game/gui/x.gui`,
     `clausewitz/gui/x.gui` and `jomini/gui/x.gui` are all called `gui/x.gui` as far as the console
@@ -44,7 +55,24 @@ def windows_on_disk():
     path, so nothing has to be stripped here.
     """
     import guimap
-    return {name: virtual for name, (virtual, _) in guimap.windows().items()}
+    rows = guimap.files()
+    known = guimap.windows(rows)
+    top_level = set()
+    for _, _, full in rows:
+        for entry in guimap.read(full):
+            if entry['key'] != 'window' or not entry['body']:
+                continue
+            for inner in entry['body']:
+                if inner['key'] == 'name' and inner['value']:
+                    top_level.add(inner['value'])
+                    break
+    out = {}
+    for name, (virtual, entry) in known.items():
+        shape = ('top level' if name in top_level else
+                 'type definition' if entry['key'] != 'window' else
+                 'nested window block')
+        out[name] = {'file': virtual, 'shape': shape, 'console': name in top_level}
+    return out
 
 
 def classes(pid):
@@ -212,9 +240,14 @@ def shortcut_round(game):
             time.sleep(1.4)
             _, _, restored = game.state()
             if restored != baseline:
-                print('  NOTE after %s: state did not return (%s)'
-                      % (name, ', '.join(sorted(restored)) or 'leeg'))
-                baseline = restored
+                # **This used to take the new state as the baseline and carry on.** That is how
+                # the round of 20 September 2026 continued with the search filter window standing
+                # open, and a contaminated state makes every measurement after it worthless. The
+                # state coming back is the most important stop condition this project has, so it
+                # stops rather than adapts.
+                raise SystemExit('after %s the state did not come back; still drawn: %s. '
+                                 'Shut it by hand before starting again'
+                                 % (name, ', '.join(sorted(restored - baseline))))
         print('  %-4s %s' % (name, ', '.join(sorted(added)) or 'no change'))
     return out
 
@@ -232,7 +265,7 @@ def create_round(game, windows, limit=None):
     nodes, counts, drawn = game.state(game.set_console(True))
     previous = len(nodes)
     for i, window in enumerate(names, 1):
-        path = windows[window]
+        path = windows[window]['file']
         started = time.time()
         messages = game.command('GUI.CreateWidget %s %s' % (path, window), nodes)
         nodes, after_count, after_drawn = game.state()
@@ -296,9 +329,21 @@ def unmapped(pid, game=None):
 
 def main():
     pid = int(sys.argv[1])
-    limit = int(sys.argv[2]) if len(sys.argv) > 2 else None
+    rest = sys.argv[2:]
+    limit = int(rest[0]) if rest and rest[0].isdigit() else None
+    chosen = [name for name in rest if not name.isdigit()]
     windows = windows_on_disk()
-    print('windows on disk: %d' % len(windows))
+    with_console = {name: row for name, row in windows.items() if row['console']}
+    if chosen:
+        # **A trial run names its windows.** Taking the first five of the list takes the five
+        # easiest, which is how a round of ten once finished without a complaint while all ten
+        # had failed. The hard cases go in by hand.
+        missing = [name for name in chosen if name not in with_console]
+        if missing:
+            raise SystemExit('no console route for: %s' % ', '.join(missing))
+        with_console = {name: with_console[name] for name in chosen}
+    print('windows on disk: %d, of which %d have a console route; trying %d'
+          % (len(windows), sum(1 for r in windows.values() if r['console']), len(with_console)))
 
     game = Game(pid)
     print('shortcuts:')
@@ -306,22 +351,34 @@ def main():
     print('windows with a shortcut: %d' % len(shortcuts))
 
     print('GUI.CreateWidget:')
-    created = create_round(game, windows, limit)
+    created = create_round(game, with_console, limit)
 
     game.set_console(False)
     result = {'measured': time.strftime('%Y-%m-%d %H:%M'),
                 'exe': derive.build_key(),
-                'windows': {name: dict(created.get(name, {'file': path}),
-                                        shortcut=shortcuts.get(name))
-                             for name, path in windows.items()}}
-    target = os.path.abspath(OUT)
+                'windows': {}}
+    for name, row in windows.items():
+        out = dict(row, shortcut=shortcuts.get(name))
+        if name in created:
+            out.update(created[name])
+        elif not row['console']:
+            # Not a failure and not written down as one: the route does not exist for this shape.
+            out['created'] = None
+            out['reason'] = ('declared as a %s, so GUI.CreateWidget cannot find it - '
+                             'it looks only at the top level of a file' % row['shape'])
+        result['windows'][name] = out
+    target = os.path.abspath(OUT if not (chosen or limit)
+                             else os.path.join(os.environ['TEMP'], 'ck3', 'windows_trial.json'))
+    if chosen or limit:
+        print('a trial run does not overwrite the map; writing the trial beside it')
     with open(target, 'w', encoding='utf-8') as file:
         json.dump(result, file, ensure_ascii=False, indent=1, sort_keys=True)
 
     ok = sum(1 for v in result['windows'].values() if v.get('created'))
     drawn = sum(1 for v in result['windows'].values() if v.get('drawn'))
-    print('\ncreated %d, of those drawn %d, with shortcut %d, out of %d windows'
-          % (ok, drawn, len(shortcuts), len(windows)))
+    no_route = sum(1 for v in result['windows'].values() if not v['console'])
+    print('\ncreated %d, of those drawn %d, with shortcut %d, no console route %d, out of %d'
+          % (ok, drawn, len(shortcuts), no_route, len(windows)))
     print('written: %s' % target)
 
 

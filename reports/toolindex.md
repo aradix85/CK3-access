@@ -376,8 +376,8 @@ returns a pair, passed on as one thing, costs a run.
 
 | call | returns | does |
 |---|---|---|
-| `look(root, pid, window_classes)` | 3-tuple | The tree of this moment, with what is drawn and where it is. |
-| `press(nodes, scales, name, drawn_in=None)` | value of NoneType | Click the middle of a named widget. Returns what it clicked, or None if it is not there. |
+| `look(root, pid, window_classes)` | 4-tuple | The tree of this moment, with what is drawn, where it is, and what class each node is. |
+| `press(nodes, scales, classes, name)` | value of NoneType | Click the widget with this name that is really on screen. Returns None, or why not. |
 | `gone(pid, seconds=40)` | bool | Wait until the channel stops answering, which is the game being gone. |
 | `quit_game(pid)` | nothing | - |
 
