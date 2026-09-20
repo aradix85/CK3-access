@@ -55,6 +55,21 @@ def _connect(attempts=20):
                                  'start the game again and try what you were doing once more'))
 
 
+def alive():
+    """Is the link there? Asked without speaking, for a caller that expects it to be gone.
+
+    `ask` says it out loud when the pipe will not open, and that is right: for anything that needs
+    the game, a missing link is the one failure with nothing left underneath it to report. Shutting
+    the game down is the single case where the link disappearing is the goal, and announcing it
+    there told the player that their own Exit to Desktop had broken something.
+    """
+    try:
+        with open(PIPE, 'r+b', buffering=0):
+            return True
+    except OSError:
+        return False
+
+
 def close():
     global _connection
     if _connection is not None:

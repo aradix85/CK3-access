@@ -11,6 +11,11 @@ keeps the numbers with the rule they were counted by. A changelog that may never
 
 ## 2026-09-20
 
+- Shutting the game down no longer announces that it failed. Waiting for the channel to stop
+  answering went through `ask`, which speaks when the pipe will not open — so a clean exit told
+  the player their own Exit to Desktop had broken something. `channel.alive` asks the same question
+  without speaking, for the one caller that wants the link gone. `ask` still speaks, and that is
+  right: everywhere else a missing link is the failure with nothing underneath it to report.
 - `check.py` no longer fails on a clone over documents that are not in the repository. A claim may
   name the files that quote its number, and some of those are the maintainer's working notes, which
   `.gitignore` keeps out — twenty-eight of them, each reported as a missing file to anyone else.

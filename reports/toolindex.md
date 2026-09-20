@@ -36,6 +36,7 @@ returns a pair, passed on as one thing, costs a run.
 | `guimap_files()` | value | - |
 | `database_entries(kind, what, save=None)` | value | Entries of one of the game's databases, merged the way the engine merges them. |
 | `gamestate_mb(part)` | value | - |
+| `ignored(relative)` | value | Does `.gitignore` exclude this path? The same question `git init` asks. |
 | `repo_files()` | value | Counts what a `git init` would take into the repo: everything .gitignore does not exclude. |
 | `document_paths()` | 2-tuple | Every project path named in a document, checked against the disk. |
 | `mod_windows(part)` | value | Windows in the map whose gui file is not part of the game itself. |
@@ -43,7 +44,7 @@ returns a pair, passed on as one thing, costs a run.
 | `map_layer(what)` | value | A count of the static map layer, recomputed from the game files. |
 | `shortcuts(what)` | value | How many key bindings the game defines, counted by kind. |
 | `shortcut_words(what)` | NoneType of value | How far a shortcut can be given a meaning from disk alone. |
-| `quoted_numbers(claims)` | 2-tuple | Claims that a document repeats, checked against the file that repeats them. |
+| `quoted_numbers(claims)` | 3-tuple | Claims that a document repeats, checked against the file that repeats them. |
 | `main(all_of_them)` | value | - |
 
 ## never_silent.py
@@ -147,6 +148,7 @@ returns a pair, passed on as one thing, costs a run.
 
 | call | returns | does |
 |---|---|---|
+| `alive()` | bool | Is the link there? Asked without speaking, for a caller that expects it to be gone. |
 | `close()` | nothing | - |
 | `ask(command, timeout=60.0, errors_ok=False)` | value | Asks the channel one question and returns the answer as text. |
 

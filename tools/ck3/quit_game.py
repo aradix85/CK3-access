@@ -54,11 +54,15 @@ def press(nodes, scales, name, drawn_in=None):
 
 
 def gone(pid, seconds=40):
-    """Wait until the channel stops answering, which is the game being gone."""
+    """Wait until the channel stops answering, which is the game being gone.
+
+    It asks `alive` rather than `ask`, because here the link disappearing is what success looks
+    like: going through `ask` made a clean shutdown speak the failure sentence for a game that had
+    done exactly what it was told.
+    """
     for _ in range(seconds):
-        try:
-            channel.ask('hello', timeout=2)
-        except Exception:
+        if not channel.alive():
+            channel.close()
             return True
         time.sleep(1)
     return False
