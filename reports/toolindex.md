@@ -174,7 +174,8 @@ returns a pair, passed on as one thing, costs a run.
 | `use_screen(pid)` | value | Publish the drawing area of this run, because it is not a property of the build. |
 | `drawing_area()` | value | - |
 | `use_fields(fields)` | nothing | Publish the two visibility offsets for this build. |
-| `flags_for(addresses)` | value | The window flag of many objects in as few channel questions as possible. |
+| `field_for(addresses, offset, width=1)` | value | One field of many objects, in as few channel questions as possible. |
+| `flags_for(addresses)` | value | The window flag of many objects: one byte, and zero means the window is drawn. |
 | `widgets(root)` | value | The whole tree with fields attached: address -> (vtable, x, y, width, height, parent, name, text). |
 | `scales_for(addresses)` | value | Per widget (own scale, scale from above). The two sit next to each other, so one read round. |
 | `screen_pos(nodes, address, scales, anchors=None)` | 2-tuple | The place on screen: the own position plus that of every parent, with the scale applied. |
@@ -377,6 +378,17 @@ returns a pair, passed on as one thing, costs a run.
 | `gone(pid, seconds=40)` | bool | Wait until the channel stops answering, which is the game being gone. |
 | `quit_game(pid)` | nothing | - |
 
+## ck3\reader.py
+*The key loop: one unit per keystroke.*
+
+| call | returns | does |
+|---|---|---|
+| `gui_tables()` | 4-tuple | The templates of every gui file, once. Three seconds, and they do not change while it runs. |
+| `keys_waiting(answer)` | list | - |
+| `loop(reader)` | nothing | Every key the game receives comes past here, swallowed or not, because the hook sits in the |
+| `give_back()` | nothing | The game gets every key back. This runs before anything is said about why. |
+| `main()` | nothing | - |
+
 ## ck3\reading.py
 *The generic reading rule: a window as the sentences that come out of it.*
 
@@ -391,7 +403,7 @@ returns a pair, passed on as one thing, costs a run.
 | `spoken(unit)` | value | One unit as it is said. |
 | `sentences(found)` | value | The units as the lines a player hears, with a list saying its size and its end. |
 | `read(window, table=None, local=None, known=None, root=None)` | value | One harvested window as the lines it says. |
-| `live(pid, window=None)` | 2-tuple of value | The window that is on top in the running game, as the lines it says. |
+| `live(pid, window=None, game=None, tables=None)` | 3-tuple of value of 2-tuple | The window that is on top in the running game, as the lines it says. |
 | `main()` | nothing | - |
 
 ## ck3\savegame.py

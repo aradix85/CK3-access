@@ -9,7 +9,7 @@ Seven parts, split where a game patch is most likely to hit.
 | 3 | **Visibility** | which of the tree is really on screen; four mechanisms, all needed |
 | 4 | **Input** | keys taken before the game sees them; clicks posted inward |
 | 5 | **Reading the game** | five independent sources, and their disagreement is the test |
-| 6 | **Presentation** — `screens/`, `tools/ck3/screens.py` | what gets said and in what order — the data is there, the reader is not |
+| 6 | **Presentation** — `screens/`, `tools/ck3/reading.py`, `tools/ck3/reader.py` | what gets said, in what order, and on which key |
 | 7 | **Speech** — `tools/nvda/speech.py` | one seam to NVDA, speech and braille together |
 
 **Where this is heading, because it decides where new code belongs.** Installing has to end up
@@ -160,13 +160,24 @@ the order on disk, so an alignment that runs on child order has to move it there
 was found, every list declared the other way round lost its whole content: 67 texts, and with them
 the buttons that switch the ledger between its eleven categories.
 
-## 6. Presentation — the data is there, the reader is not
+## 6. Presentation — what gets said, in what order, and on which key
 
 What gets spoken, in what order, and what is left out. This decides whether the result is usable,
 and it is the one place measurement cannot answer the question.
 
 Two rules are fixed: output is not sorted by screen position, which is a sighted reader's order; and
 one keystroke produces one unit of speech plus braille. It belongs in data rather than in code.
+
+**`tools/ck3/reader.py` is where that second rule becomes real.** It claims the arrow keys through
+the DLL, hands out one unit per press, and gives every key back on the way out — a reader that owns
+the arrows and dies without a word leaves a keyboard that half works. It claims three keys and no
+more, because what else is wanted cannot be decided before somebody has heard it.
+
+It carries no watcher over the windows, and the reason is section 4: the hook reports every key the
+game receives, swallowed or not, so a key that is not the reader's says the screen may have changed.
+An event is the exception, arriving while nobody presses anything, and it is noticed through a
+number the engine already keeps — the layers under the root count their own children, and one of
+them holds nothing but events. All of them are read in one question.
 
 **That data is a screen file, one per screen, under `screens/`.** It is written in the game's own
 format and read with the gui parser of section 5, so there is no second parser to keep working and

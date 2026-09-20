@@ -126,22 +126,30 @@ def _visibility_offset(which):
     return value
 
 
-def flags_for(addresses):
-    """The window flag of many objects in as few channel questions as possible.
+def field_for(addresses, offset, width=1):
+    """One field of many objects, in as few channel questions as possible.
+
+    The bytes come back in the order they sit in memory, so they are read back little endian. For
+    one byte that is the same thing; for four it is not, and a child count read the other way
+    round comes out in the millions - which looks exactly like a field that has moved.
 
     The DLL refuses a command that fills its 8192-byte buffer - it answers `error: command too
     long`, measured 29 July 2026. Hence at most 400 addresses per question.
     """
-    flag = _visibility_offset('flag')
     out, items = {}, sorted(addresses)
     for start in range(0, len(items), 400):
         part = items[start:start + 400]
-        ask = 'readmany 1 ' + ' '.join('%x' % (a + flag) for a in part)
+        ask = 'readmany %d ' % width + ' '.join('%x' % (a + offset) for a in part)
         for line in channel.ask(ask, timeout=120).split('\n'):
             d = line.split('\t')
             if d[0] == 'l' and len(d) > 2 and d[2] != 'unreadable':
-                out[int(d[1], 16) - flag] = int(d[2], 16)
+                out[int(d[1], 16) - offset] = int.from_bytes(bytes.fromhex(d[2].strip()), 'little')
     return out
+
+
+def flags_for(addresses):
+    """The window flag of many objects: one byte, and zero means the window is drawn."""
+    return field_for(addresses, _visibility_offset('flag'))
 
 
 def widgets(root):

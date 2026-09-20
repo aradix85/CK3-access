@@ -9,7 +9,26 @@ and an entry a later measurement overturns is taken out rather than left standin
 beside it: git keeps the text, `ARCHITECTURE.md` keeps the reasoning, and `reports/claims.json`
 keeps the numbers with the rule they were counted by. A changelog that may never forget only grows.
 
-## 2026-09-19
+## 2026-09-20
+
+- The reading rule has a keyboard: `tools/ck3/reader.py` hands out one unit per keystroke, spoken
+  and brailled together. Up and down step; F12 switches the reader off and on again, and is the
+  only key in the F row the game's own shortcuts bind to nothing. Three keys and no more until
+  somebody has listened to them.
+- It needs no watcher over the windows. The hook in the DLL reports every key the game receives,
+  swallowed or not, so a key that is not the reader's means the screen may have changed — which is
+  why it changed. Nothing is polled to discover what a keystroke already said.
+- An event is the exception, since it arrives while nobody presses anything, and it announces
+  itself through a number the engine already keeps: the seventeen layers under the root count
+  their own children, and one of them is called `events` and stands empty until one comes in.
+  Reading all seventeen is a single question, so the loop asks every round and walks the tree only
+  when one of them moves.
+- A reader that owns the arrow keys may not die without a word, so it hands the keys back to the
+  game before it says what went wrong. Silence then has one meaning: the end of a list.
+- `derive.field_for` reads one field of many objects, and `flags_for` is a call to it rather than
+  a second copy. It reads little endian, because the bytes come back in memory order: for one byte
+  that is the same thing, and a four-byte child count read the other way round lands in the
+  millions and looks exactly like an offset that has moved after a patch.
 
 - The reading rule runs on the running game as well: it takes the window that is on top by draw
   order, reads the tree of this moment, and says the same lines. Proven on a loaded save, where

@@ -219,19 +219,24 @@ def read(window, table=None, local=None, known=None, root=None):
     return sentences(units(window, table, local, known, root, record))
 
 
-def live(pid, window=None):
+def live(pid, window=None, game=None, tables=None):
     """The window that is on top in the running game, as the lines it says.
 
     This is the other half of the same rule: the units come from the tree of this moment instead
     of from a harvested record, and everything after that is shared. Which window is on top is
     the draw order - siblings are drawn in list order and the tree keeps that order, so the
     highest path of sibling numbers is the one lying over the rest.
+
+    `game` and `tables` are handed in by a caller that reads more than once. Building either costs
+    seconds - a field check and a walk to the root, and the templates of 563 gui files - and
+    neither changes while the game runs.
     """
     import collections
     import openers
     import windowmap
 
-    game = windowmap.Game(pid)
+    if game is None:
+        game = windowmap.Game(pid)
     openers.game_classes = game.window_classes      # live_record reads this module global
     nodes = game.tree()
     windows = [a for a, k in nodes.items() if k[0] in game.window_classes]
@@ -256,11 +261,13 @@ def live(pid, window=None):
         window = nodes[max(drawn, key=path)][6]
 
     record, _, _, _ = openers.live_record(game, pid, window)
-    rows = guimap.files()
-    table, local = guimap.type_table(rows)
-    known = guimap.windows(rows)
-    root = pairing.root_finder(table)
-    return window, sentences(units(window, table, local, known, root, record))
+    if tables is None:
+        rows = guimap.files()
+        table, local = guimap.type_table(rows)
+        known = guimap.windows(rows)
+        tables = (table, local, known, pairing.root_finder(table))
+    table, local, known, root = tables
+    return window, sentences(units(window, table, local, known, root, record)), windows
 
 
 def main():
