@@ -132,6 +132,13 @@ shortcut and 32.8 through a click. None of the twelve `GUI.` console commands ta
 there is no way around it. Structure is collected the cheap way and data the slow way, and
 `tools/ck3/harvest.py` knows all three routes.
 
+**And the map of what can be opened is checked against the game, not against the files.** Listing
+the shapes a window can be declared in finds only the shapes somebody thought of, and it was wrong
+twice - the second time by forty-seven windows, the search filter and the ledger's filter among
+them. A window the map has never seen cannot even refuse; it is absent from the count rather than
+reported. The engine builds every window up front and keeps it in the tree, so the live tree is the
+whole list, and `windowmap.unmapped` says what is in it that the map lacks.
+
 **A fourth route reaches what no single action opens: the chain.** Some windows wait on a state
 rather than on a button — a variable another window sets — so they are reached by opening one window
 and acting inside it. `tools/ck3/openers.py`, behind `--chain`, reads the target's own `visible`

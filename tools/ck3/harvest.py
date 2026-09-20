@@ -130,14 +130,23 @@ def subtree(nodes, root):
     return out
 
 
+TEXT_CLASSES = ('Textbox', 'Editbox')
+
+
 def widget_record(nodes, address, depth, index, scales, classes, flags, alphas):
     """One widget, with every field this project can read - also the ones nothing uses yet.
 
-    **Text only from a text box.** The offset that holds the shown string belongs to `Textbox`;
-    on any other class it lands on something else and comes back as unreadable bytes that look
-    like a reading error. Measured 24 August 2026 with textfield.py, which searched per widget
-    class for a text offset and found one for `Textbox` and for no other class. So other classes
-    get null here, with their class recorded, rather than
+    **Text from a text box or an input field.** The offset that holds the shown string belongs to
+    `Textbox`; on most other classes it lands on something else and comes back as unreadable bytes
+    that look like a reading error. Measured 24 August 2026 with textfield.py, which searched per
+    widget class for a text offset and found one for `Textbox` and for no other class.
+    **`Editbox` was a false negative, and the reason is worth keeping.** That search looked for
+    where text *sits*, and an input field nobody has typed into holds nothing, so there was nothing
+    to find - an instrument that cannot see a positive result. Measured again on 20 September 2026
+    by posting `Zqx` into the character finder's search field and looking for it in the widget's
+    own bytes: it sits at the same offset as ordinary widget text, with its length sixteen bytes
+    on. So what a player typed is readable, and it reads like any other text.
+    Other classes still get null here, with their class recorded, rather than
     noise that a later pass would have to learn to distrust.
 
     `index` is the widget's place among its parent's children, written down rather than left to the
@@ -149,7 +158,7 @@ def widget_record(nodes, address, depth, index, scales, classes, flags, alphas):
     own, above = scales.get(address, (1.0, 1.0))
     kind = classes.get(address)
     return {'address': '%x' % address, 'parent': '%x' % parent, 'depth': depth, 'index': index,
-            'class': kind, 'name': name, 'text': text if kind == 'Textbox' else None,
+            'class': kind, 'name': name, 'text': text if kind in TEXT_CLASSES else None,
             'own_rect': [x, y, width, height],
             'screen_rect': [screen_x, screen_y, drawn_width, drawn_height],
             'scale': [own, above], 'alpha': alphas.get(address),
@@ -213,7 +222,7 @@ def confirmed(tree, lines, size):
     by_address = {w['address']: w for w in tree}
     boxes = seen = offscreen = 0
     for w in tree:
-        if w['class'] != 'Textbox' or not w['text'] or w['clipped']:
+        if w['class'] not in TEXT_CLASSES or not w['text'] or w['clipped']:
             continue
         want = _flat(derive.strip_markup(w['text']))
         x, y, width, height = w['screen_rect']

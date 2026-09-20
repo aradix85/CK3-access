@@ -286,6 +286,32 @@ def create_round(game, windows, limit=None):
     return out
 
 
+def unmapped(pid, game=None):
+    """Which windows the running game built that the map on disk does not know.
+
+    **This is the closed test, and it exists because the open one failed twice.** Listing the
+    shapes a window can be declared in finds only the shapes somebody thought of, and a window the
+    map has never seen cannot refuse: it is missing from the count rather than reported as a
+    problem. The engine builds every window up front and keeps it in the tree, so the live tree is
+    the complete list and anything in it that `guimap.windows` lacks is a real miss.
+
+    Measured 20 September 2026 on the Nobatia state, before the type-declared shape was counted:
+    272 window objects under 206 names, of which 31 were unknown - the character filter, the
+    ledger's filter, the vassal filters, the situation participant lists.
+
+    Returns (missing, live names, names the map has that this state did not build). That third one
+    is not a fault: a window for another government or another era simply is not there.
+    """
+    import guimap
+    game = game or Game(pid)
+    nodes = game.tree()
+    live = collections.Counter(node[6] for node in nodes.values()
+                               if node[0] in game.window_classes and node[6])
+    known = guimap.windows()
+    return (sorted(n for n in live if n not in known), live,
+            sorted(n for n in known if n not in live))
+
+
 def main():
     pid = int(sys.argv[1])
     limit = int(sys.argv[2]) if len(sys.argv) > 2 else None

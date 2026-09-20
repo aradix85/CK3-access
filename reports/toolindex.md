@@ -314,7 +314,7 @@ returns a pair, passed on as one thing, costs a run.
 | call | returns | does |
 |---|---|---|
 | `buttons_on_disk()` | value | Every widget that opens a window when pressed, with how it does it. |
-| `live_record(game, pid, window)` | 4-tuple | The window that is drawn right now, in the shape the harvest writes and the pairing reads. |
+| `live_record(game, pid, window, address=None)` | 4-tuple | The window that is drawn right now, in the shape the harvest writes and the pairing reads. |
 | `goal_of(target, known=None)` | 3-tuple | What has to happen before `target` is drawn: a view opens, or a variable is set. |
 | `reaches(value, goal)` | bool of value | Does this onclick reach the goal? Setting a variable counts, clearing it does not. |
 | `fires_for(source, goal)` | 2-tuple | The call this disk block really fires, split into the one that reaches `goal` and the rest. |
@@ -407,7 +407,7 @@ returns a pair, passed on as one thing, costs a run.
 | `spoken(unit)` | value | One unit as it is said. |
 | `sentences(found)` | value | The units as the lines a player hears, with a list saying its size and its end. |
 | `read(window, table=None, local=None, known=None, root=None)` | value | One harvested window as the lines it says. |
-| `live(pid, window=None, game=None, tables=None)` | 3-tuple of value of 2-tuple | The window that is on top in the running game, as the lines it says. |
+| `live(pid, window=None, game=None, tables=None)` | 2-tuple of value | The window that is on top in the running game, as the lines it says. |
 | `main()` | nothing | - |
 
 ## ck3\savegame.py
@@ -473,6 +473,7 @@ returns a pair, passed on as one thing, costs a run.
 | `classes(pid)` | set | - |
 | `shortcut_round(game)` | value | Which shortcut opens which window? One key per test, and every window shut again. |
 | `create_round(game, windows, limit=None)` | value | Try every window with GUI.CreateWidget, and clean up immediately. |
+| `unmapped(pid, game=None)` | 3-tuple | Which windows the running game built that the map on disk does not know. |
 | `main()` | nothing | - |
 
 ## nvda\speech.py

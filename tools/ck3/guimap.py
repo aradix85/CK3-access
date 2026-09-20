@@ -380,8 +380,21 @@ def windows(rows=None):
     definition. But a window may also be declared through a type of its own that inherits from
     `window`, and Agami's mod laid bare on 29 August 2026 that the map had never seen those - among
     them event windows and the confirmation dialogs, which is the one thing a blind player cannot
-    be left without. Those are counted at the top level only: a window-derived type used inside
-    another window is a part of it, not a window of its own.
+    be left without. **Counted at any depth, and the live tree is why.** The rule here used to be
+    top level only, reasoning that a window-derived type used inside another window is a part of
+    it. The game disagrees: `window_character_filter = { name = "vassal_filter_window" }` sits
+    inside the character window and comes out as its own window object with its own name.
+
+    **A third shape, found 20 September 2026 and the reason the map was never complete.** A type
+    can inherit from `window` and carry the name itself - `type window_character_filter = window {
+    name = "character_filter_window" }` - and it may sit inside a `types` block, a level below
+    where the shape above looks. Forty windows are declared that way, the search filter and the
+    ledger's filter among them.
+
+    **Stop enumerating shapes here.** This is the second time a shape nobody thought of was
+    missing, and a window the map does not know cannot even refuse - it is absent from the count
+    rather than reported. The closed test is `windowmap.unmapped`, which asks the running game:
+    the engine builds every window up front, so the live tree is the whole list.
     """
     rows = rows if rows is not None else files()
     table, _ = type_table(rows)
@@ -399,7 +412,7 @@ def windows(rows=None):
                     break
             if name:
                 out[name] = (virtual, entry)
-        for entry in entries:
+        for entry in _walk(entries):
             if entry['key'] == 'window' or not entry['body']:
                 continue
             if root(entry['key']) != 'window':
@@ -408,6 +421,16 @@ def windows(rows=None):
                 if inner['key'] == 'name' and inner['value']:
                     out.setdefault(inner['value'], (virtual, entry))
                     break
+    for type_name, found in table.items():
+        if root(found['parent']) != 'window':
+            continue
+        for inner in found['body']:
+            if inner['key'] == 'name' and inner['value']:
+                out.setdefault(inner['value'], (found['file'],
+                                                {'key': type_name, 'arg': None,
+                                                 'value': found['parent'],
+                                                 'body': found['body']}))
+                break
     return out
 
 

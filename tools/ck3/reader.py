@@ -95,8 +95,20 @@ class Reader(object):
         Starting at the top rather than where you were is deliberate: a remembered place points
         into a list that may since be sorted differently or a row shorter, and then it points at
         the wrong thing without saying so.
+
+        **A window the files do not describe is spoken, not raised.** The game is external input
+        here: it can draw something the gui reader has no expansion for, and on 20 September 2026
+        it did - the character filter, which the window map had never counted. A traceback is
+        nothing to a player, and falling silent is worse, because the arrows are ours and the game
+        will not answer them either.
         """
-        window, lines = reading.live(self.pid, game=self.game, tables=self.tables)
+        try:
+            window, lines = reading.live(self.pid, game=self.game, tables=self.tables)
+        except guimap.GuiError as trouble:
+            self.lines, self.at = [], 0
+            speech.failure('the reader', 'it does not know this window: %s' % trouble,
+                           'close it and open another screen, and report the name')
+            return None
         self.lines, self.at = lines, 0
         self.counted = self.counts()
         if window is None:

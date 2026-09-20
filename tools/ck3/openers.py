@@ -160,19 +160,25 @@ def buttons_on_disk():
 
 
 
-def live_record(game, pid, window):
+def live_record(game, pid, window, address=None):
     """The window that is drawn right now, in the shape the harvest writes and the pairing reads.
 
     The chain cannot use a harvested record: the buttons inside a window sit at addresses of this
     moment, and half of them are rows built from data that was not there when the harvest ran.
+
+    **Hand in the address when you already know which object you mean.** A name is not unique among
+    drawn windows: two events stack, both called `character_event`, and `drawn_one` then refuses
+    rather than guess - which is right, and leaves the caller stuck if it threw away what it knew.
+    The draw order says which is on top, so a caller that worked that out passes the address.
     """
     import harvest
     nodes = game.tree()
     windows = [a for a, k in nodes.items() if k[0] in game_classes]
-    named = [a for a in windows if nodes[a][6] == window]
-    if not named:
-        raise SystemExit('%s is not in the tree at all' % window)
-    address = drawn_one(named, window)
+    if address is None:
+        named = [a for a in windows if nodes[a][6] == window]
+        if not named:
+            raise SystemExit('%s is not in the tree at all' % window)
+        address = drawn_one(named, window)
     family = harvest.subtree(nodes, address)
     addresses = [a for a, _, _ in family]
     scales = derive.scales_for(list(nodes))

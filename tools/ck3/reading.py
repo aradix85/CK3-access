@@ -289,19 +289,21 @@ def live(pid, window=None, game=None, tables=None):
         return tuple(reversed(out))
 
     drawn = [a for a in windows if flags.get(a) == 0]
+    here = None
     if window is None:
         if not drawn:
             return None, []
-        window = nodes[max(drawn, key=path)][6]
+        here = max(drawn, key=path)
+        window = nodes[here][6]
 
-    record, _, _, _ = openers.live_record(game, pid, window)
+    record, _, _, _ = openers.live_record(game, pid, window, here)
     if tables is None:
         rows = guimap.files()
         table, local = guimap.type_table(rows)
         known = guimap.windows(rows)
         tables = (table, local, known, pairing.root_finder(table))
     table, local, known, root = tables
-    return window, sentences(units(window, table, local, known, root, record)), windows
+    return window, sentences(units(window, table, local, known, root, record))
 
 
 def main():

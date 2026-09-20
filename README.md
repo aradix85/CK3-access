@@ -21,7 +21,11 @@ process and from files already on your disk.
 - **It survives a patch.** Every offset is derived from the running game and rechecked at each
   start. Against build 1.16.2 one had moved, and it recovered on its own.
 - **An event reads end to end** — title, description, options — straight out of memory, checked
-  against the localisation files on disk.
+  against the localisation files on disk, and read aloud a line at a time from the live game.
+- **265 windows are on the map, and the map is checked against the game rather than the files.**
+  The engine builds every window up front, so the live tree is the whole list: `windowmap.unmapped`
+  names anything it built that the map lacks. Nothing does, on a feudal, an administrative and a
+  landless ruler.
 - **203 windows have been harvested** widget by widget and paired with the parsed `.gui` files on
   structure, so meaning on disk reaches the nameless widgets: nine in ten of the ones showing text.
 - **A window reads out, one unit per keystroke.** The reader claims the arrow keys through the

@@ -11,6 +11,28 @@ keeps the numbers with the rule they were counted by. A changelog that may never
 
 ## 2026-09-20
 
+- **An event reads out loud, live.** The description as one unit, then the options with their count
+  and an end line, then the character on screen with their opinion. That is the requirement this
+  project exists for, and until today it could not be measured: the event windows in the harvest
+  were opened with the console, which hands over shape and captions and no data at all.
+- Two events stack, both called `character_event`, and the reader broke on that before it worked.
+  Refusing to guess between two drawn windows of the same name is right; throwing away the draw
+  order that had already decided which was on top was not. `live_record` takes an address now.
+- **The window map was never complete: 265 windows, not 218.** Two ways of declaring a window were
+  missing - a type that inherits from `window` and carries the name itself, and a use of such a type
+  inside another window. Forty and seven of them, the character filter and the ledger's filter among
+  them, and the reading rule died on the first one it met.
+- **So stop enumerating shapes and ask the game**: `windowmap.unmapped` compares the windows the
+  engine actually built against the map. The engine builds every window up front, so the live tree
+  is the whole list and a shape nobody thought of cannot hide in it. Run against the feudal,
+  administrative and landless states: nothing built is missing.
+- A window the files do not describe is now spoken rather than raised. A traceback is nothing to a
+  player, and falling silent is worse, because the reader owns the arrow keys by then.
+- **What a player types is readable, and it sits where ordinary widget text sits.** Posting `Zqx`
+  into a search field and finding it in the widget's own bytes answered two questions at once: a
+  character posted inward reaches the field, and no new offset has to be derived. The harvest read
+  text only from `Textbox` because the search that decided that looked for where text sits, and an
+  empty input field holds none - an instrument that could not see a positive result.
 - The reading rule says only what is on the screen. A widget being in the tree does not mean it is
   drawn, and three things decide it: a rectangle laid outside the drawing area, a row clipped
   inside its scroll area, an ancestor at alpha zero. Over the harvest that is 172 of 1753 texts —
