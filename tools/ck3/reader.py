@@ -39,6 +39,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(HERE), 'nvda'))
 import channel
 import derive
 import guimap
+import memory
 import pairing
 import reading
 import speech
@@ -53,11 +54,14 @@ def gui_tables():
 
     The localisation is warmed here for the same reason: it is 1173 files, and paid at the first
     keystroke it would be five seconds of silence on the first window rather than on the start.
+    The widget classes come out of the executable and cost three seconds the first time, so they
+    are warmed here too.
     """
     rows = guimap.files()
     table, local = guimap.type_table(rows)
     known = guimap.windows(rows)
     reading.words_table()
+    memory.widget_vtables()
     return table, local, known, pairing.root_finder(table)
 
 

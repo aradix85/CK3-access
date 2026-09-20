@@ -269,14 +269,26 @@ def units(window, table, local, known, root, record):
 SCREENS = None
 
 
-def screen_order():
-    """Per window, the data functions a screen file wants read before the rest.
+def screen_rules():
+    """Per window, what a screen file adds on top of the reading rule.
 
     **A screen file is an exception on top of the reading rule, and this is where it is applied.**
     The format and its check have existed since 19 September 2026; nothing read them, so a file
-    could be written, pass the check and change nothing at all. This reads the `order` block: the
-    lines it names come first, in the order it names them, and everything it does not name keeps
-    following in the order the gui files give.
+    could be written, pass the check and change nothing at all.
+
+    Two of the five blocks are read here. `order` says which lines come first, and everything it
+    does not name keeps following in the order the gui files give. `key` says which key does
+    something on a row, and it is hung on the line that counts the list rather than on every row:
+    it is the same key for all of them, and a sentence repeated per option is the noise this
+    project keeps deciding against.
+
+    **The other three are deliberately not wired, and that is a finding rather than a gap.**
+    `list` with its count and its closing line is what the generic rule already does for every
+    repeated container, so a file saying it changes nothing. `state` was a word per screen and is
+    a field since 20 September 2026 that holds for every button in the game. And `explain` names a
+    data function - `[EventOption.GetTooltip]` - which nothing here can evaluate; wiring it would
+    be machinery for a case that cannot occur, and the explain key already says when there is no
+    sentence to give.
 
     A patch that takes a function away costs its line its place and nothing else - it falls back
     into file order, and `tools\\ck3\\screens.py` says which one is gone.
@@ -287,13 +299,21 @@ def screen_order():
         SCREENS = {}
         for path in glob.glob(os.path.join(screens.SCREENS, '*.screen')):
             nodes = screens.read(path)
+            rules = {'order': [], 'keys': {}}
             for entry in screens.entries(nodes):
-                if entry['key'] != 'order' or not entry['body']:
-                    continue
-                wanted = [_function(line['value']) for line in entry['body']
-                          if line['key'] == 'read' and line['value']]
-                for window in screens.references(nodes)[0]:
-                    SCREENS[window] = wanted
+                if entry['key'] == 'order' and entry['body']:
+                    rules['order'] = [line['value'] and _function(line['value'])
+                                      for line in entry['body']
+                                      if line['key'] == 'read' and line['value']]
+                elif entry['key'] == 'list' and entry['body']:
+                    model = next((_function(line['value']) for line in entry['body']
+                                  if line['key'] == 'of' and line['value']), None)
+                    said = next((line['value'] for line in screens.entries(entry['body'])
+                                 if line['key'] == 'key' and line['value']), None)
+                    if model and said:
+                        rules['keys'][model] = said.strip('"')
+            for window in screens.references(nodes)[0]:
+                SCREENS[window] = rules
     return SCREENS
 
 
@@ -314,7 +334,7 @@ def in_order(window, found):
     reports it as fine, because that function does exist elsewhere in the gui set. That check
     proves a name is not gone; it does not prove it points at the widget you meant.
     """
-    wanted = screen_order().get(window)
+    wanted = screen_rules().get(window, {}).get('order')
     if not wanted:
         return found
     rank = {name: place for place, name in enumerate(wanted)}
@@ -434,6 +454,7 @@ def sentences(found, window=None):
     to keep it. The lines a list adds around its rows - its size and its end - explain nothing.
     """
     found = in_order(window, joined(found)) if window else joined(found)
+    keys = screen_rules().get(window, {}).get('keys', {}) if window else {}
     out, at = [], 0
     while at < len(found):
         model = found[at]['model']
@@ -446,7 +467,9 @@ def sentences(found, window=None):
             rows.append({'say': spoken(found[at]), 'explain': found[at]['explain']})
             at += 1
         word = name_of(model)
-        out.append({'say': '%d %s:' % (len(rows), word), 'explain': None})
+        said = keys.get(_function(model))
+        out.append({'say': '%d %s:%s' % (len(rows), word, ', ' + said if said else ''),
+                    'explain': None})
         out += rows
         out.append({'say': 'end of the %s' % word, 'explain': None})
     return out

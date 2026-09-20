@@ -54,8 +54,21 @@ def _sections(data):
     return base, items
 
 
+WIDGET_VTABLES = None
+
+
 def widget_vtables():
-    """Vtable RVAs of every class descending from CPdxGuiWidget, taken from the exe."""
+    """Vtable RVAs of every class descending from CPdxGuiWidget, taken from the exe.
+
+    **Read once and kept.** The executable does not change while the game runs, and this walks
+    the whole `.rdata` section: measured 20 September 2026 it cost 7,2 of the 11,3 seconds a live
+    read of the character window took, because `class_map` calls it and the reader calls that on
+    every window it opens. Nothing here depends on the running game, so a second answer could
+    only ever be the same one.
+    """
+    global WIDGET_VTABLES
+    if WIDGET_VTABLES is not None:
+        return WIDGET_VTABLES
     data = open(EXE, 'rb').read()
     base, sections = _sections(data)
     rdata = [s for s in sections if s[0] == '.rdata'][0]
@@ -92,6 +105,7 @@ def widget_vtables():
         if value > base and (value - base) in locators:
             name = locators[value - base]
             vtables[rdata[1] + p + 8] = name.replace('.?AVCPdxGui', '').replace('@@', '')
+    WIDGET_VTABLES = vtables
     return vtables
 
 
