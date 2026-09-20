@@ -11,6 +11,16 @@ keeps the numbers with the rule they were counted by. A changelog that may never
 
 ## 2026-09-20
 
+- The reading rule says only what is on the screen. A widget being in the tree does not mean it is
+  drawn, and three things decide it: a rectangle laid outside the drawing area, a row clipped
+  inside its scroll area, an ancestor at alpha zero. Over the harvest that is 172 of 1753 texts —
+  one in ten, and 48 of 82 in the worst window, which had been saying them to nobody. Validated by
+  a count taken independently of the rule: the lines that disappear are exactly the ones that count
+  calls invisible.
+- What that does not separate is content the game stacks under itself at alpha 1 and unclipped, the
+  ledger's eleven category tabs being the case. And it opens a gap that was not there: a list longer
+  than its frame now ends where the frame does, and the reader cannot scroll, because it owns the
+  arrow keys.
 - Shutting the game down no longer announces that it failed. Waiting for the channel to stop
   answering went through `ask`, which speaks when the pipe will not open — so a clean exit told
   the player their own Exit to Desktop had broken something. `channel.alive` asks the same question

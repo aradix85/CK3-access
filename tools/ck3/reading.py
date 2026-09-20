@@ -147,6 +147,38 @@ def fills(source):
     return None
 
 
+def on_screen(node, by_address, area):
+    """Is this widget actually drawn, or only present in the tree?
+
+    Three ways it can fail to be, and each one is a measurement rather than a guess. A row scrolled
+    past the end of its list keeps alpha 1 and a rectangle, so `clipped` is the only thing that says
+    so. Alpha belongs to the whole parent chain and not to the widget: one ancestor at zero and
+    nothing below it is visible. And a widget can be laid outside the drawing area entirely, which
+    is where this game parks what it is not showing.
+
+    Measured 20 September 2026 over the harvest: of 1753 units 83 are clipped, 6 sit behind an
+    ancestor at alpha zero and 139 lie outside the drawing area - 172 in all, one in ten. The worst
+    window, `window_situation`, said 48 of its 82 lines to nobody.
+
+    What this cannot separate is the third state `brief\\stand.md` names: content the game stacks
+    under itself, alpha 1 and unclipped, such as the ledger's eleven category tabs. The drawing-area
+    test catches part of it because that content is parked far below, and nothing catches the rest.
+    """
+    width, height = area
+    x, y, w, h = node['screen_rect']
+    if x + w <= 0 or y + h <= 0 or x >= width or y >= height:
+        return False
+    if node['clipped']:
+        return False
+    seen = set()
+    while node is not None and node['address'] not in seen:
+        seen.add(node['address'])
+        if (node['alpha'] or 0) <= 0:
+            return False
+        node = by_address.get(node['parent'])
+    return True
+
+
 def units(window, table, local, known, root, record):
     """Every unit this window says, in order, each with the list it belongs to."""
     tree, _ = guimap.window(window, table, local, known)
@@ -155,11 +187,13 @@ def units(window, table, local, known, root, record):
                  for source, built, _ in pairing.pairs(window, table, local, known, root, record,
                                                        tree)}
 
+    area = record['size'] if 'size' in record else derive.drawing_area()
+    by_address = {node['address']: node for node in record['tree']}
     by_parent, top = pairing.live_tree(record)
     out = []
     for node in live_order(by_parent, top):
         text = derive.strip_markup(node['text'] or '').strip()
-        if not text:
+        if not text or not on_screen(node, by_address, area):
             continue
         source = source_of.get(id(node))
         out.append({'text': text, 'model': model_of.get(id(source)) if source else None,

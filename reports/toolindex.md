@@ -38,6 +38,7 @@ returns a pair, passed on as one thing, costs a run.
 | `gamestate_mb(part)` | value | - |
 | `ignored(relative)` | value | Does `.gitignore` exclude this path? The same question `git init` asks. |
 | `repo_files()` | value | Counts what a `git init` would take into the repo: everything .gitignore does not exclude. |
+| `unseen_texts(what)` | value | Texts in the harvest that are in the tree but not on the screen, counted per reason. |
 | `document_paths()` | 2-tuple | Every project path named in a document, checked against the disk. |
 | `mod_windows(part)` | value | Windows in the map whose gui file is not part of the game itself. |
 | `harvest_total(part, field)` | value | A number summed over the harvest records: how big the round was, and how good. |
@@ -401,6 +402,7 @@ returns a pair, passed on as one thing, costs a run.
 | `words_of(word)` | value | A name in the game's spelling as words: GetSoldierCount -> soldier count, MAACap -> MAA cap. |
 | `name_of(model)` | value | A data function as a word for the player: GetOptions -> options, GetGold|0 -> gold. |
 | `fills(source)` | NoneType of value | The data function the gui file puts in this widget, if it puts one there. |
+| `on_screen(node, by_address, area)` | bool | Is this widget actually drawn, or only present in the tree? |
 | `units(window, table, local, known, root, record)` | value | Every unit this window says, in order, each with the list it belongs to. |
 | `spoken(unit)` | value | One unit as it is said. |
 | `sentences(found)` | value | The units as the lines a player hears, with a list saying its size and its end. |

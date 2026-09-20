@@ -296,6 +296,45 @@ def repo_files():
     return count
 
 
+def unseen_texts(what):
+    """Texts in the harvest that are in the tree but not on the screen, counted per reason.
+
+    The reading rule skips these, so the number decides how much a window says to nobody. Counted
+    over every harvested record: a text is what a text box holds once the markup is stripped, and
+    it is unseen when its rectangle falls outside the drawing area that record was taken at, or it
+    is clipped inside its scroll area, or an ancestor sits at alpha zero. `all` is the union, which
+    is smaller than the sum because a text can fail two of them at once.
+    """
+    import derive
+    totals = {'texts': 0, 'clipped': 0, 'alpha': 0, 'outside': 0, 'all': 0}
+    for name in sorted(glob.glob(os.path.join(_path('harvest'), '*.json'))):
+        with open(name, encoding='utf-8') as handle:
+            record = json.load(handle)
+        tree = record.get('tree') or []
+        if not tree:
+            continue            # a refusal record: a reason and no window, so nothing to read
+        by_address = {node['address']: node for node in tree}
+        width, height = record['size']
+        for node in tree:
+            if not derive.strip_markup(node.get('text') or '').strip():
+                continue
+            totals['texts'] += 1
+            x, y, w, h = node['screen_rect']
+            outside = x + w <= 0 or y + h <= 0 or x >= width or y >= height
+            faded, walk, seen = False, node, set()
+            while walk is not None and walk['address'] not in seen:
+                seen.add(walk['address'])
+                if (walk['alpha'] or 0) <= 0:
+                    faded = True
+                    break
+                walk = by_address.get(walk['parent'])
+            totals['clipped'] += bool(node['clipped'])
+            totals['alpha'] += faded
+            totals['outside'] += outside
+            totals['all'] += bool(node['clipped']) or faded or outside
+    return totals[what]
+
+
 def document_paths():
     """Every project path named in a document, checked against the disk.
 
@@ -513,7 +552,8 @@ MEASURES = {'bytes': bytes_of, 'lines': lines_of, 'files': files_in,
             'gui_windows': gui_windows, 'gui_dlc': gui_dlc,
             'ledger_buildings': ledger_buildings,
             'database_entries': database_entries, 'map_layer': map_layer,
-            'shortcuts': shortcuts, 'shortcut_words': shortcut_words}
+            'shortcuts': shortcuts, 'shortcut_words': shortcut_words,
+            'unseen_texts': unseen_texts}
 
 
 

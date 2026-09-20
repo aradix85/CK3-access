@@ -284,6 +284,22 @@
   "counting_rule": "files with the gui suffix under the CK3 workshop folder; RICE 67, Historical Figure 1, Historic Invasions 1, and none of them replaces a vanilla file"
  },
  {
+  "name": "texts the reading rule says over the harvest",
+  "claimed": 1753,
+  "measure": "unseen_texts",
+  "arguments": ["texts"],
+  "counting_rule": "every widget in a harvested record whose text is not empty once the game's markup is stripped, summed over the records that hold a window; refusal records carry a reason and no tree and do not count",
+  "quoted_in": ["brief\\stand.md"]
+ },
+ {
+  "name": "harvested texts that are in the tree but not on the screen",
+  "claimed": 172,
+  "measure": "unseen_texts",
+  "arguments": ["all"],
+  "counting_rule": "of those texts, the ones the reading rule skips: 139 whose rectangle falls outside the drawing area of that record, 83 clipped inside their scroll area, 6 with an ancestor at alpha zero - the union is smaller than the sum because a text can fail two at once. Measured 20 September 2026, when the rule began skipping them",
+  "quoted_in": ["brief\\stand.md"]
+ },
+ {
   "name": "files that go into the repo",
   "claimed": 65,
   "measure": "repo_files",
