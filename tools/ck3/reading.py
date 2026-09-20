@@ -225,6 +225,11 @@ def explanation(address, by_address, source_of, localization):
     gaps in it is the game's own sum, and reading a skeleton full of holes is worse than saying
     that the build-up is missing. Of the 350 that have one, 190 resolve to a sentence and 32 of
     those have no gap at all; the rest is what taak 10 subtaak f has to rebuild.
+
+    **These are harvest numbers and so a floor**: most of that round was opened through the
+    console, and those windows carry captions without values. A round along the routes a player
+    uses would raise them, tooltips least of all - they hang on buttons and icons, which are there
+    either way.
     """
     while address in by_address:
         source = source_of.get(id(by_address[address]))
@@ -413,7 +418,8 @@ def joined(found):
     13 are clean: `Duke Marianos of Nobatia, 56`, `Family 3`, `Courtiers 9`, `Ongoing Wars 54`,
     `Monthly Maintenance: -0.4`.
     **That number is a floor**: the harvest is mostly the console route and those windows carry
-    captions without values, so a window with data holds far more numbers than this counts.
+    captions without values, so a window with data holds far more numbers than this counts. The
+    rule is narrow enough that more of them can only help it.
 
     **What it deliberately does not solve** is the opinion beside a portrait, which is what raised
     the question. Measured the same day on the character window: `+83` sits three levels below the
