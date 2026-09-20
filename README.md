@@ -2,9 +2,10 @@
 
 Screen reader access for **Crusader Kings III**, without OCR.
 
-> **Status: research.** The machinery underneath works; nothing is read aloud during play yet, and
-> there is no installable mod. What is missing is the half a player would notice: nothing decides
-> *what* to say, in *what order*. Offered as is under the MIT licence, with no promise of support.
+> **Status: research.** The machinery underneath works and a window can be stepped through with the
+> arrow keys, but nothing has been played with it yet and there is no installable mod. What is
+> missing is the judgement: which of it reads well, in what order, and what to leave out. Offered
+> as is under the MIT licence, with no promise of support.
 
 The game keeps its whole interface in memory as a widget tree, and it ships the full MSVC RTTI tree,
 so that tree can be located and read directly: names, texts, rectangles, visibility. This project
@@ -23,6 +24,10 @@ process and from files already on your disk.
   against the localisation files on disk.
 - **203 windows have been harvested** widget by widget and paired with the parsed `.gui` files on
   structure, so meaning on disk reaches the nameless widgets: nine in ten of the ones showing text.
+- **A window reads out, one unit per keystroke.** The reader claims the arrow keys through the
+  injected DLL, so the game never sees them and every other key still reaches it; each press hands
+  one line to NVDA, speech and braille together. An event announces itself through a number the
+  engine already keeps, and a reader that fails gives the keys back before it says so.
 - **The tooling never fails silently.** Anything that goes wrong leaves through one exit as a
   sentence saying what failed, where, and what to do — never as an error code or as nothing.
 - **Where a county is, from the files alone.** Its neighbours out to three rings, the seas and
