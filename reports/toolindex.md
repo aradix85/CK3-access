@@ -469,7 +469,7 @@ returns a pair, passed on as one thing, costs a run.
 
 | call | returns | does |
 |---|---|---|
-| `windows_on_disk()` | value | Every `window = { name = ... }` in the gui files, with the path the console wants. |
+| `windows_on_disk()` | dict | Every window the gui files declare, with the path the console wants. |
 | `classes(pid)` | set | - |
 | `shortcut_round(game)` | value | Which shortcut opens which window? One key per test, and every window shut again. |
 | `create_round(game, windows, limit=None)` | value | Try every window with GUI.CreateWidget, and clean up immediately. |

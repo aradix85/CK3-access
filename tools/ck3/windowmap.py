@@ -9,7 +9,6 @@ Usage:  python tools\ck3\windowmap.py <pid> [<count>]
 import collections
 import json
 import os
-import re
 import sys
 import time
 
@@ -31,38 +30,21 @@ KEYS = {112: 'F1', 113: 'F2', 114: 'F3', 115: 'F4', 116: 'F5',
 
 
 def windows_on_disk():
-    """Every `window = { name = ... }` in the gui files, with the path the console wants.
+    """Every window the gui files declare, with the path the console wants.
 
-    Read with `utf-8-sig`: some of the files start with a byte order mark right before
-    `window = {`, and on those the first line was recognised as nothing, silently - `court_window`,
-    `decisions_view` and `activity_list` went missing that way, while their shortcut opens them fine.
+    **The enumeration comes from `guimap.windows`, not from a second reader here.** This one used
+    to match lines for `window = { name = ... }`, which is one of three shapes a window is declared
+    in: on 20 September 2026 it counted 197 where the parser counted 265, so a round run from it
+    would have written a map worse than the one it replaced. One reader, one answer.
+
+    The engine merges the three layers into one virtual folder: `game/gui/x.gui`,
+    `clausewitz/gui/x.gui` and `jomini/gui/x.gui` are all called `gui/x.gui` as far as the console
+    is concerned. Measured 23 August 2026: with the layer name in front it fails with "could not
+    find description", without it the window comes up. `guimap` already hands over that virtual
+    path, so nothing has to be stripped here.
     """
-    found = {}
-    for root, _, files in os.walk(GAME):
-        for name in files:
-            if not name.endswith('.gui'):
-                continue
-            full_path = os.path.join(root, name)
-            rel = os.path.relpath(full_path, GAME).replace('\\', '/')
-            # The engine merges the three layers into one virtual folder: `game/gui/x.gui`,
-            # `clausewitz/gui/x.gui` and `jomini/gui/x.gui` are all called `gui/x.gui` as far
-            # as the console is concerned. Measured 23 August 2026: with the layer name in front
-            # it fails with "could not find description", without it the window comes up.
-            parts = rel.split('/')
-            if parts[0] in ('game', 'clausewitz', 'jomini'):
-                rel = '/'.join(parts[1:])
-            lines = open(full_path, encoding='utf-8-sig', errors='replace').read().splitlines()
-            depth, wait_for = 0, None
-            for line in lines:
-                strip_markup = line.split('#')[0]
-                if re.match(r'\s*window\s*=\s*\{', strip_markup):
-                    wait_for = depth
-                m = re.match(r'\s*name\s*=\s*"([\w.]+)"\s*$', strip_markup)
-                if m and wait_for is not None and depth == wait_for + 1:
-                    found.setdefault(m.group(1), rel)
-                    wait_for = None
-                depth += strip_markup.count('{') - strip_markup.count('}')
-    return found
+    import guimap
+    return {name: virtual for name, (virtual, _) in guimap.windows().items()}
 
 
 def classes(pid):
