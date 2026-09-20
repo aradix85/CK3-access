@@ -13,6 +13,12 @@ Three keys, and deliberately no more until these have been listened to:
              them back, and F12 is the one key in the F row that `shortcuts.shortcuts` binds to
              nothing - F10 is the encyclopedia and F11 the screenshot.
 
+A fourth came on 20 September 2026 once there was something for it to say:
+
+  delete     what the game would show if you could hover on the line you are standing on. Of the
+             keys you can find without looking, only F12, Insert, Delete, End and K carry no
+             named action in the game's own shortcuts, and F12 was taken.
+
 Two silences, both of them decided rather than forgotten. Nothing is said at the ends of the list:
 an arrow that cannot go anywhere produces nothing, because a sentence at every end of a list is
 noise heard on every list. And nothing is announced on arrival beyond the first line of what is

@@ -148,7 +148,16 @@ def field_for(addresses, offset, width=1):
 
 
 def flags_for(addresses):
-    """The window flag of many objects: one byte, and zero means the window is drawn."""
+    """The state byte of many objects: on a window zero means drawn, on a button it says usable.
+
+    **One byte with more than one meaning, measured 20 September 2026.** On a window object zero
+    means drawn and the higher bits mean hidden; on a button the low bits mean the game has
+    switched it off. That was found by emptying the save dialog's name field, which disables its
+    save button, while the cancel button beside it did not move - and crossed against the gui
+    files over three windows and 6906 widgets, where no widget carried those bits without an
+    `enabled` condition on itself or an ancestor. So ask it of every widget and not only of the
+    windows; the name of this function is older than what it reads.
+    """
     return field_for(addresses, _visibility_offset('flag'))
 
 

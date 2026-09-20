@@ -178,7 +178,7 @@ returns a pair, passed on as one thing, costs a run.
 | `drawing_area()` | value | - |
 | `use_fields(fields)` | nothing | Publish the two visibility offsets for this build. |
 | `field_for(addresses, offset, width=1)` | value | One field of many objects, in as few channel questions as possible. |
-| `flags_for(addresses)` | value | The window flag of many objects: one byte, and zero means the window is drawn. |
+| `flags_for(addresses)` | value | The state byte of many objects: on a window zero means drawn, on a button it says usable. |
 | `widgets(root)` | value | The whole tree with fields attached: address -> (vtable, x, y, width, height, parent, name, text). |
 | `scales_for(addresses)` | value | Per widget (own scale, scale from above). The two sit next to each other, so one read round. |
 | `screen_pos(nodes, address, scales, anchors=None)` | 2-tuple | The place on screen: the own position plus that of every parent, with the scale applied. |
@@ -314,7 +314,7 @@ returns a pair, passed on as one thing, costs a run.
 | call | returns | does |
 |---|---|---|
 | `buttons_on_disk()` | value | Every widget that opens a window when pressed, with how it does it. |
-| `live_record(game, pid, window, address=None)` | 4-tuple | The window that is drawn right now, in the shape the harvest writes and the pairing reads. |
+| `live_record(game, pid, window, address=None, nodes=None)` | 4-tuple | The window that is drawn right now, in the shape the harvest writes and the pairing reads. |
 | `goal_of(target, known=None)` | 3-tuple | What has to happen before `target` is drawn: a view opens, or a variable is set. |
 | `reaches(value, goal)` | bool of value | Does this onclick reach the goal? Setting a variable counts, clearing it does not. |
 | `fires_for(source, goal)` | 2-tuple | The call this disk block really fires, split into the one that reaches `goal` and the rest. |
@@ -403,9 +403,16 @@ returns a pair, passed on as one thing, costs a run.
 | `name_of(model)` | value | A data function as a word for the player: GetOptions -> options, GetGold|0 -> gold. |
 | `fills(source)` | NoneType of value | The data function the gui file puts in this widget, if it puts one there. |
 | `on_screen(node, by_address, area)` | bool | Is this widget actually drawn, or only present in the tree? |
+| `expansion(window, table, local, known)` | value | The window as the gui files describe it, expanded once and then kept. |
+| `words_table()` | value | The localisation, read once. 1173 files, so not per keystroke. |
+| `explanation(address, by_address, source_of, localization)` | NoneType of value | What the game would show if you could hover here: the nearest tooltip up the chain. |
 | `units(window, table, local, known, root, record)` | value | Every unit this window says, in order, each with the list it belongs to. |
+| `screen_rules()` | value | Per window, what a screen file adds on top of the reading rule. |
+| `in_order(window, found)` | value | The units with what a screen file names first, first. Stable, so the rest keeps its order. |
+| `state_word(node, by_address)` | NoneType of str | `unavailable` in front of a line whose button the game has switched off, or nothing. |
 | `spoken(unit)` | value | One unit as it is said. |
-| `sentences(found)` | value | The units as the lines a player hears, with a list saying its size and its end. |
+| `joined(found)` | value | A bare number and the label beside it under the same parent are one unit, label first. |
+| `sentences(found, window=None)` | value | The units as the lines a player hears: each one what it says, and what explains it. |
 | `read(window, table=None, local=None, known=None, root=None)` | value | One harvested window as the lines it says. |
 | `live(pid, window=None, game=None, tables=None)` | 2-tuple of value | The window that is on top in the running game, as the lines it says. |
 | `main()` | nothing | - |
@@ -469,7 +476,7 @@ returns a pair, passed on as one thing, costs a run.
 
 | call | returns | does |
 |---|---|---|
-| `windows_on_disk()` | dict | Every window the gui files declare, with the path the console wants. |
+| `windows_on_disk()` | value | Every window the gui files declare, with the path the console wants and how it is declared. |
 | `classes(pid)` | set | - |
 | `shortcut_round(game)` | value | Which shortcut opens which window? One key per test, and every window shut again. |
 | `create_round(game, windows, limit=None)` | value | Try every window with GUI.CreateWidget, and clean up immediately. |
