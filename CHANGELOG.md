@@ -37,6 +37,13 @@ keeps the numbers with the rule they were counted by. A changelog that may never
   buttons hidden by the game, eight with no live widget carrying the call, three off the screen, and
   no stray click. The first two live refusals of a hidden button point at a click route that names
   the wrong widget. Where a window has both, a shortcut now goes before a click.
+- **A button under another window is not clicked.** A window later in the tree is drawn on top, and
+  a click on a button whose middle lies inside such a window's rectangle is refused as covered. That
+  stands in for the rule the modding wiki gives - a visible widget that is not `alwaystransparent`,
+  inside its window unless that allows outside children - and it predicted both cases measured: a
+  full-screen event caught a click meant for the event beneath it, and a see-through icon of an event
+  let a click on the HUD through. Loading from the main menu and quitting from the pause menu still
+  work with it.
 - **A toast is said when it appears.** The game shows one toast at a time in one widget that is
   always in the tree, and a toast arriving is the hidden bit leaving that widget's state byte, so
   the reader asks one question a round and says the visible text of that small subtree between the

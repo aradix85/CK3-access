@@ -531,6 +531,60 @@ def on_screen(address, nodes, scales, classes):
     window = next((a for a in chain[1:] if nodes[a][0] in game_classes), None)
     if window is not None and flags.get(window, 0xFF) != 0x00:
         return 'its window is not drawn'
+    above = window_above(address, chain, nodes, scales)
+    if above is not None:
+        return 'covered by %s' % above
+    return None
+
+
+_ABOVE = {}
+
+
+def window_above(address, chain, nodes, scales):
+    """A drawn window later in the tree whose rectangle holds this widget's middle, or None.
+
+    **Later in the tree is drawn on top**: measured 21 September 2026 - of two event windows the
+    one at path (0, 8, 0), in the layer `top`, caught a click meant for the one at (0, 7, 0) in the
+    layer `events` - and the modding wiki says the same of the order in a file
+    (`brief\\buitenwereld.md`). **The window's rectangle stands in for what really catches a
+    click**, which the wiki gives as: a visible widget that is not `alwaystransparent`, inside its
+    window unless that window has `allow_outside`. Asking that of the gui files means aligning the
+    window first, seconds per click; the rectangle predicts both measured cases - the full-screen
+    event caught the click, and an `alwaystransparent` icon of the other event, lying outside its
+    window, let one through. Its two blind spots: a see-through widget inside a window makes this
+    refuse a click that would land, and a child outside a window with `allow_outside` that does
+    catch is missed. The drawn windows and the order are worked out once per tree.
+    """
+    key = (id(nodes), len(nodes))
+    if _ABOVE.get('key') != key:
+        index, counts = {}, {}
+        for a, node in nodes.items():
+            index[a] = counts.get(node[5], 0)
+            counts[node[5]] = index[a] + 1
+        windows = [a for a, node in nodes.items() if node[0] in game_classes]
+        flags = derive.flags_for(windows)
+        _ABOVE.clear()
+        _ABOVE.update(key=key, index=index, drawn=[a for a in windows if flags.get(a) == 0x00])
+    index = _ABOVE['index']
+
+    def path(a):
+        out = []
+        while a in nodes:
+            out.append(index[a])
+            a = nodes[a][5]
+        return tuple(reversed(out))
+
+    x, y = derive.screen_pos(nodes, address, scales)
+    width, height = derive.screen_size(nodes, address, scales)
+    px, py = x + width / 2, y + height / 2
+    mine, own = path(address), set(chain)
+    for win in _ABOVE['drawn']:
+        if win in own or path(win) <= mine:
+            continue
+        wx, wy = derive.screen_pos(nodes, win, scales)
+        ww, wh = derive.screen_size(nodes, win, scales)
+        if wx <= px < wx + ww and wy <= py < wy + wh:
+            return nodes[win][6] or 'a window'
     return None
 
 

@@ -330,7 +330,8 @@ returns a pair, passed on as one thing, costs a run.
 | `gui_tables()` | 4-tuple | The expansion tables, read once. Building them walks 563 files, so a sweep that rebuilds |
 | `spots_for_goal(game, pid, window, goal, tables=None)` | 6-tuple | Every widget of an open window that the files say reaches `goal`, aligned rather than guessed. |
 | `trigger_spots(row, named, nodes)` | list of value | Where the click for this row could land: the widget itself, or its nameless children. |
-| `on_screen(address, nodes, scales, classes)` | NoneType of str | Why this widget cannot be clicked, or None when it can. |
+| `on_screen(address, nodes, scales, classes)` | NoneType of str of value | Why this widget cannot be clicked, or None when it can. |
+| `window_above(address, chain, nodes, scales)` | NoneType of value | A drawn window later in the tree whose rectangle holds this widget's middle, or None. |
 | `press(address, nodes, scales, classes, row)` | NoneType of value | Click the middle of a widget, but only if it is really on screen. |
 | `back_to(game, baseline, tries=4)` | value of bool | Shut whatever opened. Escape only when something is open, or it opens the pause menu. |
 | `subtree_of(nodes, window)` | value of NoneType | The addresses under the drawn window object of that name, or None. |
