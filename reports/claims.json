@@ -285,7 +285,7 @@
  },
  {
   "name": "texts the reading rule says over the harvest",
-  "claimed": 4394,
+  "claimed": 4439,
   "measure": "unseen_texts",
   "arguments": ["texts"],
   "counting_rule": "every widget in a harvested record whose text is not empty once the game's markup is stripped, summed over the records that hold a window; refusal records carry a reason and no tree and do not count. Since 21 September 2026 the harvest holds the encyclopedia, 2344 texts in one window, and the windows harvested that day along a new shortcut or a chain",
@@ -293,7 +293,7 @@
  },
  {
   "name": "harvested texts that are in the tree but not on the screen",
-  "claimed": 2659,
+  "claimed": 2655,
   "measure": "unseen_texts",
   "arguments": ["all"],
   "counting_rule": "of those texts, the ones the reading rule skips: the rectangle falls outside the drawing area of that record, or it is clipped inside its scroll area, or an ancestor sits at alpha zero, or an ancestor carries 0x08 in its state byte - the game hiding it, which records carry since 20 September 2026. The union is smaller than the sum because a text can fail two at once. 172 of 1753 on 20 September 2026; on 21 September the rule gained the hidden state (563 texts) and the harvest the encyclopedia, most of whose list sits clipped",
@@ -313,7 +313,7 @@
    "<project>\\harvest",
    "windows"
   ],
-  "counting_rule": "records in harvest\\ with opened true: 174 opened by the console, 16 by a shortcut, 9 by a click and 6 by a chain, counted 21 September 2026. The 15 that refuse carry a reason and no tree, and toolbars_window is the baseline state and is never harvested",
+  "counting_rule": "records in harvest\\ with opened true: 174 opened by the console, 17 by a shortcut, 8 by a click and 6 by a chain, counted 21 September 2026. The 15 that refuse carry a reason and no tree, and toolbars_window is the baseline state and is never harvested",
   "quoted_in": [
    "README.md",
    "brief\\stand.md"
@@ -321,7 +321,7 @@
  },
  {
   "name": "text boxes in the harvest round",
-  "claimed": 1736,
+  "claimed": 1788,
   "measure": "harvest_total",
   "arguments": [
    "<project>\\harvest",
@@ -331,7 +331,7 @@
  },
  {
   "name": "text boxes the recogniser confirmed",
-  "claimed": 1511,
+  "claimed": 1564,
   "measure": "harvest_total",
   "arguments": [
    "<project>\\harvest",
@@ -341,7 +341,7 @@
  },
  {
   "name": "text boxes outside the drawing area",
-  "claimed": 143,
+  "claimed": 138,
   "measure": "harvest_total",
   "arguments": [
    "<project>\\harvest",

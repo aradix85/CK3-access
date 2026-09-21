@@ -32,6 +32,11 @@ keeps the numbers with the rule they were counted by. A changelog that may never
   recorded the culture window, the ledger filter and the activity host window, and it measured
   which window stands behind six views whose name is no window name - `faith` is `faith_window`,
   among others - which is written nowhere on disk.
+- **Every window with a player route on the test state was harvested again, so that its record
+  carries the state byte**, and a second chain round said of every route that failed why: six
+  buttons hidden by the game, eight with no live widget carrying the call, three off the screen, and
+  no stray click. The first two live refusals of a hidden button point at a click route that names
+  the wrong widget. Where a window has both, a shortcut now goes before a click.
 - The window count in the harvest is 205, and every count over it now says how many texts are on
   the screen rather than how many widgets carry text: the encyclopedia holds 2344 texts, all of
   them under alpha zero until an article is chosen.

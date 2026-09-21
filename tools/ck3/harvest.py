@@ -564,8 +564,10 @@ def chain_round(game, pid, windows, wanted, baseline, header, player, player_nam
     than being written over, so the difference between the routes stays checkable.
     """
     import openers
-    direct = {n: r for n, r in windows.items() if r.get('shortcut')}
-    direct.update(click_routes(windows))
+    # A shortcut goes before a click: it needs no widget the game may hide. On 21 September 2026
+    # the click route of the situation list had become a hidden button while its new key 0 opened it.
+    direct = click_routes(windows)
+    direct.update({n: r for n, r in windows.items() if r.get('shortcut')})
     tables = openers.gui_tables()
     routes = openers.chain_routes(set(direct), tables)
     if wanted:
