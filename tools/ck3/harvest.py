@@ -31,7 +31,10 @@ no data. With `--click` the round takes its openers from `reports\openers.json` 
 phase 0 map and clicks each button where the live tree puts it now. Neither the shortcut nor the
 click route needs the console, so a round along them runs without `-debug_mode`.
 
-Usage:  python tools\ck3\harvest.py <pid> [--click] [<window> ...]
+Usage:  python tools\ck3\harvest.py <pid> [--click | --chain] [<window or view> ...]
+
+With `--chain` the round takes its routes from `openers.chain_routes`: a window, or a view whose
+window is not on disk, reached by pressing a button inside a window this round can open itself.
 """
 import ctypes
 import json
@@ -271,7 +274,7 @@ def click_routes(windows):
             if inside and not (windows.get(inside) or {}).get('shortcut'):
                 continue
             out[name] = {'click': row['point'], 'button': row['widget'], 'first': inside,
-                         'first_key': 111 + int(windows[inside]['shortcut'][1:]) if inside else 0,
+                         'first_key': windowmap.key_code(windows[inside]['shortcut']) if inside else 0,
                          'file': windows.get(name, {}).get('file'), 'drawn': True}
     return out
 
@@ -305,7 +308,7 @@ def open_window(game, name, row, baseline):
     tries = OPEN_TRIES if row.get('drawn') else 1
     for attempt in range(1, tries + 1):
         if row.get('shortcut'):
-            channel.ask('sendkey %d' % (111 + int(row['shortcut'][1:])))
+            channel.ask('sendkey %d' % windowmap.key_code(row['shortcut']))
             for _ in range(14):
                 time.sleep(0.6)
                 if derive.flags_for([address]).get(address, 0xFF) == 0x00:
@@ -353,7 +356,7 @@ def close_window(game, name, row, baseline, limit=12):
     every window after this one, which is why this is a stop condition and not a warning."""
     for _ in range(limit):
         if row.get('shortcut'):
-            channel.ask('sendkey %d' % (111 + int(row['shortcut'][1:])))
+            channel.ask('sendkey %d' % windowmap.key_code(row['shortcut']))
         elif not row.get('click'):
             game.command('GUI.ClearWidgets')
         # The click route closes on Escape alone, at the foot of this loop, and that key is only
@@ -390,21 +393,8 @@ def drawn_one(candidates, name):
                      'the content cannot be decided here' % (name, len(candidates), len(drawn)))
 
 
-def harvest(game, name, row, baseline, header):
-    """One window, from opening to the state coming back. Returns the record, or a reason."""
-    started = time.time()
-    nodes, attempts = open_window(game, name, row, baseline)
-    if nodes is None:
-        # A window that refuses can still have left something standing - a click lands on whatever
-        # lies on top of that point, not on the widget it was aimed at, so a miss opens *something*
-        # often enough. Putting the state back here is what keeps a miss from contaminating every
-        # window after it, and if it cannot be put back that is the round's stop condition.
-        came_back = close_window(game, name, row, baseline)
-        return ({'window': name, 'opened': False, 'state_returned': came_back,
-                 'reason': 'did not open in %d %s'
-                           % (attempts, 'try' if attempts == 1 else 'tries')},
-                'not opened' if came_back else 'state did not come back')
-
+def record_window(game, name, nodes, header, route, attempts, file, started):
+    """Everything this project can read of one drawn window, plus a capture. It stays open."""
     windows = [a for a, k in nodes.items() if k[0] in game.window_classes]
     named = [a for a in windows if nodes[a][6] == name]
     address = drawn_one(named, name)
@@ -421,18 +411,15 @@ def harvest(game, name, row, baseline, header):
     alphas = alphas_for(addresses)
     record = dict(header)
     record.update({
-        'window': name, 'opened': True, 'attempts': attempts, 'file': row.get('file'),
-        'route': ('shortcut ' + row['shortcut'] if row.get('shortcut')
-                  else 'click ' + row['button'] if row.get('click') else 'GUI.CreateWidget'),
+        'window': name, 'opened': True, 'attempts': attempts, 'file': file, 'route': route,
         'address': '%x' % address, 'widgets': len(family),
         'tree_size': len(nodes), 'seconds': round(time.time() - started, 1)})
     record['tree'] = [widget_record(nodes, a, d, i, scales, classes, flags, alphas)
                       for a, d, i in family]
-    # The console is how most of these windows are opened, and it is drawn over the left third of
-    # the screen while it stands open. Leaving it there costs nothing in the tree and everything in
-    # the capture, so it goes away for the length of the picture and comes back exactly as it was -
-    # the baseline was taken in one console state and `close_window` compares against that baseline.
-    # A click round runs with it shut throughout, because half the buttons sit under it.
+    # The console is how most of these windows were opened, and it is drawn over the left third
+    # of the screen while it stands open. Leaving it there costs nothing in the tree and everything
+    # in the capture, so it goes away for the length of the picture and comes back exactly as it
+    # was - the baseline was taken in one console state and `close_window` compares against it.
     console = game.console_open(nodes)
     if console:
         game.set_console(False, nodes)
@@ -441,22 +428,170 @@ def harvest(game, name, row, baseline, header):
         game.set_console(True)
     record['boxes'], record['confirmed'], record['offscreen'] = confirmed(
         record['tree'], record['recognised'], record['size'])
+    return record
+
+
+def harvest(game, name, row, baseline, header):
+    """One window, from opening to the state coming back. Returns the record, or a reason."""
+    started = time.time()
+    nodes, attempts = open_window(game, name, row, baseline)
+    if nodes is None:
+        # A window that refuses can still have left something standing - a click lands on whatever
+        # lies on top of that point, not on the widget it was aimed at, so a miss opens *something*
+        # often enough. Putting the state back here is what keeps a miss from contaminating every
+        # window after it, and if it cannot be put back that is the round's stop condition.
+        came_back = close_window(game, name, row, baseline)
+        return ({'window': name, 'opened': False, 'state_returned': came_back,
+                 'reason': 'did not open in %d %s'
+                           % (attempts, 'try' if attempts == 1 else 'tries')},
+                'not opened' if came_back else 'state did not come back')
+    route = ('shortcut ' + row['shortcut'] if row.get('shortcut')
+             else 'click ' + row['button'] if row.get('click') else 'GUI.CreateWidget')
+    record = record_window(game, name, nodes, header, route, attempts, row.get('file'), started)
     if not close_window(game, name, row, baseline):
         return record, 'state did not come back'
     record['seconds'] = round(time.time() - started, 1)
     return record, None
 
 
+def stop_checks(pid, player, player_name, before):
+    """The three conditions asked before every window: memory, the channel, and the player."""
+    if free_memory() < FREE_MEMORY_FLOOR:
+        raise SystemExit('stopping: %.1f GB free, below the floor of %.1f'
+                         % (free_memory(), FREE_MEMORY_FLOOR))
+    if 'channel' not in channel.ask('hello'):
+        raise SystemExit('stopping: the channel no longer answers')
+    # The fifth stop condition. Cheap enough to ask every window - six four-byte reads in one
+    # question - and it is the only thing that catches a state that has been moved to another
+    # character. Measured 29 August 2026: a mod event did exactly that in the middle of a round
+    # and nothing said so.
+    now, now_name = model.player(pid)
+    if now != player:
+        raise SystemExit('stopping before %s: the player is no longer %s (%d) but %s (%d). '
+                         'Everything after this would be measured on somebody else\'s game; '
+                         'reload the state and start the round again.'
+                         % (before, player_name, player, now_name, now))
+
+
+def chain_step(game, route, source_row, windows, baseline, header, tables):
+    """One chain route: open the source along its own route, press what reaches the goal inside it,
+    record the window that comes up, and put the state back. Returns (record or None, reason).
+
+    For a view whose name is no window name the press is the measurement: whichever single window
+    comes up is the window the engine puts behind that view, and the record says so under `view`.
+    """
+    import openers                      # openers imports this module
+    openers.game_classes = game.window_classes
+    started = time.time()
+    source = route['source']
+    back = {'click': True}              # close on Escape until the baseline is back
+    nodes, attempts = open_window(game, source, source_row, baseline)
+    if nodes is None:
+        return None, ('source %s did not open' % source
+                      if close_window(game, source, back, baseline) else 'state did not come back')
+    spots, live, acting, nodes, scales, classes = openers.spots_for_goal(
+        game, game.pid, source, route['goal'], tables)
+    buttons = openers.clickable_map(live, acting)
+    usable = [(s, openers.reachable_point(buttons, s['address'], s['rect']))
+              for s in spots if s['why_not'] is None]
+    usable = [(s, p) for s, p in usable if p is not None]
+    if not usable:
+        why = sorted({s['why_not'] or 'covered everywhere' for s in spots})
+        reason = 'nothing in %s can be pressed for it: %s' % (
+            source, ', '.join(why) or 'no live widget carries the call')
+        return None, reason if close_window(game, source, back, baseline) else 'state did not come back'
+    spot, point = usable[0]
+    _, _, before = game.state()
+    channel.ask('mouse %d %d 1' % point)
+    opened = set()
+    for _ in range(6):
+        time.sleep(1.0)
+        nodes, _, drawn = game.state()
+        opened = drawn - before
+        if opened:
+            break
+    wanted = route['target']
+    if route['view'] and len(opened) == 1:
+        wanted = next(iter(opened))
+    if wanted is None or wanted not in opened:
+        reason = 'pressing %s in %s brought up %s' % (
+            spot['name'] or spot['class'], source, ', '.join(sorted(opened)) or 'nothing')
+        return None, reason if close_window(game, source, back, baseline) else 'state did not come back'
+    route_text = 'chain %s in %s' % (spot['name'] or spot['class'], source)
+    record = record_window(game, wanted, nodes, header, route_text, attempts,
+                           (windows.get(wanted) or {}).get('file'), started)
+    record['view'] = route['view']
+    if not close_window(game, wanted, back, baseline):
+        return record, 'state did not come back'
+    record['seconds'] = round(time.time() - started, 1)
+    return record, None
+
+
+def chain_round(game, pid, windows, wanted, baseline, header, player, player_name):
+    """Every chain route the files offer from a window this round can open by itself.
+
+    A window that already has a record from a player route is left alone. One that has only a
+    console record gets a new one, and the console record goes aside into a dated folder rather
+    than being written over, so the difference between the routes stays checkable.
+    """
+    import openers
+    direct = {n: r for n, r in windows.items() if r.get('shortcut')}
+    direct.update(click_routes(windows))
+    tables = openers.gui_tables()
+    routes = openers.chain_routes(set(direct), tables)
+    if wanted:
+        routes = [r for r in routes if (r['target'] or r['view']) in wanted]
+    aside = os.path.join(paths.PROJECT, 'harvest-%s-console-replaced' % time.strftime('%Y-%m-%d'))
+
+    def player_record(name):
+        path = os.path.join(OUT, name + '.json')
+        if not os.path.exists(path):
+            return False
+        return not json.load(open(path, encoding='utf-8')).get('route', 'GUI').startswith('GUI')
+
+    done = failed = 0
+    for number, route in enumerate(routes, 1):
+        label = route['target'] or 'view ' + route['view']
+        if route['target'] and player_record(route['target']):
+            continue
+        stop_checks(pid, player, player_name, label)
+        record, reason = chain_step(game, route, direct[route['source']], windows, baseline,
+                                    header, tables)
+        if record is not None:
+            name = record['window']
+            if player_record(name):
+                print('%3d/%d %-34s is %s, which already has a player record; kept that one'
+                      % (number, len(routes), label, name))
+            else:
+                target = os.path.join(OUT, name + '.json')
+                if os.path.exists(target):
+                    os.makedirs(aside, exist_ok=True)
+                    os.replace(target, os.path.join(aside, name + '.json'))
+                json.dump(record, open(target, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
+        if reason == 'state did not come back':
+            raise SystemExit('stopping after %s: %s' % (label, reason))
+        done += record is not None
+        failed += record is None
+        print('%3d/%d %-34s %s' % (number, len(routes), label, reason or
+                                   '%s: %d widgets, %d/%d text boxes confirmed, %.0fs'
+                                   % (record['window'], record['widgets'], record['confirmed'],
+                                      record['boxes'], record['seconds'])))
+    print('chain routes tried %d: recorded %d, not reached %d' % (done + failed, done, failed))
+
+
 def main():
     pid = int(sys.argv[1])
     arguments = sys.argv[2:]
     by_click = '--click' in arguments
-    wanted = [a for a in arguments if a != '--click']
+    by_chain = '--chain' in arguments
+    if by_click and by_chain:
+        raise SystemExit('--click and --chain are two rounds; run them one after the other')
+    wanted = [a for a in arguments if not a.startswith('--')]
     os.makedirs(OUT, exist_ok=True)
     windows = json.load(open(MAP, encoding='utf-8'))['windows']
     if by_click:
         windows = click_routes(windows)
-    names = wanted or sorted(windows)
+    names = [] if by_chain else (wanted or sorted(windows))
     unknown = [n for n in names if n not in windows]
     if unknown:
         raise SystemExit('no %s route for: %s'
@@ -467,13 +602,13 @@ def main():
         raise SystemExit('the clock is running: pause the game first, or the state is not '
                          'repeatable and the character can die halfway through')
     # Only a round that builds windows through the console touches it, and only with -debug_mode
-    # is there a console at all. A round along the player routes - shortcut and click - runs
-    # without it, and that is the round that gives windows their data.
+    # is there a console at all. A round along the player routes - shortcut, click and chain -
+    # runs without it, and that is the round that gives windows their data.
     if any(not windows[n].get('shortcut') and not windows[n].get('click') for n in names):
         game.command('GUI.ClearWidgets')
     # A click round runs with the console shut: it is drawn over the left third of the screen, and
     # two of the buttons that open a window sit under it - a click there lands on the console.
-    if by_click and game.console_open():
+    if (by_click or by_chain) and game.console_open():
         game.set_console(False)
     time.sleep(1.0)
     nodes, _, baseline = game.state()
@@ -485,6 +620,11 @@ def main():
     print('baseline %s, date %s, player %s (%d), free memory %.1f GB'
           % (sorted(baseline) or 'nothing drawn', header['game_date'], player_name, player,
              free_memory()))
+    if by_chain:
+        if set(baseline) - ALWAYS_DRAWN:
+            raise SystemExit('these are already open before the round starts: %s. Close them first.'
+                             % ', '.join(sorted(set(baseline) - ALWAYS_DRAWN)))
+        return chain_round(game, pid, windows, wanted, baseline, header, player, player_name)
 
     left_over = [n for n in names if n in baseline and n not in ALWAYS_DRAWN]
     if left_over:
@@ -500,21 +640,7 @@ def main():
         target = os.path.join(OUT, name + '.json')
         if os.path.exists(target):
             continue
-        if free_memory() < FREE_MEMORY_FLOOR:
-            raise SystemExit('stopping: %.1f GB free, below the floor of %.1f'
-                             % (free_memory(), FREE_MEMORY_FLOOR))
-        if 'channel' not in channel.ask('hello'):
-            raise SystemExit('stopping: the channel no longer answers')
-        # The fifth stop condition. Cheap enough to ask every window - six four-byte reads in one
-        # question - and it is the only thing that catches a state that has been moved to another
-        # character. Measured 29 August 2026: a mod event did exactly that in the middle of a
-        # round and nothing said so.
-        now, now_name = model.player(pid)
-        if now != player:
-            raise SystemExit('stopping before %s: the player is no longer %s (%d) but %s (%d). '
-                             'Everything after this would be measured on somebody else\'s game; '
-                             'reload the state and start the round again.'
-                             % (name, player_name, player, now_name, now))
+        stop_checks(pid, player, player_name, name)
         record, reason = harvest(game, name, windows[name], baseline, header)
         json.dump(record, open(target, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
         if reason == 'state did not come back':

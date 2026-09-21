@@ -5,9 +5,11 @@ opens it, and if not, what the engine says about it. Runs on a loaded, paused ga
 -debug_mode.
 
 Usage:  python tools\ck3\windowmap.py <pid> [<count> | <window> <window> ...]
+        python tools\ck3\windowmap.py <pid> --keys
 
 A count or a list of window names makes it a trial run, and a trial run writes its result beside
-the map instead of over it.
+the map instead of over it. `--keys` runs only the key round, needs no -debug_mode, and adds the
+windows it opens to the map as shortcut routes without changing anything else in it.
 """
 import collections
 import json
@@ -28,8 +30,21 @@ import channel
 GAME = paths.GAME
 ERROR_LOG = paths.ERROR_LOG
 OUT = os.path.join(paths.REPORTS, 'windows.json')
+# The keys a round presses on a bare screen. The F row, plus every binding in shortcuts.shortcuts
+# without a modifier whose name says it can bring something up there: situations 0, character
+# finder C, find title V, plagues P, legends L, message settings M, outliner Q, intent N, the action
+# list Tab and the encyclopedia F10. Left out by name, because they move the clock, the camera or
+# the map rather than open anything: pause, the speed keys, zoom, go to capital, map modes, army
+# orders, the barbershop and ruler designer keys, the editors, and the mouse buttons. A key bound
+# only inside a window does nothing on a bare screen; that is the chain's work.
 KEYS = {112: 'F1', 113: 'F2', 114: 'F3', 115: 'F4', 116: 'F5',
-           117: 'F6', 118: 'F7', 119: 'F8', 120: 'F9'}
+        117: 'F6', 118: 'F7', 119: 'F8', 120: 'F9', 121: 'F10',
+        48: '0', 67: 'C', 86: 'V', 80: 'P', 76: 'L', 77: 'M', 81: 'Q', 78: 'N', 9: 'TAB'}
+
+
+def key_code(name):
+    """The virtual key a round presses for this name, as `KEYS` spells it."""
+    return next(code for code, key in KEYS.items() if key == name)
 
 
 def windows_on_disk():
@@ -217,7 +232,9 @@ def shortcut_round(game):
     the nine keys out of the file.
     """
     out = {}
-    game.set_console(False)
+    # Only with -debug_mode is there a console to shut; a round without it has nothing to do here.
+    if game.console_open():
+        game.set_console(False)
     for _ in range(4):
         _, _, open_now = game.state()
         if not open_now:
@@ -228,6 +245,8 @@ def shortcut_round(game):
     _, _, baseline = game.state()
     if baseline:
         print('  NOTE: did not start empty, still open: %s' % ', '.join(sorted(baseline)))
+    # Imported here because harvest imports this module.
+    from harvest import paused
     for code, name in sorted(KEYS.items()):
         channel.ask('sendkey %d' % code)
         time.sleep(1.8)
@@ -235,19 +254,32 @@ def shortcut_round(game):
         added = now_drawn - baseline
         for window in added:
             out[window] = name
+        # **Put back means: the same windows drawn and the clock still standing.** Not the same
+        # number of widgets - the round of 1 September 2026 stopped after three keys because zoom
+        # builds widgets and never takes them down, while it opens no window at all.
+        restored = now_drawn
         if added:
             channel.ask('sendkey %d' % code)
             time.sleep(1.4)
             _, _, restored = game.state()
-            if restored != baseline:
-                # **This used to take the new state as the baseline and carry on.** That is how
-                # the round of 20 September 2026 continued with the search filter window standing
-                # open, and a contaminated state makes every measurement after it worthless. The
-                # state coming back is the most important stop condition this project has, so it
-                # stops rather than adapts.
-                raise SystemExit('after %s the state did not come back; still drawn: %s. '
-                                 'Shut it by hand before starting again'
-                                 % (name, ', '.join(sorted(restored - baseline))))
+        for _ in range(3):
+            if restored == baseline:
+                break
+            channel.ask('sendkey 27')
+            time.sleep(1.4)
+            _, _, restored = game.state()
+        if restored != baseline:
+            # **This used to take the new state as the baseline and carry on.** That is how
+            # the round of 20 September 2026 continued with the search filter window standing
+            # open, and a contaminated state makes every measurement after it worthless. The
+            # state coming back is the most important stop condition this project has, so it
+            # stops rather than adapts.
+            raise SystemExit('after %s the state did not come back; still drawn: %s. '
+                             'Shut it by hand before starting again'
+                             % (name, ', '.join(sorted(restored - baseline))))
+        if not paused(game):
+            raise SystemExit('after %s the clock is running. Pause the game by hand; a running '
+                             'clock makes the state unrepeatable' % name)
         print('  %-4s %s' % (name, ', '.join(sorted(added)) or 'no change'))
     return out
 
@@ -327,9 +359,36 @@ def unmapped(pid, game=None):
             sorted(n for n in known if n not in live))
 
 
+def keys_only(pid):
+    """Only the key round, and add what it finds to the map without touching anything else in it.
+
+    Runs without -debug_mode. A key that opens a window becomes that window's shortcut route in
+    `reports\\windows.json`; a window that already has one keeps it, and nothing is removed - a
+    key that finds nothing this time says something about this state, not about the window.
+    """
+    game = Game(pid)
+    found = shortcut_round(game)
+    with open(OUT, encoding='utf-8') as file:
+        result = json.load(file)
+    added = []
+    for window, key in sorted(found.items()):
+        if window not in result['windows']:
+            raise SystemExit('%s opened on %s and the map does not know it; run '
+                             'windowmap.unmapped first' % (window, key))
+        if not result['windows'][window].get('shortcut'):
+            result['windows'][window]['shortcut'] = key
+            added.append('%s on %s' % (window, key))
+    with open(OUT, 'w', encoding='utf-8') as file:
+        json.dump(result, file, ensure_ascii=False, indent=1, sort_keys=True)
+    print('windows with a key: %d, new in the map: %d%s'
+          % (len(found), len(added), (' - ' + ', '.join(added)) if added else ''))
+
+
 def main():
     pid = int(sys.argv[1])
     rest = sys.argv[2:]
+    if rest == ['--keys']:
+        return keys_only(pid)
     limit = int(rest[0]) if rest and rest[0].isdigit() else None
     chosen = [name for name in rest if not name.isdigit()]
     windows = windows_on_disk()

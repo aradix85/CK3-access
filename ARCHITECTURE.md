@@ -135,7 +135,7 @@ console builds any window on demand, which makes coverage independent of who is 
 hands over shape and captions and no data context: 6.6 text boxes per window against 23.7 through a
 shortcut and 32.8 through a click. None of the twelve `GUI.` console commands takes a context, so
 there is no way around it. Structure is collected the cheap way and data the slow way, and
-`tools/ck3/harvest.py` knows all three routes.
+`tools/ck3/harvest.py` knows all three routes, and the chain below as a fourth.
 
 **And the map of what can be opened is checked against the game, not against the files.** Listing
 the shapes a window can be declared in finds only the shapes somebody thought of, and it was wrong
@@ -149,7 +149,9 @@ rather than on a button — a variable another window sets — so they are reach
 and acting inside it. `tools/ck3/openers.py`, behind `--chain`, reads the target's own `visible`
 line to learn what has to happen, aligns the open window against the files to find the widget that
 does it, and presses it only when it can say which widget it means. That is what the last two
-closed windows needed.
+closed windows needed. `openers.chain_routes` lists every such step the files offer from the windows a
+round can open by itself, and `harvest.py --chain` walks them. For a view whose name is no window name
+the press is the measurement: which window the engine puts behind a view is not written anywhere.
 
 ### Joining the tree to the files
 

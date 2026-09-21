@@ -206,6 +206,7 @@ def live_record(game, pid, window, address=None, nodes=None):
 
 CONDITION = re.compile(r"GetVariableSystem\.(HasValue|Exists)\(\s*'([^']+)'(?:\s*,\s*'([^']*)')?")
 SETS = re.compile(r"GetVariableSystem\.(Set|Toggle|Clear)\(\s*'([^']+)'(?:\s*,\s*'([^']*)')?")
+VIEW_CALL = re.compile(r"(?:Open|Toggle)GameView(?:Data)?\s*\(\s*'([^']+)'")
 
 
 def goal_of(target, known=None):
@@ -234,7 +235,7 @@ def reaches(value, goal):
     would offer both and press the wrong one half the time.
     """
     if goal[0] == 'view':
-        found = re.search(r"(?:Open|Toggle)GameView(?:Data)?\s*\(\s*'([^']+)'", value)
+        found = VIEW_CALL.search(value)
         return bool(found and found.group(1) == goal[1])
     for how, name, held in SETS.findall(value):
         if name != goal[1] or how == 'Clear':
@@ -279,6 +280,43 @@ def fires_for(source, goal):
         else:
             others.append('%s: %s' % (key, value))
     return wanted, others
+
+
+def chain_routes(start, tables=None):
+    """Which windows can be reached by acting inside a window a player can already open. Disk only.
+
+    Every window in `start` is expanded, and each block's last onclick - the only one that fires -
+    is asked whether it reaches the goal of another window (`goal_of`, `reaches`). A call that opens
+    a view whose name is no window name comes back as well, without a target: which window the
+    engine puts behind such a view is not on disk, so pressing it is the measurement.
+
+    Counted 21 September 2026 from the twenty windows a player route had opened: nine windows by
+    name, one of them the holding view that is measured dead, and nineteen views without a window
+    name. One row per target or view, with the first source in sorted order.
+    """
+    table, local, known, root = tables or gui_tables()
+    goals = {w: goal_of(w, known) for w in known}
+    found = {}
+    for source in sorted(start):
+        tree, _ = guimap.window(source, table, local, known)
+        stack = [tree]
+        while stack:
+            node = stack.pop()
+            stack.extend(node.get('children', ()))
+            last = None
+            for key, value in node.get('attrs', ()):
+                if key == 'onclick' and value:
+                    last = value
+            if not last:
+                continue
+            for target, goal in goals.items():
+                if target not in start and target not in found and reaches(last, goal):
+                    found[target] = {'target': target, 'source': source, 'goal': goal, 'view': None}
+            for view in VIEW_CALL.findall(last):
+                if view not in known and view not in found:
+                    found[view] = {'target': None, 'source': source, 'goal': ('view', view, None),
+                                   'view': view}
+    return sorted(found.values(), key=lambda row: (row['view'] or '', row['target'] or ''))
 
 
 def draw_order(record):

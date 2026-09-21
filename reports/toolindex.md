@@ -239,8 +239,12 @@ returns a pair, passed on as one thing, costs a run.
 | `open_window(game, name, row, baseline)` | 2-tuple | Open one window along the route phase 0 found for it, and prove it is drawn. |
 | `close_window(game, name, row, baseline, limit=12)` | bool | Shut it again and wait until the state before it is back. Anything left open contaminates |
 | `drawn_one(candidates, name)` | value | Of several window objects carrying the same name, the one that is actually drawn. |
+| `record_window(game, name, nodes, header, route, attempts, file, started)` | value | Everything this project can read of one drawn window, plus a capture. It stays open. |
 | `harvest(game, name, row, baseline, header)` | 2-tuple | One window, from opening to the state coming back. Returns the record, or a reason. |
-| `main()` | nothing | - |
+| `stop_checks(pid, player, player_name, before)` | nothing | The three conditions asked before every window: memory, the channel, and the player. |
+| `chain_step(game, route, source_row, windows, baseline, header, tables)` | 2-tuple | One chain route: open the source along its own route, press what reaches the goal inside it, |
+| `chain_round(game, pid, windows, wanted, baseline, header, player, player_name)` | value of bool | Every chain route the files offer from a window this round can open by itself. |
+| `main()` | value | - |
 
 ## ck3\inject.py
 *Starts a program suspended and loads our DLL into it before it runs its first line of code.*
@@ -318,6 +322,7 @@ returns a pair, passed on as one thing, costs a run.
 | `goal_of(target, known=None)` | 3-tuple | What has to happen before `target` is drawn: a view opens, or a variable is set. |
 | `reaches(value, goal)` | bool of value | Does this onclick reach the goal? Setting a variable counts, clearing it does not. |
 | `fires_for(source, goal)` | 2-tuple | The call this disk block really fires, split into the one that reaches `goal` and the rest. |
+| `chain_routes(start, tables=None)` | value | Which windows can be reached by acting inside a window a player can already open. Disk only. |
 | `draw_order(record)` | value | Address -> its path of sibling numbers from the window down, which is the drawing order. |
 | `clickable_map(record, acting=None)` | value | The buttons of a window that can handle a click, with their draw order. |
 | `lands_on(buttons, point)` | value | Which widget handles a click at this point. |
@@ -476,12 +481,14 @@ returns a pair, passed on as one thing, costs a run.
 
 | call | returns | does |
 |---|---|---|
+| `key_code(name)` | value | The virtual key a round presses for this name, as `KEYS` spells it. |
 | `windows_on_disk()` | value | Every window the gui files declare, with the path the console wants and how it is declared. |
 | `classes(pid)` | set | - |
 | `shortcut_round(game)` | value | Which shortcut opens which window? One key per test, and every window shut again. |
 | `create_round(game, windows, limit=None)` | value | Try every window with GUI.CreateWidget, and clean up immediately. |
 | `unmapped(pid, game=None)` | 3-tuple | Which windows the running game built that the map on disk does not know. |
-| `main()` | nothing | - |
+| `keys_only(pid)` | nothing | Only the key round, and add what it finds to the map without touching anything else in it. |
+| `main()` | value | - |
 
 ## nvda\speech.py
 *Thin seam to NVDA. Everything the user needs to hear passes through here.*
