@@ -9,6 +9,33 @@ and an entry a later measurement overturns is taken out rather than left standin
 beside it: git keeps the text, `ARCHITECTURE.md` keeps the reasoning, and `reports/claims.json`
 keeps the numbers with the rule they were counted by. A changelog that may never forget only grows.
 
+## 2026-09-21
+
+- **A widget the game hides says nothing and is not clicked.** A `visible` condition that does not
+  hold leaves the widget in the tree with its alpha up and sets 0x08 in its state byte. Over seven
+  windows 2777 of 2784 such widgets carry that condition on themselves or an ancestor, and the text
+  recogniser read back none of 79 hidden boxes that passed every other test, against 208 of 214
+  shown ones. The reading rule, the click check, the recogniser score and `check.py` all ask it now;
+  in the character finder it takes away half the text, such as "No matching Characters for current
+  filter" while characters are listed.
+- **Seventeen windows open on a key without a modifier, eight more than the F row.**
+  `windowmap.py --keys` pressed the ten bindings that can open something on a bare screen and put
+  the state and the clock back after each: C opens the character finder with its filter, P the
+  epidemics, V find title, F10 the encyclopedia, L the legends, M the message settings and 0 the
+  situations.
+- **A harvest along shortcut, click and chain runs without debug mode.** It clicks where the live
+  tree puts a button now rather than at a point measured at another resolution, treats a window as
+  open whichever copy of its name is drawn, and presses a shortcut once when closing instead of
+  toggling against Escape.
+- **The chain round: `openers.chain_routes` and `harvest.py --chain`.** From the windows a round can
+  open itself, every button the files say reaches another window, every source tried in turn. It
+  recorded the culture window, the ledger filter and the activity host window, and it measured
+  which window stands behind six views whose name is no window name - `faith` is `faith_window`,
+  among others - which is written nowhere on disk.
+- The window count in the harvest is 205, and every count over it now says how many texts are on
+  the screen rather than how many widgets carry text: the encyclopedia holds 2344 texts, all of
+  them under alpha zero until an article is chosen.
+
 ## 2026-09-20
 
 - **An event reads out loud, live** — the description as one unit, the options with their count and an

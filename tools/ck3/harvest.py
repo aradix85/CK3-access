@@ -232,12 +232,16 @@ def confirmed(tree, lines, size):
         x, y, width, height = w['screen_rect']
         if not want or width <= 0 or height <= 0:
             continue
-        alpha, node, steps = 1.0, w, 0
+        # 0x08 in the state byte is the game hiding a widget while its alpha stays up, and a hidden
+        # box is no more a miss than one at alpha zero. Records from before 20 September carry no
+        # state, so for them this changes nothing.
+        alpha, hidden, node, steps = 1.0, False, w, 0
         while node is not None and steps < 40:
             alpha *= node['alpha'] if node['alpha'] is not None else 1.0
+            hidden = hidden or bool((node.get('state') or 0) & 0x08)
             node = by_address.get(node['parent'])
             steps += 1
-        if alpha <= 0.0:
+        if alpha <= 0.0 or hidden:
             continue
         if x < 0 or y < 0 or x + width > width_limit or y + height > height_limit:
             offscreen += 1
@@ -296,12 +300,13 @@ def open_window(game, name, row, baseline):
     twenty and then "failed" the moment this optimisation was applied to it. Worse, a false failure
     leaves the created widget standing. So that route keeps polling the tree.
     """
+    # Every window object carrying the name, because a parked copy of the same name never flips.
+    # Measured 21 September 2026: C opens the character finder and its filter together, and
+    # watching only the first object called `character_filter_window` saw nothing open.
+    candidates = []
     if row.get('shortcut'):
         nodes = game.tree()
-        address = next((a for a, k in nodes.items()
-                        if k[6] == name and k[0] in game.window_classes), None)
-    else:
-        address = None
+        candidates = [a for a, k in nodes.items() if k[6] == name and k[0] in game.window_classes]
     # Phase 0 already tried every window once. Where it saw nothing drawn, three attempts buy
     # nothing and cost a minute each, so those get one - which over a full round is the difference
     # between ten minutes and half an hour of proving the same negative.
@@ -311,7 +316,7 @@ def open_window(game, name, row, baseline):
             channel.ask('sendkey %d' % windowmap.key_code(row['shortcut']))
             for _ in range(14):
                 time.sleep(0.6)
-                if derive.flags_for([address]).get(address, 0xFF) == 0x00:
+                if 0x00 in derive.flags_for(candidates).values():
                     return game.tree(), attempt
         elif row.get('click'):
             # The parent window first, and only if it is not already standing: its shortcut is a
@@ -354,9 +359,12 @@ def open_window(game, name, row, baseline):
 def close_window(game, name, row, baseline, limit=12):
     """Shut it again and wait until the state before it is back. Anything left open contaminates
     every window after this one, which is why this is a stop condition and not a warning."""
-    for _ in range(limit):
+    for attempt in range(limit):
+        # The shortcut once, and Escape after that. Pressing a toggle in every round reopens what
+        # Escape just shut - with a key that opens two windows at once the loop never ends.
         if row.get('shortcut'):
-            channel.ask('sendkey %d' % windowmap.key_code(row['shortcut']))
+            if attempt == 0:
+                channel.ask('sendkey %d' % windowmap.key_code(row['shortcut']))
         elif not row.get('click'):
             game.command('GUI.ClearWidgets')
         # The click route closes on Escape alone, at the foot of this loop, and that key is only
@@ -502,7 +510,20 @@ def chain_step(game, route, source_row, windows, baseline, header, tables):
         return None, reason if close_window(game, source, back, baseline) else 'state did not come back'
     spot, point = usable[0]
     _, _, before = game.state()
-    channel.ask('mouse %d %d 1' % point)
+    if spot['name']:
+        # A named widget is pressed the way quit_game presses: the copy that is on screen, at its
+        # middle, with scale and class asked for the whole tree. Measured 21 September 2026 on
+        # `filters` in the ledger: the aligned point opened nothing, this opened the filter window.
+        import quit_game
+        full = game.tree()
+        refused = quit_game.press(full, derive.scales_for(list(full)),
+                                  derive.class_map(game.pid, {a: k[0] for a, k in full.items()}),
+                                  spot['name'])
+        if refused:
+            return None, (refused if close_window(game, source, back, baseline)
+                          else 'state did not come back')
+    else:
+        channel.ask('mouse %d %d 1' % point)
     opened = set()
     for _ in range(6):
         time.sleep(1.0)
@@ -549,34 +570,44 @@ def chain_round(game, pid, windows, wanted, baseline, header, player, player_nam
             return False
         return not json.load(open(path, encoding='utf-8')).get('route', 'GUI').startswith('GUI')
 
-    done = failed = 0
+    done = failed = confirmed_only = 0
     for number, route in enumerate(routes, 1):
         label = route['target'] or 'view ' + route['view']
         if route['target'] and player_record(route['target']):
             continue
-        stop_checks(pid, player, player_name, label)
-        record, reason = chain_step(game, route, direct[route['source']], windows, baseline,
-                                    header, tables)
-        if record is not None:
-            name = record['window']
-            if player_record(name):
-                print('%3d/%d %-34s is %s, which already has a player record; kept that one'
-                      % (number, len(routes), label, name))
-            else:
-                target = os.path.join(OUT, name + '.json')
-                if os.path.exists(target):
-                    os.makedirs(aside, exist_ok=True)
-                    os.replace(target, os.path.join(aside, name + '.json'))
-                json.dump(record, open(target, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
+        record, reasons = None, []
+        for source in route['sources']:
+            stop_checks(pid, player, player_name, label)
+            record, reason = chain_step(game, dict(route, source=source), direct[source], windows,
+                                        baseline, header, tables)
+            if reason == 'state did not come back' or record is not None:
+                break
+            reasons.append('%s: %s' % (source, reason))
+        if record is None and reason != 'state did not come back':
+            reason = '; '.join(reasons)
+        kept = record is not None and player_record(record['window'])
+        if record is not None and not kept:
+            target = os.path.join(OUT, record['window'] + '.json')
+            if os.path.exists(target):
+                os.makedirs(aside, exist_ok=True)
+                os.replace(target, os.path.join(aside, record['window'] + '.json'))
+            json.dump(record, open(target, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
         if reason == 'state did not come back':
             raise SystemExit('stopping after %s: %s' % (label, reason))
-        done += record is not None
+        done += record is not None and not kept
+        confirmed_only += kept
         failed += record is None
-        print('%3d/%d %-34s %s' % (number, len(routes), label, reason or
-                                   '%s: %d widgets, %d/%d text boxes confirmed, %.0fs'
-                                   % (record['window'], record['widgets'], record['confirmed'],
-                                      record['boxes'], record['seconds'])))
-    print('chain routes tried %d: recorded %d, not reached %d' % (done + failed, done, failed))
+        if record is None:
+            said = reason
+        elif kept:
+            said = 'is %s, which already has a player record; that one is kept' % record['window']
+        else:
+            said = '%s: %d widgets, %d/%d text boxes confirmed, %.0fs' % (
+                record['window'], record['widgets'], record['confirmed'], record['boxes'],
+                record['seconds'])
+        print('%3d/%d %-34s %s' % (number, len(routes), label, said))
+    print('chain routes tried %d: recorded %d, confirmed a window that already had a record %d, '
+          'not reached %d' % (done + confirmed_only + failed, done, confirmed_only, failed))
 
 
 def main():

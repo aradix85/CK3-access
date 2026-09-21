@@ -285,18 +285,18 @@
  },
  {
   "name": "texts the reading rule says over the harvest",
-  "claimed": 1753,
+  "claimed": 4394,
   "measure": "unseen_texts",
   "arguments": ["texts"],
-  "counting_rule": "every widget in a harvested record whose text is not empty once the game's markup is stripped, summed over the records that hold a window; refusal records carry a reason and no tree and do not count",
+  "counting_rule": "every widget in a harvested record whose text is not empty once the game's markup is stripped, summed over the records that hold a window; refusal records carry a reason and no tree and do not count. Since 21 September 2026 the harvest holds the encyclopedia, 2344 texts in one window, and the windows harvested that day along a new shortcut or a chain",
   "quoted_in": ["brief\\stand.md"]
  },
  {
   "name": "harvested texts that are in the tree but not on the screen",
-  "claimed": 172,
+  "claimed": 2659,
   "measure": "unseen_texts",
   "arguments": ["all"],
-  "counting_rule": "of those texts, the ones the reading rule skips: 139 whose rectangle falls outside the drawing area of that record, 83 clipped inside their scroll area, 6 with an ancestor at alpha zero - the union is smaller than the sum because a text can fail two at once. Measured 20 September 2026, when the rule began skipping them",
+  "counting_rule": "of those texts, the ones the reading rule skips: the rectangle falls outside the drawing area of that record, or it is clipped inside its scroll area, or an ancestor sits at alpha zero, or an ancestor carries 0x08 in its state byte - the game hiding it, which records carry since 20 September 2026. The union is smaller than the sum because a text can fail two at once. 172 of 1753 on 20 September 2026; on 21 September the rule gained the hidden state (563 texts) and the harvest the encyclopedia, most of whose list sits clipped",
   "quoted_in": ["brief\\stand.md"]
  },
  {
@@ -307,13 +307,13 @@
  },
  {
   "name": "windows opened in the harvest round",
-  "claimed": 203,
+  "claimed": 205,
   "measure": "harvest_total",
   "arguments": [
    "<project>\\harvest",
    "windows"
   ],
-  "counting_rule": "records in harvest\\ with opened true. The map holds 265 rows: these 203, the 15 that refuse to open at all, and toolbars_window, which is the baseline state and is never harvested. It was 178 of 196 until 30 August 2026, when the administration window was harvested along a player route and the 22 windows declared through a type of their own were added to the map and harvested. On 31 August 2026 the last two a chain could reach, houses_list and knight_permissions, came in along a player route",
+  "counting_rule": "records in harvest\\ with opened true: 174 opened by the console, 16 by a shortcut, 9 by a click and 6 by a chain, counted 21 September 2026. The 15 that refuse carry a reason and no tree, and toolbars_window is the baseline state and is never harvested",
   "quoted_in": [
    "README.md",
    "brief\\stand.md"
@@ -321,7 +321,7 @@
  },
  {
   "name": "text boxes in the harvest round",
-  "claimed": 1503,
+  "claimed": 1736,
   "measure": "harvest_total",
   "arguments": [
    "<project>\\harvest",
@@ -331,23 +331,23 @@
  },
  {
   "name": "text boxes the recogniser confirmed",
-  "claimed": 1362,
+  "claimed": 1511,
   "measure": "harvest_total",
   "arguments": [
    "<project>\\harvest",
    "confirmed"
   ],
-  "counting_rule": "summed over the records: of those boxes, the ones an overlapping recognised line says the same thing about. 1362 of 1503 after the two chain steps of 31 August 2026. harvest\\ is outside the repo, so on a clone these measure nothing and drift - they belong to a round on one machine"
+  "counting_rule": "summed over the records: of those boxes, the ones an overlapping recognised line says the same thing about. harvest\\ is outside the repo, so on a clone these measure nothing and drift - they belong to a round on one machine"
  },
  {
   "name": "text boxes outside the drawing area",
-  "claimed": 144,
+  "claimed": 143,
   "measure": "harvest_total",
   "arguments": [
    "<project>\\harvest",
    "offscreen"
   ],
-  "counting_rule": "summed over the records: boxes that would otherwise count, but fall wholly or partly outside the 1600x900 drawing area. A window built by GUI.CreateWidget is not laid out where a player would see it, so counting these as misses measures the console route rather than the recogniser"
+  "counting_rule": "summed over the records: boxes that would otherwise count, but fall wholly or partly outside the drawing area of that record. A window built by GUI.CreateWidget is not laid out where a player would see it, so counting these as misses measures the console route rather than the recogniser"
  },
  {
   "name": "windows in the map that a mod put there",

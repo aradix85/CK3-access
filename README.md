@@ -27,13 +27,13 @@ process and from files already on your disk.
   names anything it built that the map lacks. Nothing does, on a feudal, an administrative and a
   landless ruler. Each row also carries how the window is declared, and 76 of them say why no
   console route exists for that shape rather than reporting a failure.
-- **203 windows have been harvested** widget by widget and paired with the parsed `.gui` files on
+- **205 windows have been harvested** widget by widget and paired with the parsed `.gui` files on
   structure, so meaning on disk reaches the nameless widgets: nine in ten of the ones showing text.
 - **A window reads out, one unit per keystroke.** The reader claims the arrow keys through the
   injected DLL, so the game never sees them and every other key still reaches it; each press hands
   one line to NVDA, speech and braille together. An event announces itself through a number the
   engine already keeps, and a reader that fails gives the keys back before it says so. A button
-  the game has switched off says so before its words, and one key asks for the tooltip the gui
+  the game has switched off says so before its words, what the game hides is left unsaid, and one key asks for the tooltip the gui
   files hang on whatever is under the cursor.
 - **The tooling never fails silently.** Anything that goes wrong leaves through one exit as a
   sentence saying what failed, where, and what to do — never as an error code or as nothing.

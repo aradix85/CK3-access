@@ -62,7 +62,11 @@ whether a player can see it. Four mechanisms decide that, and all four are neede
   cancel button beside it as the counter-example, and crossed against the gui files over three
   windows and 6906 widgets - no widget carries those bits without an `enabled` condition on itself
   or an ancestor. So it is one state byte read for every widget, and a screen no longer needs a
-  rule of its own to say a button is dead.
+  rule of its own to say a button is dead. **And 0x08 in that byte, on a widget or any ancestor, is
+  the game hiding it:** a `visible` condition that does not hold leaves the widget in the tree with
+  its alpha up and sets this bit. Over seven windows 2777 of the 2784 widgets carrying it have such a
+  condition on themselves or an ancestor, and the text recogniser read back none of 79 hidden boxes
+  that passed every other test, against 208 of 214 shown ones. Clicking and reading both ask it.
 - **Alpha along the whole parent chain**, not on the widget itself.
 - **Clipping.** A row scrolled past the end of its list keeps alpha 1 and a rectangle; what decides
   it is the frame of the nearest scroll area above it.

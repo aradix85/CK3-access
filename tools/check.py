@@ -302,11 +302,13 @@ def unseen_texts(what):
     The reading rule skips these, so the number decides how much a window says to nobody. Counted
     over every harvested record: a text is what a text box holds once the markup is stripped, and
     it is unseen when its rectangle falls outside the drawing area that record was taken at, or it
-    is clipped inside its scroll area, or an ancestor sits at alpha zero. `all` is the union, which
-    is smaller than the sum because a text can fail two of them at once.
+    is clipped inside its scroll area, or an ancestor sits at alpha zero, or an ancestor carries
+    0x08 in its state byte - the game hiding it through a `visible` condition, which records carry
+    since 20 September 2026. `all` is the union, which is smaller than the sum because a text can
+    fail two of them at once.
     """
     import derive
-    totals = {'texts': 0, 'clipped': 0, 'alpha': 0, 'outside': 0, 'all': 0}
+    totals = {'texts': 0, 'clipped': 0, 'alpha': 0, 'outside': 0, 'hidden': 0, 'all': 0}
     for name in sorted(glob.glob(os.path.join(_path('harvest'), '*.json'))):
         with open(name, encoding='utf-8') as handle:
             record = json.load(handle)
@@ -321,17 +323,18 @@ def unseen_texts(what):
             totals['texts'] += 1
             x, y, w, h = node['screen_rect']
             outside = x + w <= 0 or y + h <= 0 or x >= width or y >= height
-            faded, walk, seen = False, node, set()
+            faded, hidden, walk, seen = False, False, node, set()
             while walk is not None and walk['address'] not in seen:
                 seen.add(walk['address'])
                 if (walk['alpha'] or 0) <= 0:
                     faded = True
-                    break
+                hidden = hidden or bool((walk.get('state') or 0) & 0x08)
                 walk = by_address.get(walk['parent'])
             totals['clipped'] += bool(node['clipped'])
             totals['alpha'] += faded
             totals['outside'] += outside
-            totals['all'] += bool(node['clipped']) or faded or outside
+            totals['hidden'] += hidden
+            totals['all'] += bool(node['clipped']) or faded or outside or hidden
     return totals[what]
 
 

@@ -528,7 +528,7 @@
    "file": "gui/window_character_filter.gui",
    "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
    "shape": "type definition",
-   "shortcut": null
+   "shortcut": "C"
   },
   "character_finder_window": {
    "cleaned_up": true,
@@ -540,7 +540,7 @@
    "nodes_added": 2,
    "seconds": 8.7,
    "shape": "top level",
-   "shortcut": null
+   "shortcut": "C"
   },
   "character_focus_window": {
    "cleaned_up": true,
@@ -1116,7 +1116,7 @@
    "nodes_added": 2,
    "seconds": 7.8,
    "shape": "top level",
-   "shortcut": null
+   "shortcut": "P"
   },
   "factions_window": {
    "cleaned_up": true,
@@ -1184,7 +1184,7 @@
    "nodes_added": 2,
    "seconds": 7.9,
    "shape": "top level",
-   "shortcut": null
+   "shortcut": "V"
   },
   "find_vassal_list_window": {
    "cleaned_up": true,
@@ -1476,7 +1476,7 @@
    "nodes_added": 2,
    "seconds": 8.2,
    "shape": "top level",
-   "shortcut": null
+   "shortcut": "F10"
   },
   "jomini_message": {
    "cleaned_up": true,
@@ -1628,7 +1628,7 @@
    "nodes_added": 2,
    "seconds": 7.9,
    "shape": "top level",
-   "shortcut": null
+   "shortcut": "L"
   },
   "letter_event": {
    "cleaned_up": true,
@@ -2680,7 +2680,7 @@
    "nodes_added": 2,
    "seconds": 7.8,
    "shape": "top level",
-   "shortcut": null
+   "shortcut": "M"
   },
   "window_migration": {
    "cleaned_up": true,
@@ -2760,7 +2760,7 @@
    "nodes_added": 2,
    "seconds": 7.7,
    "shape": "top level",
-   "shortcut": null
+   "shortcut": "0"
   },
   "window_situation_participant_groups": {
    "console": false,

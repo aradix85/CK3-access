@@ -292,7 +292,9 @@ def chain_routes(start, tables=None):
 
     Counted 21 September 2026 from the twenty windows a player route had opened: nine windows by
     name, one of them the holding view that is measured dead, and nineteen views without a window
-    name. One row per target or view, with the first source in sorted order.
+    name. One row per target or view, with every source that offers it, in sorted order: a call
+    on disk can sit in a row the live window does not build, so the first source is not always
+    the one that works - `culture_window` from the character finder was the case.
     """
     table, local, known, root = tables or gui_tables()
     goals = {w: goal_of(w, known) for w in known}
@@ -310,12 +312,17 @@ def chain_routes(start, tables=None):
             if not last:
                 continue
             for target, goal in goals.items():
-                if target not in start and target not in found and reaches(last, goal):
-                    found[target] = {'target': target, 'source': source, 'goal': goal, 'view': None}
+                if target not in start and reaches(last, goal):
+                    row = found.setdefault(target, {'target': target, 'sources': [], 'goal': goal,
+                                                    'view': None})
+                    if source not in row['sources']:
+                        row['sources'].append(source)
             for view in VIEW_CALL.findall(last):
-                if view not in known and view not in found:
-                    found[view] = {'target': None, 'source': source, 'goal': ('view', view, None),
-                                   'view': view}
+                if view not in known:
+                    row = found.setdefault(view, {'target': None, 'sources': [],
+                                                  'goal': ('view', view, None), 'view': view})
+                    if source not in row['sources']:
+                        row['sources'].append(source)
     return sorted(found.values(), key=lambda row: (row['view'] or '', row['target'] or ''))
 
 
@@ -502,13 +509,22 @@ def on_screen(address, nodes, scales, classes):
     screen_width, screen_height = derive.drawing_area()
     if x < 0 or y < 0 or x + width > screen_width or y + height > screen_height:
         return 'off screen'
-    node = nodes[address][5]
+    # **The game hides a widget with 0x08 in its state byte, on itself or on an ancestor, and leaves
+    # alpha up.** Measured 21 September 2026 over seven windows: 2777 of the 2784 widgets carrying it
+    # have a `visible` condition on themselves or an ancestor, and a kill list button hidden that way
+    # passed every test above and opened nothing when pressed. On a window object it is the same
+    # byte: zero drawn, 0x08 not. One channel question for the whole chain.
+    chain = []
+    node = address
     while node in nodes:
-        if nodes[node][0] in game_classes:
-            if derive.flags_for([node]).get(node, 0xFF) != 0x00:
-                return 'its window is not drawn'
-            break
+        chain.append(node)
         node = nodes[node][5]
+    flags = derive.flags_for(chain)
+    if any(flags.get(a, 0) & 0x08 for a in chain):
+        return 'hidden by the game'
+    window = next((a for a in chain[1:] if nodes[a][0] in game_classes), None)
+    if window is not None and flags.get(window, 0xFF) != 0x00:
+        return 'its window is not drawn'
     return None
 
 

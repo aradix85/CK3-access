@@ -176,6 +176,12 @@ def on_screen(node, by_address, area):
         seen.add(node['address'])
         if (node['alpha'] or 0) <= 0:
             return False
+        # 0x08 in the state byte is the game hiding the widget - a `visible` condition that is false
+        # - while alpha stays up. Measured 21 September 2026: 40 of 260 texts in seven windows sat
+        # under it, all in the character finder, such as "No matching Characters for current filter"
+        # while it listed characters. A record from before 20 September carries no state.
+        if (node.get('state') or 0) & 0x08:
+            return False
         node = by_address.get(node['parent'])
     return True
 
