@@ -37,6 +37,13 @@ keeps the numbers with the rule they were counted by. A changelog that may never
   buttons hidden by the game, eight with no live widget carrying the call, three off the screen, and
   no stray click. The first two live refusals of a hidden button point at a click route that names
   the wrong widget. Where a window has both, a shortcut now goes before a click.
+- **A list is announced once, with the number of its rows, and a list inside a row is folded into
+  it.** A row is the live widget under the list widget, so the name and value of one entry count
+  once: the character window has 5 skills, not 10 units. One visible inner row is said after the
+  outer row - "New Heir, Toast" in the message settings, where the reader used to announce fourteen
+  lists of one - more are said as a count, and a list of one row is not announced at all. Over the
+  25 windows with a player route, announcements went from 124 to 42 lines and every visible unit is
+  still said.
 - The window count in the harvest is 205, and every count over it now says how many texts are on
   the screen rather than how many widgets carry text: the encyclopedia holds 2344 texts, all of
   them under alpha zero until an article is chosen.

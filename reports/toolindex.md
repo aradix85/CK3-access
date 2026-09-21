@@ -402,7 +402,7 @@ returns a pair, passed on as one thing, costs a run.
 
 | call | returns | does |
 |---|---|---|
-| `models(node, model=None, out=None)` | value | Per widget on disk, the data model of the nearest repeated container above it. |
+| `models(node, chain=(), out=None)` | value | Per widget on disk, the data models of the repeated containers above it, outermost first. |
 | `live_order(by_parent, top)` | value | The live widgets depth first in child order - the order the game draws them in. |
 | `words_of(word)` | value | A name in the game's spelling as words: GetSoldierCount -> soldier count, MAACap -> MAA cap. |
 | `name_of(model)` | value | A data function as a word for the player: GetOptions -> options, GetGold|0 -> gold. |
@@ -411,6 +411,7 @@ returns a pair, passed on as one thing, costs a run.
 | `expansion(window, table, local, known)` | value | The window as the gui files describe it, expanded once and then kept. |
 | `words_table()` | value | The localisation, read once. 1173 files, so not per keystroke. |
 | `explanation(address, by_address, source_of, localization)` | NoneType of value | What the game would show if you could hover here: the nearest tooltip up the chain. |
+| `rows_of(node, by_address, source_of)` | value | The row this unit stands in, per list around it, outermost first, as live addresses. |
 | `units(window, table, local, known, root, record)` | value | Every unit this window says, in order, each with the list it belongs to. |
 | `screen_rules()` | value | Per window, what a screen file adds on top of the reading rule. |
 | `in_order(window, found)` | value | The units with what a screen file names first, first. Stable, so the rest keeps its order. |

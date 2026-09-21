@@ -35,10 +35,11 @@ import speech
 HARVEST = os.path.join(paths.PROJECT, 'harvest')
 
 
-def models(node, model=None, out=None):
-    """Per widget on disk, the data model of the nearest repeated container above it.
+def models(node, chain=(), out=None):
+    """Per widget on disk, the data models of the repeated containers above it, outermost first.
 
-    That is what makes a row of a list one unit instead of as many units as there are rows.
+    That is what makes a row of a list one unit instead of as many units as there are rows, and the
+    whole chain rather than the nearest one is what shows that a list sits inside a row of another.
 
     Everything under a `tooltipwidget` is left out, exactly as the alignment leaves it out: the
     game builds a tooltip only when the pointer arrives, so on disk it is a subtree nobody is
@@ -51,10 +52,10 @@ def models(node, model=None, out=None):
         out = {}
     for key, value in node['attrs']:
         if key == 'datamodel':
-            model = value
-    out[id(node)] = model
+            chain = chain + (value,)
+    out[id(node)] = chain
     for child in node['children']:
-        models(child, model, out)
+        models(child, chain, out)
     return out
 
 
@@ -250,6 +251,24 @@ def explanation(address, by_address, source_of, localization):
     return None
 
 
+def rows_of(node, by_address, source_of):
+    """The row this unit stands in, per list around it, outermost first, as live addresses.
+
+    A list is the live widget whose source on disk carries a `datamodel`; its row is the child of it
+    on the way down to the unit. Counting these instead of units is what makes "7 counties" into the
+    one county the realm window shows, whose name, development, control and holding are seven units.
+    A list whose widget the alignment did not pair is missing here, so the tuple can be shorter than
+    the chain of models; the caller then treats the unit as a row of its own, as before.
+    """
+    rows, below, walk = [], node, by_address.get(node['parent'])
+    while walk is not None:
+        source = source_of.get(id(walk))
+        if source is not None and any(key == 'datamodel' for key, _ in source.get('attrs', ())):
+            rows.append(below['address'])
+        below, walk = walk, by_address.get(walk['parent'])
+    return tuple(reversed(rows))
+
+
 def units(window, table, local, known, root, record):
     """Every unit this window says, in order, each with the list it belongs to."""
     tree = expansion(window, table, local, known)
@@ -268,7 +287,9 @@ def units(window, table, local, known, root, record):
         if not text or not on_screen(node, by_address, area):
             continue
         source = source_of.get(id(node))
-        out.append({'text': text, 'model': model_of.get(id(source)) if source else None,
+        chain = model_of.get(id(source), ()) if source else ()
+        out.append({'text': text, 'model': chain[-1] if chain else None, 'models': chain,
+                    'rows': rows_of(node, by_address, source_of),
                     'fills': fills(source),
                     'name': node['name'],
                     'state': state_word(node, by_address),
@@ -464,25 +485,76 @@ def sentences(found, window=None):
     **A line is a pair and not a string, since 20 September 2026.** The explain key needs the
     tooltip that belongs to the line the reader is standing on, and a list of strings has nowhere
     to keep it. The lines a list adds around its rows - its size and its end - explain nothing.
+
+    **A list inside a row of another list is folded into that row, and a list of one row is not
+    announced.** Decided 21 September 2026 with the player, after the message settings read as
+    fourteen lists of one: every category row carries a list of its own, and grouping on the nearest
+    list cut the outer list at each inner one - 56 of that window's 94 lines were announcements, and
+    over the 25 windows with a player route 124 of 723. Now the outer list is said once with its
+    real count, and a row carries its inner list: the one item when there is one - the chosen entry
+    of a dropdown, "New Heir, Toast" - and how many when there are more, the items themselves waiting
+    for a way to step into a row. The rows are the units at the shallowest depth of the group. A unit of an inner list belongs to the row before it, which is how the
+    tree orders them; one that comes before any row becomes a row itself. A list of one row is that
+    row, unless the screen file puts a key on the list - then the announcement carries the key.
     """
     found = in_order(window, joined(found)) if window else joined(found)
     keys = screen_rules().get(window, {}).get('keys', {}) if window else {}
+
+    def chain_of(unit):
+        return unit.get('models') or ((unit['model'],) if unit['model'] else ())
+
     out, at = [], 0
     while at < len(found):
-        model = found[at]['model']
-        if model is None:
+        chain = chain_of(found[at])
+        if not chain:
             out.append({'say': spoken(found[at]), 'explain': found[at]['explain']})
             at += 1
             continue
-        rows = []
-        while at < len(found) and found[at]['model'] == model:
-            rows.append({'say': spoken(found[at]), 'explain': found[at]['explain']})
+        outer = chain[0]
+        group = []
+        while at < len(found) and chain_of(found[at])[:1] == (outer,):
+            group.append(found[at])
             at += 1
+        # The rows are counted at the shallowest depth of the group, which is not always the outer
+        # list itself: in the message settings every text sits one list deeper. A row is the live
+        # widget the unit stands in, so the name, value and icon text of one entry count once.
+        base = min(len(chain_of(unit)) for unit in group)
+
+        def row_at(unit, depth):
+            rows_up = unit.get('rows') or ()
+            return rows_up[depth - 1] if len(rows_up) >= depth else unit['address']
+
+        rows = {}
+        for unit in group:
+            entry = rows.setdefault(row_at(unit, base), ([], []))
+            entry[0 if len(chain_of(unit)) == base else 1].append(unit)
+        lines = []
+        for own, inner in rows.values():
+            said_here = [spoken(unit) for unit in own] or [spoken(inner.pop(0))]
+            if inner:
+                inner_rows = {row_at(one, base + 1) for one in inner}
+                if len(inner_rows) == 1:
+                    # One visible entry is said in full: the chosen value of a dropdown - "New
+                    # Heir, Toast" - or the one county of a duchy, and a count would hide exactly
+                    # what the row is about.
+                    said_here[-1] += ', ' + ', '.join(spoken(one) for one in inner)
+                else:
+                    word_inner = name_of(chain_of(inner[0])[base])
+                    said_here[-1] += ', %d %s' % (len(inner_rows), word_inner)
+            first = own[0] if own else None
+            for index, say in enumerate(said_here):
+                unit = own[index] if index < len(own) else first
+                lines.append({'say': say, 'explain': unit['explain'] if unit else None})
+        rows = [(own[0] if own else inner[0], inner) for own, inner in rows.values()]
+        model = chain_of(rows[0][0])[-1]
         word = name_of(model)
         said = keys.get(_function(model))
+        if len(rows) == 1 and not said:
+            out += lines
+            continue
         out.append({'say': '%d %s:%s' % (len(rows), word, ', ' + said if said else ''),
                     'explain': None})
-        out += rows
+        out += lines
         out.append({'say': 'end of the %s' % word, 'explain': None})
     return out
 
