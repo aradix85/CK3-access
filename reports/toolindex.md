@@ -178,7 +178,7 @@ returns a pair, passed on as one thing, costs a run.
 | `drawing_area()` | value | - |
 | `use_fields(fields)` | nothing | Publish the two visibility offsets for this build. |
 | `field_for(addresses, offset, width=1)` | value | One field of many objects, in as few channel questions as possible. |
-| `flags_for(addresses)` | value | The state byte of many objects: on a window zero means drawn, on a button it says usable. |
+| `flags_for(addresses)` | value | The state byte of many objects: zero is a drawn window, 0x08 hidden, low bits a switched-off button. |
 | `widgets(root)` | value | The whole tree with fields attached: address -> (vtable, x, y, width, height, parent, name, text). |
 | `scales_for(addresses)` | value | Per widget (own scale, scale from above). The two sit next to each other, so one read round. |
 | `screen_pos(nodes, address, scales, anchors=None)` | 2-tuple | The place on screen: the own position plus that of every parent, with the scale applied. |

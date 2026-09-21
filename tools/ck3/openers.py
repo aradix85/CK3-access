@@ -496,9 +496,10 @@ def on_screen(address, nodes, scales, classes):
     A click at that point does not reach them; it lands on whatever really lies there, which is the
     map. So the nearest window ancestor has to be drawn as well.
 
-    The four cheap tests come first and the flag is asked last, because that one is a channel
-    question and the disambiguation below runs this over every widget carrying a name - one of
-    them 225 times.
+    The four cheap tests come first and the channel questions last, because the disambiguation
+    below runs this over every widget carrying a name - one of them 225 times: the state byte along
+    the chain (0x08 is the game hiding a widget, measured 21 September 2026, and on the nearest
+    window zero means drawn), and then `window_above`, whether a later window lies over the middle.
 
     **The edges come from the running game, and until 1 September 2026 they did not.** 1600x900
     stood here as a constant. The drawing area became 1920x1200 that day, after which every

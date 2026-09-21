@@ -48,8 +48,10 @@ def press(nodes, scales, classes, name):
     times over that the confirmation never came up. A name is not an address - `GUI.CreateWidget`
     leaves a parked second window object of the same name behind, and a posted click lands on
     whatever lies on top rather than on what you pointed at. `openers.on_screen` asks both
-    questions per copy: alpha along the parent chain, a size, a rectangle inside the drawing area,
-    and the flag byte of the window it hangs in. The copy that answers None is the one on screen.
+    questions per copy: alpha along the parent chain, clipping, a size, a rectangle inside the
+    drawing area, the state byte along the chain (the game hiding it, or its window not drawn), and
+    whether a window later in the tree lies over its middle. The copy that answers None is the one
+    on screen.
 
     **A refusal carries the reason**, because a shutdown route that says only "it did not work"
     leaves the game standing with nothing to go on - and this is the one route that may never be

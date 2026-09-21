@@ -5,10 +5,13 @@ and in which order, from the shape of the window plus the meaning the gui files 
 nobody ever tuned still speaks, and a screen file only ever adds exceptions on top.
 
 The rules it applies, and every one of them is generic:
-  - a widget without text says nothing, so empty containers disappear on their own;
+  - a widget without text says nothing, so empty containers disappear on their own, and neither
+    does one the game hides or one that is not on screen (`on_screen`);
   - the order is the child order of the tree, which is the order the designer wrote and the order
     the game draws in;
-  - a repeated container is a list: it says how many there are, then the rows, then that it ended;
+  - a repeated container is a list: it says once how many rows it has, then the rows, then that it
+    ended; a list inside a row is folded into that row, and a list of one row is just the row
+    (`sentences`);
   - the game's markup codes come off, because they are bytes and not words.
 
 It runs on a harvested window, so it needs no running game: that is the point of doing this half
@@ -152,11 +155,12 @@ def fills(source):
 def on_screen(node, by_address, area):
     """Is this widget actually drawn, or only present in the tree?
 
-    Three ways it can fail to be, and each one is a measurement rather than a guess. A row scrolled
+    Four ways it can fail to be, and each one is a measurement rather than a guess. A row scrolled
     past the end of its list keeps alpha 1 and a rectangle, so `clipped` is the only thing that says
     so. Alpha belongs to the whole parent chain and not to the widget: one ancestor at zero and
-    nothing below it is visible. And a widget can be laid outside the drawing area entirely, which
-    is where this game parks what it is not showing.
+    nothing below it is visible. A widget can be laid outside the drawing area entirely, which is
+    where this game parks what it is not showing. And 0x08 in the state byte of the widget or an
+    ancestor is the game hiding it with alpha left up - the fourth, since 21 September 2026.
 
     Measured 20 September 2026 over the harvest: of 1753 units 83 are clipped, 6 sit behind an
     ancestor at alpha zero and 139 lie outside the drawing area - 172 in all, one in ten. The worst

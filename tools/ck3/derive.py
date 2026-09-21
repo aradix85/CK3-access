@@ -148,7 +148,12 @@ def field_for(addresses, offset, width=1):
 
 
 def flags_for(addresses):
-    """The state byte of many objects: on a window zero means drawn, on a button it says usable.
+    """The state byte of many objects: zero is a drawn window, 0x08 hidden, low bits a switched-off button.
+
+    **0x08 on any widget is the game hiding it, measured 21 September 2026.** A `visible` condition
+    that does not hold leaves the widget in the tree with its alpha up and sets this bit: 2777 of
+    2784 widgets carrying it over seven windows had such a condition, the other seven are a closed
+    dropdown, and the text recogniser read back none of 79 hidden boxes against 208 of 214 shown.
 
     **One byte with more than one meaning, measured 20 September 2026.** On a window object zero
     means drawn and the higher bits mean hidden; on a button the low bits mean the game has

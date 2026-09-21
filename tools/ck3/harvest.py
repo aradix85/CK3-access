@@ -29,7 +29,8 @@ ten windows of a round instead of in the analysis a day later.
 way a player does, with its data context; `GUI.CreateWidget` builds the shape and the captions and
 no data. With `--click` the round takes its openers from `reports\openers.json` instead of the
 phase 0 map and clicks each button where the live tree puts it now. Neither the shortcut nor the
-click route needs the console, so a round along them runs without `-debug_mode`.
+click route needs the console, and neither does the chain below, so a round along any of them runs
+without `-debug_mode`.
 
 Usage:  python tools\ck3\harvest.py <pid> [--click | --chain] [<window or view> ...]
 

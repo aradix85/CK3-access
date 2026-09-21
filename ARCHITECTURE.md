@@ -6,7 +6,7 @@ Seven parts, split where a game patch is most likely to hit.
 |---|---|---|
 | 1 | **The channel** — `dll/channel.cpp` | a few primitives over a pipe; knows nothing about the game |
 | 2 | **Derivation** — `tools/ck3/derive.py` | finds every memory offset again at each start |
-| 3 | **Visibility** | which of the tree is really on screen; four mechanisms, all needed |
+| 3 | **Visibility** | which of the tree is really on screen, and which window lies on top |
 | 4 | **Input** | keys taken before the game sees them; clicks posted inward |
 | 5 | **Reading the game** | five independent sources, and their disagreement is the test |
 | 6 | **Presentation** — `screens/`, `tools/ck3/reading.py`, `tools/ck3/reader.py` | what gets said, in what order, and on which key |
@@ -70,13 +70,16 @@ whether a player can see it. Four mechanisms decide that, and all four are neede
 - **Alpha along the whole parent chain**, not on the widget itself.
 - **Clipping.** A row scrolled past the end of its list keeps alpha 1 and a rectangle; what decides
   it is the frame of the nearest scroll area above it.
-- **Geometry.** A widget can be laid outside the drawing area entirely, and not marginally: across
-  the harvested windows, 76 of 203 place a drawn button outside it, some as far as x2315 — wider
-  than this machine's screen. A larger resolution only half solves it and a tester has other
+- **Geometry.** A widget can be laid outside the drawing area entirely, and not marginally: of the
+  203 windows harvested by 31 August 2026, 76 place a drawn button outside it, some as far as
+  x2315 — wider than this machine's screen. A larger resolution only half solves it and a tester has other
   measurements anyway, so it is a property to live with rather than a setting.
 
 Sibling draw order is a separate question and answers a different one: which of several drawn
-windows is on top. Without it the tooling reads the wrong event when two are stacked.
+windows is on top. Without it the tooling reads the wrong event when two are stacked, and clicks a
+button that another window covers: a window later in the tree lies on top, and a button whose middle
+falls inside such a window's rectangle is refused as covered. Measured on two events, where the
+full-screen one caught a click meant for the other.
 
 Anything that clicks needs the flag as well as the alpha: a widget can pass every alpha and geometry
 test and still sit inside a shut window, and the click then lands on the map.
@@ -97,7 +100,10 @@ click is a measurement with a witness, never an assumption: press, read the draw
 back, record the point with the result. `tools/ck3/openers.py` works that way. What "topmost" means
 is measured: the last-drawn button that carries an action of its own. A layout container catches
 nothing, and a button with no action passes the click on to what is under it — ten of ten on the
-ledger's category tabs, each of which is covered completely by such a button.
+ledger's category tabs, each of which is covered completely by such a button. **Between windows
+more catches:** a window later in the tree catches with a plain background too, unless the widget is
+`alwaystransparent`, which the game's gui carries 977 times — the full-screen event caught a click
+with a background, and a see-through icon of another event let one through.
 
 **A modifier key cannot be sent inward** — a key message carries no modifier state and the game
 reads that through raw input. Nothing needs it: exactly one binding that uses a modifier names a
