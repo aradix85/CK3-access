@@ -531,22 +531,30 @@ def chain_step(game, route, source_row, windows, baseline, header, tables):
         opened = drawn - before
         if opened:
             break
-    wanted = route['target']
-    if route['view'] and len(opened) == 1:
-        wanted = next(iter(opened))
-    if wanted is None or wanted not in opened:
+    # A view probe records every window the press brought up: `decision_detail` opens its detail
+    # together with the decisions list, and which of the two is "the" window of that view is a
+    # question neither the game nor the files answer. A window target has to be among them.
+    if route['view']:
+        names = sorted(opened)
+    else:
+        names = [route['target']] if route['target'] in opened else []
+    if not names:
         reason = 'pressing %s in %s brought up %s' % (
             spot['name'] or spot['class'], source, ', '.join(sorted(opened)) or 'nothing')
         return None, reason if close_window(game, source, back, baseline) else 'state did not come back'
     route_text = 'chain %s in %s' % (spot['name'] or spot['class'], source)
-    record = record_window(game, wanted, nodes, header, route_text, attempts,
-                           (windows.get(wanted) or {}).get('file'), started)
-    record['view'] = route['view']
-    if not close_window(game, wanted, back, baseline):
-        return record, 'state did not come back'
-    record['seconds'] = round(time.time() - started, 1)
-    return record, None
-
+    records = []
+    for name in names:
+        record = record_window(game, name, nodes, header, route_text, attempts,
+                               (windows.get(name) or {}).get('file'), started)
+        record['view'] = route['view']
+        record['opened_with'] = [n for n in names if n != name]
+        records.append(record)
+    if not close_window(game, names[0], back, baseline):
+        return records, 'state did not come back'
+    for record in records:
+        record['seconds'] = round(time.time() - started, 1)
+    return records, None
 
 def chain_round(game, pid, windows, wanted, baseline, header, player, player_name):
     """Every chain route the files offer from a window this round can open by itself.
@@ -575,37 +583,36 @@ def chain_round(game, pid, windows, wanted, baseline, header, player, player_nam
         label = route['target'] or 'view ' + route['view']
         if route['target'] and player_record(route['target']):
             continue
-        record, reasons = None, []
+        records, reasons = None, []
         for source in route['sources']:
             stop_checks(pid, player, player_name, label)
-            record, reason = chain_step(game, dict(route, source=source), direct[source], windows,
-                                        baseline, header, tables)
-            if reason == 'state did not come back' or record is not None:
+            records, reason = chain_step(game, dict(route, source=source), direct[source], windows,
+                                         baseline, header, tables)
+            if reason == 'state did not come back' or records is not None:
                 break
             reasons.append('%s: %s' % (source, reason))
-        if record is None and reason != 'state did not come back':
+        if records is None and reason != 'state did not come back':
             reason = '; '.join(reasons)
-        kept = record is not None and player_record(record['window'])
-        if record is not None and not kept:
-            target = os.path.join(OUT, record['window'] + '.json')
-            if os.path.exists(target):
-                os.makedirs(aside, exist_ok=True)
-                os.replace(target, os.path.join(aside, record['window'] + '.json'))
-            json.dump(record, open(target, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
+        said = []
+        for record in records or ():
+            kept = player_record(record['window'])
+            if not kept:
+                target = os.path.join(OUT, record['window'] + '.json')
+                if os.path.exists(target):
+                    os.makedirs(aside, exist_ok=True)
+                    os.replace(target, os.path.join(aside, record['window'] + '.json'))
+                json.dump(record, open(target, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
+            done += not kept
+            confirmed_only += kept
+            said.append('%s, which already has a player record; that one is kept' % record['window']
+                        if kept else '%s: %d widgets, %d/%d text boxes confirmed, %.0fs' % (
+                            record['window'], record['widgets'], record['confirmed'],
+                            record['boxes'], record['seconds']))
         if reason == 'state did not come back':
             raise SystemExit('stopping after %s: %s' % (label, reason))
-        done += record is not None and not kept
-        confirmed_only += kept
-        failed += record is None
-        if record is None:
-            said = reason
-        elif kept:
-            said = 'is %s, which already has a player record; that one is kept' % record['window']
-        else:
-            said = '%s: %d widgets, %d/%d text boxes confirmed, %.0fs' % (
-                record['window'], record['widgets'], record['confirmed'], record['boxes'],
-                record['seconds'])
-        print('%3d/%d %-34s %s' % (number, len(routes), label, said))
+        failed += records is None
+        print('%3d/%d %-34s %s' % (number, len(routes), label,
+                                   reason if records is None else '; '.join(said)))
     print('chain routes tried %d: recorded %d, confirmed a window that already had a record %d, '
           'not reached %d' % (done + confirmed_only + failed, done, confirmed_only, failed))
 
