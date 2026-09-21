@@ -33,6 +33,13 @@ here: the layers under the root count their own children, and an event is a new 
 added to one of them (`brief\\stand.md`). Reading those counts is a single question, and one of
 the layers is called `events` and stands empty until one comes in. Nothing is polled that the
 engine does not already keep.
+
+A toast is the other one, and it is cheaper still. The game shows one at a time in one widget that is
+always in the tree, `toast_container_widget` in `hud_notification_templates.gui`, whose `visible` is
+"the toast handler has a message" - so a toast arrives as 0x08 leaving that widget's state byte, one
+question a round. Its text is read from that small subtree only, and said between the lines: a toast
+is not a window, so the place you stand on does not move. Decided with the player on 21 September
+2026, in place of first finding out whether the message log keeps toasts.
 """
 import os
 import sys
@@ -81,9 +88,11 @@ class Reader(object):
         self.on = False
         self.lines = []
         self.at = 0
-        self.layers = {a: (n[6] or '-') for a, n in derive.widgets(self.game.root).items()
-                       if n[5] == self.game.root}
+        tree = derive.widgets(self.game.root)
+        self.layers = {a: (n[6] or '-') for a, n in tree.items() if n[5] == self.game.root}
         self.counted = self.counts()
+        self.toasts = [a for a, n in tree.items() if n[6] == 'toast_container_widget']
+        self.toast_said = None
 
     def counts(self):
         """How many children each layer holds. One question, so it may be asked every round.
@@ -94,6 +103,31 @@ class Reader(object):
         on. One of these layers is called `events` and stands empty until one arrives.
         """
         return derive.field_for(self.layers, self.game.fields['count'], 4)
+
+    def toast(self):
+        """The text of the toast that is showing now, or None when none is.
+
+        Shown means no 0x08 on the container, and only the texts with no hidden ancestor inside it
+        count: the same container holds a default, a contest and a contract variant, and only one
+        of them is visible at a time.
+        """
+        flags = derive.flags_for(self.toasts)
+        showing = [a for a in self.toasts if not flags.get(a, 0x08) & 0x08]
+        if not showing:
+            return None
+        texts = []
+        for container in showing:
+            nodes = derive.widgets(container)
+            hidden = derive.flags_for(list(nodes))
+            for address, node in nodes.items():
+                walk, gone = address, False
+                while walk in nodes:
+                    gone = gone or bool(hidden.get(walk, 0) & 0x08)
+                    walk = nodes[walk][5]
+                text = derive.strip_markup(node[7] or '').strip()
+                if text and not gone and text not in texts:
+                    texts.append(text)
+        return ', '.join(texts) or None
 
     def claim(self):
         """Tell the DLL which keys to keep from the game. The list is replaced, not added to.
@@ -200,6 +234,10 @@ def loop(reader):
                 reader.refresh()
         if not reader.on:
             continue
+        said = reader.toast()
+        if said and said != reader.toast_said:
+            speech.output(said)
+        reader.toast_said = said
         now = reader.counts()
         if now != reader.counted:
             moved = sorted(reader.layers[a] for a in now if now[a] != reader.counted.get(a))
@@ -220,6 +258,7 @@ def main():
     reader.claim()
     print('reader ready on pid %d: F12 switches it on, up and down step through the window'
           % pid, flush=True)
+    print('watching %d toast container(s)' % len(reader.toasts), flush=True)
     print('watching %d layers: %s' % (len(reader.layers), ', '.join(
         '%s %d' % (reader.layers[a], count) for a, count in sorted(
             reader.counted.items(), key=lambda pair: reader.layers[pair[0]]))), flush=True)
