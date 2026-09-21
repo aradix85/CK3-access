@@ -77,6 +77,8 @@ screen = {
 				}
 			}
 
+			# Taken from the CK3 wiki, not measured here: a modifier key posted into the game never
+			# arrives, so only a player pressing it can confirm it. Until then this line is a claim.
 			key = "shift and the number of the option"
 
 			# What the explain key reads out while standing on this option: what the game
