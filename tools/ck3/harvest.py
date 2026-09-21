@@ -28,7 +28,8 @@ ten windows of a round instead of in the analysis a day later.
 **Three routes, and they do not yield the same thing.** A shortcut and a click open a window the
 way a player does, with its data context; `GUI.CreateWidget` builds the shape and the captions and
 no data. With `--click` the round takes its openers from `reports\openers.json` instead of the
-phase 0 map, and runs with the console shut, because part of the buttons sit under it.
+phase 0 map and clicks each button where the live tree puts it now. Neither the shortcut nor the
+click route needs the console, so a round along them runs without `-debug_mode`.
 
 Usage:  python tools\ck3\harvest.py <pid> [--click] [<window> ...]
 """
@@ -321,7 +322,17 @@ def open_window(game, name, row, baseline):
                     time.sleep(1.2)
                 else:
                     continue
-            channel.ask('mouse %d %d 1' % tuple(row['click']))
+            # Clicked where the live tree puts the button now, never at the point stored in the
+            # openers file: that point belongs to the resolution it was measured at (1600x900 until
+            # 1 September 2026), and a posted click lands on whatever lies there today.
+            # Imported here because openers imports this module, and quit_game imports openers.
+            import quit_game
+            nodes = game.tree()
+            classes = derive.class_map(game.pid, {a: k[0] for a, k in nodes.items()})
+            refused = quit_game.press(nodes, derive.scales_for(list(nodes)), classes, row['button'])
+            if refused:
+                print('   %s: %s' % (name, refused))
+                continue
             for _ in range(6):
                 time.sleep(1.0)
                 nodes, _, drawn = game.state()
@@ -455,10 +466,14 @@ def main():
     if not paused(game):
         raise SystemExit('the clock is running: pause the game first, or the state is not '
                          'repeatable and the character can die halfway through')
-    game.command('GUI.ClearWidgets')
+    # Only a round that builds windows through the console touches it, and only with -debug_mode
+    # is there a console at all. A round along the player routes - shortcut and click - runs
+    # without it, and that is the round that gives windows their data.
+    if any(not windows[n].get('shortcut') and not windows[n].get('click') for n in names):
+        game.command('GUI.ClearWidgets')
     # A click round runs with the console shut: it is drawn over the left third of the screen, and
     # two of the buttons that open a window sit under it - a click there lands on the console.
-    if by_click:
+    if by_click and game.console_open():
         game.set_console(False)
     time.sleep(1.0)
     nodes, _, baseline = game.state()
