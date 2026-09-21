@@ -28,6 +28,11 @@ open source. The injection skeleton for Paradox titles: get a DLL loaded through
 point here; the way in is what was taken. Their README's warning that antivirus software sometimes
 flags an injector applies to this project too.
 
+**The CK3 Wiki**, the Interface page for modders (`ck3.paradoxwikis.com/Interface`) — that the
+order in a gui file is the order on screen, that windows sit in layers, and what `alwaystransparent`
+and `allow_outside` do to a click. The rule that decides whether a button is covered rests on it,
+and was checked against the running game before it was used.
+
 **noxsidereum** — skyretk (MIT), a worked example of a DLL that runs during startup and dumps RTTI,
 with the reasoning written out in the code. **d3dev** — the `d3_tooltips` wiki, which documents the
 pitfall this project has to live with as well: a tooltip pointer that still refers to the previous

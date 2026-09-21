@@ -13,10 +13,12 @@
 # **What of this file the reader actually applies, as of 20 September 2026.** `order` decides
 # which lines come first. `key` is said once, against the line that counts the options, because
 # it is the same key for every row. The rest is written and not yet wired, and that is on
-# purpose: `list` with its count and its closing line is what the generic rule already does for
-# every repeated container; `state = unavailable` is a field now and holds for every button in
-# the game, but `dangerous` and `special` are event flags and still need a way to be read; and
-# `explain` names a data function that nothing here can evaluate. See `brief\taken.md`, taak 10.
+# purpose: `list` is what the generic rule already does for every repeated container - its count
+# of rows once, a list inside a row folded into it, no announcement for a list of one row;
+# `state = unavailable` is a field now and holds for every button in the game; `dangerous` and
+# `special` are widgets the game hides with 0x08 when the flag does not hold, which is readable but
+# not yet wired, and one option that does carry a flag has not been seen; and `explain` names a
+# data function that nothing here can evaluate. See `brief\taken.md`, taak 10.
 
 screen = {
 	name = "event"

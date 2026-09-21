@@ -5,7 +5,7 @@ which title a character calls its seat, as a number. The landed-title database i
 game turns that number into a key. The map files on disk say which county that key stands on.
 The chain is only as good as its weakest link, and each of the three proves itself where it
 lives: `model.check` against the save, `numbering.keys` against the title files, and
-`mapdata.county_for` against every `realm_capital` of three saves.
+`mapdata.Map.county_for` against every `realm_capital` of three saves.
 
 **Both halves are expensive to build and neither changes while the game runs**, so a caller holds
 one `Seats` and asks it many times rather than calling a function per question. Building it reads

@@ -1,4 +1,4 @@
-"""The generic reading rule: a window as the sentences that come out of it.
+r"""The generic reading rule: a window as the sentences that come out of it.
 
 This is the floor under the whole presentation layer. Given a window, it says which units come out
 and in which order, from the shape of the window plus the meaning the gui files carry - so a window
@@ -17,6 +17,13 @@ The rules it applies, and every one of them is generic:
 It runs on a harvested window, so it needs no running game: that is the point of doing this half
 first. `live` is the other half, on the tree of this moment, and `reader.py` is what turns either
 into one line per keystroke.
+
+Usage:  python tools\ck3\reading.py [<window> ...]
+        python tools\ck3\reading.py <pid> [<window>] --live [--speak]
+
+Without `--live` it reads harvested windows, `ingame_resign_confirmation` when none is named. With
+`--live` it reads the tree of the running game, the window on top unless one is named, and
+`--speak` also says the lines through NVDA.
 """
 import glob
 import os
@@ -166,9 +173,10 @@ def on_screen(node, by_address, area):
     ancestor at alpha zero and 139 lie outside the drawing area - 172 in all, one in ten. The worst
     window, `window_situation`, said 48 of its 82 lines to nobody.
 
-    What this cannot separate is the third state `brief\\stand.md` names: content the game stacks
-    under itself, alpha 1 and unclipped, such as the ledger's eleven category tabs. The drawing-area
-    test catches part of it because that content is parked far below, and nothing catches the rest.
+    The third state `brief\\stand.md` used to name - content the game stacks under itself, alpha 1
+    and unclipped, such as the ledger's eleven category tabs - is the hidden bit: in the ledger of
+    21 September 2026, 4087 of the 4088 widgets below the drawing area carry it. A record from
+    before 20 September carries no state byte, and there only the drawing-area test catches part.
     """
     width, height = area
     x, y, w, h = node['screen_rect']
@@ -319,8 +327,9 @@ def screen_rules():
     project keeps deciding against.
 
     **The other three are deliberately not wired, and that is a finding rather than a gap.**
-    `list` with its count and its closing line is what the generic rule already does for every
-    repeated container, so a file saying it changes nothing. `state` was a word per screen and is
+    `list` is what the generic rule already does for every repeated container - its count of rows
+    once, a list inside a row folded into it, no announcement for one row - so a file saying it
+    changes nothing. `state` was a word per screen and is
     a field since 20 September 2026 that holds for every button in the game. And `explain` names a
     data function - `[EventOption.GetTooltip]` - which nothing here can evaluate; wiring it would
     be machinery for a case that cannot occur, and the explain key already says when there is no

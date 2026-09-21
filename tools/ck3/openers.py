@@ -22,6 +22,10 @@ the row was skipped. It no longer does: the copies are filtered down to the ones
 only what is left ambiguous after that is skipped, with both counts said out loud.
 
 Usage:  python tools\ck3\openers.py <pid> [--beside | <button> <button> ...]
+        python tools\ck3\openers.py <pid> --chain <window> <target>
+
+The second form is one chain step by hand: in a window that is already open, find what brings the
+target up, press it, and say what opened.
 
 With button names, or with `--beside`, it is a trial: only those buttons, or all of them, and the
 result goes beside the map into the scratch folder instead of over `reports\openers.json`. A round

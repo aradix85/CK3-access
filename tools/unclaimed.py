@@ -1,4 +1,4 @@
-"""Sentences that count something and then claim the count is complete, and constants in code.
+r"""Sentences that count something and then claim the count is complete, and constants in code.
 
 `check.py` verifies: is what this document says still true against the disk? It cannot ask the
 other question - did anyone finish looking? A sentence like "five places open that view and none
@@ -13,6 +13,10 @@ them; what they had in common was a count standing next to a claim of completene
 This decides nothing. It hands over candidates, because the judgement - is this a total or an
 observation - belongs to a reader who knows what was measured. Run it after a session that
 changed what is known, and after a game update.
+
+Usage:  python tools\unclaimed.py [--all]
+
+Without `--all` it prints how many candidates each document holds; with it, every sentence.
 """
 import os
 import re
