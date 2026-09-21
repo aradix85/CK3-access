@@ -21,7 +21,13 @@ something; and a widget name can occur more than once in the tree. That second o
 the row was skipped. It no longer does: the copies are filtered down to the ones really drawn, and
 only what is left ambiguous after that is skipped, with both counts said out loud.
 
-Usage:  python tools\ck3\openers.py <pid>
+Usage:  python tools\ck3\openers.py <pid> [--beside | <button> <button> ...]
+
+With button names, or with `--beside`, it is a trial: only those buttons, or all of them, and the
+result goes beside the map into the scratch folder instead of over `reports\openers.json`. A round
+on another state than the one the map was measured on is a trial by nature - on a nomadic ruler the
+HUD is not the same, and writing over the map would replace one state's measurements by another's.
+Runs without -debug_mode: the console is shut only when there is one.
 """
 import json
 import os
@@ -629,9 +635,18 @@ def main():
     game_classes = game.window_classes
     if not paused(game):
         raise SystemExit('the clock is running; pause the game first, or the state is not repeatable')
-    game.set_console(False)
+    if game.console_open():
+        game.set_console(False)
 
     rows = buttons_on_disk()
+    wanted = [a for a in sys.argv[2:] if not a.startswith('--')]
+    trial = bool(wanted) or '--beside' in sys.argv[2:]
+    if wanted:
+        missing = sorted(set(wanted) - {r['widget'] for r in rows})
+        if missing:
+            raise SystemExit('not a button on disk that only opens a view: %s' % ', '.join(missing))
+        rows = [r for r in rows if r['widget'] in wanted]
+    target = (os.path.join(os.environ['TEMP'], 'ck3', 'openers_trial.json') if trial else OUT)
     nodes, _, baseline = game.state()
     if baseline:
         raise SystemExit('these are open before the round starts: %s. Close them first, or every '
@@ -730,7 +745,8 @@ def main():
         if not back_to(game, baseline):
             raise SystemExit('%s would not close again' % window)
 
-    with open(OUT, 'w', encoding='utf-8') as file:
+    os.makedirs(os.path.dirname(target), exist_ok=True)
+    with open(target, 'w', encoding='utf-8') as file:
         json.dump({'measured': time.strftime('%Y-%m-%d %H:%M'), 'game_date': date,
                    'buttons': rows}, file, ensure_ascii=False, indent=1)
     pressed = [r for r in rows if r.get('point')]
@@ -738,7 +754,7 @@ def main():
     agreed = [r for r in opened if any(r['target'] in w or w in r['target'] for w in r['opens'])]
     print('\npressed %d of %d, of those %d opened a window and %d matched the view name'
           % (len(pressed), len(rows), len(opened), len(agreed)))
-    print('written to %s' % OUT)
+    print('written to %s%s' % (target, ' (a trial, beside the map)' if trial else ''))
 
 
 
