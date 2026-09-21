@@ -11,163 +11,50 @@ keeps the numbers with the rule they were counted by. A changelog that may never
 
 ## 2026-09-20
 
-- **A button the game has switched off says so before its words.** The byte the window flag sits
-  at is one state byte with more than one meaning: on a window object zero means drawn, and on a
-  button the low bits mean it cannot be used. Measured by emptying the save dialog's name field,
-  with the cancel button beside it as the counter-example, and crossed against the files over
-  three windows and 6906 widgets - no widget carries those bits without an `enabled` condition on
-  itself or an ancestor. So every button in the game can say whether it is usable, without a rule
-  written per screen.
-- **The window map was rebuilt and now holds all 265.** Of the 189 windows declared at the top
-  level of a file, 189 were created and 177 drawn; the other 76 are not tried at all and carry the
-  reason their shape has no console route - `GUI.CreateWidget` looks only at the top level, so
-  writing them down as failures produced a map claiming a third of the windows do not exist.
-  Checked against the running game afterwards: of the 204 window names the engine built, none is
-  missing from the map.
-- The window round stops when the state does not come back instead of adopting it. That is how a
-  previous round carried on with a search filter window standing open, after which a window that
-  was perfectly fine reported failure with no error line at all. A trial run also takes window
-  names rather than a count, because the first five of a list are the easy five, and it writes
-  beside the map rather than over it.
-- Shutting the game down picks the copy that is really on screen. A name is not an address:
-  `GUI.CreateWidget` leaves a parked second window object of the same name behind, and a posted
-  click lands on whatever lies on top. A refusal now carries the reason, and if the confirmation
-  does not come up it says which windows are drawn - this is the one route that may never fall
-  back on killing the process.
-- **Screen files are applied, not only checked.** The format and its checker existed; nothing read
-  them, so a file could be written, pass and change nothing. `order` decides which lines come
-  first - the character window opens with your own name instead of three portraits and somebody
-  else's opinion of you - and `key` is said once against the line that counts a list. The other
-  three blocks are deliberately left unwired and the file says so: `list` repeats what the generic
-  rule already does, `state` is a field now, and `explain` names a data function nothing here can
-  evaluate.
-- A bare number and the label beside it under the same parent are one line, label first. The file
-  order puts the value before the thing it is about, so a reader saying one unit per keystroke
-  said `56` and only then `Duke Marianos of Nobatia,`. Thirteen of the 141 bare numbers in the
-  harvest, and the rule stays at the same parent on purpose: of the 78 with a label under a
-  different parent, some have it before and some after, so half would be glued to the wrong word.
-- **A line carries what explains it, and there is a key for it.** The explain key reads the
-  tooltip the gui files put on the widget, looked for up the chain - a tooltip hangs on the
-  button and the text sits inside it. Asking only the unit's own widget reaches 49 of 1581 units;
-  walking up reaches 350, two hundred of them one level up. Of those, 190 resolve to a sentence
-  and 32 have no gaps at all; the rest is the game adding something up, and it says that instead
-  of reading out a skeleton full of holes.
-- **A window reads in about three seconds instead of fourteen.** Measured rather than guessed, and
-  the guess was wrong: 7.2 of 11.3 seconds went to parsing the executable's RTTI, because the
-  class map is rebuilt for every read and the reader reads per window. The executable does not
-  change while the game runs. Before that: the tree was walked twice per read, the scales of every
-  widget in the tree were asked where only the window's own subtree is used - four hundred
-  addresses per channel question, so two hundred questions instead of two - and the window was
-  expanded from the gui files on every keystroke. The lines that come out are the same lines.
-
-- **An event reads out loud, live.** The description as one unit, then the options with their count
-  and an end line, then the character on screen with their opinion. That is the requirement this
-  project exists for, and until today it could not be measured: the event windows in the harvest
-  were opened with the console, which hands over shape and captions and no data at all.
-- Two events stack, both called `character_event`, and the reader broke on that before it worked.
-  Refusing to guess between two drawn windows of the same name is right; throwing away the draw
-  order that had already decided which was on top was not. `live_record` takes an address now.
-- **The window map was never complete: 265 windows, not 218.** Two ways of declaring a window were
-  missing - a type that inherits from `window` and carries the name itself, and a use of such a type
-  inside another window. Forty and seven of them, the character filter and the ledger's filter among
-  them, and the reading rule died on the first one it met.
-- **So stop enumerating shapes and ask the game**: `windowmap.unmapped` compares the windows the
-  engine actually built against the map. The engine builds every window up front, so the live tree
-  is the whole list and a shape nobody thought of cannot hide in it. Run against the feudal,
-  administrative and landless states: nothing built is missing.
-- A window the files do not describe is now spoken rather than raised. A traceback is nothing to a
-  player, and falling silent is worse, because the reader owns the arrow keys by then.
-- **What a player types is readable, and it sits where ordinary widget text sits.** Posting `Zqx`
-  into a search field and finding it in the widget's own bytes answered two questions at once: a
-  character posted inward reaches the field, and no new offset has to be derived. The harvest read
-  text only from `Textbox` because the search that decided that looked for where text sits, and an
-  empty input field holds none - an instrument that could not see a positive result.
-- The reading rule says only what is on the screen. A widget being in the tree does not mean it is
-  drawn, and three things decide it: a rectangle laid outside the drawing area, a row clipped
-  inside its scroll area, an ancestor at alpha zero. Over the harvest that is 172 of 1753 texts —
-  one in ten, and 48 of 82 in the worst window, which had been saying them to nobody. Validated by
-  a count taken independently of the rule: the lines that disappear are exactly the ones that count
-  calls invisible.
-- What that does not separate is content the game stacks under itself at alpha 1 and unclipped, the
-  ledger's eleven category tabs being the case. And it opens a gap that was not there: a list longer
-  than its frame now ends where the frame does, and the reader cannot scroll, because it owns the
-  arrow keys.
-- Shutting the game down no longer announces that it failed. Waiting for the channel to stop
-  answering went through `ask`, which speaks when the pipe will not open — so a clean exit told
-  the player their own Exit to Desktop had broken something. `channel.alive` asks the same question
-  without speaking, for the one caller that wants the link gone. `ask` still speaks, and that is
-  right: everywhere else a missing link is the failure with nothing underneath it to report.
-- `check.py` no longer fails on a clone over documents that are not in the repository. A claim may
-  name the files that quote its number, and some of those are the maintainer's working notes, which
-  `.gitignore` keeps out — twenty-eight of them, each reported as a missing file to anyone else.
-  The question it asks now is the one `git init` asks: does `.gitignore` exclude this? Absent and
-  excluded is counted as unverifiable here; absent and expected is still a problem. Validated both
-  ways.
-- The reading rule has a keyboard: `tools/ck3/reader.py` hands out one unit per keystroke, spoken
-  and brailled together. Up and down step; F12 switches the reader off and on again, and is the
-  only key in the F row the game's own shortcuts bind to nothing. Three keys and no more until
-  somebody has listened to them.
-- It needs no watcher over the windows. The hook in the DLL reports every key the game receives,
-  swallowed or not, so a key that is not the reader's means the screen may have changed — which is
-  why it changed. Nothing is polled to discover what a keystroke already said.
-- An event is the exception, since it arrives while nobody presses anything, and it announces
-  itself through a number the engine already keeps: the seventeen layers under the root count
-  their own children, and one of them is called `events` and stands empty until one comes in.
-  Reading all seventeen is a single question, so the loop asks every round and walks the tree only
-  when one of them moves.
-- A reader that owns the arrow keys may not die without a word, so it hands the keys back to the
-  game before it says what went wrong. Silence then has one meaning: the end of a list.
-- `derive.field_for` reads one field of many objects, and `flags_for` is a call to it rather than
-  a second copy. It reads little endian, because the bytes come back in memory order: for one byte
-  that is the same thing, and a four-byte child count read the other way round lands in the
-  millions and looks exactly like an offset that has moved after a patch.
-
-- The reading rule runs on the running game as well: it takes the window that is on top by draw
-  order, reads the tree of this moment, and says the same lines. Proven on a loaded save, where
-  the character window came out as 46 lines.
-- A bare number says what it is. The gui file names the data function that fills each text box,
-  and that function names the thing, so 89 reads as gold 89 and +83 as opinion of +83. Over the
-  harvest, 153 of 169 bare numbers get a label that way — 91 per cent — against a fifth for the
-  nearest label on screen, which drops to a tiebreak. Three things come off such a name: the
-  formatting tail, the arguments, and a wrapper that only counts or adds.
-- `tools/ck3/quit_game.py` shuts the game down the way a player does — pause menu, Exit to
-  Desktop — and there is deliberately no fallback that kills it. Of every shutdown in two months
-  exactly one wrote the exit autosave the game writes when it ends properly.
-
-- `tools/ck3/reading.py`, the generic reading rule, in the half that needs no running game: given
-  a harvested window it returns the lines that window says. Four rules, all of them general — a
-  widget without text is not a unit, child order is reading order, a repeated container becomes a
-  list that says its size and its end, and the game's markup bytes come off. `--speak` sends the
-  lines through NVDA. Over the harvest: 1,753 units, 286 of them rows of a list, 22 windows
-  carrying a list. The longest single unit is 318 characters, so roughly three sentences.
-- `pairing.pairs` takes the expanded tree as an argument. A caller that has already expanded a
-  window must hand in that same tree: the nodes handed back belong to the tree that was used, so
-  two trees means every lookup on the caller's side misses without saying so.
-
-- Screen files: the presentation layer's tuning lives in data, in the game's own format
-  (`key = value`, blocks, `#` comments), one file per screen under `screens/`, read with the gui
-  parser the project already has. The first one, `screens/event.screen`, covers the three event
-  windows and says what is read first, what stays silent, and how an option reads — with its
-  state before its words, and the explain key mapped to what the game puts in the tooltip.
-  Nothing is announced on arrival: the count of a list sits against the list it is about.
-- `tools/ck3/propose.py` writes a draft screen file for every window straight from the gui files,
-  with no harvest and no running game, so a window nobody ever opened gets one too: reading order
-  is file order, a repeated container becomes a list, the subject comes from the data context
-  inherited, and behind each line stands what it will say. 218 windows, 12,158 texts, 5,150 of
-  them rows of a list. Drafts are for correcting, so they are written outside the repository.
-- A screen file names no decoration to silence. A widget without text says nothing by itself, and
-  text only ever comes out of a text box, so the list of things to keep quiet was doing nothing.
-- An option says what it will do to you, in words: the game marks four kinds of consequence per
-  option and hands them over as a list — a trait gained or lost, stress up, down or critical, a
-  scheme, and death — so they are spoken with the option rather than left inside a tooltip. Gold
-  and prestige are not among them; those live in the tooltip only.
-- A screen file carries exceptions only. Whatever it does not name is read in the order the gui
-  files give, so a file left behind by a patch costs detail and never the screen.
-- `tools/ck3/screens.py` checks every reference in a screen file against the expanded gui tree:
-  windows, data functions and widget names. Validated by breaking it — an invented data function,
-  widget name and window are each reported, while the real file passes. A selector may match more
-  than one widget on disk (four in `letter_event` show the description, one per letter layout);
-  that is not an error, and the live tree decides which one is on screen.
+- **An event reads out loud, live** — the description as one unit, the options with their count and an
+  end line, then the character on screen with their opinion. That is the requirement this project
+  exists for. When two events stack under the same name, draw order decides which one is read.
+- **A window reads out one unit per keystroke.** `tools/ck3/reading.py` turns a window into lines,
+  from a harvested record or from the running game, and `tools/ck3/reader.py` hands them out: up and
+  down step, F12 switches the reader off and on, Delete reads what explains the line you are on. Four
+  keys and no more until somebody has listened to them. It needs no watcher over the windows — the
+  hook reports every key the game receives, so a key that is not the reader's means the screen may
+  have changed — and an event announces itself through the child counts of the seventeen layers under
+  the root, one of which holds nothing but events. A reader that fails gives the keys back before it
+  says so, so silence has one meaning: the end of a list.
+- **The reading rule says only what is on the screen:** a rectangle outside the drawing area, a row
+  clipped inside its scroll area, or an ancestor at alpha zero takes a line out — 172 of 1753 texts over
+  the harvest, 48 of 82 in the worst window. Content the game stacks under itself at alpha 1 is not yet
+  separated, and a list longer than its frame now ends where the frame does.
+- **A bare number says what it is**, named after the data function that fills it: 89 reads as gold
+  89. 153 of 169 bare numbers in the harvest get a label that way. A bare number and the label beside
+  it under the same parent are one line, label first.
+- **A button the game has switched off says so before its words.** The byte the window flag sits at is
+  one state byte: on a window zero means drawn, on a button the low bits mean it cannot be used.
+  Crossed against the files over three windows and 6906 widgets, no widget carries those bits without
+  an `enabled` condition on itself or an ancestor.
+- **A line carries what explains it.** The explain key reads the tooltip the gui files put on the
+  widget, looked for up the chain; of the 350 lines that reach one, 190 resolve to a sentence, and
+  where the sentence has gaps the tool says the game is adding something up instead of reading holes.
+- **Screen files are applied, not only checked.** `order` decides which lines come first — the
+  character window opens with your own name — and `key` is said once against the line that counts a
+  list. `list`, `state` and `explain` are deliberately left unwired, and the file says why. A screen
+  file names no decoration to silence: a widget without text says nothing by itself.
+- **The window map holds all 265 windows and is checked against the game rather than the files.** Two
+  ways of declaring a window had been missed. `windowmap.unmapped` compares what the engine built
+  against the map; on the feudal, administrative, landless and Nobatia states nothing is missing. Of the
+  189 windows declared at the top level of a file, 189 were created and 177 drawn; the other 76 carry
+  the reason their shape has no console route. The round stops when the state does not come back, and
+  a trial run takes window names rather than a count.
+- **What a player types is readable**, and it sits where ordinary widget text sits.
+- **A window reads in about three seconds instead of fourteen**, measured rather than guessed: most of
+  it was the executable's RTTI parsed again for every read.
+- `tools/ck3/quit_game.py` shuts the game down the way a player does, clicking only the copy of a
+  button that is really on screen, with no fallback that kills it. A clean exit no longer announces a
+  failure: `channel.alive` asks for the link without speaking.
+- `tools/ck3/propose.py` writes a draft screen file for every window straight from the gui files, and
+  `tools/ck3/screens.py` checks every reference in a screen file against the expanded gui tree.
+- `check.py` no longer fails on a clone over working notes that `.gitignore` keeps out.
 
 ## 2026-09-16
 
@@ -217,7 +104,6 @@ keeps the numbers with the rule they were counted by. A changelog that may never
 - The model derives a nineteenth field, `realm_capital`, which is the title a character calls its
   seat. Going from that number to the title's key is arithmetic on the database blocks rather than
   a scan, checked over three hundred slots against the save.
-- Three more steps in `tools/never_silent.py`, none of them needing a running game.
 - The pairing splits the texts the gui files cannot foretell: 631 of 1754, of which 417 inherit
   a data context. Of the 470 in windows a player opens, four are a bare number.
 - That withdraws the reason for chasing those origins before the reading layer: a text with no
@@ -240,15 +126,15 @@ keeps the numbers with the rule they were counted by. A changelog that may never
 
 - `speech.failure(where, what, remedy)`: one exit for a failure — where, what, what to do now —
   written out before it is spoken, so an exit that cannot reach NVDA still cannot lose the message.
-- `tools/never_silent.py`, the gate in front of a beta: it takes the link away, moves an offset in a
-  copy, and counts the silences. No debug mode needed.
+- `tools/never_silent.py`, the gate in front of a beta: it takes the link away and moves an offset in
+  a copy, and each has to be heard. No debug mode needed.
 - A window can be reached by acting inside another one: `--chain` reads the target's own `visible`
   line to learn what has to happen. That opened the last two closed windows.
 
 ## 2026-08-24 – 2026-08-30 — the sweep, and joining the tree to the files
 
-- **The sweep.** 203 of the 218 windows the gui files declare are harvested widget by widget. The
-  fifteen refusals are records with a reason: they wait on a state, not on a culture or an era.
+- **The sweep.** 203 windows are harvested widget by widget. The fifteen refusals are records with a
+  reason: they wait on a state, not on a culture or an era.
 - **A window has to be opened the way a player opens it**, or the record holds captions and no
   data: 6.6 text boxes per window through the console, 23.7 through a shortcut, 32.8 through a
   click. `harvest.py` knows all the routes; `openers.py` measures which button opens which window
@@ -272,8 +158,6 @@ keeps the numbers with the rule they were counted by. A changelog that may never
   that clicks needs the nearest window ancestor to be drawn — not just alpha and size.
 - **Draw order lives in one place and was nearly lost:** the harvest sorted children by address and
   destroyed the engine's order. Every widget now records its sibling index.
-- **The window reader counts both shapes a window is declared in: 218 where it read 196.** The 22
-  it missed are the event windows and confirmation dialogs — the ones a player cannot get past.
 - **No window is gated behind an expansion:** a missing DLC takes away parts of a window, never the
   window.
 - **Braille is no longer optional** in the speech seam, and `tools/nvda/addon/` puts NVDA in sleep
@@ -289,10 +173,10 @@ keeps the numbers with the rule they were counted by. A changelog that may never
 Not a release: there is no installable mod and nothing is spoken during normal play. What is here is
 the machinery, measured on Crusader Kings III 1.19.0.6 with all DLC and five content mods.
 
-- The injected channel answers about 25 seconds after launch; the interface exists a few minutes
+- The injected channel answers about twenty seconds after launch; the interface exists some minutes
   later.
-- Seven memory field offsets are derived from the running process at every start and re-verified; on
-  build 1.16.2 one had moved and it re-derived itself.
+- Seven memory field offsets are derived from the running process at every start and re-verified (two
+  more followed a day later); on build 1.16.2 one had moved and it re-derived itself.
 - Visibility solved: a window flag says whether a window is drawn, and sibling draw order says which
   of several drawn windows is on top.
 - Screen geometry solved, including the five windows that scale a full-screen container.

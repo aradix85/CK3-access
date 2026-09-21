@@ -182,8 +182,9 @@ one keystroke produces one unit of speech plus braille. It belongs in data rathe
 
 **`tools/ck3/reader.py` is where that second rule becomes real.** It claims the arrow keys through
 the DLL, hands out one unit per press, and gives every key back on the way out — a reader that owns
-the arrows and dies without a word leaves a keyboard that half works. It claims three keys and no
-more, because what else is wanted cannot be decided before somebody has heard it.
+the arrows and dies without a word leaves a keyboard that half works. It claims four keys and no
+more — up and down to step, F12 to switch it off and on, Delete for what explains the line you are
+on — because what else is wanted cannot be decided before somebody has heard it.
 
 It carries no watcher over the windows, and the reason is section 4: the hook reports every key the
 game receives, swallowed or not, so a key that is not the reader's says the screen may have changed.
@@ -194,7 +195,8 @@ them holds nothing but events. All of them are read in one question.
 **That data is a screen file, one per screen, under `screens/`.** It is written in the game's own
 format and read with the gui parser of section 5, so there is no second parser to keep working and
 a tester who mods already knows the syntax. A screen file holds exceptions and never a description
-of a whole screen: what to read first, what stays silent, how a repeated row reads, which state
+of a whole screen: what to read first, which key does something on a row, how a repeated row reads,
+which state
 goes in front of the words, what the explain key reaches for. Whatever it does not name is read in
 the order the gui files give. A file that falls behind a patch therefore costs detail and never the
 screen itself, which is the difference between this and a mod that replaces the window outright.
