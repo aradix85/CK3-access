@@ -14,10 +14,20 @@ If you want it faster per box, recognition moves to the NPU: measured 29 July 20
 route needs a fixed input shape and deliberately does not live in this file.
 """
 import ctypes
+import sys
 
 import numpy
 from PIL import Image, ImageGrab
-from rapidocr import EngineType, LangDet, LangRec, ModelType, OCRVersion, RapidOCR
+
+try:
+    from rapidocr import EngineType, LangDet, LangRec, ModelType, OCRVersion, RapidOCR
+except ModuleNotFoundError as missing:
+    # The Python session of the radix-mcp server is its own venv, and the recogniser is left out of
+    # it on purpose: a second copy of the whole stack can drift from hers without a word. So say
+    # where to run instead of falling over three imports deep, where it reads as a broken project.
+    raise SystemExit('the text recogniser is not installed in this Python (%s is missing, %s). That '
+                     'is the venv of the radix-mcp server; run this through pwsh, which starts her '
+                     'own Python where it is.' % (missing.name, sys.executable)) from None
 
 ctypes.windll.user32.SetProcessDPIAware()
 
