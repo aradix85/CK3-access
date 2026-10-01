@@ -479,6 +479,35 @@ def window(name, table=None, local=None, known=None):
     return build(entry['key'], entry['body'], templates), templates
 
 
+DECISION_WIDGETS = 'gui/decision_view_widgets/'
+
+
+def decision_widget(name, table=None, local=None, rows=None):
+    """The own gui of a decision, resolved into a widget tree like a window.
+
+    A decision can name a gui file of its own with `widget = { gui = "..." }` in common\\decisions,
+    and the engine puts that file's widget into `custom_widgets_container` of the decision window.
+    Which one depends on the decision that is open, so the files of the window cannot say it and
+    the live tree can: the child there carries the name of its file. Measured 1 October 2026 on
+    1.20: 91 such references to 15 files, and the top block of each file is a widget with exactly
+    the file's name. The last file of that name in load order wins, as everywhere in the engine.
+    """
+    rows = rows if rows is not None else files()
+    if table is None:
+        table, local = type_table(rows)
+    wanted = DECISION_WIDGETS + name.lower() + '.gui'
+    found = [(virtual, full) for _, virtual, full in rows if virtual.replace('\\', '/').lower() == wanted]
+    if not found:
+        raise GuiError('no decision widget %r on disk' % name)
+    virtual, full = found[-1]
+    for entry in read(full):
+        if entry['body'] and any(inner['key'] == 'name' and inner['value'] == name
+                                 for inner in entry['body']):
+            templates = Templates(table, local, virtual)
+            return build(entry['key'], entry['body'], templates), templates
+    raise GuiError('%s has no block named %r' % (virtual, name))
+
+
 LOCALIZATION = re.compile(r'^\s*([^\s:#][^\s:]*):\s*\d*\s*"(.*)"\s*$')
 
 

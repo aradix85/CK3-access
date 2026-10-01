@@ -214,10 +214,31 @@ def pairs(window, table, local, known, root, record=None, disk_tree=None):
         own = attribute(source, 'datacontext')
         here = context + ((own,) if own else ())
         out.append((source, built, here))
+        if attribute(source, 'name') == CUSTOM_WIDGETS:
+            # Empty on disk; the decision that is open decides what goes in, by file name.
+            for child in by_parent.get(built['address'], []):
+                work.append((_decision_widget(child['name'], table, local), child, here))
+            continue
         for child_source, child_built in align_row(widget_children(source, root),
                                                    by_parent.get(built['address'], []), root):
             work.append((child_source, child_built, here))
     return out
+
+
+CUSTOM_WIDGETS = 'custom_widgets_container'
+_decision_widgets = {}
+
+
+def _decision_widget(name, table, local):
+    """The own gui of a decision on disk, or None when no file carries that name - which the tally
+    then reports as a live widget the files do not describe, the same as anywhere else. Kept per
+    name, because expanding means walking the file list, and a reader reads this window often."""
+    if name not in _decision_widgets:
+        try:
+            _decision_widgets[name] = guimap.decision_widget(name, table, local)[0]
+        except guimap.GuiError:
+            _decision_widgets[name] = None
+    return _decision_widgets[name]
 
 
 def text_source(source, localization):
