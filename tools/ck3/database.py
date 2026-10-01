@@ -21,15 +21,18 @@ import guimap
 import paths
 import savegame
 
-# Where each database lives, and how deep its entries sit. A faith is not a top-level key: it hangs
-# inside a religion under `faiths`, which is why a line reader looking at column zero finds none of
-# them. Measured 27 August 2026 - `common\religion` holds no `religions` folder at all.
+# Where each database lives, and how deep its entries sit. Since 1.20.0.2 a faith is a top-level key
+# in `religion/faith_types`; before that it hung inside a religion under `faiths`, and mods written for
+# 1.19 still do it that way, so both places are read. Measured 1 October 2026: 103 faiths in the game's
+# own `faith_types`, none left inside a vanilla religion, 97 inside the religions of RICE. Whether 1.20
+# still loads that old form, and in which order it takes the two folders, only the running game says
+# (`numbering.keys`). `common\religion` holds no `religions` folder at all.
 PLACES = {
-    'culture': ('culture/cultures', ()),
-    'faith': ('religion/religion_types', ('faiths',)),
-    'religion': ('religion/religion_types', ()),
-    'trait': ('traits', ()),
-    'government': ('governments', ()),
+    'culture': (('culture/cultures', ()),),
+    'faith': (('religion/faith_types', ()), ('religion/religion_types', ('faiths',))),
+    'religion': (('religion/religion_types', ()),),
+    'trait': (('traits', ()),),
+    'government': (('governments', ()),),
 }
 
 
@@ -64,21 +67,21 @@ def entries(kind):
     Order is kept and never sorted, because the only orderings worth testing against the game are
     the ones the files actually produce.
     """
-    branch, inside = PLACES[kind]
     out = []
-    for layer, virtual, full in files(branch):
-        nodes = guimap.parse(open(full, encoding='utf-8-sig', errors='replace').read())
-        for entry in nodes:
-            if not entry['key'] or not entry['body']:
-                continue
-            if not inside:
-                out.append((entry['key'], layer, virtual))
-                continue
-            for deeper in entry['body']:
-                if deeper['key'] == inside[0] and deeper['body']:
-                    for leaf in deeper['body']:
-                        if leaf['key'] and leaf['body']:
-                            out.append((leaf['key'], layer, virtual))
+    for branch, inside in PLACES[kind]:
+        for layer, virtual, full in files(branch):
+            nodes = guimap.parse(open(full, encoding='utf-8-sig', errors='replace').read())
+            for entry in nodes:
+                if not entry['key'] or not entry['body']:
+                    continue
+                if not inside:
+                    out.append((entry['key'], layer, virtual))
+                    continue
+                for deeper in entry['body']:
+                    if deeper['key'] == inside[0] and deeper['body']:
+                        for leaf in deeper['body']:
+                            if leaf['key'] and leaf['body']:
+                                out.append((leaf['key'], layer, virtual))
     return out
 
 
@@ -114,7 +117,8 @@ def main():
             numbers = {}
         agree = sum(1 for n, key in numbers.items() if n < len(keys) and keys[n] == key)
         print('%-12s %6d %6d %6d %8d %d'
-              % (kind, len(keys), len(names), len(files(PLACES[kind][0])), len(numbers), agree))
+              % (kind, len(keys), len(names), sum(len(files(b)) for b, _ in PLACES[kind]),
+                 len(numbers), agree))
 
 
 FAITH_ROW = re.compile(r'(\d+)=\{\s*faith_type=\w+\s+tag="([^"]+)"')
