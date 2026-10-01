@@ -1,38 +1,36 @@
 {
  "key": "101039736-1790866162",
- "record_length": 464,
  "number_field_in_record": 24,
  "number_mask": 16777215,
  "block_size": 1024,
  "block_stride": 475152,
  "fields": {
   "culture": 152,
-  "faith": 156,
-  "dynasty_house": 312
+  "dynasty_house": 320
  },
  "beacon": {
   "skill": 164,
   "note": "six times 32 bits; this is what the object was found by, not a separately tested field"
  },
  "evidence": {
-  "culture": "71 of 71 in the record",
-  "faith": "71 of 71 in the record",
-  "dynasty_house": "43 of 43 in the record",
-  "gold": "72 of 72 through the pointer at +0x190",
-  "piety": "80 of 80 through the pointer at +0x190",
-  "prestige": "80 of 80 through the pointer at +0x190",
-  "current_strength": "80 of 80 through the pointer at +0x1a0",
-  "strength": "80 of 80 through the pointer at +0x1a0",
-  "strength_for_liege": "55 of 55 through the pointer at +0x1a0",
-  "strength_without_hires": "79 of 79 through the pointer at +0x1a0",
-  "levy": "68 of 68 through the pointer at +0x1a0",
-  "power": "80 of 80 through the pointer at +0x1a0",
-  "max_power": "80 of 80 through the pointer at +0x1a0",
-  "balance": "71 of 71 through the pointer at +0x1a0",
-  "liege_tax": "60 of 60 through the pointer at +0x1a0",
-  "dread": "35 of 35 through the pointer at +0x1a0",
-  "domain_limit": "79 of 79 through the pointer at +0x1a0",
-  "realm_capital": "70 of 70 through the pointer at +0x1a0"
+  "culture": "77 of 77 in the record",
+  "faith": "nowhere, in none of the six forms (0 characters carry it)",
+  "dynasty_house": "46 of 46 in the record",
+  "gold": "73 of 73 through the pointer at +0x198",
+  "piety": "80 of 80 through the pointer at +0x198",
+  "prestige": "80 of 80 through the pointer at +0x198",
+  "current_strength": "80 of 80 through the pointer at +0x1a8",
+  "strength": "80 of 80 through the pointer at +0x1a8",
+  "strength_for_liege": "59 of 59 through the pointer at +0x1a8",
+  "strength_without_hires": "73 of 73 through the pointer at +0x1a8",
+  "levy": "73 of 73 through the pointer at +0x1a8",
+  "power": "80 of 80 through the pointer at +0x1a8",
+  "max_power": "80 of 80 through the pointer at +0x1a8",
+  "balance": "70 of 70 through the pointer at +0x1a8",
+  "liege_tax": "59 of 59 through the pointer at +0x1a8",
+  "dread": "nowhere, in none of the six forms (0 characters carry it)",
+  "domain_limit": "80 of 80 through the pointer at +0x1a8",
+  "realm_capital": "73 of 73 through the pointer at +0x1a8"
  },
  "name": {
   "offset": 8,
@@ -40,88 +38,83 @@
  },
  "indirect": {
   "gold": {
-   "pointer": 400,
+   "pointer": 408,
    "offset": 256,
    "form": "fixed64"
   },
   "piety": {
-   "pointer": 400,
+   "pointer": 408,
    "offset": 272,
    "form": "fixed64"
   },
   "prestige": {
-   "pointer": 400,
+   "pointer": 408,
    "offset": 304,
    "form": "fixed64"
   },
   "current_strength": {
-   "pointer": 416,
+   "pointer": 424,
    "offset": 96,
    "form": "int32"
   },
   "strength": {
-   "pointer": 416,
-   "offset": 100,
+   "pointer": 424,
+   "offset": 96,
    "form": "int32"
   },
   "strength_for_liege": {
-   "pointer": 416,
+   "pointer": 424,
    "offset": 104,
    "form": "int32"
   },
   "strength_without_hires": {
-   "pointer": 416,
-   "offset": 108,
+   "pointer": 424,
+   "offset": 96,
    "form": "int32"
   },
   "levy": {
-   "pointer": 416,
+   "pointer": 424,
    "offset": 112,
    "form": "int32"
   },
   "power": {
-   "pointer": 416,
-   "offset": 128,
+   "pointer": 424,
+   "offset": 120,
    "form": "fixed64"
   },
   "max_power": {
-   "pointer": 416,
+   "pointer": 424,
    "offset": 120,
    "form": "fixed64"
   },
   "balance": {
-   "pointer": 416,
+   "pointer": 424,
    "offset": 704,
    "form": "fixed64"
   },
   "liege_tax": {
-   "pointer": 416,
+   "pointer": 424,
    "offset": 712,
    "form": "fixed64"
   },
-  "dread": {
-   "pointer": 416,
-   "offset": 848,
-   "form": "fixed64"
-  },
   "domain_limit": {
-   "pointer": 416,
-   "offset": 976,
+   "pointer": 424,
+   "offset": 984,
    "form": "int32"
   },
   "realm_capital": {
-   "pointer": 416,
+   "pointer": 424,
    "offset": 504,
    "form": "int32"
   }
  },
- "derived_on": "2026-09-01, 80 characters, 0 records unreadable or reused, against Duke_Marianos_of_Nobatia_1067_11_23_reload.ck3",
+ "derived_on": "2026-10-01, 80 characters, 0 records unreadable or reused, against Duke_Vratislav_II_of_Bohemia_1066_09_15_reload.ck3",
  "globals": {
   ".?AV?$TPdxRefDatabase@VCCulture@@$07@@": 91278208,
   ".?AV?$TPdxRefDatabase@VCFaith@@$07@@": 91277096,
   ".?AV?$TPdxRefDatabase@VCReligion@@$07@@": 91277152,
   ".?AVCTraitDatabase@@": 91275512,
-  ".?AV?$TPdxRefDatabase@VCCharacter@@$07@@": 91275568,
+  ".?AV?$TPdxRefDatabase@VCCharacter@@$07@@": 96892264,
   ".?AV?$TPdxRefDatabase@VCLandedTitle@@$07@@": 91276304
  },
  "databases": {

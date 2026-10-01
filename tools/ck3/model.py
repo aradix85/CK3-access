@@ -150,14 +150,32 @@ def readmany(addresses, count):
     return out
 
 
+def _record_length(block_start, model):
+    """The record length of this build, measured: the stride at which a slot's own handle repeats.
+
+    It stood in `reports\\model.json` as a constant, 464, outside the key of the exe. On 1.20.0.3 a
+    record grew to 472 bytes, measured 1 October 2026 as 39 of 39 slots, and every record read at
+    the old stride was somebody else's - so it is measured at each start instead.
+    """
+    at, mask = model['number_field_in_record'], model['number_mask']
+    data = derive.read(block_start, 40 * 1200)
+    for stride in range(400, 1200, 8):
+        hits = sum(1 for slot in range(1, 40)
+                   if (struct.unpack_from('<I', data, slot * stride + at)[0] & mask) == slot)
+        if hits >= 35:
+            return stride
+    raise SystemExit('no record length fits block 0: the handle is not where the model says it is')
+
+
 def _layout(pid):
-    """Where every record starts, from the block table in one read."""
+    """Where every record starts, from the block table in one read, and how long a record is."""
     model = json.load(open(MODEL, encoding='utf-8'))
     db = anchor.database(pid)
     header = derive.read(db, 24)
     table = struct.unpack_from('<Q', header, 8)[0]
     blocks = struct.unpack_from('<I', header, 16)[0]
     starts = struct.unpack('<%dQ' % blocks, derive.read(table, blocks * 8))
+    model['record_length'] = _record_length(starts[0], model)
     return model, starts, blocks
 
 

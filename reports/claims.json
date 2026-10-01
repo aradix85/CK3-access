@@ -159,16 +159,6 @@
   "counting_rule": "fields in fields.json besides the four bookkeeping keys; the seven layout offsets plus alpha and the window flag, which have been derived by toggling a window since 24 August 2026"
  },
  {
-  "name": "record length of a character",
-  "claimed": 464,
-  "measure": "json_field",
-  "arguments": [
-   "<project>\\reports\\model.json",
-   "record_length"
-  ],
-  "counting_rule": "from model.json"
- },
- {
   "name": "characters per block",
   "claimed": 1024,
   "measure": "json_field",
