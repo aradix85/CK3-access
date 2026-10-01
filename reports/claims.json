@@ -269,14 +269,14 @@
   "counting_rule": "unpacked size of gamestate in MB to one decimal; made 23 August 2026 with five mods and every expansion, against 60.7 and 56.7 for the two vanilla saves"
  },
  {
-  "name": "gui files of the five mods",
-  "claimed": 69,
+  "name": "gui files in the Steam Workshop folder of the game",
+  "claimed": 0,
   "measure": "files",
   "arguments": [
    "<workshop>",
    "*.gui"
   ],
-  "counting_rule": "files with the gui suffix under the CK3 workshop folder; RICE 67, Historical Figure 1, Historic Invasions 1, and none of them replaces a vanilla file"
+  "counting_rule": "files with the gui suffix under the game's workshop folder, all subfolders included. Five mods brought 69 until they were unsubscribed on 1 October 2026; any gui file here is a mod that came back, and the decision against mods is in the maintainer's notes"
  },
  {
   "name": "texts the reading rule says over the harvest",
