@@ -364,19 +364,19 @@
  },
  {
   "name": "gui files as the engine sees them, with mods",
-  "claimed": 606,
+  "claimed": 537,
   "measure": "gui_merged",
   "arguments": [
    true
   ],
-  "counting_rule": "the same with the five enabled mods on top; the 69 mod files all add and none of them replaces a vanilla virtual path",
+  "counting_rule": "the same with the enabled mods on top. None are enabled since 1 October 2026, so this equals the vanilla count; until that day five mods added 69 files and replaced no vanilla virtual path",
   "quoted_in": [
    "brief\\stand.md"
   ]
  },
  {
   "name": "global gui templates",
-  "claimed": 2972,
+  "claimed": 2890,
   "measure": "gui_templates",
   "arguments": [
    "global"
@@ -469,7 +469,7 @@
  },
  {
   "name": "HasDlcFeature checks in the merged gui set",
-  "claimed": 47,
+  "claimed": 46,
   "measure": "gui_dlc",
   "arguments": [
    "checks"
@@ -487,20 +487,20 @@
  },
  {
   "name": "cultures the engine loads",
-  "claimed": 463,
+  "claimed": 244,
   "measure": "database_entries",
   "arguments": [
    "culture",
    "keys"
   ],
-  "counting_rule": "top-level keys in common/culture/cultures, game folder first and the five mods after it in load order, a file replacing the one at the same name. 244 without the mods; RICE brings most of the rest",
+  "counting_rule": "top-level keys in common/culture/cultures, game folder first and any enabled mods after it in load order, a file replacing the one at the same name. No mods are enabled since 1 October 2026; with the five of before, RICE brought most of 463",
   "quoted_in": [
    "brief\\stand.md"
   ]
  },
  {
   "name": "cultures that also have a name in the localization",
-  "claimed": 463,
+  "claimed": 244,
   "measure": "database_entries",
   "arguments": [
    "culture",
@@ -510,27 +510,27 @@
  },
  {
   "name": "faiths the engine loads",
-  "claimed": 200,
+  "claimed": 103,
   "measure": "database_entries",
   "arguments": [
    "faith",
    "keys"
   ],
-  "counting_rule": "since 1.20.0.2 a faith is a top-level key in common/religion/faith_types; mods written for 1.19 still hang theirs inside a religion under `faiths`, in common/religion/religion_types, and both places are counted. 103 without the mods. Whether 1.20 still loads the nested form is a question for the running game",
+  "counting_rule": "since 1.20.0.2 a faith is a top-level key in common/religion/faith_types; mods written for 1.19 still hang theirs inside a religion under `faiths`, in common/religion/religion_types, and both places are counted, so a tester's mods are read too. No mods are enabled since 1 October 2026",
   "quoted_in": [
    "brief\\stand.md"
   ]
  },
  {
   "name": "cultures whose number the file order predicts",
-  "claimed": 463,
+  "claimed": 244,
   "measure": "database_entries",
   "arguments": [
    "culture",
    "numbered",
    "<documents>\\save games\\Duke_Marianos_of_Nobatia_1067_11_23.ck3"
   ],
-  "counting_rule": "the save of 1067-11-23 carries the engine's own numbering, and for cultures it is exactly the file order - all 463. That does not hold for the other databases: 78 of 237 faiths, 36 of 94 religions, 301 of 342 traits, so the numbering is read from the save and not derived from disk. The faiths do fall into place, all 237, once they are grouped per religion in the engine's religion order; where that religion order comes from is not known. The save is named here rather than left to whichever is newest: a save from before the mods gives 244, so reading the newest file made this claim measure something other than what this rule says"
+  "counting_rule": "the save of 1067-11-23, made with the five mods of before 1 October 2026, carries the engine's own numbering, and for cultures it is exactly the file order. With the mods off the files hold the 244 vanilla cultures, and all 244 agree with the save. On 1.19.0.6 with the mods this did not hold for the other databases: 78 of 237 faiths, 36 of 94 religions, 301 of 342 traits, so the numbering is read from the running game and not derived from disk. The save is named here rather than left to whichever is newest"
  },
  {
   "name": "harvested texts the gui files do not predict",
@@ -645,7 +645,7 @@
  },
  {
   "name": "titles in landed_titles",
-  "claimed": 17841,
+  "claimed": 17675,
   "measure": "map_layer",
   "arguments": [
    "titles"
@@ -654,7 +654,7 @@
  },
  {
   "name": "titles that name a capital",
-  "claimed": 3025,
+  "claimed": 2862,
   "measure": "map_layer",
   "arguments": [
    "capitals"
@@ -666,7 +666,7 @@
  },
  {
   "name": "titles that resolve to a county",
-  "claimed": 17798,
+  "claimed": 17635,
   "measure": "map_layer",
   "arguments": [
    "placed"

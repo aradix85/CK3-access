@@ -20,6 +20,10 @@ keeps the numbers with the rule they were counted by. A changelog that may never
 - **Faiths moved out of their religions in 1.20.** They are blocks of their own in
   common/religion/faith_types now, and `tools/ck3/database.py` reads that folder as well as the old
   nested form, which the mods written for 1.19 still use.
+- **The five content mods the measurements ran with are switched off.** 1.20.0.2 crashed while
+  loading with all five, each made for 1.19, and a project that has to survive patches should wait on
+  one publisher rather than six. The counts on disk are vanilla from here on; the harvest and the
+  saves made after 23 August 2026 still carry the mods.
 - **An expansion still never takes a window away.** Expanded over all 282 windows, no window block
   carries an expansion check, while 39 carry a visibility condition of their own - which is what
   shows the check could have seen one.
