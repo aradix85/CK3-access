@@ -238,7 +238,12 @@ static void cmd_tree(unsigned long long root, unsigned limit)
     __try {
         while (done < work_count) {
             const unsigned char* p = (const unsigned char*)work[done++];
-            if (!readable(p, f_text + 32)) continue;
+            // Only the vtable has to be readable here: every field emit_widget reads is checked on
+            // its own. Demanding the whole object up to the text field dropped a window on 1.20.0.3
+            // whose object ends 0x390 bytes before an uncommitted page, and with it its 526 widgets,
+            // without a word - measured 1 October 2026 on the decisions window. A node that cannot
+            // even be read is reported, never skipped quietly.
+            if (!readable(p, 8)) { emit("unreadable\t%llx\n", (unsigned long long)p); continue; }
             if (!is_widget(*(const unsigned long long*)p)) continue;
             emit_widget(p, name, text, sizeof(name), sizeof(text));
 
