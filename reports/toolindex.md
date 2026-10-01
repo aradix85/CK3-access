@@ -457,6 +457,18 @@ returns a pair, passed on as one thing, costs a run.
 |---|---|---|
 | `start(timeout=60.0, arguments='')` | 2-tuple | Arguments are passed on to the game; `-debug_mode` opens the console. That flag belongs to |
 
+## ck3\states.py
+*Play states: wait until a game is up, save it, type into the console, play someone else.*
+
+| call | returns | does |
+|---|---|---|
+| `wait(pid, timeout=900)` | str | 'game' once a game is on screen, 'menu' on the main menu; stops when the game is gone. |
+| `save(pid, suffix='')` | value | Save through the pause menu; the name of the new save comes back. |
+| `console(pid, command)` | 4-tuple | Type one command into the console and shut it again. What the console answers is not read. |
+| `holder(save_name, title)` | value | The running number of whoever holds the title, out of a save of that game. |
+| `new(pid, title)` | 2-tuple | From the setup screen: start at random, play the holder of the title, save. Both saves. |
+| `main()` | nothing | - |
+
 ## ck3\textfield.py
 *Finds, per widget class, where the displayed text sits inside the object.*
 
