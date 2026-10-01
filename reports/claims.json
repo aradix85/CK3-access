@@ -39,7 +39,6 @@
   ],
   "counting_rule": "files with the gui suffix under game\\gui, all subfolders included",
   "quoted_in": [
-   "brief\\buitenwereld.md",
    "brief\\stand.md"
   ]
  },
@@ -53,7 +52,6 @@
   ],
   "counting_rule": "the same under clausewitz\\gui",
   "quoted_in": [
-   "brief\\buitenwereld.md",
    "brief\\stand.md"
   ]
  },
@@ -67,7 +65,6 @@
   ],
   "counting_rule": "the same under the whole jomini folder: 91 in jomini\\gui plus the encyclopedia in jomini\\jomini\\gui, which a count on jomini\\gui alone would miss",
   "quoted_in": [
-   "brief\\buitenwereld.md",
    "brief\\stand.md"
   ]
  },
