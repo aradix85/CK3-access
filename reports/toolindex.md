@@ -327,7 +327,7 @@ returns a pair, passed on as one thing, costs a run.
 | `clickable_map(record, acting=None)` | value | The buttons of a window that can handle a click, with their draw order. |
 | `lands_on(buttons, point)` | value | Which widget handles a click at this point. |
 | `reachable_point(buttons, widget_address, rect, step=6)` | NoneType of value | A point on this widget that a click really reaches, or None if it is covered everywhere. |
-| `gui_tables()` | 4-tuple | The expansion tables, read once. Building them walks 563 files, so a sweep that rebuilds |
+| `gui_tables()` | 4-tuple | The expansion tables, read once. Building them walks some six hundred files, so a sweep that rebuilds |
 | `spots_for_goal(game, pid, window, goal, tables=None)` | 6-tuple | Every widget of an open window that the files say reaches `goal`, aligned rather than guessed. |
 | `trigger_spots(row, named, nodes)` | list of value | Where the click for this row could land: the widget itself, or its nameless children. |
 | `on_screen(address, nodes, scales, classes)` | NoneType of str of value | Why this widget cannot be clicked, or None when it can. |
@@ -410,7 +410,7 @@ returns a pair, passed on as one thing, costs a run.
 | `fills(source)` | NoneType of value | The data function the gui file puts in this widget, if it puts one there. |
 | `on_screen(node, by_address, area)` | bool | Is this widget actually drawn, or only present in the tree? |
 | `expansion(window, table, local, known)` | value | The window as the gui files describe it, expanded once and then kept. |
-| `words_table()` | value | The localisation, read once. 1173 files, so not per keystroke. |
+| `words_table()` | value | The localisation, read once. Over a thousand files, so not per keystroke. |
 | `explanation(address, by_address, source_of, localization)` | NoneType of value | What the game would show if you could hover here: the nearest tooltip up the chain. |
 | `rows_of(node, by_address, source_of)` | value | The row this unit stands in, per list around it, outermost first, as live addresses. |
 | `units(window, table, local, known, root, record)` | value | Every unit this window says, in order, each with the list it belongs to. |

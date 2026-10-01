@@ -9,6 +9,23 @@ and an entry a later measurement overturns is taken out rather than left standin
 beside it: git keeps the text, `ARCHITECTURE.md` keeps the reasoning, and `reports/claims.json`
 keeps the numbers with the rule they were counted by. A changelog that may never forget only grows.
 
+## 2026-10-01
+
+- **Crusader Kings III 1.20.0.2 came out on 30 September 2026, and everything that can be checked
+  without the game has been checked against it.** The executable, the gui set, the localisation,
+  the titles and the shortcut file all moved, and every count in `reports/claims.json` was taken
+  again. On disk there are 282 named windows against the 265 in the map: 18 are new and one, the
+  faith creation window, is gone. The half that needs the running game - the offsets, the window
+  map, the calibration against a save - has not been run yet.
+- **Faiths moved out of their religions in 1.20.** They are blocks of their own in
+  common/religion/faith_types now, and `tools/ck3/database.py` reads that folder as well as the old
+  nested form, which the mods written for 1.19 still use.
+- **An expansion still never takes a window away.** Expanded over all 282 windows, no window block
+  carries an expansion check, while 39 carry a visibility condition of their own - which is what
+  shows the check could have seen one.
+- The channel DLL is built with the Visual Studio 2026 Build Tools; same imports, not yet proven in
+  the game.
+
 ## 2026-09-21
 
 - **A widget the game hides says nothing and is not clicked.** A `visible` condition that does not

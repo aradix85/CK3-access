@@ -65,7 +65,7 @@ POLL = 400          # milliseconds the DLL waits for a key before answering with
 def gui_tables():
     """The templates of every gui file, once. Three seconds, and they do not change while it runs.
 
-    The localisation is warmed here for the same reason: it is 1173 files, and paid at the first
+    The localisation is warmed here for the same reason: it is over a thousand files, and paid at the first
     keystroke it would be five seconds of silence on the first window rather than on the start.
     The widget classes come out of the executable and cost three seconds the first time, so they
     are warmed here too.

@@ -204,13 +204,13 @@ DLC_CHECK = re.compile(r"HasDlcFeature\(\s*'([^']+)'\s*\)")
 def gui_dlc(what):
     """How the gui set gates content behind an expansion, counted over the merged files.
 
-    Measured 27 August 2026 over the expansion of all 196 windows: **not one window block carries
-    such a check.** Every one of them sits on the `visible` of a widget deeper down, and 114 of the
-    117 windows that touch a feature at all reach it through three shared portrait templates that
-    hide one status icon. So an expansion never removes a window from a tester's game, only parts
+    Measured 27 August 2026 over the expansion of all 196 windows, and again on 1 October 2026 over
+    all 282 of 1.20.0.2: **not one window block carries such a check**, while 39 of them carry a
+    `visible` of their own. Every check sits on the `visible` of a widget deeper down, and on 1.20
+    147 of the 150 windows that touch a feature at all do so through `all_under_heaven`. So an expansion never removes a window from a tester's game, only parts
     inside one - which is what a beta report has to be read against.
 
-    Kept cheap on purpose: a text scan over the 563 files, not an expansion of every window, which
+    Kept cheap on purpose: a text scan over the merged files, not an expansion of every window, which
     takes five minutes. If a patch changes how the game gates things, these two numbers move and
     the expensive question is worth asking again.
     """
@@ -465,7 +465,7 @@ def shortcuts(what):
 
     **This claim exists because the number that stood here before was nine.** `windowmap` pressed
     the function keys, found nine windows that way, and the documents carried "nine shortcuts" as
-    if that were the total. It was the total of what had been tried. The file binds 909.
+    if that were the total. It was the total of what had been tried. The file bound 909 on 1.19.0.6.
 
     The counting rule, and it matters because the raw total flatters: a name starting with an
     underscore is the engine's generic entry for one key combination - `_alt_f7` - and not an

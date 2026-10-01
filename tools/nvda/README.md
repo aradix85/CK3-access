@@ -19,6 +19,7 @@ blocks until the speech finishes and then returns error 1223.
 
 ## One seam
 
-Everything above this layer calls a single function that takes text, braille text and a mode.
-Swapping NVDA for an abstraction layer such as Prism or SRAL means replacing the inside of that
-function and nothing else — see `CONTRIBUTING.md`.
+Everything above this layer goes through two functions: `output`, which takes text, braille text
+and a mode, and `failure`, which turns a fault into one sentence and hands it to `output`. Swapping
+NVDA for an abstraction layer such as Prism or SRAL means replacing the inside of `output` and
+nothing else — see `CONTRIBUTING.md`.

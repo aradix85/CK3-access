@@ -222,7 +222,7 @@ WORDS = None
 
 
 def words_table():
-    """The localisation, read once. 1173 files, so not per keystroke."""
+    """The localisation, read once. Over a thousand files, so not per keystroke."""
     global WORDS
     if WORDS is None:
         WORDS = guimap.localization()
@@ -595,7 +595,7 @@ def live(pid, window=None, game=None, tables=None):
     highest path of sibling numbers is the one lying over the rest.
 
     `game` and `tables` are handed in by a caller that reads more than once. Building either costs
-    seconds - a field check and a walk to the root, and the templates of 563 gui files - and
+    seconds - a field check and a walk to the root, and the templates of some six hundred gui files - and
     neither changes while the game runs.
     """
     import collections

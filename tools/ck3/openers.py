@@ -440,7 +440,7 @@ def reachable_point(buttons, widget_address, rect, step=6):
 
 
 def gui_tables():
-    """The expansion tables, read once. Building them walks 563 files, so a sweep that rebuilds
+    """The expansion tables, read once. Building them walks some six hundred files, so a sweep that rebuilds
     them per window spends its time there instead of in the game."""
     import pairing
     rows = guimap.files()
