@@ -11,24 +11,33 @@ keeps the numbers with the rule they were counted by. A changelog that may never
 
 ## 2026-10-01
 
-- **Crusader Kings III 1.20.0.2 came out on 30 September 2026, and everything that can be checked
-  without the game has been checked against it.** The executable, the gui set, the localisation,
-  the titles and the shortcut file all moved, and every count in `reports/claims.json` was taken
-  again. On disk there are 282 named windows against the 265 in the map: 18 are new and one, the
-  faith creation window, is gone. The half that needs the running game - the offsets, the window
-  map, the calibration against a save - has not been run yet.
+- **Crusader Kings III 1.20 came out - 1.20.0.2 on 30 September 2026, the hotfix 1.20.0.3 a day
+  later - and the project has been checked against it, on disk and in the game.** The executable,
+  the gui set, the localisation, the titles and the shortcut file all moved, and every count in
+  `reports/claims.json` was taken again; the hotfix changed none of them. There are 282 named
+  windows, 18 new and the faith creation window gone, and the window map was laid again: 198 can be
+  made through the console and 17 open on a key. The nine field offsets did not move.
+- **The tree walk no longer drops a widget in silence.** It demanded that every widget be readable
+  up to the text field, and on 1.20.0.3 the decisions window sat 0x390 bytes before memory that does
+  not exist - so the window and its 526 widgets were missing from the tree while they were on the
+  screen. Only the vtable has to be readable now, every field is checked on its own anyway, and a
+  node that cannot be read is said out loud.
+- **The length of a character record is measured at every start.** It was written down as 464
+  bytes; on 1.20.0.3 a record is 472, and every record read at the old stride was somebody else's.
+- **A character carries its rite now, and the model reads that.** The faith follows from the rite.
+- **Where the game keeps the player is derived on two states,** keeping only the places both agree
+  on: one fresh state left 27 candidates, the second narrowed them to the six there were on 1.19.
 - **Faiths moved out of their religions in 1.20.** They are blocks of their own in
   common/religion/faith_types now, and `tools/ck3/database.py` reads that folder as well as the old
   nested form, which the mods written for 1.19 still use.
 - **The five content mods the measurements ran with are switched off.** 1.20.0.2 crashed while
-  loading with all five, each made for 1.19, and a project that has to survive patches should wait on
-  one publisher rather than six. The counts on disk are vanilla from here on; the harvest and the
-  saves made after 23 August 2026 still carry the mods.
+  loading with all five, each made for 1.19, and without them it reaches the main menu; a project that
+  has to survive patches should wait on one publisher rather than six. The saves made with the mods
+  are gone, five new states were made on 1.20 without them, and the harvest still dates from 1.19.
 - **An expansion still never takes a window away.** Expanded over all 282 windows, no window block
   carries an expansion check, while 39 carry a visibility condition of their own - which is what
   shows the check could have seen one.
-- The channel DLL is built with the Visual Studio 2026 Build Tools; same imports, not yet proven in
-  the game.
+- The channel DLL is built with the Visual Studio 2026 Build Tools and runs in the game.
 
 ## 2026-09-21
 

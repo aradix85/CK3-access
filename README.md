@@ -41,22 +41,21 @@ process and from files already on your disk.
 - **Where a county is, from the files alone.** Its neighbours out to three rings, the seas and
   rivers it touches, the de jure titles above it, and the distance, bearing and travel days to
   another one — no save, no running game.
-- **The game state is readable without searching:** any character's name, culture, faith, money and
+- **The game state is readable without searching:** any character's name, culture, rite, money and
   levies, and which number means which culture, faith, religion or trait, out of the running game
   rather than out of a save. A regression pass holds four hundred characters against the save and
   names the field that disagrees.
 
-All of this was measured on 1.19.0.6 with every DLC and five content mods loaded. Version 1.20.0.2
-came out on 30 September 2026; the checks that need no running game have been redone on it, the
-ones inside the game not yet. Every number behind it is
-in `reports/claims.json` with the rule it was counted by; `tools/check.py` recomputes them.
+All of this was first measured on 1.19.0.6 with every DLC and five content mods loaded, and measured
+again on 1.20.0.3 without mods on 1 October 2026: the files on disk, the field offsets, the window
+map, the game model and a live event. Every number behind it is in `reports/claims.json` with the rule it was counted by; `tools/check.py` recomputes them.
 
 Text recognition (`tools/ocr.py`, `tools/boxreader.py`) is a measuring instrument here, not the way
 the game gets read — it checks what comes out of memory against what is actually drawn.
 
 ## Requirements
 
-- Windows, Crusader Kings III (developed against **1.19.0.6**; 1.20.0.2 is being checked)
+- Windows, Crusader Kings III (developed against **1.19.0.6**, checked on **1.20.0.3**)
 - **NVDA.** No other screen reader is supported yet — see `CONTRIBUTING.md` if you can help test
   one. `tools/nvda/addon/` puts NVDA in sleep mode while the game has focus, so it neither talks
   over the tool nor holds the keys it needs; speech and braille still arrive.
