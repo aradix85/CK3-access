@@ -1,7 +1,7 @@
 [
  {
   "name": "size of ck3.exe",
-  "claimed": 95206008,
+  "claimed": 101039736,
   "measure": "bytes",
   "arguments": [
    "<game>\\binaries\\ck3.exe"
@@ -19,7 +19,7 @@
  },
  {
   "name": "RTTI type names according to memory.py",
-  "claimed": 48006,
+  "claimed": 51024,
   "measure": "type_names",
   "counting_rule": "memory.type_name_count() on the same exe; equal to check_rtti.ps1 since that script started deduplicating case sensitively on 30 July 2026"
  },
@@ -31,7 +31,7 @@
  },
  {
   "name": "gui files, game layer",
-  "claimed": 373,
+  "claimed": 416,
   "measure": "files",
   "arguments": [
    "<game>\\game\\gui",
@@ -73,17 +73,17 @@
  },
  {
   "name": "gui files in the game folder, total",
-  "claimed": 515,
+  "claimed": 558,
   "measure": "files",
   "arguments": [
    "<game>",
    "*.gui"
   ],
-  "counting_rule": "every file with the gui suffix under the game folder: 373 game layer, 49 engine layer, 92 jomini layer and one developer file for the tweaker; this count is not tied to a folder and therefore cannot go quietly too low"
+  "counting_rule": "every file with the gui suffix under the game folder: 416 game layer, 49 engine layer, 92 jomini layer and one developer file for the tweaker; this count is not tied to a folder and therefore cannot go quietly too low"
  },
  {
   "name": "English localization files",
-  "claimed": 1173,
+  "claimed": 1250,
   "measure": "files",
   "arguments": [
    "<game>\\game\\localization\\english",
@@ -91,14 +91,12 @@
   ],
   "counting_rule": "files with the yml suffix under localization\\english, all subfolders included",
   "quoted_in": [
-   "BRIEF.md",
-   "brief\\meetwerk.md",
-   "brief\\taken.md"
+   "BRIEF.md"
   ]
  },
  {
   "name": "lines in shortcuts.shortcuts",
-  "claimed": 1047,
+  "claimed": 1061,
   "measure": "lines",
   "arguments": [
    "<game>\\game\\gui\\shortcuts.shortcuts"
@@ -134,7 +132,7 @@
  },
  {
   "name": "00_landed_titles.txt",
-  "claimed": 1296625,
+  "claimed": 1315737,
   "measure": "bytes",
   "arguments": [
    "<game>\\game\\common\\landed_titles\\00_landed_titles.txt"
@@ -143,7 +141,7 @@
  },
  {
   "name": "channel.dll",
-  "claimed": 172032,
+  "claimed": 173056,
   "measure": "bytes",
   "arguments": [
    "<project>\\dll\\channel.dll"
@@ -246,13 +244,13 @@
  },
  {
   "name": "expansions on disk",
-  "claimed": 29,
+  "claimed": 30,
   "measure": "files",
   "arguments": [
    "<game>\\game\\dlc",
    "*.dlc"
   ],
-  "counting_rule": "one metadata file with the dlc suffix per expansion folder; all 29 are enabled, because disabled_dlcs in dlc_load.json is empty"
+  "counting_rule": "one metadata file with the dlc suffix per expansion folder; all 30 are enabled, because disabled_dlcs in dlc_load.json is empty"
  },
  {
   "name": "enabled mods",
@@ -360,16 +358,16 @@
  },
  {
   "name": "gui files as the engine sees them, vanilla",
-  "claimed": 494,
+  "claimed": 537,
   "measure": "gui_merged",
   "arguments": [
    false
   ],
-  "counting_rule": "the three layers merged on their shared virtual path, so a file the game layer replaces is counted once: 374 game, 71 jomini, 49 engine. Lower than the 515 counted on disk because 21 virtual paths exist in two layers"
+  "counting_rule": "the three layers merged on their shared virtual path, so a file the game layer replaces is counted once: 417 game, 71 jomini, 49 engine. Lower than the 558 counted on disk because 21 virtual paths exist in two layers"
  },
  {
   "name": "gui files as the engine sees them, with mods",
-  "claimed": 563,
+  "claimed": 606,
   "measure": "gui_merged",
   "arguments": [
    true
@@ -381,7 +379,7 @@
  },
  {
   "name": "global gui templates",
-  "claimed": 2774,
+  "claimed": 2972,
   "measure": "gui_templates",
   "arguments": [
    "global"
@@ -402,11 +400,10 @@
  },
  {
   "name": "windows with a name in the merged gui set",
-  "claimed": 265,
+  "claimed": 282,
   "measure": "gui_windows",
-  "counting_rule": "three shapes, one entry per name: a `window = { name = ... }` block at any depth; a block whose type resolves through its inheritance chain to `window` and which carries a name, at any depth; and a type definition that inherits from `window` and carries the name itself. The second shape came on 30 August 2026 and brought 22, among them the scheme conclusion events and the confirmation dialogs. The third came on 20 September 2026 with 40 more - the character filter, the ledger's filter, the situation participant lists - and on the same day the second was widened from top level to any depth, which brought the last 7: `window_character_filter = { name = \"vassal_filter_window\" }` sits inside the character window and the game builds it as a window of its own. It was 196 while only the first shape was read, and 218 before the third. **Stop adding shapes here and use `windowmap.unmapped`**, which asks the running game instead: the engine builds every window up front, so the live tree is the whole list. Measured that way on 20 September 2026 against the feudal, administrative and landless states: nothing built is missing from the map. windows.json was rebuilt from this count on 20 September 2026 and holds all 265, with the declaration shape per window",
+  "counting_rule": "three shapes, one entry per name: a `window = { name = ... }` block at any depth; a block whose type resolves through its inheritance chain to `window` and which carries a name, at any depth; and a type definition that inherits from `window` and carries the name itself. **Do not add shapes here; use `windowmap.unmapped`**, which asks the running game instead: the engine builds every window up front, so the live tree is the whole list. windows.json holds the 265 of 1.19.0.6, checked that way on 20 September 2026; 1.20.0.2 added 18 and removed faith_creation_window, and the map has not been rebuilt for it yet",
   "quoted_in": [
-   "CHANGELOG.md",
    "brief\\stand.md"
   ]
  },
@@ -475,21 +472,21 @@
  },
  {
   "name": "HasDlcFeature checks in the merged gui set",
-  "claimed": 45,
+  "claimed": 47,
   "measure": "gui_dlc",
   "arguments": [
    "checks"
   ],
-  "counting_rule": "every HasDlcFeature('x') in the 563 merged files, counted by text. All 45 sit on the visible of a widget: expanded over all 196 windows on 27 August 2026, not one window block carries such a check, so an expansion never takes a window away from a tester, only parts inside one"
+  "counting_rule": "every HasDlcFeature('x') in the merged files, counted by text. None of them sits on a window block: expanded over all 282 windows on 1 October 2026, on 1.20.0.2, not one window block carries such a check while 39 carry a visible of their own, so an expansion never takes a window away from a tester, only parts inside one"
  },
  {
   "name": "distinct expansion features the gui set gates on",
-  "claimed": 13,
+  "claimed": 14,
   "measure": "gui_dlc",
   "arguments": [
    "features"
   ],
-  "counting_rule": "distinct names inside those calls, by text over the files. Eleven of the thirteen are reachable from the expansion of a named window; admin_gov sits in the bookmark screen and court_room_view in the hud, neither of which is a window in the map. all_under_heaven reaches 114 of the 117 affected windows through three shared portrait templates and hides one status icon; the other ten touch one to five windows each. Feature names match expansion titles - all_under_heaven is All Under Heaven, dlc022_ep4 - but most are named for the feature and not the expansion, so that mapping is not derivable from disk"
+  "counting_rule": "distinct names inside those calls, by text over the files. Twelve of the fourteen are reachable from the expansion of a named window, measured 1 October 2026 on 1.20.0.2; all_under_heaven reaches 147 of the 150 windows that touch a feature, the others one to five each. Feature names match expansion titles - all_under_heaven is All Under Heaven, dlc022_ep4 - but most are named for the feature and not the expansion, so that mapping is not derivable from disk"
  },
  {
   "name": "cultures the engine loads",
@@ -516,13 +513,13 @@
  },
  {
   "name": "faiths the engine loads",
-  "claimed": 237,
+  "claimed": 200,
   "measure": "database_entries",
   "arguments": [
    "faith",
    "keys"
   ],
-  "counting_rule": "a faith is not a top-level key: it hangs inside a religion under `faiths`, in common/religion/religion_types, and there is no `religions` folder at all. A line reader looking at column zero finds none of them. 140 without the mods",
+  "counting_rule": "since 1.20.0.2 a faith is a top-level key in common/religion/faith_types; mods written for 1.19 still hang theirs inside a religion under `faiths`, in common/religion/religion_types, and both places are counted. 103 without the mods. Whether 1.20 still loads the nested form is a question for the running game",
   "quoted_in": [
    "brief\\stand.md"
   ]
@@ -651,7 +648,7 @@
  },
  {
   "name": "titles in landed_titles",
-  "claimed": 17620,
+  "claimed": 17841,
   "measure": "map_layer",
   "arguments": [
    "titles"
@@ -660,7 +657,7 @@
  },
  {
   "name": "titles that name a capital",
-  "claimed": 2804,
+  "claimed": 3025,
   "measure": "map_layer",
   "arguments": [
    "capitals"
@@ -672,7 +669,7 @@
  },
  {
   "name": "titles that resolve to a county",
-  "claimed": 17577,
+  "claimed": 17798,
   "measure": "map_layer",
   "arguments": [
    "placed"
@@ -681,7 +678,7 @@
  },
  {
   "name": "key bindings in shortcuts.shortcuts",
-  "claimed": 909,
+  "claimed": 921,
   "measure": "shortcuts",
   "arguments": [
    "bindings"
@@ -690,7 +687,7 @@
  },
  {
   "name": "named game actions with a shortcut",
-  "claimed": 229,
+  "claimed": 241,
   "measure": "shortcuts",
   "arguments": [
    "named"
@@ -708,7 +705,7 @@
  },
  {
   "name": "shortcuts that need a modifier",
-  "claimed": 110,
+  "claimed": 122,
   "measure": "shortcuts",
   "arguments": [
    "modified"
@@ -717,7 +714,7 @@
  },
  {
   "name": "shortcuts a widget declares",
-  "claimed": 161,
+  "claimed": 173,
   "measure": "shortcut_words",
   "arguments": [
    "declared"
@@ -726,7 +723,7 @@
  },
  {
   "name": "shortcuts that resolve to a sentence on disk",
-  "claimed": 92,
+  "claimed": 97,
   "measure": "shortcut_words",
   "arguments": [
    "worded"
