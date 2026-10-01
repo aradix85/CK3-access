@@ -1,7 +1,7 @@
 r"""The character record laid out: which offset carries what, derived rather than written down.
 
 There are two kinds of field and they need different treatment. A **scalar** sits in the record
-itself - culture, faith, the dynasty house, the name. An **indirect** field sits in a block the
+itself - culture, rite, the dynasty house, the name. An **indirect** field sits in a block the
 record points at: money in one, everything about levies and holdings in another. Both are derived
 here against a save, and both are checked at every start without one.
 
@@ -49,7 +49,10 @@ STRING_IN_PLACE = 15
 # the character's save entry; the memory side is what this module derives.
 WANTED = [
     ('culture', 'record', None),
-    ('faith', 'record', None),
+    # Since 1.20 a character carries its rite, and the faith follows from the rite: the save of
+    # 1.19.0.6 wrote faith=10 for the player of 867, the same character written by 1.20.0.3 has
+    # rite=64 and no faith at all - measured 1 October 2026.
+    ('rite', 'record', None),
     ('dynasty_house', 'record', None),
     ('gold', 'alive', ('gold', 'value')),
     ('piety', 'alive', ('piety', 'currency')),
