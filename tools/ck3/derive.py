@@ -179,12 +179,19 @@ def widgets(root):
     which of two drawn widgets lies on top. Nothing else records it: the parent offset says who the
     parent is, never in which place. Rebuild children from this dict and do not sort them.
     """
-    nodes = {}
+    nodes, unreadable = {}, []
     for line in channel.ask('tree %x' % root, timeout=60).split('\n'):
         d = line.split('\t')
         if d[0] == 'w':
             nodes[int(d[1], 16)] = (int(d[2], 16), float(d[3]), float(d[4]), float(d[5]),
                                     float(d[6]), int(d[7], 16), d[8], d[9])
+        elif d[0] == 'unreadable':
+            unreadable.append(d[1])
+    # A node the channel could not read takes its whole subtree with it, so say so: on 1.20.0.3 a
+    # walk that skipped such nodes in silence lost the decisions window and its 526 widgets.
+    if unreadable:
+        print('tree from %x: %d nodes could not be read, their subtrees are missing: %s'
+              % (root, len(unreadable), ' '.join(unreadable[:5])), file=sys.stderr, flush=True)
     return nodes
 
 
