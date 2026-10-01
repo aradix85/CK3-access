@@ -250,23 +250,14 @@
   "counting_rule": "one metadata file with the dlc suffix per expansion folder; all 30 are enabled, because disabled_dlcs in dlc_load.json is empty"
  },
  {
-  "name": "enabled mods",
+  "name": "mod descriptors left in the mod folder",
   "claimed": 5,
   "measure": "files",
   "arguments": [
    "<documents>\\mod",
    "*.mod"
   ],
-  "counting_rule": "reference files in the mod folder, each pointing at a workshop folder; dlc_load.json names the same five"
- },
- {
-  "name": "game state in the Nobatia save",
-  "claimed": 86.2,
-  "measure": "gamestate_mb",
-  "arguments": [
-   "<documents>\\save games\\Duke_Marianos_of_Nobatia_1067_11_23.ck3"
-  ],
-  "counting_rule": "unpacked size of gamestate in MB to one decimal; made 23 August 2026 with five mods and every expansion, against 60.7 and 56.7 for the two vanilla saves"
+  "counting_rule": "reference files in the mod folder. The five mods are switched off and unsubscribed since 1 October 2026, so these point at workshop folders Steam has removed, and dlc_load.json names none"
  },
  {
   "name": "gui files in the Steam Workshop folder of the game",
@@ -528,9 +519,9 @@
   "arguments": [
    "culture",
    "numbered",
-   "<documents>\\save games\\Duke_Marianos_of_Nobatia_1067_11_23.ck3"
+   "<documents>\\save games\\Duke_Vratislav_II_of_Bohemia_1066_09_15.ck3"
   ],
-  "counting_rule": "the save of 1067-11-23, made with the five mods of before 1 October 2026, carries the engine's own numbering, and for cultures it is exactly the file order. With the mods off the files hold the 244 vanilla cultures, and all 244 agree with the save. On 1.19.0.6 with the mods this did not hold for the other databases: 78 of 237 faiths, 36 of 94 religions, 301 of 342 traits, so the numbering is read from the running game and not derived from disk. The save is named here rather than left to whichever is newest"
+  "counting_rule": "the vanilla save of 1066-09-15 carries the engine's own numbering, and for cultures it is exactly the file order. On 1.19.0.6, against a save made with the five mods of that time, this did not hold for the other databases: 78 of 237 faiths, 36 of 94 religions, 301 of 342 traits, so the numbering is read from the running game and not derived from disk. The save is named here rather than left to whichever is newest"
  },
  {
   "name": "harvested texts the gui files do not predict",
