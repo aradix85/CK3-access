@@ -571,9 +571,21 @@ def derive_player(pid, number):
         raise SystemExit('no place in the module holds %d; either this is not the player of the '
                          'state that is loaded, or the game keeps him somewhere else now' % number)
     model = json.load(open(MODEL, encoding='utf-8'))
+    # One state leaves coincidences in: on 1.20.0.3 the 1066 player, 32769, sat in 27 places and the
+    # 867 player in 8, and only 6 held both. So a second derivation on the same build keeps the
+    # places both states agree on, and says which characters it rests on.
+    earlier = (model.get('player_spots') if model.get('key') == derive.build_key() else None) or []
+    if earlier:
+        both = sorted(set(spots) & {int(spot, 16) for spot in earlier})
+        if not both:
+            raise SystemExit('no place held the player in this state and in the one before; '
+                             'the player is kept somewhere else, or one of the two was not loaded')
+        spots = both
     model['key'] = derive.build_key()
     model['player_spots'] = ['%x' % spot for spot in sorted(spots)]
-    model['player_derived_on'] = time.strftime('%Y-%m-%d %H:%M') + ' against character %d' % number
+    model['player_derived_on'] = time.strftime('%Y-%m-%d %H:%M') + ' against character %d' % number \
+        + (', keeping the places that also held the player before (%s)'
+           % model.get('player_derived_on', '?') if earlier else '')
     _store(model)
     return sorted(spots)
 
