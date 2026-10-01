@@ -1,6 +1,6 @@
 {
  "exe": "101039736-1790866162",
- "measured": "2026-10-01 18:26",
+ "measured": "2026-10-01 20:29",
  "windows": {
   "JominiJoinServerDialog": {
    "console": false,
@@ -26,7 +26,7 @@
    "file": "gui/jomini/music_player/music_player_view.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.5,
    "shape": "top level",
    "shortcut": null
   },
@@ -46,7 +46,7 @@
    "file": "gui/window_accolade_attribute_selection.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -58,7 +58,7 @@
    "file": "gui/window_accolade.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -70,7 +70,7 @@
    "file": "gui/achievements/popup.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.3,
    "shape": "top level",
    "shortcut": null
   },
@@ -82,7 +82,7 @@
    "file": "gui/achievements/jomini_achievements_window.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.3,
    "shape": "top level",
    "shortcut": null
   },
@@ -94,7 +94,7 @@
    "file": "gui/window_activity_guest_list.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.5,
    "shape": "top level",
    "shortcut": null
   },
@@ -104,9 +104,9 @@
    "created": true,
    "drawn": true,
    "file": "gui/window_activity_intent_selection.gui",
-   "message": "",
+   "message": "[20:06:07][E][jomini_script_system.cpp:304]: Script system error! | Error: scope:recipient.rite trigger [ Failed context switch ] | ript location: file: common/scripted_modifiers/00_character_interaction_modifiers.txt line: 1209 (negotiate_alliance_interaction_ai_acceptance[hash#2672664314]) | file: common/character_interactions/00_alliance.txt line: 1513 (negotiate_alliance_interaction:ai_accept)",
    "nodes_added": 2,
-   "seconds": 7.8,
+   "seconds": 9.0,
    "shape": "top level",
    "shortcut": null
   },
@@ -118,7 +118,7 @@
    "file": "gui/window_activity_list.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 9.2,
    "shape": "top level",
    "shortcut": "F9"
   },
@@ -128,9 +128,9 @@
    "created": true,
    "drawn": true,
    "file": "gui/window_activity_list.gui",
-   "message": "",
+   "message": "[20:06:26][E][jomini_script_system.cpp:304]: Script system error! | Error: scope:recipient.rite trigger [ Failed context switch ] | ript location: file: common/scripted_modifiers/00_character_interaction_modifiers.txt line: 1209 (negotiate_alliance_interaction_ai_acceptance[hash#2672664314]) | file: common/character_interactions/00_alliance.txt line: 1513 (negotiate_alliance_interaction:ai_accept)",
    "nodes_added": 2,
-   "seconds": 8.0,
+   "seconds": 8.5,
    "shape": "top level",
    "shortcut": null
   },
@@ -142,7 +142,7 @@
    "file": "gui/window_activity_list.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 8.1,
+   "seconds": 7.8,
    "shape": "top level",
    "shortcut": null
   },
@@ -154,7 +154,7 @@
    "file": "gui/window_activity_locale.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 8.0,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -166,7 +166,7 @@
    "file": "gui/window_activity_log.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.9,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -193,8 +193,8 @@
    "drawn": false,
    "file": "gui/window_activity_planner.gui",
    "message": "",
-   "nodes_added": 4,
-   "seconds": 8.0,
+   "nodes_added": 2,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -206,7 +206,7 @@
    "file": "gui/window_activity.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.9,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -226,7 +226,7 @@
    "file": "gui/window_add_tradition.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.9,
+   "seconds": 7.3,
    "shape": "top level",
    "shortcut": null
   },
@@ -236,9 +236,9 @@
    "created": true,
    "drawn": true,
    "file": "gui/window_admin_vassal_detail.gui",
-   "message": "",
-   "nodes_added": 0,
-   "seconds": 8.0,
+   "message": "[20:07:19][E][jomini_script_system.cpp:304]: Script system error! | Error: scope:recipient.rite trigger [ Failed context switch ] | ript location: file: common/scripted_modifiers/00_character_interaction_modifiers.txt line: 1209 (negotiate_alliance_interaction_ai_acceptance[hash#2672664314]) | file: common/character_interactions/00_alliance.txt line: 1513 (negotiate_alliance_interaction:ai_accept)",
+   "nodes_added": 2,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -250,7 +250,7 @@
    "file": "gui/debug/ai_war_coordinator_watch_window.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 8.1,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -262,7 +262,7 @@
    "file": "gui/debug/window_watch_ai.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 8.0,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -274,7 +274,7 @@
    "file": "gui/debug/animation_test_window.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 8.0,
+   "seconds": 7.3,
    "shape": "top level",
    "shortcut": null
   },
@@ -286,7 +286,7 @@
    "file": "gui/event_windows/anonymous_letter_event.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 8.0,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -306,7 +306,7 @@
    "file": "gui/window_court_position_appoint.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 8.7,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -324,9 +324,9 @@
    "created": true,
    "drawn": true,
    "file": "gui/window_army_automation_options.gui",
-   "message": "[18:03:50][E][jomini_script_system.cpp:304]: Script system error! | Error: rite_hostility_level trigger [ target rite was null ] | Script location: file: common/scripted_triggers/00_religious_triggers.txt line: 1016 (is_hostile_enough_for_holy_war_trigger[args#607331762]) | file: common/scripted_triggers/00_religious_triggers.txt line: 1025 (is_valid_religious_war_target_trigger[args#375047457]) |",
+   "message": "",
    "nodes_added": 2,
-   "seconds": 7.9,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -336,9 +336,9 @@
    "created": true,
    "drawn": true,
    "file": "gui/window_army.gui",
-   "message": "",
+   "message": "[20:08:09][E][jomini_script_system.cpp:304]: Script system error! | Error: scope:recipient.rite trigger [ Failed context switch ] | ript location: file: common/scripted_modifiers/00_character_interaction_modifiers.txt line: 1209 (negotiate_alliance_interaction_ai_acceptance[hash#2672664314]) | file: common/character_interactions/00_alliance.txt line: 1513 (negotiate_alliance_interaction:ai_accept)",
    "nodes_added": 2,
-   "seconds": 7.9,
+   "seconds": 7.3,
    "shape": "top level",
    "shortcut": null
   },
@@ -350,7 +350,7 @@
    "file": "gui/window_army.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -360,9 +360,9 @@
    "created": true,
    "drawn": true,
    "file": "gui/window_artifact_details.gui",
-   "message": "[18:04:12][E][jomini_script_system.cpp:304]: Script system error! | Error: rite_hostility_level trigger [ target rite was null ] | Script location: file: common/scripted_triggers/00_religious_triggers.txt line: 1016 (is_hostile_enough_for_holy_war_trigger[args#607331762]) | file: common/scripted_triggers/00_religious_triggers.txt line: 1025 (is_valid_religious_war_target_trigger[args#375047457]) |",
+   "message": "",
    "nodes_added": 2,
-   "seconds": 8.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -382,7 +382,7 @@
    "file": "gui/window_army.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 10.6,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -394,7 +394,7 @@
    "file": "gui/window_barter.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 8.0,
+   "seconds": 7.3,
    "shape": "top level",
    "shortcut": null
   },
@@ -438,7 +438,7 @@
    "file": "gui/window_battle_summary.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.8,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -458,7 +458,7 @@
    "file": "gui/interaction_blackmail.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -468,9 +468,9 @@
    "created": true,
    "drawn": true,
    "file": "gui/interaction_call_ally_notification_window.gui",
-   "message": "",
+   "message": "[20:08:59][E][jomini_script_system.cpp:304]: Script system error! | Error: scope:recipient.rite trigger [ Failed context switch ] | ript location: file: common/scripted_modifiers/00_character_interaction_modifiers.txt line: 1209 (negotiate_alliance_interaction_ai_acceptance[hash#2672664314]) | file: common/character_interactions/00_alliance.txt line: 1513 (negotiate_alliance_interaction:ai_accept)",
    "nodes_added": 2,
-   "seconds": 7.8,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -482,7 +482,7 @@
    "file": "gui/interaction_call_ally.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 8.2,
+   "seconds": 7.3,
    "shape": "top level",
    "shortcut": null
   },
@@ -494,7 +494,7 @@
    "file": "gui/window_cardinals.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 8.0,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -522,7 +522,7 @@
    "file": "gui/window_court_types.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -534,7 +534,7 @@
    "file": "gui/window_ghw_change_target.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -550,11 +550,11 @@
    "cleaned_up": true,
    "console": true,
    "created": true,
-   "drawn": true,
+   "drawn": false,
    "file": "gui/event_windows/character_event.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.8,
+   "seconds": 7.3,
    "shape": "top level",
    "shortcut": null
   },
@@ -582,7 +582,7 @@
    "file": "gui/window_character_finder.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.8,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": "C"
   },
@@ -592,9 +592,9 @@
    "created": true,
    "drawn": true,
    "file": "gui/window_character_focus.gui",
-   "message": "",
+   "message": "[20:09:49][E][jomini_script_system.cpp:304]: Script system error! | Error: scope:recipient.rite trigger [ Failed context switch ] | ript location: file: common/scripted_modifiers/00_character_interaction_modifiers.txt line: 1209 (negotiate_alliance_interaction_ai_acceptance[hash#2672664314]) | file: common/character_interactions/00_alliance.txt line: 1513 (negotiate_alliance_interaction:ai_accept)",
    "nodes_added": 2,
-   "seconds": 7.8,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -606,7 +606,7 @@
    "file": "gui/interaction_confirmation.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.8,
+   "seconds": 7.3,
    "shape": "top level",
    "shortcut": null
   },
@@ -618,7 +618,7 @@
    "file": "gui/interaction_menu_window.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.3,
    "shape": "top level",
    "shortcut": null
   },
@@ -630,7 +630,7 @@
    "file": "gui/interaction_notification_window.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.4,
    "shape": "top level",
    "shortcut": null
   },
@@ -642,7 +642,7 @@
    "file": "gui/window_character_lifestyle.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.8,
+   "seconds": 7.3,
    "shape": "top level",
    "shortcut": null
   },
@@ -662,7 +662,7 @@
    "file": "gui/debug/window_watch_character_pool.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 8.1,
+   "seconds": 7.3,
    "shape": "top level",
    "shortcut": null
   },
@@ -672,9 +672,9 @@
    "created": true,
    "drawn": true,
    "file": "gui/window_character.gui",
-   "message": "[18:06:37][E][virtualfilesystem.cpp:495]: Could not find texture due to 'VFSOpen Error: gfx/interface/icons/faith/.dds not found' | [18:06:37][E][virtualfilesystem.cpp:495]: Could not find texture due to 'VFSOpen Error: gfx/interface/icons/faith/.dds not found' | [18:06:37][E][virtualfilesystem.cpp:495]: Could not find texture due to 'VFSOpen Error: gfx/interface/icons/faith/.dds not found' | [18:",
+   "message": "[20:10:33][E][virtualfilesystem.cpp:495]: Could not find texture due to 'VFSOpen Error: gfx/interface/icons/faith/.dds not found' | [20:10:33][E][virtualfilesystem.cpp:495]: Could not find texture due to 'VFSOpen Error: gfx/interface/icons/faith/.dds not found' | [20:10:33][E][virtualfilesystem.cpp:495]: Could not find texture due to 'VFSOpen Error: gfx/interface/icons/faith/.dds not found' | [20:",
    "nodes_added": 2,
-   "seconds": 8.9,
+   "seconds": 7.3,
    "shape": "top level",
    "shortcut": "F1"
   },
@@ -700,9 +700,9 @@
    "created": true,
    "drawn": true,
    "file": "gui/window_title_claimants.gui",
-   "message": "",
+   "message": "[20:10:41][E][jomini_script_system.cpp:304]: Script system error! | Error: scope:recipient.rite trigger [ Failed context switch ] | ript location: file: common/scripted_modifiers/00_character_interaction_modifiers.txt line: 1209 (negotiate_alliance_interaction_ai_acceptance[hash#2672664314]) | file: common/character_interactions/00_alliance.txt line: 1513 (negotiate_alliance_interaction:ai_accept)",
    "nodes_added": 2,
-   "seconds": 8.3,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -730,7 +730,7 @@
    "file": "gui/window_combat.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 8.0,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -742,7 +742,7 @@
    "file": "gui/debug/window_component_library.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.9,
+   "seconds": 7.3,
    "shape": "top level",
    "shortcut": null
   },
@@ -762,7 +762,7 @@
    "file": "gui/interaction_concubine.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 8.1,
+   "seconds": 7.3,
    "shape": "top level",
    "shortcut": null
   },
@@ -774,7 +774,7 @@
    "file": "gui/window_confederation.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 8.1,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -786,7 +786,7 @@
    "file": "gui/interaction_council_task.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 8.0,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -798,7 +798,7 @@
    "file": "gui/window_council.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 8.4,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": "F4"
   },
@@ -826,7 +826,7 @@
    "file": "gui/interaction_court_task.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.8,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -838,7 +838,7 @@
    "file": "gui/window_court.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 8.4,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": "F5"
   },
@@ -850,7 +850,7 @@
    "file": "gui/window_create_accolade.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -862,7 +862,7 @@
    "file": "gui/interaction_create_claimant_faction.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 8.4,
+   "seconds": 7.3,
    "shape": "top level",
    "shortcut": null
   },
@@ -874,7 +874,7 @@
    "file": "gui/interaction_create_claimant_faction.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.3,
    "shape": "top level",
    "shortcut": null
   },
@@ -892,9 +892,9 @@
    "created": true,
    "drawn": true,
    "file": "gui/window_culture.gui",
-   "message": "",
-   "nodes_added": 2,
-   "seconds": 7.7,
+   "message": "[20:12:07][E][jomini_script_system.cpp:304]: Script system error! | Error: scope:recipient.rite trigger [ Failed context switch ] | ript location: file: common/scripted_modifiers/00_character_interaction_modifiers.txt line: 1209 (negotiate_alliance_interaction_ai_acceptance[hash#2672664314]) | file: common/character_interactions/00_alliance.txt line: 1513 (negotiate_alliance_interaction:ai_accept)",
+   "nodes_added": 4,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -922,7 +922,7 @@
    "file": "gui/debug/debug_tutorial_window.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.8,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -933,8 +933,8 @@
    "drawn": true,
    "file": "gui/window_decisions_detail.gui",
    "message": "",
-   "nodes_added": 2,
-   "seconds": 7.7,
+   "nodes_added": 0,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -946,9 +946,9 @@
    "file": "gui/window_decisions.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.2,
    "shape": "top level",
-   "shortcut": null
+   "shortcut": "F8"
   },
   "declare_war_window": {
    "cleaned_up": true,
@@ -958,7 +958,7 @@
    "file": "gui/interaction_declare_war.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -978,7 +978,7 @@
    "file": "gui/window_succession_designate_heir.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -990,7 +990,7 @@
    "file": "gui/window_diarchy.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.6,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -1002,7 +1002,7 @@
    "file": "gui/window_diverge_culture.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.3,
    "shape": "top level",
    "shortcut": null
   },
@@ -1014,7 +1014,7 @@
    "file": "gui/window_dlc_info.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.6,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -1026,7 +1026,7 @@
    "file": "gui/window_domicile.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.0,
    "shape": "top level",
    "shortcut": null
   },
@@ -1038,7 +1038,7 @@
    "file": "gui/event_windows/duel_event.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -1066,7 +1066,7 @@
    "file": "gui/dynasty_customization_window.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.8,
+   "seconds": 7.3,
    "shape": "top level",
    "shortcut": null
   },
@@ -1078,7 +1078,7 @@
    "file": "gui/dynasty_house_customization_window.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -1090,7 +1090,7 @@
    "file": "gui/window_dynasty_house_members.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -1102,7 +1102,7 @@
    "file": "gui/window_dynasty_house.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.6,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -1114,7 +1114,7 @@
    "file": "gui/window_dynasty_legacy.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -1134,7 +1134,7 @@
    "file": "gui/window_dynasty_tree.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -1154,7 +1154,7 @@
    "file": "gui/debug/debug_menus.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -1166,7 +1166,7 @@
    "file": "gui/window_epidemics.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": "P"
   },
@@ -1176,9 +1176,9 @@
    "created": true,
    "drawn": true,
    "file": "gui/window_factions.gui",
-   "message": "",
+   "message": "[20:14:22][E][jomini_script_system.cpp:304]: Script system error! | Error: scope:recipient.rite trigger [ Failed context switch ] | ript location: file: common/scripted_modifiers/00_character_interaction_modifiers.txt line: 1209 (negotiate_alliance_interaction_ai_acceptance[hash#2672664314]) | file: common/character_interactions/00_alliance.txt line: 1513 (negotiate_alliance_interaction:ai_accept)",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.3,
    "shape": "top level",
    "shortcut": "F7"
   },
@@ -1190,7 +1190,7 @@
    "file": "gui/window_faith_conversion.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -1202,7 +1202,7 @@
    "file": "gui/window_faith.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.0,
    "shape": "top level",
    "shortcut": null
   },
@@ -1222,7 +1222,7 @@
    "file": "gui/window_find_title.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": "V"
   },
@@ -1234,7 +1234,7 @@
    "file": "gui/window_find_vassal.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.3,
    "shape": "top level",
    "shortcut": null
   },
@@ -1246,7 +1246,7 @@
    "file": "gui/debug/debug_menus.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -1266,7 +1266,7 @@
    "file": "gui/event_windows/fullscreen_event.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.0,
    "shape": "top level",
    "shortcut": null
   },
@@ -1276,9 +1276,9 @@
    "created": true,
    "drawn": true,
    "file": "gui/game_rules.gui",
-   "message": "",
+   "message": "[20:15:13][E][jomini_script_system.cpp:304]: Script system error! | Error: scope:recipient.rite trigger [ Failed context switch ] | ript location: file: common/scripted_modifiers/00_character_interaction_modifiers.txt line: 1209 (negotiate_alliance_interaction_ai_acceptance[hash#2672664314]) | file: common/character_interactions/00_alliance.txt line: 1513 (negotiate_alliance_interaction:ai_accept)",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -1298,7 +1298,7 @@
    "file": "gui/window_geographical_regions.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -1310,7 +1310,7 @@
    "file": "gui/window_government_administration.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -1322,7 +1322,7 @@
    "file": "gui/interaction_grant_titles.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.0,
    "shape": "top level",
    "shortcut": null
   },
@@ -1342,7 +1342,7 @@
    "file": "gui/window_ghw.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -1354,7 +1354,7 @@
    "file": "gui/window_great_project.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.3,
    "shape": "top level",
    "shortcut": null
   },
@@ -1374,7 +1374,7 @@
    "file": "gui/window_hired_troops_detail.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -1384,9 +1384,9 @@
    "created": true,
    "drawn": false,
    "file": "gui/window_county_view.gui",
-   "message": "",
+   "message": "[20:16:03][E][jomini_script_system.cpp:304]: Script system error! | Error: scope:recipient.rite trigger [ Failed context switch ] | ript location: file: common/scripted_modifiers/00_character_interaction_modifiers.txt line: 1209 (negotiate_alliance_interaction_ai_acceptance[hash#2672664314]) | file: common/character_interactions/00_alliance.txt line: 1513 (negotiate_alliance_interaction:ai_accept)",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -1398,7 +1398,7 @@
    "file": "gui/window_county_view.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -1410,7 +1410,7 @@
    "file": "gui/window_county_view.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -1422,7 +1422,7 @@
    "file": "gui/window_holy_site_creation.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -1434,7 +1434,7 @@
    "file": "gui/window_holy_site.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -1454,7 +1454,7 @@
    "file": "gui/window_hybridize_culture.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -1466,7 +1466,7 @@
    "file": "gui/frontend_ingame_menu.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -1478,7 +1478,7 @@
    "file": "gui/frontend_ingame_menu.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -1490,7 +1490,7 @@
    "file": "gui/window_resign_confirmation.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.0,
    "shape": "top level",
    "shortcut": null
   },
@@ -1502,7 +1502,7 @@
    "file": "gui/interaction_interfere_in_war_notification.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 8.9,
    "shape": "top level",
    "shortcut": null
   },
@@ -1514,7 +1514,7 @@
    "file": "gui/interaction_interfere_in_war.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 15.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -1525,8 +1525,8 @@
    "drawn": true,
    "file": "gui/window_intrigue.gui",
    "message": "",
-   "nodes_added": 2,
-   "seconds": 7.7,
+   "nodes_added": 4,
+   "seconds": 14.3,
    "shape": "top level",
    "shortcut": "F6"
   },
@@ -1538,7 +1538,7 @@
    "file": "gui/window_inventory.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.8,
+   "seconds": 9.3,
    "shape": "top level",
    "shortcut": null
   },
@@ -1549,8 +1549,8 @@
    "drawn": true,
    "file": "gui/jomini/encyclopedia/jomini_encyclopedia.gui",
    "message": "",
-   "nodes_added": 2,
-   "seconds": 7.7,
+   "nodes_added": 0,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": "F10"
   },
@@ -1562,7 +1562,7 @@
    "file": "gui/notifications/jomini_message.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.0,
    "shape": "top level",
    "shortcut": null
   },
@@ -1606,7 +1606,7 @@
    "file": "gui/window_knights.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.0,
    "shape": "top level",
    "shortcut": null
   },
@@ -1618,7 +1618,7 @@
    "file": "gui/window_languages.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -1638,7 +1638,7 @@
    "file": "gui/window_lease_out_baronies.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -1658,7 +1658,7 @@
    "file": "gui/window_ledger.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.8,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -1678,7 +1678,7 @@
    "file": "gui/window_legend_chronicle.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -1690,7 +1690,7 @@
    "file": "gui/window_legend_creation.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -1702,7 +1702,7 @@
    "file": "gui/window_legends.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": "L"
   },
@@ -1714,7 +1714,7 @@
    "file": "gui/event_windows/letter_event.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.0,
    "shape": "top level",
    "shortcut": null
   },
@@ -1726,7 +1726,7 @@
    "file": "gui/window_levy.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.6,
+   "seconds": 7.0,
    "shape": "top level",
    "shortcut": null
   },
@@ -1738,7 +1738,7 @@
    "file": "gui/window_lineage.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -1750,7 +1750,7 @@
    "file": "gui/window_ruler_designer_load.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -1778,7 +1778,7 @@
    "file": "gui/frontend_mp_game_setup.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -1790,7 +1790,7 @@
    "file": "gui/debug/debug_menus.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.6,
+   "seconds": 7.0,
    "shape": "top level",
    "shortcut": null
   },
@@ -1802,7 +1802,7 @@
    "file": "gui/interaction_marriage_notification_window.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.8,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -1814,7 +1814,7 @@
    "file": "gui/interaction_marriage.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.9,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -1826,7 +1826,7 @@
    "file": "gui/window_memories.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 8.1,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -1838,7 +1838,7 @@
    "file": "gui/window_menatarms.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.6,
+   "seconds": 7.0,
    "shape": "top level",
    "shortcut": null
   },
@@ -1848,9 +1848,9 @@
    "created": true,
    "drawn": true,
    "file": "gui/window_menatarms_type_view.gui",
-   "message": "",
+   "message": "[20:20:10][E][jomini_script_system.cpp:304]: Script system error! | Error: scope:recipient.rite trigger [ Failed context switch ] | ript location: file: common/scripted_modifiers/00_character_interaction_modifiers.txt line: 1209 (negotiate_alliance_interaction_ai_acceptance[hash#2672664314]) | file: common/character_interactions/00_alliance.txt line: 1513 (negotiate_alliance_interaction:ai_accept)",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -1878,7 +1878,7 @@
    "file": "gui/window_military.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.6,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": "F3"
   },
@@ -1890,7 +1890,7 @@
    "file": "gui/interaction_modify_vassal_window.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -1918,7 +1918,7 @@
    "file": "gui/window_my_realm.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.0,
    "shape": "top level",
    "shortcut": "F2"
   },
@@ -1938,7 +1938,7 @@
    "file": "gui/window_organization.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -1950,7 +1950,7 @@
    "file": "gui/window_plan_great_project.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -1970,7 +1970,7 @@
    "file": "gui/window_intrigue_potential_scheme_agent.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.0,
    "shape": "top level",
    "shortcut": null
   },
@@ -1982,7 +1982,7 @@
    "file": "gui/window_council_potential_councillor.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.0,
    "shape": "top level",
    "shortcut": null
   },
@@ -1994,7 +1994,7 @@
    "file": "gui/window_intrigue_potential_faction_member.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -2006,7 +2006,7 @@
    "file": "gui/window_potential_great_project_contributors.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -2026,7 +2026,7 @@
    "file": "gui/window_raid_intent_selection.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -2038,7 +2038,7 @@
    "file": "gui/window_raid.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.0,
    "shape": "top level",
    "shortcut": null
   },
@@ -2050,7 +2050,7 @@
    "file": "gui/window_rally_points.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.6,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -2060,9 +2060,9 @@
    "created": true,
    "drawn": true,
    "file": "gui/window_artifact_reforge.gui",
-   "message": "[18:18:23][E][jomini_script_system.cpp:304]: Script system error! | Error: rite_hostility_level trigger [ target rite was null ] | Script location: file: common/scripted_triggers/00_religious_triggers.txt line: 1016 (is_hostile_enough_for_holy_war_trigger[args#607331762]) | file: common/scripted_triggers/00_religious_triggers.txt line: 1025 (is_valid_religious_war_target_trigger[args#375047457]) |",
+   "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -2096,9 +2096,9 @@
    "created": true,
    "drawn": true,
    "file": "gui/window_replace_pillar.gui",
-   "message": "",
+   "message": "[20:21:50][E][jomini_script_system.cpp:304]: Script system error! | Error: scope:recipient.rite trigger [ Failed context switch ] | ript location: file: common/scripted_modifiers/00_character_interaction_modifiers.txt line: 1209 (negotiate_alliance_interaction_ai_acceptance[hash#2672664314]) | file: common/character_interactions/00_alliance.txt line: 1513 (negotiate_alliance_interaction:ai_accept)",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -2110,7 +2110,7 @@
    "file": "gui/interaction_revoke_title.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.6,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -2122,7 +2122,7 @@
    "file": "gui/window_rite_creation.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -2142,7 +2142,7 @@
    "file": "gui/window_royal_court.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.3,
    "shape": "top level",
    "shortcut": null
   },
@@ -2154,7 +2154,7 @@
    "file": "gui/window_ruler_designer.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -2166,7 +2166,7 @@
    "file": "gui/window_save_game.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.6,
+   "seconds": 7.0,
    "shape": "top level",
    "shortcut": null
   },
@@ -2178,7 +2178,7 @@
    "file": "gui/window_ruler_designer_save.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -2204,9 +2204,9 @@
    "created": true,
    "drawn": true,
    "file": "gui/event_windows/scheme_preparations_event.gui",
-   "message": "[18:19:25][E][jomini_script_system.cpp:304]: Script system error! | Error: rite_hostility_level trigger [ target rite was null ] | Script location: file: common/scripted_triggers/00_religious_triggers.txt line: 1016 (is_hostile_enough_for_holy_war_trigger[args#607331762]) | file: common/scripted_triggers/00_religious_triggers.txt line: 1025 (is_valid_religious_war_target_trigger[args#375047457]) |",
+   "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -2226,7 +2226,7 @@
    "file": "gui/applicationutils/tools_gui_search.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.8,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -2238,7 +2238,7 @@
    "file": "gui/applicationutils/tools_gui_search.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -2250,7 +2250,7 @@
    "file": "gui/window_army_select_commander.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -2262,7 +2262,7 @@
    "file": "gui/window_siege.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.6,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -2296,9 +2296,9 @@
    "created": true,
    "drawn": true,
    "file": "gui/window_situation_sub_region.gui",
-   "message": "",
+   "message": "[20:23:14][E][jomini_script_system.cpp:304]: Script system error! | Error: scope:recipient.rite trigger [ Failed context switch ] | ript location: file: common/scripted_modifiers/00_character_interaction_modifiers.txt line: 1209 (negotiate_alliance_interaction_ai_acceptance[hash#2672664314]) | file: common/character_interactions/00_alliance.txt line: 1513 (negotiate_alliance_interaction:ai_accept)",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -2334,7 +2334,7 @@
    "file": "gui/window_struggle_involvement.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -2346,7 +2346,7 @@
    "file": "gui/window_struggle.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.6,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -2364,9 +2364,9 @@
    "created": true,
    "drawn": true,
    "file": "gui/window_succession_event.gui",
-   "message": "[18:20:26][E][jomini_script_system.cpp:304]: Script system error! | Error: rite_hostility_level trigger [ target rite was null ] | Script location: file: common/scripted_triggers/00_religious_triggers.txt line: 1016 (is_hostile_enough_for_holy_war_trigger[args#607331762]) | file: common/scripted_triggers/00_religious_triggers.txt line: 1025 (is_valid_religious_war_target_trigger[args#375047457]) |",
+   "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -2378,7 +2378,7 @@
    "file": "gui/window_succession_change_law.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -2390,7 +2390,7 @@
    "file": "gui/window_succession_event.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.8,
+   "seconds": 7.0,
    "shape": "top level",
    "shortcut": null
   },
@@ -2402,7 +2402,7 @@
    "file": "gui/window_task_contract.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.8,
    "shape": "top level",
    "shortcut": null
   },
@@ -2430,7 +2430,7 @@
    "file": "gui/debug/test_gui.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 8.9,
    "shape": "top level",
    "shortcut": null
   },
@@ -2450,7 +2450,7 @@
    "file": "gui/window_title_add_law.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.4,
    "shape": "top level",
    "shortcut": null
   },
@@ -2462,7 +2462,7 @@
    "file": "gui/window_title_appointment.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -2474,7 +2474,7 @@
    "file": "gui/window_title_customization.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -2484,9 +2484,9 @@
    "created": true,
    "drawn": true,
    "file": "gui/window_title_election.gui",
-   "message": "[18:21:27][E][jomini_script_system.cpp:304]: Script system error! | Error: rite_hostility_level trigger [ target rite was null ] | Script location: file: common/scripted_triggers/00_religious_triggers.txt line: 1016 (is_hostile_enough_for_holy_war_trigger[args#607331762]) | file: common/scripted_triggers/00_religious_triggers.txt line: 1025 (is_valid_religious_war_target_trigger[args#375047457]) |",
+   "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -2496,9 +2496,9 @@
    "created": true,
    "drawn": true,
    "file": "gui/window_title_history.gui",
-   "message": "",
+   "message": "[20:24:42][E][jomini_script_system.cpp:304]: Script system error! | Error: scope:recipient.rite trigger [ Failed context switch ] | ript location: file: common/scripted_modifiers/00_character_interaction_modifiers.txt line: 1209 (negotiate_alliance_interaction_ai_acceptance[hash#2672664314]) | file: common/character_interactions/00_alliance.txt line: 1513 (negotiate_alliance_interaction:ai_accept)",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.2,
    "shape": "top level",
    "shortcut": null
   },
@@ -2510,7 +2510,7 @@
    "file": "gui/window_title.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 10.5,
    "shape": "top level",
    "shortcut": null
   },
@@ -2530,7 +2530,7 @@
    "file": "gui/activity_window_widgets/tournament_contest_information.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -2542,7 +2542,7 @@
    "file": "gui/interaction_transfer_vassal.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -2562,7 +2562,7 @@
    "file": "gui/window_travel_option_selection.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.0,
    "shape": "top level",
    "shortcut": null
   },
@@ -2574,7 +2574,7 @@
    "file": "gui/window_travel_planner.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.0,
    "shape": "top level",
    "shortcut": null
   },
@@ -2586,7 +2586,7 @@
    "file": "gui/window_travel_route_edit.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.6,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -2606,7 +2606,7 @@
    "file": "gui/debug/ai_war_coordinator_watch_window.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -2650,7 +2650,7 @@
    "file": "gui/window_war_declared_overview.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.0,
    "shape": "top level",
    "shortcut": null
   },
@@ -2662,7 +2662,7 @@
    "file": "gui/window_war_overview.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.0,
    "shape": "top level",
    "shortcut": null
   },
@@ -2674,7 +2674,7 @@
    "file": "gui/window_war_results.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.6,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -2686,7 +2686,7 @@
    "file": "gui/debug/window_watch.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -2698,7 +2698,7 @@
    "file": "gui/window_appoint_tax_collector.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.0,
    "shape": "top level",
    "shortcut": null
   },
@@ -2710,7 +2710,7 @@
    "file": "gui/window_barbershop.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.6,
+   "seconds": 7.0,
    "shape": "top level",
    "shortcut": null
   },
@@ -2722,7 +2722,7 @@
    "file": "gui/window_court_visuals.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -2742,7 +2742,7 @@
    "file": "gui/window_house_aspiration.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -2752,9 +2752,9 @@
    "created": true,
    "drawn": true,
    "file": "gui/window_house_relation_history.gui",
-   "message": "",
+   "message": "[20:26:40][E][jomini_script_system.cpp:304]: Script system error! | Error: scope:recipient.rite trigger [ Failed context switch ] | ript location: file: common/scripted_modifiers/00_character_interaction_modifiers.txt line: 1209 (negotiate_alliance_interaction_ai_acceptance[hash#2672664314]) | file: common/character_interactions/00_alliance.txt line: 1513 (negotiate_alliance_interaction:ai_accept)",
    "nodes_added": 2,
-   "seconds": 7.6,
+   "seconds": 7.0,
    "shape": "top level",
    "shortcut": null
   },
@@ -2766,7 +2766,7 @@
    "file": "gui/window_lobby_helper.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.0,
    "shape": "top level",
    "shortcut": null
   },
@@ -2778,7 +2778,7 @@
    "file": "gui/window_manage_tax_slots.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.0,
    "shape": "top level",
    "shortcut": null
   },
@@ -2790,7 +2790,7 @@
    "file": "gui/window_message_popup.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.6,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -2800,9 +2800,9 @@
    "created": true,
    "drawn": true,
    "file": "gui/window_message_settings.gui",
-   "message": "[18:24:10][E][jomini_script_system.cpp:304]: Script system error! | Error: rite_hostility_level trigger [ target rite was null ] | Script location: file: common/scripted_triggers/00_religious_triggers.txt line: 1016 (is_hostile_enough_for_holy_war_trigger[args#607331762]) | file: common/scripted_triggers/00_religious_triggers.txt line: 1025 (is_valid_religious_war_target_trigger[args#375047457]) |",
+   "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": "M"
   },
@@ -2814,7 +2814,7 @@
    "file": "gui/window_migration.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.0,
    "shape": "top level",
    "shortcut": null
   },
@@ -2826,7 +2826,7 @@
    "file": "gui/window_move_domicile.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.0,
    "shape": "top level",
    "shortcut": null
   },
@@ -2844,9 +2844,9 @@
    "created": true,
    "drawn": true,
    "file": "gui/window_pam_christian_church.gui",
-   "message": "",
+   "message": "[20:27:29][E][jomini_script_system.cpp:304]: Script system error! | Error: scope:recipient.rite trigger [ Failed context switch ] | ript location: file: common/scripted_modifiers/00_character_interaction_modifiers.txt line: 1209 (negotiate_alliance_interaction_ai_acceptance[hash#2672664314]) | file: common/character_interactions/00_alliance.txt line: 1513 (negotiate_alliance_interaction:ai_accept)",
    "nodes_added": 2,
-   "seconds": 7.6,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -2858,7 +2858,7 @@
    "file": "gui/window_personal_beliefs.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -2870,7 +2870,7 @@
    "file": "gui/window_puppet_selection.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -2880,9 +2880,9 @@
    "created": true,
    "drawn": true,
    "file": "gui/window_silk_road.gui",
-   "message": "[18:24:54][E][virtualfilesystem.cpp:495]: Could not find texture due to 'VFSOpen Error: gfx/interface/icons/situation_types/.dds not found' | [18:24:54][E][virtualfilesystem.cpp:495]: Could not find texture due to 'VFSOpen Error: gfx/interface/icons/situation_types/.dds not found' | [18:24:55][E][virtualfilesystem.cpp:495]: Could not find texture due to 'VFSOpen Error: gfx/interface/icons/situatio",
+   "message": "[20:27:49][E][virtualfilesystem.cpp:495]: Could not find texture due to 'VFSOpen Error: gfx/interface/icons/situation_types/.dds not found' | [20:27:49][E][virtualfilesystem.cpp:495]: Could not find texture due to 'VFSOpen Error: gfx/interface/icons/situation_types/.dds not found' | [20:27:49][E][virtualfilesystem.cpp:495]: Could not find texture due to 'VFSOpen Error: gfx/interface/icons/situatio",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.0,
    "shape": "top level",
    "shortcut": null
   },
@@ -2894,7 +2894,7 @@
    "file": "gui/window_situation.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.6,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -2904,9 +2904,9 @@
    "created": true,
    "drawn": true,
    "file": "gui/window_situation_debug.gui",
-   "message": "[18:25:11][E][jomini_script_system.cpp:304]: Script system error! | Error: rite_hostility_level trigger [ target rite was null ] | Script location: file: common/scripted_triggers/00_religious_triggers.txt line: 1016 (is_hostile_enough_for_holy_war_trigger[args#607331762]) | file: common/scripted_triggers/00_religious_triggers.txt line: 1025 (is_valid_religious_war_target_trigger[args#375047457]) |",
+   "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -2918,7 +2918,7 @@
    "file": "gui/window_situation_list.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.0,
    "shape": "top level",
    "shortcut": "0"
   },
@@ -2936,9 +2936,9 @@
    "created": true,
    "drawn": true,
    "file": "gui/window_situation_participation.gui",
-   "message": "",
+   "message": "[20:28:18][E][jomini_script_system.cpp:304]: Script system error! | Error: scope:recipient.rite trigger [ Failed context switch ] | ript location: file: common/scripted_modifiers/00_character_interaction_modifiers.txt line: 1209 (negotiate_alliance_interaction_ai_acceptance[hash#2672664314]) | file: common/character_interactions/00_alliance.txt line: 1513 (negotiate_alliance_interaction:ai_accept)",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.0,
    "shape": "top level",
    "shortcut": null
   },
@@ -2950,7 +2950,7 @@
    "file": "gui/window_situation_participation_debug.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -2962,7 +2962,7 @@
    "file": "gui/window_tax_slot_assign_vassal.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -2974,7 +2974,7 @@
    "file": "gui/window_tax_slot_obligations.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -2986,7 +2986,7 @@
    "file": "gui/window_tax_slot_vassals.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.6,
+   "seconds": 7.0,
    "shape": "top level",
    "shortcut": null
   },
@@ -2998,7 +2998,7 @@
    "file": "gui/window_tgp_dynastic_cycle.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.0,
    "shape": "top level",
    "shortcut": null
   },
@@ -3010,7 +3010,7 @@
    "file": "gui/window_tgp_natural_disaster.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.1,
    "shape": "top level",
    "shortcut": null
   },
@@ -3022,7 +3022,7 @@
    "file": "gui/window_the_great_steppe.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.6,
+   "seconds": 7.0,
    "shape": "top level",
    "shortcut": null
   },
@@ -3034,7 +3034,7 @@
    "file": "gui/window_title_selector.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.0,
    "shape": "top level",
    "shortcut": null
   },
@@ -3046,7 +3046,7 @@
    "file": "gui/window_treasury_budget_change.gui",
    "message": "",
    "nodes_added": 2,
-   "seconds": 7.7,
+   "seconds": 7.0,
    "shape": "top level",
    "shortcut": null
   }

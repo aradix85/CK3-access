@@ -6,6 +6,7 @@
  "block_stride": 475152,
  "fields": {
   "culture": 152,
+  "rite": 156,
   "dynasty_house": 320
  },
  "beacon": {
@@ -14,7 +15,7 @@
  },
  "evidence": {
   "culture": "78 of 78 in the record",
-  "faith": "nowhere, in none of the six forms (0 characters carry it)",
+  "rite": "79 of 79 in the record",
   "dynasty_house": "42 of 42 in the record",
   "gold": "72 of 72 through the pointer at +0x198",
   "piety": "80 of 80 through the pointer at +0x198",
