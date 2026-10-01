@@ -169,16 +169,6 @@
   "counting_rule": "from model.json"
  },
  {
-  "name": "stride between blocks",
-  "claimed": 475152,
-  "measure": "json_field",
-  "arguments": [
-   "<project>\\reports\\model.json",
-   "block_stride"
-  ],
-  "counting_rule": "from model.json; 1024 times 464 is 475136, so a 16-byte header per block"
- },
- {
   "name": "model field culture",
   "claimed": 152,
   "measure": "json_field",
@@ -190,26 +180,26 @@
   "counting_rule": "offset relative to the handle field, from model.json"
  },
  {
-  "name": "model field faith",
+  "name": "model field rite",
   "claimed": 156,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\model.json",
    "fields",
-   "faith"
+   "rite"
   ],
   "counting_rule": "offset relative to the handle field, from model.json"
  },
  {
   "name": "model field dynasty house",
-  "claimed": 312,
+  "claimed": 320,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\model.json",
    "fields",
    "dynasty_house"
   ],
-  "counting_rule": "offset relative to the handle field, from model.json"
+  "counting_rule": "offset relative to the handle field, from model.json; 312 on 1.19.0.6, and 1.20 put eight bytes in front of it"
  },
  {
   "name": "game state in the Bohemia save",

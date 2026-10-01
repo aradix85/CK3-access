@@ -3,7 +3,6 @@
  "number_field_in_record": 24,
  "number_mask": 16777215,
  "block_size": 1024,
- "block_stride": 475152,
  "fields": {
   "culture": 152,
   "rite": 156,
