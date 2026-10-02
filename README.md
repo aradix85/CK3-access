@@ -22,17 +22,18 @@ process and from files already on your disk.
   start. Against build 1.16.2 one had moved, and it recovered on its own.
 - **An event reads end to end** — title, description, options — straight out of memory, checked
   against the localisation files on disk, and read aloud a line at a time from the live game.
-- **265 windows are on the map, and the map is checked against the game rather than the files.**
+- **282 windows are on the map, and the map is checked against the game rather than the files.**
   The engine builds every window up front, so the live tree is the whole list: `windowmap.unmapped`
-  names anything it built that the map lacks. Nothing does, on a feudal, an administrative and a
-  landless ruler. Each row also carries how the window is declared, and 76 of them say why no
-  console route exists for that shape rather than reporting a failure.
+  names anything it built that the map lacks. Nothing does on 1.20.0.3, and on 1.19 nothing did on a
+  feudal, an administrative and a landless ruler either. Each row also carries how the window is
+  declared, and 84 of them say why no console route exists for that shape rather than reporting a
+  failure.
 - **205 windows have been harvested** widget by widget and paired with the parsed `.gui` files on
   structure, so meaning on disk reaches the nameless widgets: nine in ten of the ones showing text.
 - **A window reads out, one unit per keystroke.** The reader claims the arrow keys through the
   injected DLL, so the game never sees them and every other key still reaches it; each press hands
   one line to NVDA, speech and braille together. An event announces itself through a number the
-  engine already keeps, a toast is said the moment it appears, and a reader that fails gives the
+  engine already keeps, a toast is meant to be said the moment it appears (built, but no real toast has been heard yet), and a reader that fails gives the
   keys back before it says so. A button the game has switched off says so before its words, what
   the game hides is left unsaid, a list says once how many rows it has, and one key asks for the
   tooltip the gui files hang on whatever is under the cursor.
@@ -73,9 +74,10 @@ goes today.
     python tools\ck3\start_game.py              starts CK3 with the channel inside it
 
 `start_game.py` returns as soon as the channel answers, about twenty seconds in; the interface needs
-another five to nine minutes before there is anything to ask about — measured at eight and a half on
-a machine that was busy. It is loading, not hung: the game's working set climbs past 13 GB before
-the main menu appears. From there `tools/ck3/derive.py` derives
+minutes more before there is anything to ask about — the main menu came within four on 1.20.0.3
+without mods, on a laptop with no graphics card of its own. It is loading, not hung. Pass
+`-loadsave=<save name without .ck3>` to have the game load that save by itself. From there
+`tools/ck3/derive.py` derives
 the field offsets, `tools/ck3/channel.py` talks to the DLL, and `reports/toolindex.md` lists every
 call with its arguments and the shape of what it returns.
 

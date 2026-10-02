@@ -105,9 +105,12 @@ more catches:** a window later in the tree catches with a plain background too, 
 `alwaystransparent`, which the game's gui carries 977 times — the full-screen event caught a click
 with a background, and a see-through icon of another event let one through.
 
-**A modifier key cannot be sent inward** — a key message carries no modifier state and the game
-reads that through raw input. Nothing needs it: exactly one binding that uses a modifier names a
-window in the map, the ledger on shift+F1, and that window opens with an ordinary button.
+**A modifier key cannot be sent inward yet.** A key message carries no modifier state. Hooking the
+game's imports of `GetKeyState`, `GetAsyncKeyState` and `GetKeyboardState` gave a counter that did
+not move on a keystroke, and the game also imports the raw input functions, so it most likely reads
+modifiers there — an inference, not a measurement. The product never sends keys and does not need
+this; mapping the interface does, to try every shortcut including the ones with a modifier, and that
+route goes through raw input.
 
 ## 5. Reading the game
 

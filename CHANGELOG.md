@@ -9,6 +9,13 @@ and an entry a later measurement overturns is taken out rather than left standin
 beside it: git keeps the text, `ARCHITECTURE.md` keeps the reasoning, and `reports/claims.json`
 keeps the numbers with the rule they were counted by. A changelog that may never forget only grows.
 
+## 2026-10-02
+
+- **The documentation follows 1.20.** The README gives the window count and the start time measured
+  on 1.20.0.3 and says a toast is announced once one comes, not that one has been heard; and
+  `ARCHITECTURE.md` no longer says a modifier key is never needed - trying every shortcut needs it,
+  and the route goes through raw input.
+
 ## 2026-10-01
 
 - **Crusader Kings III 1.20 came out - 1.20.0.2 on 30 September 2026, the hotfix 1.20.0.3 a day

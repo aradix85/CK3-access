@@ -9,7 +9,11 @@ Do not write "this is faster" or "this fixes the offsets". Write what you measur
 and what the number was before and after.
 
 > Click points were 92.5 points off in x (median, 24 words on the main menu, checked against the
-> text recogniser). With the scale applied: 0.5.
+> text recogniser). With the scale applied: 9.7 — and that 9.7 is text alignment inside the box, not
+> position, so each word is compared on the edge it is aligned to.
+
+Give the worst case beside the median as well: a median of half a point once hid two words out of
+thirteen that were 96 points off.
 
 A claim without a measurement cannot be reviewed, because the reviewer cannot run your machine, your
 save, your DLC set or your mods. A number with a counting rule can. The same goes for negative
