@@ -202,24 +202,6 @@
   "counting_rule": "offset relative to the handle field, from model.json; 312 on 1.19.0.6, and 1.20 put eight bytes in front of it"
  },
  {
-  "name": "game state in the Bohemia save",
-  "claimed": 60.7,
-  "measure": "gamestate_mb",
-  "arguments": [
-   "<documents>\\save games\\Duke_Vratislav_II_of_Bohemia_1066_09_15.ck3"
-  ],
-  "counting_rule": "unpacked size of gamestate in MB to one decimal; the file itself is 7751963 bytes"
- },
- {
-  "name": "game state in the Ghur save",
-  "claimed": 56.7,
-  "measure": "gamestate_mb",
-  "arguments": [
-   "<documents>\\save games\\Ghurshah_Suri_of_the_Ghurid_Shahdom_867_10_26.ck3"
-  ],
-  "counting_rule": "the same; the file itself is 7179229 bytes and its header is 23007 bytes, not 32720 as in the Bohemia save"
- },
- {
   "name": "expansions on disk",
   "claimed": 30,
   "measure": "files",
@@ -499,9 +481,9 @@
   "arguments": [
    "culture",
    "numbered",
-   "<documents>\\save games\\Duke_Vratislav_II_of_Bohemia_1066_09_15.ck3"
+   "<documents>\\save games\\Count_Dauid_of_Qasr_Ibrim_1066_09_15.ck3"
   ],
-  "counting_rule": "the vanilla save of 1066-09-15 carries the engine's own numbering, and for cultures it is exactly the file order. On 1.19.0.6, against a save made with the five mods of that time, this did not hold for the other databases: 78 of 237 faiths, 36 of 94 religions, 301 of 342 traits, so the numbering is read from the running game and not derived from disk. The save is named here rather than left to whichever is newest"
+  "counting_rule": "cultures in a save begun on 1.20 whose number is their place in the file order. Faiths, religions and traits do not follow the file order, so the numbering is read from the running game and not derived from disk. The save is named here rather than left to whichever is newest"
  },
  {
   "name": "harvested texts the gui files do not predict",
