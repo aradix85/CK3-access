@@ -115,12 +115,13 @@
  },
  "derived_on": "2026-10-01, 80 characters, 0 records unreadable or reused, against Ghurshah_Suri_of_the_Ghurid_Shahdom_867_10_26_reload.ck3",
  "globals": {
-  ".?AV?$TPdxRefDatabase@VCCulture@@$07@@": 91278208,
-  ".?AV?$TPdxRefDatabase@VCFaith@@$07@@": 91277096,
-  ".?AV?$TPdxRefDatabase@VCReligion@@$07@@": 91277152,
+  ".?AV?$TPdxRefDatabase@VCCulture@@$07@@": 97641200,
+  ".?AV?$TPdxRefDatabase@VCFaith@@$07@@": 97641216,
+  ".?AV?$TPdxRefDatabase@VCReligion@@$07@@": 97640072,
   ".?AVCTraitDatabase@@": 91275512,
   ".?AV?$TPdxRefDatabase@VCCharacter@@$07@@": 96892264,
-  ".?AV?$TPdxRefDatabase@VCLandedTitle@@$07@@": 91276304
+  ".?AV?$TPdxRefDatabase@VCLandedTitle@@$07@@": 91276304,
+  ".?AV?$TPdxRefDatabase@VCRite@@$07@@": 97641208
  },
  "databases": {
   "culture": {

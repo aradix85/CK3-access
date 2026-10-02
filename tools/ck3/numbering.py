@@ -43,6 +43,8 @@ CLASSES = {
     'culture': ('.?AV?$TPdxRefDatabase@VCCulture@@$07@@', 'blocks'),
     'faith': ('.?AV?$TPdxRefDatabase@VCFaith@@$07@@', 'blocks'),
     'religion': ('.?AV?$TPdxRefDatabase@VCReligion@@$07@@', 'blocks'),
+    # Since 1.20 a character carries a rite and the faith follows from it.
+    'rite': ('.?AV?$TPdxRefDatabase@VCRite@@$07@@', 'blocks'),
     'trait': ('.?AVCTraitDatabase@@', 'array'),
     'title': ('.?AV?$TPdxRefDatabase@VCLandedTitle@@$07@@', 'indirect'),
 }

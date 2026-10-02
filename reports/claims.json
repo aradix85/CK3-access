@@ -231,13 +231,13 @@
  },
  {
   "name": "mod descriptors left in the mod folder",
-  "claimed": 5,
+  "claimed": 0,
   "measure": "files",
   "arguments": [
    "<documents>\\mod",
    "*.mod"
   ],
-  "counting_rule": "reference files in the mod folder. The five mods are switched off and unsubscribed since 1 October 2026, so these point at workshop folders Steam has removed, and dlc_load.json names none"
+  "counting_rule": "reference files in the mod folder. The five mods were switched off and unsubscribed on 1 October 2026 and their descriptors removed on 2 October; dlc_load.json names none"
  },
  {
   "name": "gui files in the Steam Workshop folder of the game",

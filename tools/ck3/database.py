@@ -31,6 +31,7 @@ PLACES = {
     'culture': (('culture/cultures', ()),),
     'faith': (('religion/faith_types', ()), ('religion/religion_types', ('faiths',))),
     'religion': (('religion/religion_types', ()),),
+    'rite': (('religion/rite_types', ()),),
     'trait': (('traits', ()),),
     'government': (('governments', ()),),
 }
