@@ -16,3 +16,7 @@ onnx>=1.17.0
 
 # Only for checking a rename round; not needed to run anything.
 pyflakes>=3.2.0
+
+# The three checks CONTRIBUTING.md asks to pass before a merge; check.py needs nothing extra.
+pytest>=9.0.3
+ruff>=0.15.12
