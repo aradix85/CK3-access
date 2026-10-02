@@ -14,7 +14,8 @@ keeps the numbers with the rule they were counted by. A changelog that may never
 - **The documentation follows 1.20.** The README gives the window count and the start time measured
   on 1.20.0.3 and says a toast is announced once one comes, not that one has been heard; and
   `ARCHITECTURE.md` no longer says a modifier key is never needed - trying every shortcut needs it,
-  and the route goes through raw input.
+  and system-level keys with the game in front are measured first, raw input through the DLL only
+  if the game ignores those.
 - **The numbering out of the running game does not read on 1.20 yet.** Religions, faiths and rites
   changed their record length, and counting between keys the files carry finds it again; a culture
   record no longer carries its key as text at all. A state begun on 1.19 also inherits 62 faiths that

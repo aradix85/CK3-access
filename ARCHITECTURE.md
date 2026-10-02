@@ -109,8 +109,9 @@ with a background, and a see-through icon of another event let one through.
 game's imports of `GetKeyState`, `GetAsyncKeyState` and `GetKeyboardState` gave a counter that did
 not move on a keystroke, and the game also imports the raw input functions, so it most likely reads
 modifiers there — an inference, not a measurement. The product never sends keys and does not need
-this; mapping the interface does, to try every shortcut including the ones with a modifier, and that
-route goes through raw input.
+this; mapping the interface does, to try every shortcut including the ones with a modifier. So a round
+that tries every shortcut may bring the game to the front and send system-level keys; if the game
+ignores those, the DLL has to hand it raw input of its own.
 
 ## 5. Reading the game
 
@@ -123,8 +124,8 @@ Five independent sources, and their disagreement is the test.
   `tools/ck3/anchor.py` walks from a global in the executable to a database of the game state;
   `tools/ck3/model.py` derives what sits where inside a character record. No offset is written
   down. `tools/ck3/calibrate.py` holds four hundred characters against a save and names the field
-  that disagrees. `tools/ck3/numbering.py` does the same walk for the culture, faith, religion and
-  trait databases.
+  that disagrees. `tools/ck3/numbering.py` does the same walk for the culture, faith, religion,
+  rite and trait databases; on 1.20 their record layouts moved and are being derived again.
 - **The `.gui` files** — meaning: which data function fills a widget, which localisation key it
   carries. `tools/ck3/guimap.py` parses the format properly rather than matching lines, merging the
   three engine layers and the active mods in load order. Needs no game running.
@@ -280,5 +281,6 @@ the Skyrim Access mod has it.
 - No decompiling or rebuilding the engine. Reading memory and data files is ordinary modding;
   rebuilding the engine would put every accessibility mod for these games at risk.
 - No redistribution of game files.
-- No driving the game from outside with synthetic input at the OS level.
+- No driving the game from outside with synthetic input at the OS level, with one exception: a round
+  that tests every shortcut may bring the game to the front.
 - No hard-coded memory addresses, field offsets or click positions. All three are derived.
