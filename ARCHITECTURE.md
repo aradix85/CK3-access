@@ -21,8 +21,15 @@ outside, receiving keys stays inside.
 ## 1. The channel — `dll/channel.cpp`
 
 A DLL injected into `ck3.exe`, exposing a handful of primitives over a named pipe: read memory, read
-many addresses at once, walk the widget tree from a root, post a click, a key, a character. That is
-all. It does not know what a county is, and it contains no speech.
+many addresses at once, walk the widget tree from a root, post a click, a key, a character, and, as
+an instrument, count what the game asks Windows about the keyboard. That is all. It does not know
+what a county is, and it contains no speech.
+
+**It is tested without the game.** `tests/test_channel.py` loads the DLL into a small program of its
+own that builds a fake widget tree, and drives every command through the real pipe, also with
+AddressSanitizer around both. The build stops on any compiler warning, the code analysis of
+`/analyze` included, and pytest runs clang-tidy. Building and testing take seconds; a restart of
+the game takes minutes, so the DLL is tested before the game ever sees it.
 
 Python on the other side is fast enough, and that is measured: re-checking the derivation once took
 122 seconds, nearly all of it the Python side polling in fixed steps, and a growing wait made it 3
@@ -106,12 +113,14 @@ more catches:** a window later in the tree catches with a plain background too, 
 with a background, and a see-through icon of another event let one through.
 
 **A modifier key cannot be sent inward yet.** A key message carries no modifier state. Hooking the
-game's imports of `GetKeyState`, `GetAsyncKeyState` and `GetKeyboardState` gave a counter that did
-not move on a keystroke, and the game also imports the raw input functions, so it most likely reads
-modifiers there — an inference, not a measurement. The product never sends keys and does not need
-this; mapping the interface does, to try every shortcut including the ones with a modifier. So a round
-that tries every shortcut may bring the game to the front and send system-level keys; if the game
-ignores those, the DLL has to hand it raw input of its own.
+game's imports of `GetKeyState`, `GetAsyncKeyState` and `GetKeyboardState` once gave a counter that
+did not move on a keystroke — but nothing showed it could have: SDL, which sits inside the
+executable, asks about shift only while it believes shift is down (assumed from the SDL source, not
+measured here). The product never sends keys and does not need this; mapping the interface does, to
+try every shortcut including the ones with a modifier. So `tools/ck3/modifiers.py` first sends
+system-level keys with the game in front while the channel's `count` watches what the game asks
+Windows; only if the game ignores those keys does the DLL have to hand it modifier state of its
+own, and the counter will have said through which function.
 
 ## 5. Reading the game
 

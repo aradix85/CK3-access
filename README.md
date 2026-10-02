@@ -63,6 +63,7 @@ the game gets read — it checks what comes out of memory against what is actual
   over the tool nor holds the keys it needs; speech and braille still arrive.
 - Python 3.11+ and the packages in `requirements.txt`
 - Visual Studio Build Tools (MSVC, x64) to compile the DLL
+- LLVM, optional: with it installed, `pytest` also runs clang-tidy over the DLL
 
 ## Running it
 
