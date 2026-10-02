@@ -7,14 +7,12 @@ opens it, and if not, what the engine says about it. Runs on a loaded, paused ga
 Usage:  python tools\ck3\windowmap.py <pid> [<count> | <window> <window> ...]
         python tools\ck3\windowmap.py <pid> --keys
         python tools\ck3\windowmap.py <pid> --modified-keys
-        python tools\ck3\windowmap.py <pid> --modified-keys --posted
 
 A count or a list of window names makes it a trial run, and a trial run writes its result beside
 the map instead of over it. `--keys` runs only the key round, needs no -debug_mode, and adds the
 windows it opens to the map as shortcut routes without changing anything else in it.
-`--modified-keys` does the same for the bindings with a modifier, and takes the game to the front
-for the length of the round, saying so through NVDA when it takes it and when it gives it back;
-with `--posted` the channel posts them instead and the foreground is never taken.
+`--modified-keys` does the same for the bindings with a modifier, posted through the channel's
+`combo`, so the foreground is never taken.
 """
 import collections
 import json
@@ -50,8 +48,8 @@ KEYS = {112: 'F1', 113: 'F2', 114: 'F3', 115: 'F4', 116: 'F5',
 # declares that brings something up. Left out by name: open_capital, which moves the camera, and
 # the two notification bindings, which change the notifications they act on. Every other binding
 # with a modifier lives inside a window or is a map mode. The keys come from shortcuts.shortcuts, so a
-# patch that rebinds one is followed. They go in through SendInput with the game in front, because a
-# posted key carries no modifier state; measured 2 October 2026 with `tools\ck3\modifiers.py`.
+# patch that rebinds one is followed. They go in through the channel's `combo`, which holds the
+# modifier for the game; a posted key alone carries no modifier state (`tools\ck3\modifiers.py`).
 MODIFIED = ('ledger_window', 'hud_faith', 'hud_personal_beliefs', 'hud_culture', 'activity_shortcut',
             'government_hud', 'domicile', 'war_view', 'college_of_cardinals')
 # The pause `combo` leaves after every step when a combination is posted, so the game takes each
@@ -397,21 +395,20 @@ def unmapped(pid, game=None):
             sorted(n for n in known if n not in live))
 
 
-def keys_only(pid, modified=False, posted=False):
+def keys_only(pid, modified=False):
     """Only the key round, and add what it finds to the map without touching anything else in it.
 
     Runs without -debug_mode. A key that opens a window becomes that window's shortcut route in
     `reports\\windows.json`; a window that already has one keeps it, and nothing is removed - a
     key that finds nothing this time says something about this state, not about the window.
-    With `modified` it presses the bindings in `MODIFIED` through SendInput, and holds the
-    foreground from the first press to the last; if the player takes it back, nothing more goes in.
-    With `posted` as well it hands them to the channel's `combo` instead, which posts them and
-    holds the modifier for the game, so the foreground stays the player's.
+    With `modified` it presses the bindings in `MODIFIED` through the channel's `combo`, which
+    posts them and holds the modifier for the game, so the foreground stays the player's; what the
+    game asked about the keyboard meanwhile is printed after the round.
     """
     game = Game(pid)
     if not modified:
         found = shortcut_round(game)
-    elif posted:
+    else:
         channel.ask('count')
         presses = [(spelling, lambda held=held, code=code: channel.ask(
                         'combo %d %s' % (COMBO_PAUSE, ' '.join(str(c) for c in held + [code]))), True)
@@ -419,27 +416,6 @@ def keys_only(pid, modified=False, posted=False):
         found = shortcut_round(game, presses)
         print('the game asked meanwhile:', ' | '.join(
             line for line in channel.ask('count').split('\n') if line.startswith(('count', 'asked'))))
-    else:
-        import modifiers
-        import speech
-        import windowgrab
-        hwnd = windowgrab.window_of(pid)[0]
-        hers = modifiers.user32.GetForegroundWindow()
-        keys = modifiers.Keys(hwnd)
-        presses = [(spelling, lambda held=held, code=code: keys.combo(held, code), True)
-                   for spelling, held, code in modified_keys().values()]
-        speech.output('the key round takes the game to the front for about %d seconds; please do not '
-                      'type' % (len(presses) * 20))
-        time.sleep(4)
-        try:
-            if not modifiers.bring(hwnd):
-                raise SystemExit('the game did not come to the front; nothing was sent')
-            found = shortcut_round(game, presses)
-        finally:
-            keys.release()
-            if hers and modifiers.user32.IsWindow(hers):
-                modifiers.bring(hers)
-            speech.output('the key round is done, the foreground is yours again')
     with open(OUT, encoding='utf-8') as file:
         result = json.load(file)
     added = []
@@ -463,8 +439,6 @@ def main():
         return keys_only(pid)
     if rest == ['--modified-keys']:
         return keys_only(pid, modified=True)
-    if rest == ['--modified-keys', '--posted']:
-        return keys_only(pid, modified=True, posted=True)
     limit = int(rest[0]) if rest and rest[0].isdigit() else None
     chosen = [name for name in rest if not name.isdigit()]
     windows = windows_on_disk()

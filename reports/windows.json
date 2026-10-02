@@ -1028,7 +1028,7 @@
    "nodes_added": 2,
    "seconds": 7.0,
    "shape": "top level",
-   "shortcut": null
+   "shortcut": "alt+D"
   },
   "duel_event": {
    "cleaned_up": true,
@@ -1312,7 +1312,7 @@
    "nodes_added": 2,
    "seconds": 7.1,
    "shape": "top level",
-   "shortcut": null
+   "shortcut": "alt+F1"
   },
   "grant_titles_interaction_window": {
    "cleaned_up": true,

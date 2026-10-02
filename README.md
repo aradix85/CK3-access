@@ -17,7 +17,8 @@ process and from files already on your disk.
 ## What works
 
 - **The channel.** An injected DLL answers about twenty seconds after launch, reads the widget tree,
-  and posts mouse and key input from inside the process — it never takes focus off your screen.
+  and posts mouse and key input from inside the process, combinations with shift, ctrl and alt
+  included — it never takes focus off your screen.
 - **It survives a patch.** Every offset is derived from the running game and rechecked at each
   start. Against build 1.16.2 one had moved, and it recovered on its own.
 - **An event reads end to end** — title, description, options — straight out of memory, checked

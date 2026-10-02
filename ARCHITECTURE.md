@@ -21,9 +21,9 @@ outside, receiving keys stays inside.
 ## 1. The channel — `dll/channel.cpp`
 
 A DLL injected into `ck3.exe`, exposing a handful of primitives over a named pipe: read memory, read
-many addresses at once, walk the widget tree from a root, post a click, a key, a character, and, as
-an instrument, count what the game asks Windows about the keyboard. That is all. It does not know
-what a county is, and it contains no speech.
+many addresses at once, walk the widget tree from a root, post a click, a key, a character or a
+combination with its modifier held, and, as an instrument, count what the game asks Windows about the
+keyboard. That is all. It does not know what a county is, and it contains no speech.
 
 **It is tested without the game.** `tests/test_channel.py` loads the DLL into a small program of its
 own that builds a fake widget tree, and drives every command through the real pipe, also with
@@ -112,17 +112,19 @@ more catches:** a window later in the tree catches with a plain background too, 
 `alwaystransparent`, which the game's gui carries 977 times — the full-screen event caught a click
 with a background, and a see-through icon of another event let one through.
 
-**A modifier key reaches the game through SendInput with the game in front, and not yet inward.** A
-posted key message carries no modifier state. Measured on 1.20.0.3: with the game in front, shift+F1
-from SendInput opened the ledger and F1 alone the character window, and the channel's `count` saw
-the game ask `GetKeyState` 44 times during shift+F1, every time for left shift, and nothing else -
-no raw input, and nothing at all during F1 or at rest. That is SDL, which sits inside the
-executable, checking a shift it believes is down and letting go of one Windows does not hold; it is
-why a posted shift never arrived, and why a counter tried on a plain key could not move. The product
-never sends keys and does not need this; mapping the interface does, to try every shortcut, so
-`tools/ck3/windowmap.py` with `--modified-keys` presses the combinations with the game in front.
-Sending them inward without the foreground would take a hook on `GetKeyState` while the DLL posts a
-combination; that is not built.
+**A modifier key reaches the game from inside too, through `combo`.** A posted key message carries
+no modifier state. Measured on 1.20.0.3, first with SendInput and the game in front: shift+F1 opened
+the ledger and F1 alone the character window, and the channel's `count` saw the game ask
+`GetKeyState` 44 times during shift+F1, every time for left shift, and nothing else - no raw input,
+and nothing at all during F1 or at rest. That is SDL, which sits inside the executable, checking a
+shift it believes is down and letting go of one Windows does not hold; it is why a posted shift
+never arrived, and why a counter tried on a plain key could not move. So `combo` posts the modifiers,
+the key and the releases with a pause after each step, and while a modifier of its own is down the
+wrappers `count` hangs in the import table answer that it is; outside a combination every answer
+is the real one. With the game in the background it opened the same windows SendInput did and two
+more, and chose an event option with shift+1 where ctrl+1 did not. The product never sends keys
+and does not need this; mapping the interface does, to try every shortcut without taking the
+player's screen, and `tools/ck3/windowmap.py` with `--modified-keys` does that.
 
 ## 5. Reading the game
 
@@ -292,6 +294,6 @@ the Skyrim Access mod has it.
 - No decompiling or rebuilding the engine. Reading memory and data files is ordinary modding;
   rebuilding the engine would put every accessibility mod for these games at risk.
 - No redistribution of game files.
-- No driving the game from outside with synthetic input at the OS level, with one exception: a round
-  that tests every shortcut may bring the game to the front.
+- No driving the game from outside with synthetic input at the OS level. The one tool that does,
+  `tools/ck3/modifiers.py`, is the measurement with real keys that `combo` was checked against.
 - No hard-coded memory addresses, field offsets or click positions. All three are derived.

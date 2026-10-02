@@ -16,7 +16,8 @@ Measured 2 October 2026 on 1.20.0.3, without mods or debug mode: F1 drew charact
 shift+F1 ledger_window alone, and the state and the clock came back. The counter stood at nothing
 idle and during F1, and during shift+F1 GetKeyState was asked 44 times, every time for left shift;
 raw input was never read. So the game asks about shift only while it believes shift is down, which
-is why the counter of August could not move, and keys from SendInput are all a round needs.
+is why the counter of August could not move. The channel's `combo` now does the same without the
+foreground, by answering that question itself; this stays as the measurement with real keys.
 
 Every key goes in only while the game window is the foreground window, checked right before it,
 so nothing can land in the player's own window, and a shift that went down always goes up again.

@@ -34,20 +34,26 @@ keeps the numbers with the rule they were counted by. A changelog that may never
   MSVC's `/analyze` led to catching only access violations where everything was caught, and to a
   64-bit clock in `waitkey`; a reply that does not fit in memory is an error instead of a crash
   inside the game, and `keys on` says so when it could not hook the window.
-- **Shift, ctrl and alt reach the game through SendInput with the game in front.** F1 drew the
-  character window alone and shift+F1 the ledger alone, with the state and the clock back afterwards;
+- **A combination with shift, ctrl or alt goes in without the foreground: `combo`.** The channel
+  posts the modifiers, the key and the releases with a pause after each step, and while a modifier
+  of its own is down the keyboard wrappers in the import table answer that it is - the one question
+  the game asks. With the game in the background it opened the ledger, faith, personal beliefs and
+  culture windows SendInput had opened, plus the administration on alt+F1 and the domicile on alt+D
+  on an administrative ruler, and shift+1 chose an event option where ctrl+1 left it standing. The
+  pipe test gives its target a window off the screen that logs every key message with what
+  GetKeyState said: the combinations arrive in order with their modifiers held, nothing stays held,
+  malformed ones are refused, and with the holding taken out exactly those three checks fail.
+- **Shift, ctrl and alt reach the game through SendInput with the game in front, and that showed
+  what a posted shift lacked.** F1 drew the character window alone and shift+F1 the ledger alone;
   during shift+F1 the game asked Windows about left shift 44 times and about nothing else, raw input
-  included. That is the positive control the counter of August never had, and it explains why a
-  posted shift never arrived: SDL lets go of a shift Windows does not hold. `tools/ck3/modifiers.py`
-  is the measurement; it presses a key only once Windows holds the modifier, and says through NVDA
-  when it takes the foreground and when it gives it back.
-- **`windowmap.py --modified-keys`, the key round with a modifier.** It presses the nine
-  combinations the HUD declares that bring something up, reading the keys from the shortcut file,
-  each twice so that alt+T, which is also a toggle no widget declares, goes back with it. On a
-  feudal count four open a window and are in the map now: the ledger on shift+F1, the faith on alt+R,
-  personal beliefs on ctrl+alt+R and the culture on alt+T. The five that opened nothing need a ruler
-  the button is shown for - an administration, a domicile, a war, an activity, a college of
-  cardinals - and are untested, not refuted.
+  included - the positive control the counter of August never had. SDL lets go of a shift Windows
+  does not hold. `tools/ck3/modifiers.py` is that measurement.
+- **`windowmap.py --modified-keys`, the key round with a modifier, through `combo`.** It presses the
+  nine combinations the HUD declares that bring something up, reading the keys from the shortcut
+  file, each twice so that alt+T, which is also a toggle no widget declares, goes back with it. Six
+  open a window and are in the map now. The three that opened nothing on a feudal count and an
+  administrative ruler need a war, an activity or a college of cardinals, and are untested, not
+  refuted.
 - **`states.wait` waits for a game window that does not exist yet** instead of falling over:
   `windowgrab.window_of` says "no visible window" with a `LookupError` of its own now, where it
   raised an empty-sequence error. requirements.txt names psutil, which `states.py` needs.

@@ -138,7 +138,7 @@
  },
  {
   "name": "channel.dll",
-  "claimed": 175104,
+  "claimed": 178176,
   "measure": "bytes",
   "arguments": [
    "<project>\\dll\\channel.dll"
