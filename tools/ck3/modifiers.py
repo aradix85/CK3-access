@@ -15,6 +15,10 @@ that SendInput sets, which is the assumption this is here to settle.
 Every key goes in only while the game window is the foreground window, checked right before it,
 so nothing can land in the player's own window, and a shift that went down always goes up again.
 Windows are closed again with posted keys, which need no foreground, and the state has to come back.
+
+Shift goes in as left shift, the key a keyboard reports, and Windows has to hold it down before F1
+is sent. SDL lets go of a shift the moment GetKeyState says left shift is up (assumed from the SDL2
+source), so a shift Windows never held would make the game look deaf when the fault is ours.
 """
 import ctypes
 import ctypes.wintypes as wt
@@ -40,7 +44,8 @@ user32.AttachThreadInput.argtypes = [wt.DWORD, wt.DWORD, wt.BOOL]
 user32.SetForegroundWindow.argtypes = [wt.HWND]
 user32.BringWindowToTop.argtypes = [wt.HWND]
 user32.IsWindow.argtypes = [wt.HWND]
-VK_SHIFT, VK_F1, VK_ESCAPE = 0x10, 0x70, 0x1B
+user32.GetAsyncKeyState.restype = ctypes.c_short
+VK_SHIFT, VK_LSHIFT, VK_F1, VK_ESCAPE = 0x10, 0xA0, 0x70, 0x1B
 KEYEVENTF_KEYUP, INPUT_KEYBOARD = 0x0002, 1
 
 
@@ -90,14 +95,18 @@ class Keys(object):
         if user32.GetForegroundWindow() != self.game:
             raise RuntimeError('the game lost the foreground; nothing more is sent')
         self._send(vk, up)
-        if vk == VK_SHIFT:
+        if vk == VK_LSHIFT:
             self.shift_down = not up
 
     def release(self):
         """A shift left down would follow the player into her own window. Up is harmless anywhere."""
         if self.shift_down:
-            self._send(VK_SHIFT, True)
+            self._send(VK_LSHIFT, True)
             self.shift_down = False
+
+
+def held(vk):
+    return bool(user32.GetAsyncKeyState(vk) & 0x8000)
 
 
 def counted():
@@ -169,13 +178,16 @@ def main(pid):
         if not bring(hwnd):
             raise SystemExit('the game lost the front before shift+F1')
         counted()
-        keys.send(VK_SHIFT, False)
+        keys.send(VK_LSHIFT, False)
         time.sleep(0.3)
+        if not (held(VK_LSHIFT) and held(VK_SHIFT)):
+            raise SystemExit('Windows does not hold shift down after SendInput (left %s, either %s); '
+                             'nothing was pressed with it' % (held(VK_LSHIFT), held(VK_SHIFT)))
         keys.send(VK_F1, False)
         time.sleep(0.05)
         keys.send(VK_F1, True)
         time.sleep(0.3)
-        keys.send(VK_SHIFT, True)
+        keys.send(VK_LSHIFT, True)
         now = drawn_after(game, 'ledger_window')
         results['shift+F1'] = counted()
         print('shift+F1 drew:', sorted(now - baseline) or 'nothing', flush=True)
