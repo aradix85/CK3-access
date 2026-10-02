@@ -1,9 +1,11 @@
 """The DLL through its real pipe, on a target of its own, without the game.
 
 `channel_host.c` loads `dll\\channel.dll`, builds a fake widget tree that holds every case the walk
-must report, and asks Windows about the keyboard ten times a second through its own import table.
+must report, asks Windows about the keyboard ten times a second through its own import table, and
+logs every key message its window receives with what GetKeyState said about shift, ctrl and alt.
 Every check below is a prediction that can fail: a command that must be refused, a command that
-must reach its handler, a loss the walk must report, and a counter that must move.
+must reach its handler, a loss the walk must report, a counter that must move, and a key that must
+arrive with its modifiers held.
 
 **Run it after every change to the DLL, before restarting the game:** building and this test take
 seconds, a restart takes minutes. Skipped without a built DLL or a compiler, and while the game
@@ -55,13 +57,13 @@ def host(request, tmp_path_factory):
     (work / 'build.bat').write_text('\r\n'.join(lines) + '\r\n')
     built = subprocess.run(['cmd', '/c', 'build.bat'], capture_output=True, text=True, cwd=work)
     assert built.returncode == 0, built.stdout + built.stderr
-    process = subprocess.Popen([str(work / 'host.exe'), dll], stdout=subprocess.PIPE,
+    process = subprocess.Popen([str(work / 'host.exe'), dll, str(work / 'keys.log')], stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE, text=True)
     objects = [int(value, 16) for value in process.stdout.readline().split()[1:]]
     assert process.stdout.readline().strip() == 'loaded'
     while not channel.alive():
         time.sleep(0.05)
-    yield process.pid, objects
+    yield process.pid, objects, str(work / 'keys.log')
     channel.close()
     process.kill()
     process.wait()
@@ -94,7 +96,7 @@ def counts(lines):
 
 
 def test_every_command(host):
-    pid, (A, B, C, D, E, F, G, PAGE, MANY) = host
+    pid, (A, B, C, D, E, F, G, PAGE, MANY), log = host
     h = '%x'.__mod__
     failed = []
 
@@ -106,6 +108,20 @@ def test_every_command(host):
     def wait_then(seconds, *args):
         time.sleep(seconds)
         check(*args)
+
+    def arrives(command, answer, keys):
+        """The answer - a list, or a test on it - and the key messages the window logged: kind, key,
+        context bit, then shift, ctrl and alt as GetKeyState gave them while the message was
+        handled. ? is either."""
+        before = len(open(log).read().splitlines())
+        lines = lines_of(command)
+        time.sleep(0.4)
+        got = open(log).read().splitlines()[before:]
+        fits = len(got) == len(keys) and all(
+            len(g.split()) == len(k.split()) and all(b in ('?', a) for a, b in zip(g.split(), k.split(), strict=True))
+            for g, k in zip(got, keys, strict=True))
+        if not (answer(lines) if callable(answer) else lines == answer) or not fits:
+            failed.append('%s - %s / keys: %s' % (command, ' / '.join(lines), ' / '.join(got)))
 
     check('hello', 'answers from the target', lambda ls: ls[0].startswith('channel\t%d\t' % pid))
     check('hello x', 'refused', refused)
@@ -147,8 +163,30 @@ def test_every_command(host):
     check('findin %s %s 43 4' % (h(PAGE), h(PAGE + 64)), 'one hex digit refused', error('not a hex byte'))
     check('find ?? 4b', 'a wildcard first refused', error('first byte cannot be a wildcard'))
 
-    for command in ('sendkey 112', 'sendchar 65', 'mouse 5 5 0', 'keys on'):
-        check(command, 'reaches its handler', error('no window found'))
+    arrives('sendkey 112', ['key sent\t112'], ['down 70 0 0 0 0', 'up 70 0 0 0 0'])
+    arrives('combo 50 160 112', ['combo sent\t160\t112'],
+            ['down 10 0 1 0 0', 'down 70 0 1 0 0', 'up 70 0 1 0 0', 'up 10 0 ? 0 0'])
+    arrives('combo 50 164 82', ['combo sent\t164\t82'],
+            ['sysdown 12 1 0 0 1', 'sysdown 52 1 0 0 1', 'sysup 52 1 0 0 1', 'up 12 0 0 0 ?'])
+    arrives('combo 50 162 164 82', ['combo sent\t162\t164\t82'],
+            ['down 11 0 0 1 0', 'down 12 0 0 1 1', 'down 52 0 0 1 1', 'up 52 0 0 1 1', 'up 12 0 0 1 ?',
+             'up 11 0 0 ? 0'])
+    arrives('sendkey 112', ['key sent\t112'], ['down 70 0 0 0 0', 'up 70 0 0 0 0'])
+    for command, text in (('combo 50 112', 'combo needs at least one modifier'),
+                          ('combo 50 160', 'combo needs at least one modifier'),
+                          ('combo x', 'combo needs a pause'),
+                          ('combo 2000 160 112', 'a pause of 2000'),
+                          ('combo 50 300 112', 'key code 300'),
+                          ('combo 50 112 160', 'the last code is the key'),
+                          ('combo 50 65 112', '65 is not left or right'),
+                          ('combo 50 160 161 112', 'the same modifier twice'),
+                          ('combo 50 160 162 164 165 112', 'at most 3 modifiers'),
+                          ('combo 50 160 112 x', 'not a key code')):
+        arrives(command, error(text), [])
+    check('combo', 'refused', refused)
+    arrives('sendchar 65', ['char sent\t65'], [])
+    arrives('mouse 5 5 0', ['mouse\t5\t5\t0'], [])
+    check('keys on', 'hooks the window', lambda ls: ls == ['keys on'])
     for command in ('sendkey 112 4', 'mouse 5 5', 'waitkey 10 5'):
         check(command, 'refused', refused)
     check('swallow 38 40', 'two keys', lambda ls: ls == ['swallow\t2'])
@@ -156,6 +194,7 @@ def test_every_command(host):
     check('swallow 38 x', 'refused at x', error('not a key code'))
     check('swallow', 'none', lambda ls: ls == ['swallow\t0'])
     check('waitkey 10', 'nothing pressed', lambda ls: ls == [])
+    check('keys off', 'puts the window back', lambda ls: ls == ['keys off'])
     check('keys off', 'unchanged', lambda ls: ls == ['keys unchanged'])
     for command in ('childfield f0 fc', 'call %s 0' % h(A), 'waitchange 1', 'count on'):
         check(command, 'removed, so refused', refused)

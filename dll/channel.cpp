@@ -7,6 +7,7 @@
 // The DLL knows nothing about CK3. Python derives the field offsets and the widget vtables and
 // passes them in; all that lives here is the machinery to walk memory with them.
 #include <windows.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -422,9 +423,8 @@ static LPARAM key_lparam(unsigned code, bool key_up)
     return l;
 }
 
-// A posted key carries no modifier state. Shift, ctrl or alt posted as keys of their own made
-// shift+F1, ctrl+F1 and alt+F1 open nothing at all, not even the plain F1 binding (measured
-// 1 September 2026). Where the game reads its modifiers is what `count` is there to find out.
+// A posted key carries no modifier state; a combination with shift, ctrl or alt goes through
+// `combo`, below, which holds the modifier for the game.
 static void cmd_sendkey(unsigned code)
 {
     if (!ensure_window()) return;
@@ -442,12 +442,16 @@ static void cmd_sendchar(unsigned ch)
     emit("char sent\t%u\n", ch);
 }
 
-// --- counting what the game asks Windows about the keyboard -----------------
-// A measuring instrument: it changes no answer, it only counts. The game's own import table is
-// pointed, for the four keyboard functions ck3.exe imports from user32, at a wrapper that counts
-// and then calls the real one; the first two also per virtual key, because which key is asked
-// about tells a modifier check from anything else. A function the game finds through
-// GetProcAddress is not seen. Its zero means nothing until it has moved once.
+// --- counting what the game asks Windows about the keyboard, and holding a modifier -------
+// A measuring instrument first. The game's own import table is pointed, for the four keyboard
+// functions ck3.exe imports from user32, at a wrapper that counts and then calls the real one; the
+// first two also per virtual key, because which key is asked about tells a modifier check from
+// anything else. A function the game finds through GetProcAddress is not seen.
+// The wrappers change an answer only while `combo` holds a modifier: that key and its generic twin
+// read as down. Measured 2 October 2026: during a shift+F1 from SendInput the game asked
+// GetKeyState about left shift and about nothing else - SDL inside the exe checking a shift it
+// believes is down, and letting go of one Windows does not hold. Outside a combination every
+// answer is the real one.
 enum { C_KEYSTATE, C_ASYNC, C_KEYBOARD, C_RAWDATA, C_TOTAL };
 static const char* const g_count_names[C_TOTAL] = {
     "GetKeyState", "GetAsyncKeyState", "GetKeyboardState", "GetRawInputData"
@@ -457,6 +461,7 @@ static void* volatile g_count_real[C_TOTAL];
 static volatile LONG g_counts[C_TOTAL];
 static volatile LONG g_count_keys[2][256];       // C_KEYSTATE and C_ASYNC, per virtual key
 static bool g_count_patched = false;
+static volatile LONG g_held[256];                // keys `combo` holds down right now
 
 static void count_key(int which, int key)
 {
@@ -464,22 +469,31 @@ static void count_key(int which, int key)
     InterlockedIncrement(&g_count_keys[which][key & 0xFF]);
 }
 
+static SHORT with_held(SHORT real, int key)
+{
+    return g_held[key & 0xFF] ? (SHORT)(real | SHRT_MIN) : real;
+}
+
 static SHORT WINAPI counted_key_state(int key)
 {
     count_key(C_KEYSTATE, key);
-    return ((SHORT (WINAPI*)(int))g_count_real[C_KEYSTATE])(key);
+    return with_held(((SHORT (WINAPI*)(int))g_count_real[C_KEYSTATE])(key), key);
 }
 
 static SHORT WINAPI counted_async_key_state(int key)
 {
     count_key(C_ASYNC, key);
-    return ((SHORT (WINAPI*)(int))g_count_real[C_ASYNC])(key);
+    return with_held(((SHORT (WINAPI*)(int))g_count_real[C_ASYNC])(key), key);
 }
 
 static BOOL WINAPI counted_keyboard_state(PBYTE state)
 {
     InterlockedIncrement(&g_counts[C_KEYBOARD]);
-    return ((BOOL (WINAPI*)(PBYTE))g_count_real[C_KEYBOARD])(state);
+    BOOL done = ((BOOL (WINAPI*)(PBYTE))g_count_real[C_KEYBOARD])(state);
+    if (done)
+        for (int key = 0; key < 256; key++)
+            if (g_held[key]) state[key] = (BYTE)(state[key] | 0x80);
+    return done;
 }
 
 static UINT WINAPI counted_raw_data(HRAWINPUT input, UINT command, LPVOID data, PUINT size, UINT header)
@@ -488,10 +502,10 @@ static UINT WINAPI counted_raw_data(HRAWINPUT input, UINT command, LPVOID data, 
     return ((UINT (WINAPI*)(HRAWINPUT, UINT, LPVOID, PUINT, UINT))g_count_real[C_RAWDATA])(input, command, data, size, header);
 }
 
-// Once per process. The wrappers stay in place for the rest of the session: they only count, and
-// putting the table back while a game thread is inside a wrapper is the one way this could take
-// the game down. The real function is stored before the slot is turned, so a call that arrives in
-// between still finds it.
+// Once per process. The wrappers stay in place for the rest of the session: outside a combination
+// they only count, and putting the table back while a game thread is inside a wrapper is the one
+// way this could take the game down. The real function is stored before the slot is turned, so a
+// call that arrives in between still finds it.
 static void count_patch(void)
 {
     static void* const ours[C_TOTAL] = {
@@ -541,6 +555,92 @@ static void cmd_count(void)
             LONG n = InterlockedExchange(&g_count_keys[which][key], 0);
             if (n) emit("asked\t%s\t%02x\t%ld\n", g_count_names[which], key, n);
         }
+}
+
+// The modifiers `combo` can hold: left and right shift, ctrl and alt. A message carries the
+// generic key and the scancode in lParam says which side, which is how SDL tells them apart.
+static UINT generic_of(unsigned code)
+{
+    switch (code) {
+        case VK_LSHIFT:   case VK_RSHIFT:   return VK_SHIFT;
+        case VK_LCONTROL: case VK_RCONTROL: return VK_CONTROL;
+        case VK_LMENU:    case VK_RMENU:    return VK_MENU;
+        default:                            return 0;
+    }
+}
+
+static void hold(unsigned code, LONG down)
+{
+    InterlockedExchange(&g_held[code], down);
+    InterlockedExchange(&g_held[generic_of(code)], down);
+}
+
+// combo <pause ms> <modifier>... <key>: the modifiers down in order, the key down and up, the
+// modifiers up in reverse, with the pause after every step so the game takes each in a frame of
+// its own. Posted like sendkey, so the game need not be in the foreground; while a modifier is down
+// here the keyboard wrappers above say so, which is what a posted shift lacked. With alt down and
+// ctrl not, a key goes as a system key with the context bit, as a real keyboard sends it. Once the
+// first modifier is down nothing returns early: every key is up again before the answer.
+#define COMBO_MODIFIERS 3
+#define COMBO_PAUSE_MOST 1000
+static void cmd_combo(const char* rest)
+{
+    unsigned pause = 0, codes[COMBO_MODIFIERS + 1] = {0};
+    int count = 0, n = 0;
+    if (sscanf(rest, "%u%n", &pause, &n) != 1) { emit("error: combo needs a pause in ms first\n"); return; }
+    const char* p = rest + n;
+    for (;;) {
+        unsigned code = 0;
+        if (sscanf(p, " %u%n", &code, &n) != 1) break;
+        if (count == COMBO_MODIFIERS + 1) { emit("error: at most %d modifiers and one key\n", COMBO_MODIFIERS); return; }
+        if (code >= 256) { emit("error: key code %u is not a virtual key\n", code); return; }
+        codes[count++] = code;
+        p += n;
+    }
+    if (!all_read(p, 0)) { emit("error: not a key code: %.40s\n", p); return; }
+    if (pause > COMBO_PAUSE_MOST) { emit("error: a pause of %u ms; at most %d\n", pause, COMBO_PAUSE_MOST); return; }
+    if (count < 2) { emit("error: combo needs at least one modifier and a key\n"); return; }
+    unsigned key = codes[count - 1];
+    if (generic_of(key)) { emit("error: the last code is the key, and %u is a modifier\n", key); return; }
+    for (int i = 0; i < count - 1; i++) {
+        if (!generic_of(codes[i])) { emit("error: %u is not left or right shift, ctrl or alt\n", codes[i]); return; }
+        for (int j = 0; j < i; j++)
+            if (generic_of(codes[j]) == generic_of(codes[i])) { emit("error: the same modifier twice\n"); return; }
+    }
+    if (!ensure_window()) return;
+    EnterCriticalSection(&g_lock);
+    if (!g_count_patched) count_patch();
+    LeaveCriticalSection(&g_lock);
+    if (strcmp(g_count_how[C_KEYSTATE], "counted") != 0) {
+        emit("error: GetKeyState is not hooked (%s), so the game would let go of a held shift\n", g_count_how[C_KEYSTATE]);
+        return;
+    }
+    bool ctrl = false, alt = false, posted = true;
+    for (int i = 0; i < count - 1; i++) {
+        UINT generic = generic_of(codes[i]);
+        hold(codes[i], 1);
+        bool system = generic == VK_MENU && !ctrl;
+        LPARAM l = key_lparam(codes[i], false) | (system ? (1LL << 29) : 0);
+        posted = PostMessageW(g_window, system ? WM_SYSKEYDOWN : WM_KEYDOWN, generic, l) && posted;
+        ctrl = ctrl || generic == VK_CONTROL;
+        alt = alt || generic == VK_MENU;
+        Sleep(pause);
+    }
+    bool system = alt && !ctrl;
+    LPARAM context = system ? (1LL << 29) : 0;
+    posted = PostMessageW(g_window, system ? WM_SYSKEYDOWN : WM_KEYDOWN, key, key_lparam(key, false) | context) && posted;
+    Sleep(pause);
+    posted = PostMessageW(g_window, system ? WM_SYSKEYUP : WM_KEYUP, key, key_lparam(key, true) | context) && posted;
+    Sleep(pause);
+    for (int i = count - 2; i >= 0; i--) {
+        posted = PostMessageW(g_window, WM_KEYUP, generic_of(codes[i]), key_lparam(codes[i], true)) && posted;
+        Sleep(pause);
+        hold(codes[i], 0);
+    }
+    if (!posted) { emit("error: the game window refused a message\n"); return; }
+    emit("combo sent");
+    for (int i = 0; i < count; i++) emit("\t%u", codes[i]);
+    emit("\n");
 }
 
 // find: a byte pattern in the full memory of the game, from the inside. From outside, the same
@@ -750,6 +850,7 @@ static void dispatch(char* command)
     else if (READ_ALL(1, sscanf(command, "sendkey %u%n", &n, &k))) cmd_sendkey(n);
     else if (READ_ALL(1, sscanf(command, "sendchar %u%n", &n, &k))) cmd_sendchar(n);
     else if (strcmp(command, "count") == 0)               cmd_count();
+    else if (strncmp(command, "combo ", 6) == 0)          cmd_combo(command + 6);
     else if (strcmp(command, "hello") == 0)
         emit("channel\t%lu\tbuilt " __DATE__ " " __TIME__ "\n", GetCurrentProcessId());
     else emit("error: unknown command, or more than it reads: %.200s\n", command);

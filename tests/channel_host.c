@@ -1,6 +1,10 @@
 // The target tests/test_channel.py runs channel.dll in. It loads the DLL, builds a small fake
 // widget tree that holds every case the walk must report, and asks Windows about the keyboard ten
 // times a second through its own import table, so the counter has something it must see.
+// It also owns one window, off the screen and never activated, so posted keys have somewhere to
+// land: every key message is written to the log named on the command line, with what this
+// process's own GetKeyState says about shift, ctrl and alt at that moment - the answer `combo`
+// changes.
 //
 // Fake layout: vtable 0, parent 8, position 0x10, size 0x18, name 0x20, text 0x40, children 0x60,
 // count 0x68. Vtable 0x1111 is a widget, 0x2222 is not.
@@ -9,6 +13,19 @@
 #include <string.h>
 
 typedef unsigned long long u64;
+
+static FILE* g_log;
+
+static LRESULT CALLBACK host_proc(HWND window, UINT message, WPARAM w, LPARAM l)
+{
+    const char* kind = message == WM_KEYDOWN ? "down" : message == WM_SYSKEYDOWN ? "sysdown" :
+                       message == WM_KEYUP ? "up" : message == WM_SYSKEYUP ? "sysup" : NULL;
+    if (!kind) return DefWindowProcA(window, message, w, l);
+    fprintf(g_log, "%s %02x %d %d %d %d\n", kind, (unsigned)w, (int)((l >> 29) & 1),
+            GetKeyState(VK_LSHIFT) < 0, GetKeyState(VK_CONTROL) < 0, GetKeyState(VK_MENU) < 0);
+    fflush(g_log);
+    return 0;
+}
 
 static void put_string(unsigned char* object, size_t field, const char* text, size_t length, const char* elsewhere)
 {
@@ -64,7 +81,17 @@ int main(int argc, char** argv)
     printf("objects %llx %llx %llx %llx %llx %llx %llx %llx %llx\n", (u64)A, (u64)B, (u64)C, (u64)D,
            (u64)E, (u64)F, (u64)G, (u64)page, (u64)many);
     fflush(stdout);
-    if (argc < 2 || !LoadLibraryA(argv[1])) { printf("load failed %lu\n", GetLastError()); return 1; }
+    g_log = argc > 2 ? fopen(argv[2], "w") : NULL;
+    if (!g_log) { printf("no log\n"); return 1; }
+    WNDCLASSA kind = {0};
+    kind.lpfnWndProc = host_proc;
+    kind.hInstance = GetModuleHandleA(NULL);
+    kind.lpszClassName = "channel_host";
+    RegisterClassA(&kind);
+    HWND window = CreateWindowExA(WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE, "channel_host", "channel host",
+                                  WS_POPUP, -32000, -32000, 10, 10, NULL, NULL, kind.hInstance, NULL);
+    ShowWindow(window, SW_SHOWNOACTIVATE);
+    if (!LoadLibraryA(argv[1])) { printf("load failed %lu\n", GetLastError()); return 1; }
     printf("loaded\n");
     fflush(stdout);
     BYTE state[256];
@@ -75,7 +102,9 @@ int main(int argc, char** argv)
         GetKeyboardState(state);
         size = 0;
         GetRawInputData((HRAWINPUT)0, RID_INPUT, NULL, &size, sizeof(RAWINPUTHEADER));
-        Sleep(100);
+        MsgWaitForMultipleObjects(0, NULL, FALSE, 100, QS_ALLINPUT);
+        MSG message;
+        while (PeekMessageA(&message, NULL, 0, 0, PM_REMOVE)) DispatchMessageA(&message);
     }
     return 0;
 }
