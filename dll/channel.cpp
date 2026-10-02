@@ -438,18 +438,22 @@ static LPARAM key_lparam(unsigned code, bool key_up)
     return l;
 }
 
-// **A modifier cannot be posted, measured 1 September 2026, and the reason is still open.**
+// **A modifier cannot be posted, measured 1 September 2026.**
 // Holding shift, ctrl or alt down as its own posted key and marking the key with the context bit
 // was built and tried: F1 alone opens the character window, and shift+F1, ctrl+F1 and alt+F1 all
 // three open *nothing* - not the plain binding either. So the game notices something is different
 // and still does not reach the bound combination. That code is gone rather than left in place
-// pretending, and what would decide it is a counter on `GetKeyState` and `GetAsyncKeyState`:
-// does the game ask Windows for the keyboard state, which a posted message never changes?
-// The counter comes before the hook; an import-table patcher was once built for a mechanism the
-// game turned out to call zero times.
+// pretending.
+// **Why is still open.** A counter on `GetKeyState`, `GetAsyncKeyState` and `GetKeyboardState` in
+// the import table did not move on a plain keystroke, but nothing showed that it could have: SDL2,
+// which sits inside the exe, asks `GetKeyState` about shift only while it believes shift is down,
+// and then lets go of a shift the system key state does not carry - assumed from the SDL2 source,
+// not checked on this exe. So the first thing to measure is `SendInput` with the game in front,
+// which does set that state; failing that, count again while a real shift is held, together with
+// `GetRawInputData`, and hook only what moves.
 // **It is worth little to a player and something to this workbench.** She presses alt+s on a real
-// keyboard, where Windows sets the state and it simply works. What we cannot do is open the
-// windows behind those 110 bindings ourselves in order to measure them.
+// keyboard, where Windows sets the state and it simply works. What we cannot do yet is open the
+// windows behind the bindings with a modifier ourselves in order to measure them.
 static void cmd_sendkey(unsigned code)
 {
     if (!ensure_window()) return;
@@ -469,7 +473,6 @@ static void cmd_sendchar(unsigned ch)
 
 // find: a byte pattern in the full memory of the game, from the inside. From outside, the same
 // search costs minutes because every byte has to go through a pipe; here only the answer is left.
-// Meant for research: take a sentence that is certainly on screen and see where it lives.
 // Meant for research: take a sentence that is certainly on screen and see where it lives.
 static void cmd_find(const char* rest, unsigned long long from_address, unsigned long long to_address)
 {

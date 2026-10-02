@@ -11,6 +11,11 @@ keeps the numbers with the rule they were counted by. A changelog that may never
 
 ## 2026-10-02
 
+- **A part of the screen the tree walk cannot read is now heard.** Since 1 October the channel
+  reported such a node, but only to a console nobody reads; now it leaves through the one exit for
+  a failure, once per address, so the reader polling the toast container does not repeat it every
+  round. `tests/test_tree_walk.py` holds it, and fails when either the sentence or the once-only
+  rule is taken out.
 - **The documentation follows 1.20.** The README gives the window count and the start time measured
   on 1.20.0.3 and says a toast is announced once one comes, not that one has been heard; and
   `ARCHITECTURE.md` no longer says a modifier key is never needed - trying every shortcut needs it,
@@ -34,7 +39,7 @@ keeps the numbers with the rule they were counted by. A changelog that may never
   up to the text field, and on 1.20.0.3 the decisions window sat 0x390 bytes before memory that does
   not exist - so the window and its 526 widgets were missing from the tree while they were on the
   screen. Only the vtable has to be readable now, every field is checked on its own anyway, and a
-  node that cannot be read is said out loud.
+  node that cannot be read is reported.
 - **The length of a character record is measured at every start.** It was written down as 464
   bytes; on 1.20.0.3 a record is 472, and every record read at the old stride was somebody else's.
 - **A character carries its rite now, and the model reads that.** The faith follows from the rite.

@@ -189,10 +189,20 @@ def widgets(root):
             unreadable.append(d[1])
     # A node the channel could not read takes its whole subtree with it, so say so: on 1.20.0.3 a
     # walk that skipped such nodes in silence lost the decisions window and its 526 widgets.
+    # Spoken once per address, because the reader asks for the toast container every round and a
+    # node that stays unreadable would otherwise be said every 400 ms.
     if unreadable:
         print('tree from %x: %d nodes could not be read, their subtrees are missing: %s'
               % (root, len(unreadable), ' '.join(unreadable[:5])), file=sys.stderr, flush=True)
+        new = set(unreadable) - _UNREADABLE_SAID
+        if new:
+            _UNREADABLE_SAID.update(new)
+            speech.failure('reading the game', 'part of the screen could not be read and is left out',
+                           'so what you hear may be incomplete; report it with the game version')
     return nodes
+
+
+_UNREADABLE_SAID = set()
 
 
 OWN_SCALE = 0x110
