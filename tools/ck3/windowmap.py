@@ -6,14 +6,18 @@ opens it, and if not, what the engine says about it. Runs on a loaded, paused ga
 
 Usage:  python tools\ck3\windowmap.py <pid> [<count> | <window> <window> ...]
         python tools\ck3\windowmap.py <pid> --keys
+        python tools\ck3\windowmap.py <pid> --modified-keys
 
 A count or a list of window names makes it a trial run, and a trial run writes its result beside
 the map instead of over it. `--keys` runs only the key round, needs no -debug_mode, and adds the
 windows it opens to the map as shortcut routes without changing anything else in it.
+`--modified-keys` does the same for the bindings with a modifier, and takes the game to the front
+for the length of the round, saying so through NVDA when it takes it and when it gives it back.
 """
 import collections
 import json
 import os
+import re
 import sys
 import time
 
@@ -40,6 +44,27 @@ OUT = os.path.join(paths.REPORTS, 'windows.json')
 KEYS = {112: 'F1', 113: 'F2', 114: 'F3', 115: 'F4', 116: 'F5',
         117: 'F6', 118: 'F7', 119: 'F8', 120: 'F9', 121: 'F10',
         48: '0', 67: 'C', 86: 'V', 80: 'P', 76: 'L', 77: 'M', 81: 'Q', 78: 'N', 9: 'TAB'}
+# The bindings with a modifier that a round presses on a bare screen: every one a widget in hud.gui
+# declares that brings something up. Left out by name: open_capital, which moves the camera, and
+# the two notification bindings, which change the notifications they act on. Every other binding
+# with a modifier lives inside a window or is a map mode. The keys come from shortcuts.shortcuts, so a
+# patch that rebinds one is followed. They go in through SendInput with the game in front, because a
+# posted key carries no modifier state; measured 2 October 2026 with `tools\ck3\modifiers.py`.
+MODIFIED = ('ledger_window', 'hud_faith', 'hud_personal_beliefs', 'hud_culture', 'activity_shortcut',
+            'government_hud', 'domicile', 'war_view', 'college_of_cardinals')
+
+
+def modified_keys():
+    """Binding -> (spelling, modifier keys, key) for every name in `MODIFIED`, as the file binds it."""
+    import modifiers
+    text = open(os.path.join(GAME, 'game', 'gui', 'shortcuts.shortcuts'), encoding='utf-8-sig').read()
+    bound = dict(re.findall(r'^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"([^"]*)"', text, re.M))
+    out = {}
+    for name in MODIFIED:
+        *held, key = bound[name].lower().split('+')
+        code = 0x6F + int(key[1:]) if re.fullmatch(r'f\d{1,2}', key) else ord(key.upper())
+        out[name] = ('+'.join(held + [key.upper()]), [modifiers.MODIFIERS[m] for m in held], code)
+    return out
 
 
 def key_code(name):
@@ -224,14 +249,21 @@ class Game(object):
         return [r.strip() for r in fresh.splitlines() if r.strip()]
 
 
-def shortcut_round(game):
+def shortcut_round(game, presses=None):
     """Which shortcut opens which window? One key per test, and every window shut again.
 
     **Start from a verified empty state.** If something was still open it becomes the baseline and
     the first key reports "no change" - that happened on 23 August 2026 with F1, which kept four of
     the nine keys out of the file.
+
+    `presses` is a list of (name, press, twice); without it the round posts the keys in `KEYS`. A
+    press with `twice` goes in a second time whether a window opened or not: alt+t is also
+    toggle_event_shortcuts, which no widget declares, so a toggle nobody can see goes back with it.
     """
     out = {}
+    if presses is None:
+        presses = [(name, lambda code=code: channel.ask('sendkey %d' % code), False)
+                   for code, name in sorted(KEYS.items())]
     # Only with -debug_mode is there a console to shut; a round without it has nothing to do here.
     if game.console_open():
         game.set_console(False)
@@ -247,8 +279,8 @@ def shortcut_round(game):
         print('  NOTE: did not start empty, still open: %s' % ', '.join(sorted(baseline)))
     # Imported here because harvest imports this module.
     from harvest import paused
-    for code, name in sorted(KEYS.items()):
-        channel.ask('sendkey %d' % code)
+    for name, press, twice in presses:
+        press()
         time.sleep(1.8)
         _, _, now_drawn = game.state()
         added = now_drawn - baseline
@@ -258,8 +290,8 @@ def shortcut_round(game):
         # number of widgets - the round of 1 September 2026 stopped after three keys because zoom
         # builds widgets and never takes them down, while it opens no window at all.
         restored = now_drawn
-        if added:
-            channel.ask('sendkey %d' % code)
+        if added or twice:
+            press()
             time.sleep(1.4)
             _, _, restored = game.state()
         for _ in range(3):
@@ -280,7 +312,7 @@ def shortcut_round(game):
         if not paused(game):
             raise SystemExit('after %s the clock is running. Pause the game by hand; a running '
                              'clock makes the state unrepeatable' % name)
-        print('  %-4s %s' % (name, ', '.join(sorted(added)) or 'no change'))
+        print('  %-10s %s' % (name, ', '.join(sorted(added)) or 'no change'))
     return out
 
 
@@ -359,15 +391,39 @@ def unmapped(pid, game=None):
             sorted(n for n in known if n not in live))
 
 
-def keys_only(pid):
+def keys_only(pid, modified=False):
     """Only the key round, and add what it finds to the map without touching anything else in it.
 
     Runs without -debug_mode. A key that opens a window becomes that window's shortcut route in
     `reports\\windows.json`; a window that already has one keeps it, and nothing is removed - a
     key that finds nothing this time says something about this state, not about the window.
+    With `modified` it presses the bindings in `MODIFIED` through SendInput, and holds the
+    foreground from the first press to the last; if the player takes it back, nothing more goes in.
     """
     game = Game(pid)
-    found = shortcut_round(game)
+    if not modified:
+        found = shortcut_round(game)
+    else:
+        import modifiers
+        import speech
+        import windowgrab
+        hwnd = windowgrab.window_of(pid)[0]
+        hers = modifiers.user32.GetForegroundWindow()
+        keys = modifiers.Keys(hwnd)
+        presses = [(spelling, lambda held=held, code=code: keys.combo(held, code), True)
+                   for spelling, held, code in modified_keys().values()]
+        speech.output('the key round takes the game to the front for about %d seconds; please do not '
+                      'type' % (len(presses) * 20))
+        time.sleep(4)
+        try:
+            if not modifiers.bring(hwnd):
+                raise SystemExit('the game did not come to the front; nothing was sent')
+            found = shortcut_round(game, presses)
+        finally:
+            keys.release()
+            if hers and modifiers.user32.IsWindow(hers):
+                modifiers.bring(hers)
+            speech.output('the key round is done, the foreground is yours again')
     with open(OUT, encoding='utf-8') as file:
         result = json.load(file)
     added = []
@@ -389,6 +445,8 @@ def main():
     rest = sys.argv[2:]
     if rest == ['--keys']:
         return keys_only(pid)
+    if rest == ['--modified-keys']:
+        return keys_only(pid, modified=True)
     limit = int(rest[0]) if rest and rest[0].isdigit() else None
     chosen = [name for name in rest if not name.isdigit()]
     windows = windows_on_disk()

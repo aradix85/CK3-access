@@ -12,6 +12,12 @@ front, during F1, and during shift+F1. With shift held through SendInput, GetKey
 positive control the counter of August 2026 never had; a posted shift does not set the key state
 that SendInput sets, which is the assumption this is here to settle.
 
+Measured 2 October 2026 on 1.20.0.3, without mods or debug mode: F1 drew character_window alone,
+shift+F1 ledger_window alone, and the state and the clock came back. The counter stood at nothing
+idle and during F1, and during shift+F1 GetKeyState was asked 44 times, every time for left shift;
+raw input was never read. So the game asks about shift only while it believes shift is down, which
+is why the counter of August could not move, and keys from SendInput are all a round needs.
+
 Every key goes in only while the game window is the foreground window, checked right before it,
 so nothing can land in the player's own window, and a shift that went down always goes up again.
 Windows are closed again with posted keys, which need no foreground, and the state has to come back.
@@ -45,7 +51,11 @@ user32.SetForegroundWindow.argtypes = [wt.HWND]
 user32.BringWindowToTop.argtypes = [wt.HWND]
 user32.IsWindow.argtypes = [wt.HWND]
 user32.GetAsyncKeyState.restype = ctypes.c_short
-VK_SHIFT, VK_LSHIFT, VK_F1, VK_ESCAPE = 0x10, 0xA0, 0x70, 0x1B
+VK_LSHIFT, VK_F1, VK_ESCAPE = 0xA0, 0x70, 0x1B
+# Left shift, left ctrl and left alt, the keys a keyboard reports, each with the generic key
+# Windows has to hold down along with it.
+MODIFIERS = {'shift': 0xA0, 'ctrl': 0xA2, 'alt': 0xA4}
+GENERIC = {0xA0: 0x10, 0xA2: 0x11, 0xA4: 0x12}
 KEYEVENTF_KEYUP, INPUT_KEYBOARD = 0x0002, 1
 
 
@@ -83,7 +93,7 @@ def bring(hwnd):
 class Keys(object):
     def __init__(self, game_window):
         self.game = game_window
-        self.shift_down = False
+        self.down = []
 
     def _send(self, vk, up):
         event = INPUT(type=INPUT_KEYBOARD)
@@ -95,14 +105,33 @@ class Keys(object):
         if user32.GetForegroundWindow() != self.game:
             raise RuntimeError('the game lost the foreground; nothing more is sent')
         self._send(vk, up)
-        if vk == VK_LSHIFT:
-            self.shift_down = not up
+        if vk in GENERIC:
+            if up:
+                self.down.remove(vk)
+            else:
+                self.down.append(vk)
 
     def release(self):
-        """A shift left down would follow the player into her own window. Up is harmless anywhere."""
-        if self.shift_down:
-            self._send(VK_LSHIFT, True)
-            self.shift_down = False
+        """A modifier left down would follow the player into her own window. Up is harmless anywhere."""
+        for vk in reversed(self.down):
+            self._send(vk, True)
+        self.down = []
+
+    def combo(self, modifiers, key):
+        """Modifiers down, the key once, modifiers up; the key goes in only once Windows holds them."""
+        for vk in modifiers:
+            self.send(vk, False)
+            time.sleep(0.1)
+        time.sleep(0.2)
+        if not all(held(vk) and held(GENERIC[vk]) for vk in modifiers):
+            raise SystemExit('Windows does not hold %s down after SendInput; nothing was pressed with it'
+                             % ', '.join('0x%02X' % vk for vk in modifiers if not held(vk)))
+        self.send(key, False)
+        time.sleep(0.05)
+        self.send(key, True)
+        time.sleep(0.3)
+        for vk in reversed(modifiers):
+            self.send(vk, True)
 
 
 def held(vk):
@@ -178,16 +207,7 @@ def main(pid):
         if not bring(hwnd):
             raise SystemExit('the game lost the front before shift+F1')
         counted()
-        keys.send(VK_LSHIFT, False)
-        time.sleep(0.3)
-        if not (held(VK_LSHIFT) and held(VK_SHIFT)):
-            raise SystemExit('Windows does not hold shift down after SendInput (left %s, either %s); '
-                             'nothing was pressed with it' % (held(VK_LSHIFT), held(VK_SHIFT)))
-        keys.send(VK_F1, False)
-        time.sleep(0.05)
-        keys.send(VK_F1, True)
-        time.sleep(0.3)
-        keys.send(VK_LSHIFT, True)
+        keys.combo([VK_LSHIFT], VK_F1)
         now = drawn_after(game, 'ledger_window')
         results['shift+F1'] = counted()
         print('shift+F1 drew:', sorted(now - baseline) or 'nothing', flush=True)

@@ -896,7 +896,7 @@
    "nodes_added": 4,
    "seconds": 7.1,
    "shape": "top level",
-   "shortcut": null
+   "shortcut": "alt+T"
   },
   "curvesampler_node_window": {
    "console": false,
@@ -1204,7 +1204,7 @@
    "nodes_added": 2,
    "seconds": 7.0,
    "shape": "top level",
-   "shortcut": null
+   "shortcut": "alt+R"
   },
   "filter_window": {
    "console": false,
@@ -1660,7 +1660,7 @@
    "nodes_added": 2,
    "seconds": 7.1,
    "shape": "top level",
-   "shortcut": null
+   "shortcut": "shift+F1"
   },
   "legal_docs_viewer": {
    "console": false,
@@ -2860,7 +2860,7 @@
    "nodes_added": 2,
    "seconds": 7.1,
    "shape": "top level",
-   "shortcut": null
+   "shortcut": "ctrl+alt+R"
   },
   "window_puppet_selection": {
    "cleaned_up": true,
