@@ -112,15 +112,17 @@ more catches:** a window later in the tree catches with a plain background too, 
 `alwaystransparent`, which the game's gui carries 977 times — the full-screen event caught a click
 with a background, and a see-through icon of another event let one through.
 
-**A modifier key cannot be sent inward yet.** A key message carries no modifier state. Hooking the
-game's imports of `GetKeyState`, `GetAsyncKeyState` and `GetKeyboardState` once gave a counter that
-did not move on a keystroke — but nothing showed it could have: SDL, which sits inside the
-executable, asks about shift only while it believes shift is down (assumed from the SDL source, not
-measured here). The product never sends keys and does not need this; mapping the interface does, to
-try every shortcut including the ones with a modifier. So `tools/ck3/modifiers.py` first sends
-system-level keys with the game in front while the channel's `count` watches what the game asks
-Windows; only if the game ignores those keys does the DLL have to hand it modifier state of its
-own, and the counter will have said through which function.
+**A modifier key reaches the game through SendInput with the game in front, and not yet inward.** A
+posted key message carries no modifier state. Measured on 1.20.0.3: with the game in front, shift+F1
+from SendInput opened the ledger and F1 alone the character window, and the channel's `count` saw
+the game ask `GetKeyState` 44 times during shift+F1, every time for left shift, and nothing else -
+no raw input, and nothing at all during F1 or at rest. That is SDL, which sits inside the
+executable, checking a shift it believes is down and letting go of one Windows does not hold; it is
+why a posted shift never arrived, and why a counter tried on a plain key could not move. The product
+never sends keys and does not need this; mapping the interface does, to try every shortcut, so
+`tools/ck3/windowmap.py` with `--modified-keys` presses the combinations with the game in front.
+Sending them inward without the foreground would take a hook on `GetKeyState` while the DLL posts a
+combination; that is not built.
 
 ## 5. Reading the game
 

@@ -34,9 +34,20 @@ keeps the numbers with the rule they were counted by. A changelog that may never
   MSVC's `/analyze` led to catching only access violations where everything was caught, and to a
   64-bit clock in `waitkey`; a reply that does not fit in memory is an error instead of a crash
   inside the game, and `keys on` says so when it could not hook the window.
-- **`tools/ck3/modifiers.py`** measures whether shift+F1 reaches the game as a system-level key with
-  the game in front, with the channel counting what the game asks Windows meanwhile. It says through
-  NVDA when it takes the foreground and when it gives it back. Not run against the game yet.
+- **Shift, ctrl and alt reach the game through SendInput with the game in front.** F1 drew the
+  character window alone and shift+F1 the ledger alone, with the state and the clock back afterwards;
+  during shift+F1 the game asked Windows about left shift 44 times and about nothing else, raw input
+  included. That is the positive control the counter of August never had, and it explains why a
+  posted shift never arrived: SDL lets go of a shift Windows does not hold. `tools/ck3/modifiers.py`
+  is the measurement; it presses a key only once Windows holds the modifier, and says through NVDA
+  when it takes the foreground and when it gives it back.
+- **`windowmap.py --modified-keys`, the key round with a modifier.** It presses the nine
+  combinations the HUD declares that bring something up, reading the keys from the shortcut file,
+  each twice so that alt+T, which is also a toggle no widget declares, goes back with it. On a
+  feudal count four open a window and are in the map now: the ledger on shift+F1, the faith on alt+R,
+  personal beliefs on ctrl+alt+R and the culture on alt+T. The five that opened nothing need a ruler
+  the button is shown for - an administration, a domicile, a war, an activity, a college of
+  cardinals - and are untested, not refuted.
 - **`states.wait` waits for a game window that does not exist yet** instead of falling over:
   `windowgrab.window_of` says "no visible window" with a `LookupError` of its own now, where it
   raised an empty-sequence error. requirements.txt names psutil, which `states.py` needs.
@@ -51,9 +62,7 @@ keeps the numbers with the rule they were counted by. A changelog that may never
   445 functions carries a type, and its one finding that was not a missing annotation fails loudly.
 - **The documentation follows 1.20.** The README gives the window count and the start time measured
   on 1.20.0.3 and says a toast is announced once one comes, not that one has been heard; and
-  `ARCHITECTURE.md` no longer says a modifier key is never needed - trying every shortcut needs it,
-  and system-level keys with the game in front are measured first, raw input through the DLL only
-  if the game ignores those.
+  `ARCHITECTURE.md` no longer says a modifier key is never needed - trying every shortcut needs it.
 - **The numbering out of the running game does not read on 1.20 yet.** Religions, faiths and rites
   changed their record length, and counting between keys the files carry finds it again; a culture
   record no longer carries its key as text at all. A state begun on 1.19 also inherits 62 faiths that

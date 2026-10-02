@@ -309,6 +309,7 @@ returns a pair, passed on as one thing, costs a run.
 | call | returns | does |
 |---|---|---|
 | `bring(hwnd)` | value | The foreground, from a process that does not have it: only with the input queues joined. |
+| `held(vk)` | value | - |
 | `counted()` | value | What the game asked since the previous `count`, which also starts the next interval. |
 | `drawn_after(game, wanted, seconds=6.0)` | value | - |
 | `back_to(game, baseline, first_key)` | value of bool | Shut what opened with posted keys, and prove the state is back. |
@@ -507,13 +508,14 @@ returns a pair, passed on as one thing, costs a run.
 
 | call | returns | does |
 |---|---|---|
+| `modified_keys()` | value | Binding -> (spelling, modifier keys, key) for every name in `MODIFIED`, as the file binds it. |
 | `key_code(name)` | value | The virtual key a round presses for this name, as `KEYS` spells it. |
 | `windows_on_disk()` | value | Every window the gui files declare, with the path the console wants and how it is declared. |
 | `classes(pid)` | set | - |
-| `shortcut_round(game)` | value | Which shortcut opens which window? One key per test, and every window shut again. |
+| `shortcut_round(game, presses=None)` | value | Which shortcut opens which window? One key per test, and every window shut again. |
 | `create_round(game, windows, limit=None)` | value | Try every window with GUI.CreateWidget, and clean up immediately. |
 | `unmapped(pid, game=None)` | 3-tuple | Which windows the running game built that the map on disk does not know. |
-| `keys_only(pid)` | nothing | Only the key round, and add what it finds to the map without touching anything else in it. |
+| `keys_only(pid, modified=False)` | nothing | Only the key round, and add what it finds to the map without touching anything else in it. |
 | `main()` | value | - |
 
 ## nvda\speech.py
