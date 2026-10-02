@@ -44,7 +44,8 @@ process and from files already on your disk.
   another one — no save, no running game.
 - **The game state is readable without searching:** any character's name, culture, rite, money and
   levies, and which number means which culture, faith, religion or trait, out of the running game
-  rather than out of a save. A regression pass holds four hundred characters against the save and
+  rather than out of a save — on 1.19; on 1.20 those databases changed their record layout and the
+  numbering is being derived again. A regression pass holds four hundred characters against the save and
   names the field that disagrees.
 
 All of this was first measured on 1.19.0.6 with every DLC and five content mods loaded, and measured

@@ -15,6 +15,11 @@ keeps the numbers with the rule they were counted by. A changelog that may never
   on 1.20.0.3 and says a toast is announced once one comes, not that one has been heard; and
   `ARCHITECTURE.md` no longer says a modifier key is never needed - trying every shortcut needs it,
   and the route goes through raw input.
+- **The numbering out of the running game does not read on 1.20 yet.** Religions, faiths and rites
+  changed their record length, and counting between keys the files carry finds it again; a culture
+  record no longer carries its key as text at all. A state begun on 1.19 also inherits 62 faiths that
+  1.20 turned into rites, so the numbering is measured on a state begun on 1.20, where 103 of 103
+  faiths come out.
 
 ## 2026-10-01
 
