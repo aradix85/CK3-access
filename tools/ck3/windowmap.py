@@ -145,6 +145,135 @@ def window_keys_plan():
         print('  %3d windows  %-28s %-12s %s' % (count, binding[:28], keys or 'computed', calls[:80]))
 
 
+def presses_for(rows, bound, numbers=3):
+    """(binding, keys) to press in one window: every view-only row, once.
+
+    A computed name stands for a family - `[Concatenate('tab_', ...)]` reaches tab_1, tab_2 and on
+    as far as the live window has rows - so it becomes its first `numbers` bindings that have a key.
+    A quoted piece that is a binding itself, as in `[Select_CString(..., 'tab_3', 'tab_2')]`, is
+    taken as it is.
+    """
+    out = []
+    for row in rows:
+        if not row['view_only']:
+            continue
+        if not row['binding'].startswith('['):
+            names = [row['binding']]
+        else:
+            names = []
+            for piece in re.findall(r"'([A-Za-z_][A-Za-z0-9_]*)'", row['binding']):
+                if piece in bound:
+                    names.append(piece)
+                else:
+                    family = sorted((int(n[len(piece):]), n) for n in bound
+                                    if n.startswith(piece) and n[len(piece):].isdigit())
+                    names += [n for _, n in family[:numbers]]
+        for name in names:
+            if bound.get(name) and (name, bound[name]) not in out:
+                out.append((name, bound[name]))
+    return out
+
+
+def shown_texts(game, name, text_classes):
+    """The texts of window `name` that are on the screen now, in draw order; None if it is not drawn.
+
+    A text counts when no widget from it up to the window carries 0x08, the bit the game sets on
+    what a `visible` condition hides - and a tab hides its neighbours that way. Text is read only on
+    a text class, because the text field of anything else reads its neighbour in memory.
+    """
+    import harvest
+    nodes = game.tree()
+    candidates = [a for a, k in nodes.items() if k[6] == name and k[0] in game.window_classes]
+    flags = derive.flags_for(candidates)
+    drawn = [a for a in candidates if flags.get(a) == 0x00]
+    if not drawn:
+        return None
+    if len(drawn) > 1:
+        raise SystemExit('%d drawn windows are called %s; which one to read is not decided'
+                         % (len(drawn), name))
+    below = [a for a, _, _ in harvest.subtree(nodes, drawn[0])]
+    flags = derive.flags_for(below)
+    hidden = set()
+    for address in below:
+        parent = nodes[address][5]
+        if flags.get(address, 0) & 0x08 or parent in hidden:
+            hidden.add(address)
+    return tuple(derive.strip_markup(nodes[a][7]) for a in below
+                 if a not in hidden and nodes[a][0] in text_classes and nodes[a][7])
+
+
+def window_keys_round(game, names):
+    """Open each window along its route, press every key in it that only changes the view, and say
+    per key what happened: the texts on screen changed, another window opened, the window shut, or
+    nothing. The state is put back after every key and must come back after every window.
+
+    What it measures is the window's own text, not the set of drawn windows, because a tab opens
+    nothing - a round that watched windows only would call every tab key dead. A key that leaves
+    the text unchanged may still act (a fold that hides no text, a map mode behind the window), so
+    `nothing` here means no text moved, not that the key is unbound.
+    """
+    import harvest
+    with open(OUT, encoding='utf-8') as file:
+        windows = json.load(file)['windows']
+    text = open(os.path.join(GAME, 'game', 'gui', 'shortcuts.shortcuts'), encoding='utf-8-sig').read()
+    bound = {n: k for n, k in re.findall(r'^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"([^"]*)"', text, re.M)
+             if k.strip()}
+    plan = window_bindings()
+    base = vtablemap.module_base(game.pid)
+    text_classes = {base + v for name in ('Textbox', 'Editbox')
+                    for v in memory.vtables_by_name(name) or []}
+    _, _, baseline = game.state()
+    out = {}
+    for name in names:
+        row = windows[name]
+        nodes, _ = harvest.open_window(game, name, row, baseline)
+        if nodes is None:
+            out[name] = 'did not open'
+            print('%s: did not open' % name)
+            continue
+        time.sleep(1.0)
+        before = shown_texts(game, name, text_classes)
+        results = []
+        for binding, keys in presses_for(plan.get(name, []), bound):
+            try:
+                press(keys)
+            except KeyError:
+                results.append((binding, keys, 'no key code for this spelling'))
+                continue
+            time.sleep(1.4)
+            _, _, drawn = game.state()
+            after = shown_texts(game, name, text_classes)
+            opened = sorted(drawn - baseline - {name})
+            if after is None:
+                what = 'shut the window'
+            elif opened:
+                what = 'opened ' + ', '.join(opened)
+            elif after != before:
+                what = 'changed the text: %d lines, was %d' % (len(after), len(before))
+            else:
+                what = 'nothing'
+            results.append((binding, keys, what))
+            print('  %-24s %-14s %-16s %s' % (name[:24], keys, binding[:16], what))
+            for _ in range(3):
+                if not drawn - baseline - {name}:
+                    break
+                channel.ask('sendkey 27')
+                time.sleep(1.2)
+                _, _, drawn = game.state()
+            if name not in drawn:
+                nodes, _ = harvest.open_window(game, name, row, baseline)
+                if nodes is None:
+                    raise SystemExit('%s did not open again after %s' % (name, keys))
+                time.sleep(1.0)
+            before = shown_texts(game, name, text_classes)
+        out[name] = results
+        if not harvest.close_window(game, row, baseline):
+            raise SystemExit('after %s the state did not come back; shut it by hand' % name)
+        if not harvest.paused(game):
+            raise SystemExit('after %s the clock is running; pause the game by hand' % name)
+    return out
+
+
 def modified_keys():
     """Binding -> (spelling, modifier keys, key) for every name in `MODIFIED`, as the file binds it."""
     import modifiers
@@ -158,9 +287,39 @@ def modified_keys():
     return out
 
 
-def key_code(name):
-    """The virtual key a round presses for this name, as `KEYS` spells it."""
-    return next(code for code, key in KEYS.items() if key == name)
+# Keys the shortcut file spells by name, as virtual keys. A letter, a digit and F1 to F24 follow
+# from their spelling; these do not.
+NAMED_KEYS = {'TAB': 9, 'BACKSPACE': 8, 'RETURN': 13, 'ESCAPE': 27, 'SPACE': 32, 'HOME': 36,
+              'END': 35, 'PAGE_UP': 33, 'PAGE_DOWN': 34, 'LEFT': 37, 'UP': 38, 'RIGHT': 39,
+              'DOWN': 40, '-': 0xBD, '=': 0xBB}
+
+
+def key_of(key):
+    """The virtual key for one key as the shortcut file or the map spells it: F1, c, 0, BACKSPACE.
+    A spelling it does not know raises KeyError, and the caller says which."""
+    key = key.upper()
+    if re.fullmatch(r'F\d{1,2}', key):
+        return 0x6F + int(key[1:])
+    if re.fullmatch(r'[A-Z0-9]', key):
+        return ord(key)
+    return NAMED_KEYS[key]
+
+
+def press(spelling):
+    """Press a key as the map spells it - `F1`, or a combination such as `shift+F1` - from inside.
+
+    A combination goes through the channel's `combo`, which holds the modifier for the game; a
+    posted key alone carries no modifier state. Since 2 October 2026 the map carries six windows
+    whose only key is a combination, and pressing those as a plain key was a lookup that failed.
+    """
+    import modifiers
+    *held, key = spelling.lower().split('+')
+    code = key_of(key)
+    if held:
+        channel.ask('combo %d %s' % (COMBO_PAUSE, ' '.join(
+            str(c) for c in [modifiers.MODIFIERS[m] for m in held] + [code])))
+    else:
+        channel.ask('sendkey %d' % code)
 
 
 def windows_on_disk():
@@ -524,6 +683,13 @@ def main():
         return window_keys_plan()
     pid = int(sys.argv[1])
     rest = sys.argv[2:]
+    if rest[:1] == ['--window-keys']:
+        # A trial names its windows, and writes beside the map rather than into it.
+        found = window_keys_round(Game(pid), rest[1:])
+        target = os.path.join(os.environ['TEMP'], 'ck3', 'window_keys_trial.json')
+        with open(target, 'w', encoding='utf-8') as file:
+            json.dump(found, file, ensure_ascii=False, indent=1)
+        return print('written: %s' % target)
     if rest == ['--keys']:
         return keys_only(pid)
     if rest == ['--modified-keys']:

@@ -279,7 +279,7 @@ def click_routes(windows):
             if inside and not (windows.get(inside) or {}).get('shortcut'):
                 continue
             out[name] = {'click': row['point'], 'button': row['widget'], 'first': inside,
-                         'first_key': windowmap.key_code(windows[inside]['shortcut']) if inside else 0,
+                         'first_key': windows[inside]['shortcut'] if inside else None,
                          'file': windows.get(name, {}).get('file'), 'drawn': True}
     return out
 
@@ -314,7 +314,7 @@ def open_window(game, name, row, baseline):
     tries = OPEN_TRIES if row.get('drawn') else 1
     for attempt in range(1, tries + 1):
         if row.get('shortcut'):
-            channel.ask('sendkey %d' % windowmap.key_code(row['shortcut']))
+            windowmap.press(row['shortcut'])
             for _ in range(14):
                 time.sleep(0.6)
                 if 0x00 in derive.flags_for(candidates).values():
@@ -327,7 +327,7 @@ def open_window(game, name, row, baseline):
                     _, _, drawn = game.state()
                     if row['first'] in drawn:
                         break
-                    channel.ask('sendkey %d' % row['first_key'])
+                    windowmap.press(row['first_key'])
                     time.sleep(1.2)
                 else:
                     continue
@@ -365,7 +365,7 @@ def close_window(game, row, baseline, limit=12):
         # Escape just shut - with a key that opens two windows at once the loop never ends.
         if row.get('shortcut'):
             if attempt == 0:
-                channel.ask('sendkey %d' % windowmap.key_code(row['shortcut']))
+                windowmap.press(row['shortcut'])
         elif not row.get('click'):
             game.command('GUI.ClearWidgets')
         # The click route closes on Escape alone, at the foot of this loop, and that key is only

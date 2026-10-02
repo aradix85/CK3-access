@@ -510,8 +510,12 @@ returns a pair, passed on as one thing, costs a run.
 |---|---|---|
 | `window_bindings()` | value | Window -> every shortcut its widgets declare, with what pressing it calls. Disk only. |
 | `window_keys_plan()` | nothing | Print what a key round inside the windows would press, and what it leaves to a person. |
+| `presses_for(rows, bound, numbers=3)` | value | (binding, keys) to press in one window: every view-only row, once. |
+| `shown_texts(game, name, text_classes)` | value of NoneType | The texts of window `name` that are on the screen now, in draw order; None if it is not drawn. |
+| `window_keys_round(game, names)` | value | Open each window along its route, press every key in it that only changes the view, and say |
 | `modified_keys()` | value | Binding -> (spelling, modifier keys, key) for every name in `MODIFIED`, as the file binds it. |
-| `key_code(name)` | value | The virtual key a round presses for this name, as `KEYS` spells it. |
+| `key_of(key)` | value | The virtual key for one key as the shortcut file or the map spells it: F1, c, 0, BACKSPACE. |
+| `press(spelling)` | nothing | Press a key as the map spells it - `F1`, or a combination such as `shift+F1` - from inside. |
 | `windows_on_disk()` | value | Every window the gui files declare, with the path the console wants and how it is declared. |
 | `classes(pid)` | set | - |
 | `shortcut_round(game, presses=None)` | value | Which shortcut opens which window? One key per test, and every window shut again. |

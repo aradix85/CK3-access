@@ -11,6 +11,22 @@ keeps the numbers with the rule they were counted by. A changelog that may never
 
 ## 2026-10-02
 
+- **Alt+G opens the College of Cardinals on a ruler whose faith elects them**, measured on a
+  Chalcedonian prince-archbishop in 867; seven of the nine combinations the HUD declares now open
+  a window. The two left need a war and a running activity.
+- **Keys inside a window are pressed and measured: `windowmap.py <pid> --window-keys <window> ...`.**
+  It opens each window along its route, presses every key that only changes the view, and says
+  whether the window's own text changed, another window opened or the window shut - a tab opens
+  nothing, so watching windows alone would call every tab key dead. Over five windows every tab key
+  but the one already showing changed the text, and so did the compact views; a widget carrying
+  several shortcuts answered to more than one, unlike onclick, where only the last fires.
+- **A window whose only key is a combination opens again in the harvest.** The map has carried six
+  since this morning, and the harvest looked their keys up as plain keys; one function now presses
+  a key as the map spells it, through `combo` when it holds a modifier.
+- The injector asks Windows to show the game without activating it, because the game took the
+  foreground by itself at start-up while the player was reading in another window. Whether the game
+  honours that is measured at the next start.
+
 - **Which keys live in which window, and which of them only change the view, comes off disk:
   `windowmap.py --window-keys`.** Every window is expanded and every shortcut its widgets declare is
   filed with what pressing it calls. A key round presses only calls on a list of view changes - a

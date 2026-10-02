@@ -10,6 +10,8 @@ import ctypes
 import ctypes.wintypes as wt
 
 CREATE_SUSPENDED = 0x00000004
+STARTF_USESHOWWINDOW = 0x00000001
+SW_SHOWNOACTIVATE = 4
 MEM_COMMIT_RESERVE = 0x00003000
 MEM_RELEASE = 0x00008000
 PAGE_READWRITE = 0x04
@@ -54,9 +56,18 @@ def _require(result, what):
 
 
 def start_with_dll(exe_path, dll_path, arguments=''):
-    """Starts exe_path suspended, loads dll_path into it, resumes the process. Returns the pid."""
+    """Starts exe_path suspended, loads dll_path into it, resumes the process. Returns the pid.
+
+    **The game is asked to show its window without taking the foreground**, because the player
+    reads along in another window. Measured 2 October 2026: started without this, the game took the
+    foreground by itself twenty seconds in, while no script of ours touched its window. Windows uses
+    `wShowWindow` instead of what the program asks for on its first ShowWindow call; whether the
+    game's SDL window honours it is checked at the next start, with the foreground logged.
+    """
     startup = STARTUPINFOW()
     startup.cb = ctypes.sizeof(startup)
+    startup.dwFlags = STARTF_USESHOWWINDOW
+    startup.wShowWindow = SW_SHOWNOACTIVATE
     pid = PROCESS_INFORMATION()
     command = ctypes.create_unicode_buffer('"%s" %s' % (exe_path, arguments))
 
