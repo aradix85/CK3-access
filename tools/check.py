@@ -103,15 +103,16 @@ def channel_names():
     exactly the half-finished rename this project has already paid for twice.
 
     **What counts as a claim, and why the rule is this narrow.** A backticked phrase of two
-    lowercase words, or one word followed by a `<placeholder>`. A wider rule is useless: widget
-    names, function names and script names are all single lowercase tokens, and requiring those to
-    be commands produced 223 false alarms against 31 real hits. Two words with a space between them
-    is what a command looks like and almost nothing else does.
+    lowercase words, or one word followed by one or more `<placeholder>`s - `mouse <x> <y> <knop>`
+    and `combo <ms> <modifier>... <key>` slipped through while only one placeholder counted. A wider
+    rule is useless: widget names, function names and script names are all single lowercase tokens,
+    and requiring those to be commands produced 223 false alarms against 31 real hits. Two words with
+    a space between them is what a command looks like and almost nothing else does.
 
     Returns (problems, how many claims were checked).
     """
     known = channel_commands()
-    claim = re.compile(r'^([a-z_]+)(?: ([a-z_]+)| (<[^>]+>))$')
+    claim = re.compile(r'^([a-z_]+)(?: ([a-z_]+)|(?: <[^>]+>(?:\.\.\.)?)+(?: \.\.\.)?)$')
     problems, checked = [], 0
     for path in _documents():
         for number, line in enumerate(open(path, encoding='utf-8'), 1):

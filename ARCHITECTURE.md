@@ -26,7 +26,8 @@ combination with its modifier held, and, as an instrument, count what the game a
 keyboard. That is all. It does not know what a county is, and it contains no speech.
 
 **It is tested without the game.** `tests/test_channel.py` loads the DLL into a small program of its
-own that builds a fake widget tree, and drives every command through the real pipe, also with
+own that builds a fake widget tree and an off-screen window logging every key it is sent, and drives
+every command through the real pipe, also with
 AddressSanitizer around both. The build stops on any compiler warning, the code analysis of
 `/analyze` included, and pytest runs clang-tidy. Building and testing take seconds; a restart of
 the game takes minutes, so the DLL is tested before the game ever sees it.

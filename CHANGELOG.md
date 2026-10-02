@@ -311,9 +311,8 @@ keeps the numbers with the rule they were counted by. A changelog that may never
   mode while the game has focus, so the reader is not talked over and keeps the keys it needs.
 - **Everything public is English**, and `check.py` grew two teeth: a number a public document
   quotes is held to the measured value, and a bare file name in backticks has to exist.
-- **A modifier key cannot be posted into the game**, and **hovering cannot be provoked from outside
-  the process** — which settles that the game does not see our cursor, not that tooltips live
-  outside the widget tree.
+- **Hovering cannot be provoked from outside the process** — which settles that the game does not
+  see our cursor, not that tooltips live outside the widget tree.
 
 ## 2026-08-23 — first public source
 

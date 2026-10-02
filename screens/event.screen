@@ -79,8 +79,8 @@ screen = {
 				}
 			}
 
-			# Taken from the CK3 wiki, not measured here: a modifier key posted into the game never
-			# arrives, so only a player pressing it can confirm it. Until then this line is a claim.
+			# Measured 2 October 2026 with the channel's `combo`: an event stayed on ctrl+1 and was
+			# answered on shift+1. The binding is event_option_<n>, which no widget declares.
 			key = "shift and the number of the option"
 
 			# What the explain key reads out while standing on this option: what the game
