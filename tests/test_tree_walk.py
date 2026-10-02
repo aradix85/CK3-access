@@ -27,7 +27,7 @@ def heard(monkeypatch):
     """A recorder in place of the NVDA client, and nothing said before this test."""
     recorder = speech.Recorder()
     monkeypatch.setattr(speech, '_client', recorder)
-    monkeypatch.setattr(derive, '_UNREADABLE_SAID', set())
+    monkeypatch.setattr(derive, '_MISSING_SAID', set())
     return recorder
 
 
@@ -42,7 +42,7 @@ def test_a_whole_tree_says_nothing(heard, monkeypatch):
 
 
 def test_an_unreadable_node_is_said_and_the_rest_still_comes_back(heard, monkeypatch):
-    answer(monkeypatch, WIDGET, 'unreadable\t2000')
+    answer(monkeypatch, WIDGET, 'missing\t2000\tunreadable')
     assert list(derive.widgets(0x1000)) == [0x1000]
     assert len(heard.spoken) == 1
     assert 'could not be read' in heard.spoken[0]
@@ -50,10 +50,10 @@ def test_an_unreadable_node_is_said_and_the_rest_still_comes_back(heard, monkeyp
 
 
 def test_the_same_node_is_said_once_and_a_new_one_again(heard, monkeypatch):
-    answer(monkeypatch, WIDGET, 'unreadable\t2000')
+    answer(monkeypatch, WIDGET, 'missing\t2000\tunreadable')
     derive.widgets(0x1000)
     derive.widgets(0x1000)
     assert len(heard.spoken) == 1
-    answer(monkeypatch, WIDGET, 'unreadable\t3000')
+    answer(monkeypatch, WIDGET, 'missing\t3000\tchild list unreadable')
     derive.widgets(0x1000)
     assert len(heard.spoken) == 2

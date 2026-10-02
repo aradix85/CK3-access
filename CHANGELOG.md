@@ -11,11 +11,29 @@ keeps the numbers with the rule they were counted by. A changelog that may never
 
 ## 2026-10-02
 
-- **A part of the screen the tree walk cannot read is now heard.** Since 1 October the channel
-  reported such a node, but only to a console nobody reads; now it leaves through the one exit for
-  a failure, once per address, so the reader polling the toast container does not repeat it every
-  round. `tests/test_tree_walk.py` holds it, and fails when either the sentence or the once-only
-  rule is taken out.
+- **Whatever the tree walk loses is heard.** It arrives on one kind of line, `missing` with an
+  address and a reason, and leaves through the one exit for a failure, once per address so the
+  reader polling the toast container does not repeat it every round: a node, child fields or a
+  child list that cannot be read, a child count nobody believes, a walk an exception broke off, a
+  text cut short. Until now these were five kinds of line that no Python code read, and an object
+  cut off before its child fields lost its subtree without any line at all.
+- **The DLL has no default field offsets.** Checking a stored derivation walked the tree on the
+  1.19 values compiled into the DLL, because the offsets were sent only afterwards. They are sent
+  first now, `set` takes all seven, and a walk without them is refused.
+- **The channel refuses what it does not read**: an argument too many, rubbish in a list of
+  addresses or key codes, a 257th vtable. `find` with more than 200 hits is an error after the list
+  instead of a first page taken for the whole. `scan` no longer skips the last bytes of every memory
+  region, and returns only the address and vtable its one caller reads.
+- **Removed because nothing used them:** `call`, which ran any function from a widget's vtable and
+  was the most dangerous thing the pipe offered, and `waitchange`.
+- **`count`, an instrument for the modifier keys**: counts what the game asks Windows about the
+  keyboard through its own import table, per key for `GetKeyState` and `GetAsyncKeyState`.
+- **The DLL is tested without the game.** `tests/test_channel.py` loads it into a small program of
+  its own that builds a fake widget tree with every loss the walk must report; it passes, also under
+  AddressSanitizer, and fails on more than twenty predictions against the DLL of the commit before.
+  MSVC's `/analyze` led to catching only access violations where everything was caught, and to a
+  64-bit clock in `waitkey`; a reply that does not fit in memory is an error instead of a crash
+  inside the game, and `keys on` says so when it could not hook the window.
 - **The documentation follows 1.20.** The README gives the window count and the start time measured
   on 1.20.0.3 and says a toast is announced once one comes, not that one has been heard; and
   `ARCHITECTURE.md` no longer says a modifier key is never needed - trying every shortcut needs it,

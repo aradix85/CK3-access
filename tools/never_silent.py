@@ -111,6 +111,7 @@ def field_moved(pid, fields):
     finally:
         derive.STORED, derive.derive_all = stored_at, derive_all
         derive.use_fields(fields)
+        derive.configure_channel(fields)        # the moved copy reached the DLL too; put it back
         os.remove(copy)
 
 

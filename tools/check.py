@@ -78,7 +78,7 @@ def widget_vtables():
 
 CHANNEL_PARSE = re.compile(r'(?:strcmp|strncmp|sscanf)\(command,\s*"([a-z_]+(?: [a-z_]+)?)')
 # Backticked phrases that look like a command but belong to someone else's vocabulary.
-NOT_OURS = {'git': 'a program', 'effect': "the game's own console", 'answer': 'a channel reply'}
+NOT_OURS = {'git': 'a program', 'effect': "the game's own console"}
 
 
 def _documents():

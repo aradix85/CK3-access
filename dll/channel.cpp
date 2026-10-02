@@ -12,29 +12,33 @@
 
 static const wchar_t* PIPE_NAME = L"\\\\.\\pipe\\ck3_access";
 
-// Set by Python with the 'set' command. The initial values are those of build 1.19.0.6,
-// only so that a test without 'set' does something sensible.
-static SIZE_T f_parent = 0x0E8, f_position = 0x118, f_size = 0x128, f_name = 0x1B8, f_text = 0x390;
+// Set by Python with `set`. There are no defaults: a walk on offsets nobody passed in is refused.
+static SIZE_T f_parent, f_position, f_size, f_name, f_text, f_children, f_count;
+static bool g_fields_set = false;
 
-static unsigned long long* g_vtables = NULL;   // sorted, for binary search
+static unsigned long long g_vtables[256];   // sorted, for binary search
 static int g_vtable_count = 0;
 
 // --- reply buffer -----------------------------------------------------------
 // One buffer per thread. That way two connections cannot overwrite each other, and a command
-// that waits a long time (waitkey, waitchange) need not hold a lock that freezes every other
-// conversation.
+// that waits a long time (waitkey) need not hold a lock that freezes every other conversation.
+// A reply that does not fit in memory becomes an error, never a crash inside the game.
 static __declspec(thread) char* g_buf = NULL;
 static __declspec(thread) size_t g_len = 0;
 static __declspec(thread) size_t g_cap = 0;
+static __declspec(thread) bool g_lost = false;
 
-static void buf_clear(void) { g_len = 0; }
+static void buf_clear(void) { g_len = 0; g_lost = false; }
 
 static void buf_add(const char* text, size_t n)
 {
+    if (g_lost) return;
     if (g_len + n + 1 > g_cap) {
         size_t fresh = (g_cap ? g_cap : 65536);
         while (fresh < g_len + n + 1) fresh *= 2;
-        g_buf = (char*)realloc(g_buf, fresh);
+        char* bigger = (char*)realloc(g_buf, fresh);
+        if (!bigger) { g_lost = true; return; }
+        g_buf = bigger;
         g_cap = fresh;
     }
     memcpy(g_buf + g_len, text, n);
@@ -73,7 +77,25 @@ static void buf_hex(const unsigned char* p, size_t count)
     if (out) buf_add(part, out);
 }
 
+// Did a parse read the whole command? `consumed` is where it stopped, from a trailing %n, or -1
+// when the parse never got there. A command with text left over is refused, never shortened: an
+// argument that is dropped looks exactly like one that arrived.
+static bool all_read(const char* command, int consumed)
+{
+    if (consumed < 0) return false;
+    const char* p = command + consumed;
+    while (*p == ' ' || *p == '\t') p++;
+    return *p == 0;
+}
+
 // --- reading memory safely --------------------------------------------------
+// The game frees memory while we read it, which raises an access violation. That, and nothing
+// else, is caught: any other exception is a real fault and must not be hidden.
+static int access_violation(DWORD code)
+{
+    return code == EXCEPTION_ACCESS_VIOLATION ? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH;
+}
+
 static bool readable(const void* address, SIZE_T count)
 {
     MEMORY_BASIC_INFORMATION info;
@@ -142,11 +164,9 @@ static bool is_widget(unsigned long long vtable)
 
 // --- the commands -----------------------------------------------------------
 
-// scan: walk memory and return every widget object.
-// Without bounds it walks everything, and with CK3 that costs tens of seconds because the game
-// has eleven gigabytes in use. With bounds it only reads the regions where widgets turned up
-// last time; those come from one pool, so that is a handful of regions.
-// Every region with hits is followed by a 'region' line, so the other side can remember it.
+// scan: every address that holds a widget vtable, with that vtable, and nothing else - it runs
+// before the field offsets are known, because the derivation starts here. Every eight bytes up to
+// the end of a region are a candidate. Without bounds it walks all eleven gigabytes of the game.
 static void cmd_scan(unsigned long long from_address, unsigned long long to_address)
 {
     if (g_vtable_count == 0) { emit("error: no vtables set\n"); return; }
@@ -157,8 +177,6 @@ static void cmd_scan(unsigned long long from_address, unsigned long long to_addr
                                       : (const unsigned char*)base.lpMinimumApplicationAddress;
     const unsigned char* end_at = to_address ? (const unsigned char*)to_address
                                      : (const unsigned char*)base.lpMaximumApplicationAddress;
-
-    char name[512], text[1024];
     int found = 0;
     int skipped = 0;
 
@@ -171,40 +189,27 @@ static void cmd_scan(unsigned long long from_address, unsigned long long to_addr
                          !(info.Protect & PAGE_GUARD) &&
                          (info.Protect & (PAGE_READWRITE | PAGE_WRITECOPY));
         if (usable) {
-            const unsigned char* begin = (const unsigned char*)info.BaseAddress;
-            const unsigned char* stop = next_item - f_text - 32;
-            int here = 0;
             // The game frees memory while we are reading. A violation here may abort the
-            // scan, but must never take the game or the channel with it.
+            // region, but must never take the game or the channel with it; it is counted.
             __try {
-                for (const unsigned char* p = begin; p < stop; p += 8) {
-                    if (!is_widget(*(const unsigned long long*)p)) continue;
-                    name[0] = 0; text[0] = 0;
-                    read_cstring(name, sizeof(name), p, f_name);
-                    read_cstring(text, sizeof(text), p, f_text);
-                    emit("w\t%llx\t%llx\t%.1f\t%.1f\t%.1f\t%.1f\t%llx\t%s\t%s\n",
-                            (unsigned long long)p, *(const unsigned long long*)p,
-                            read_float(p + f_position), read_float(p + f_position + 4),
-                            read_float(p + f_size), read_float(p + f_size + 4),
-                            read64(p + f_parent), name, text);
-                    found++; here++;
+                for (const unsigned char* p = (const unsigned char*)info.BaseAddress; p + 8 <= next_item; p += 8) {
+                    unsigned long long vtable = *(const unsigned long long*)p;
+                    if (!is_widget(vtable)) continue;
+                    emit("w\t%llx\t%llx\n", (unsigned long long)p, vtable);
+                    found++;
                 }
-            } __except (EXCEPTION_EXECUTE_HANDLER) {
+            } __except (access_violation(GetExceptionCode())) {
                 skipped++;
             }
-            if (here)
-                emit("region\t%llx\t%llx\t%d\n", (unsigned long long)info.BaseAddress,
-                        (unsigned long long)info.RegionSize, here);
         }
         pointer = next_item;
     }
     emit("done\t%d\tskipped\t%d\n", found, skipped);
 }
 
-// tree: from a widget, walk the children, and their children, and so on.
-// This is what the channel exists for: searching no byte at all, only following pointers.
-static SIZE_T f_children = 0x0F0, f_count = 0x0FC;
-
+// tree: from a widget, walk the children, and their children, and so on - following pointers,
+// searching nothing. Whatever the walk loses it says on one kind of line, `missing <address> <why>`,
+// and derive.widgets speaks every one of them.
 static void emit_widget(const unsigned char* p, char* name, char* text, size_t space_name, size_t space_text)
 {
     name[0] = 0; text[0] = 0;
@@ -215,49 +220,51 @@ static void emit_widget(const unsigned char* p, char* name, char* text, size_t s
             read_float(p + f_position), read_float(p + f_position + 4),
             read_float(p + f_size), read_float(p + f_size + 4),
             read64(p + f_parent), name, text);
-    // If the text does not fit the line, a line of its own follows with the real length. That way
-    // the other side can still fetch it with `read` instead of thinking that was all of it.
-    if (name_length >= space_name || text_length >= space_text)
-        emit("truncated\t%llx\t%zu\t%zu\n", (unsigned long long)p, name_length, text_length);
+    if (name_length >= space_name)
+        emit("missing\t%llx\tname of %zu characters cut short\n", (unsigned long long)p, name_length);
+    if (text_length >= space_text)
+        emit("missing\t%llx\ttext of %zu characters cut short\n", (unsigned long long)p, text_length);
 }
 
 static void cmd_tree(unsigned long long root, unsigned limit)
 {
-    // No fixed upper bound any more. The old version stopped at 20,000 nodes and silently dropped
-    // children after that; every statement of "that is not in the tree" was unreliable as a result.
-    // The queue now grows along, and a limit only applies when the caller asks for one - and then
-    // it is reported.
+    if (!g_fields_set || g_vtable_count == 0) { emit("error: set and vtables come first\n"); return; }
+    // The queue grows; a limit applies only when the caller asks for one, and is reported.
     unsigned space = 20000;
     unsigned long long* work = (unsigned long long*)malloc(sizeof(unsigned long long) * space);
     if (!work) { emit("error: out of memory\n"); return; }
 
-    unsigned work_count = 0, done = 0, clipped = 0;
+    unsigned work_count = 0, done = 0, clipped = 0, foreign = 0;
     work[work_count++] = root;
     char name[512], text[8192];
 
     __try {
         while (done < work_count) {
             const unsigned char* p = (const unsigned char*)work[done++];
-            // Only the vtable has to be readable here: every field emit_widget reads is checked on
-            // its own. Demanding the whole object up to the text field dropped a window on 1.20.0.3
-            // whose object ends 0x390 bytes before an uncommitted page, and with it its 526 widgets,
-            // without a word - measured 1 October 2026 on the decisions window. A node that cannot
-            // even be read is reported, never skipped quietly.
-            if (!readable(p, 8)) { emit("unreadable\t%llx\n", (unsigned long long)p); continue; }
-            if (!is_widget(*(const unsigned long long*)p)) continue;
+            // Only the vtable has to be readable: every field below is checked on its own, and an
+            // object may end right before an uncommitted page.
+            if (!readable(p, 8)) { emit("missing\t%llx\tunreadable\n", (unsigned long long)p); continue; }
+            // A root that is no widget is how derive.to_root finds the top, so only children count.
+            if (!is_widget(*(const unsigned long long*)p)) { if (done > 1) foreign++; continue; }
             emit_widget(p, name, text, sizeof(name), sizeof(text));
 
-            unsigned long long list_start = read64(p + f_children);
-            unsigned how_many = 0;
-            if (readable(p + f_count, 4)) how_many = *(const unsigned*)(p + f_count);
-            if (!list_start || how_many == 0) continue;
-            // An absurd number of children means the field is wrong, not that there is a container
-            // of a million. Report it, do not skip it quietly.
-            if (how_many > 100000) {
-                emit("suspect\t%llx\tchildren\t%u\n", (unsigned long long)p, how_many);
+            // An object cut off by a page before its child fields would read as "no children".
+            if (!readable(p + f_children, 8) || !readable(p + f_count, 4)) {
+                emit("missing\t%llx\tchild fields unreadable\n", (unsigned long long)p);
                 continue;
             }
-            if (!readable((const void*)list_start, (SIZE_T)how_many * 8)) continue;
+            unsigned long long list_start = *(const unsigned long long*)(p + f_children);
+            unsigned how_many = *(const unsigned*)(p + f_count);
+            if (!list_start || how_many == 0) continue;
+            // An absurd number of children means the field is wrong, not a container of a million.
+            if (how_many > 100000) {
+                emit("missing\t%llx\t%u children is not believable\n", (unsigned long long)p, how_many);
+                continue;
+            }
+            if (!readable((const void*)list_start, (SIZE_T)how_many * 8)) {
+                emit("missing\t%llx\tchild list unreadable\n", list_start);
+                continue;
+            }
             const unsigned long long* children = (const unsigned long long*)list_start;
             for (unsigned i = 0; i < how_many; i++) {
                 if (!children[i]) continue;
@@ -266,16 +273,19 @@ static void cmd_tree(unsigned long long root, unsigned limit)
                     space *= 2;
                     unsigned long long* bigger =
                         (unsigned long long*)realloc(work, sizeof(unsigned long long) * space);
-                    if (!bigger) { emit("error: out of memory at %u nodes\n", work_count); break; }
+                    if (!bigger) { emit("error: out of memory at %u nodes\n", work_count); free(work); return; }
                     work = bigger;
                 }
                 work[work_count++] = children[i];
             }
         }
-    } __except (EXCEPTION_EXECUTE_HANDLER) {
-        emit("interrupted\t%08x\n", GetExceptionCode());
+    } __except (access_violation(GetExceptionCode())) {
+        emit("missing\t%llx\twalk broken off by exception %08x\n", work[done - 1], GetExceptionCode());
     }
     if (clipped) emit("limit hit\t%u\tnot visited\n", clipped);
+    // Children that carry no widget vtable: counted, not spoken, until it is measured whether that
+    // is normal in the game.
+    if (foreign) emit("not widgets\t%u\n", foreign);
     emit("done\t%u\n", done);
     free(work);
 }
@@ -291,41 +301,20 @@ static void cmd_read(unsigned long long address, unsigned count)
     emit("\n");
 }
 
-// call: call the nth function from an object vtable, with the object as the first
-// argument. This is the most dangerous command there is; it exists so that a button can be
-// pressed without a mouse.
-typedef unsigned long long (*Methode)(void*, unsigned long long, unsigned long long);
-
-static void cmd_call(unsigned long long address, unsigned index, unsigned long long a1, unsigned long long a2)
-{
-    void* object_address = (void*)address;
-    unsigned long long vtable = read64(object_address);
-    if (!vtable || !is_widget(vtable)) { emit("error: no widget at that address\n"); return; }
-    unsigned long long function = read64((const unsigned char*)vtable + index * 8);
-    if (!function) { emit("error: empty slot in the vtable\n"); return; }
-    unsigned long long out = 0;
-    __try {
-        out = ((Methode)function)(object_address, a1, a2);
-    } __except (EXCEPTION_EXECUTE_HANDLER) {
-        emit("error: exception %08x, the game is still alive\n", GetExceptionCode());
-        return;
-    }
-    emit("out\t%llx\n", out);
-}
-
 // --- swallowing keys --------------------------------------------------------
 static CRITICAL_SECTION g_lock;
 static int g_keys[256];
 static int g_key_count = 0;
+static unsigned g_keys_dropped = 0;      // keys that found the list full; waitkey says so
 static WNDPROC g_old_proc = NULL;
 static HWND g_window = NULL;
 static bool g_swallow[256] = {false};   // keys the game must not see
 
 static BOOL CALLBACK visit_window(HWND window, LPARAM)
 {
-    DWORD from_address = 0;
-    GetWindowThreadProcessId(window, &from_address);
-    if (from_address == GetCurrentProcessId() && IsWindowVisible(window)) { g_window = window; return FALSE; }
+    DWORD owner = 0;
+    GetWindowThreadProcessId(window, &owner);
+    if (owner == GetCurrentProcessId() && IsWindowVisible(window)) { g_window = window; return FALSE; }
     return TRUE;
 }
 
@@ -333,7 +322,7 @@ static LRESULT CALLBACK our_proc(HWND window, UINT message, WPARAM w, LPARAM l)
 {
     if (message == WM_KEYDOWN || message == WM_SYSKEYDOWN) {
         EnterCriticalSection(&g_lock);
-        if (g_key_count < 256) g_keys[g_key_count++] = (int)w;
+        if (g_key_count < 256) g_keys[g_key_count++] = (int)w; else g_keys_dropped++;
         bool swallowed = (w < 256) && g_swallow[w];
         LeaveCriticalSection(&g_lock);
         if (swallowed) return 0;   // the game does not see this key
@@ -348,6 +337,7 @@ static void keys_enable(bool enable)
         EnumWindows(visit_window, 0);
         if (!g_window) { emit("error: no window found\n"); return; }
         g_old_proc = (WNDPROC)SetWindowLongPtrW(g_window, GWLP_WNDPROC, (LONG_PTR)our_proc);
+        if (!g_old_proc) { emit("error: the window procedure was not replaced: %lu\n", GetLastError()); return; }
         emit("keys on\n");
     } else if (!enable && g_old_proc) {
         SetWindowLongPtrW(g_window, GWLP_WNDPROC, (LONG_PTR)g_old_proc);
@@ -360,14 +350,16 @@ static void keys_enable(bool enable)
 
 static void cmd_waitkey(DWORD timeout)
 {
-    DWORD begin = GetTickCount();
+    ULONGLONG begin = GetTickCount64();
     for (;;) {
         EnterCriticalSection(&g_lock);
         int count = g_key_count;
         for (int i = 0; i < count; i++) emit("key\t%d\n", g_keys[i]);
+        if (g_keys_dropped) emit("error: %u keys came in while the list of 256 was full\n", g_keys_dropped);
         g_key_count = 0;
+        g_keys_dropped = 0;
         LeaveCriticalSection(&g_lock);
-        if (count > 0 || GetTickCount() - begin >= timeout) return;
+        if (count > 0 || GetTickCount64() - begin >= timeout) return;
         Sleep(15);
     }
 }
@@ -382,13 +374,8 @@ static bool ensure_window(void)
     return true;
 }
 
-// **Until 1 September 2026 this took a button number and ignored it**: every value that was not
-// zero produced a left click, and the reply said "mouse x y 2" as if button two had been sent.
-// A boundary that reports the wrong thing is worse than one that refuses, so an unknown button
-// now says so. Nothing was calling it with anything but 0 or 1, checked over every caller.
-// **Right is measured, 1 September 2026:** on the ledger button of the hud a left click toggles
-// the window and a right click leaves it alone, with the left click proving itself first. The
-// middle button is not here because nothing needs it and nothing has tested it.
+// 0 only moves, 1 is left, 2 is right, and anything else is refused. Right was measured on the
+// ledger button of the HUD: left toggles the window, right leaves it alone.
 #define CLICK_NONE   0
 #define CLICK_LEFT   1
 #define CLICK_RIGHT  2
@@ -415,10 +402,8 @@ static void cmd_mouse(int x, int y, int button)
     emit("mouse\t%d\t%d\t%d\n", x, y, button);
 }
 
-// A posted key message with lParam zero cannot come from a real keyboard: it holds no scancode,
-// no repeat count and no extended bit. That is why the game ignored these messages while
-// swallowing those same keys did work. Here lParam is built up the way Windows would assemble
-// it itself.
+// The game ignores a posted key whose lParam is zero, so lParam is built the way Windows builds it
+// for a real keyboard: repeat count, scancode, extended bit, and the release bits.
 static LPARAM key_lparam(unsigned code, bool key_up)
 {
     UINT scancode = MapVirtualKeyW(code, MAPVK_VK_TO_VSC);
@@ -438,22 +423,9 @@ static LPARAM key_lparam(unsigned code, bool key_up)
     return l;
 }
 
-// **A modifier cannot be posted, measured 1 September 2026.**
-// Holding shift, ctrl or alt down as its own posted key and marking the key with the context bit
-// was built and tried: F1 alone opens the character window, and shift+F1, ctrl+F1 and alt+F1 all
-// three open *nothing* - not the plain binding either. So the game notices something is different
-// and still does not reach the bound combination. That code is gone rather than left in place
-// pretending.
-// **Why is still open.** A counter on `GetKeyState`, `GetAsyncKeyState` and `GetKeyboardState` in
-// the import table did not move on a plain keystroke, but nothing showed that it could have: SDL2,
-// which sits inside the exe, asks `GetKeyState` about shift only while it believes shift is down,
-// and then lets go of a shift the system key state does not carry - assumed from the SDL2 source,
-// not checked on this exe. So the first thing to measure is `SendInput` with the game in front,
-// which does set that state; failing that, count again while a real shift is held, together with
-// `GetRawInputData`, and hook only what moves.
-// **It is worth little to a player and something to this workbench.** She presses alt+s on a real
-// keyboard, where Windows sets the state and it simply works. What we cannot do yet is open the
-// windows behind the bindings with a modifier ourselves in order to measure them.
+// A posted key carries no modifier state. Shift, ctrl or alt posted as keys of their own made
+// shift+F1, ctrl+F1 and alt+F1 open nothing at all, not even the plain F1 binding (measured
+// 1 September 2026). Where the game reads its modifiers is what `count` is there to find out.
 static void cmd_sendkey(unsigned code)
 {
     if (!ensure_window()) return;
@@ -469,6 +441,107 @@ static void cmd_sendchar(unsigned ch)
     if (!ensure_window()) return;
     PostMessageW(g_window, WM_CHAR, ch, 1);
     emit("char sent\t%u\n", ch);
+}
+
+// --- counting what the game asks Windows about the keyboard -----------------
+// A measuring instrument: it changes no answer, it only counts. The game's own import table is
+// pointed, for the four keyboard functions ck3.exe imports from user32, at a wrapper that counts
+// and then calls the real one; the first two also per virtual key, because which key is asked
+// about tells a modifier check from anything else. A function the game finds through
+// GetProcAddress is not seen. Its zero means nothing until it has moved once.
+enum { C_KEYSTATE, C_ASYNC, C_KEYBOARD, C_RAWDATA, C_TOTAL };
+static const char* const g_count_names[C_TOTAL] = {
+    "GetKeyState", "GetAsyncKeyState", "GetKeyboardState", "GetRawInputData"
+};
+static const char* g_count_how[C_TOTAL] = { "not imported", "not imported", "not imported", "not imported" };
+static void* volatile g_count_real[C_TOTAL];
+static volatile LONG g_counts[C_TOTAL];
+static volatile LONG g_count_keys[2][256];       // C_KEYSTATE and C_ASYNC, per virtual key
+static bool g_count_patched = false;
+
+static void count_key(int which, int key)
+{
+    InterlockedIncrement(&g_counts[which]);
+    InterlockedIncrement(&g_count_keys[which][key & 0xFF]);
+}
+
+static SHORT WINAPI counted_key_state(int key)
+{
+    count_key(C_KEYSTATE, key);
+    return ((SHORT (WINAPI*)(int))g_count_real[C_KEYSTATE])(key);
+}
+
+static SHORT WINAPI counted_async_key_state(int key)
+{
+    count_key(C_ASYNC, key);
+    return ((SHORT (WINAPI*)(int))g_count_real[C_ASYNC])(key);
+}
+
+static BOOL WINAPI counted_keyboard_state(PBYTE state)
+{
+    InterlockedIncrement(&g_counts[C_KEYBOARD]);
+    return ((BOOL (WINAPI*)(PBYTE))g_count_real[C_KEYBOARD])(state);
+}
+
+static UINT WINAPI counted_raw_data(HRAWINPUT input, UINT command, LPVOID data, PUINT size, UINT header)
+{
+    InterlockedIncrement(&g_counts[C_RAWDATA]);
+    return ((UINT (WINAPI*)(HRAWINPUT, UINT, LPVOID, PUINT, UINT))g_count_real[C_RAWDATA])(input, command, data, size, header);
+}
+
+// Once per process. The wrappers stay in place for the rest of the session: they only count, and
+// putting the table back while a game thread is inside a wrapper is the one way this could take
+// the game down. The real function is stored before the slot is turned, so a call that arrives in
+// between still finds it.
+static void count_patch(void)
+{
+    static void* const ours[C_TOTAL] = {
+        (void*)counted_key_state, (void*)counted_async_key_state,
+        (void*)counted_keyboard_state, (void*)counted_raw_data
+    };
+    g_count_patched = true;
+    unsigned char* base = (unsigned char*)GetModuleHandleW(NULL);
+    IMAGE_NT_HEADERS* nt = (IMAGE_NT_HEADERS*)(base + ((IMAGE_DOS_HEADER*)base)->e_lfanew);
+    DWORD imports = nt->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress;
+    if (!imports) return;
+    for (IMAGE_IMPORT_DESCRIPTOR* d = (IMAGE_IMPORT_DESCRIPTOR*)(base + imports); d->Name; d++) {
+        if (_stricmp((const char*)(base + d->Name), "user32.dll") != 0 || !d->OriginalFirstThunk) continue;
+        IMAGE_THUNK_DATA* names = (IMAGE_THUNK_DATA*)(base + d->OriginalFirstThunk);
+        IMAGE_THUNK_DATA* slots = (IMAGE_THUNK_DATA*)(base + d->FirstThunk);
+        for (; names->u1.AddressOfData; names++, slots++) {
+            if (IMAGE_SNAP_BY_ORDINAL(names->u1.Ordinal)) continue;
+            const char* name = (const char*)((IMAGE_IMPORT_BY_NAME*)(base + names->u1.AddressOfData))->Name;
+            for (int i = 0; i < C_TOTAL; i++) {
+                if (strcmp(name, g_count_names[i]) != 0) continue;
+                DWORD old = 0;
+                if (!VirtualProtect(&slots->u1.Function, sizeof(slots->u1.Function), PAGE_READWRITE, &old)) {
+                    g_count_how[i] = "import slot not writable";
+                    continue;
+                }
+                g_count_real[i] = (void*)slots->u1.Function;
+                MemoryBarrier();
+                slots->u1.Function = (ULONGLONG)ours[i];
+                VirtualProtect(&slots->u1.Function, sizeof(slots->u1.Function), old, &old);
+                g_count_how[i] = "counted";
+            }
+        }
+    }
+}
+
+// count: the first time it hangs the counters in; every time it answers with what was counted
+// since the previous count and starts again from zero. So an interval is two calls.
+static void cmd_count(void)
+{
+    EnterCriticalSection(&g_lock);
+    if (!g_count_patched) count_patch();
+    LeaveCriticalSection(&g_lock);
+    for (int i = 0; i < C_TOTAL; i++)
+        emit("count\t%s\t%s\t%ld\n", g_count_names[i], g_count_how[i], InterlockedExchange(&g_counts[i], 0));
+    for (int which = 0; which < 2; which++)
+        for (int key = 0; key < 256; key++) {
+            LONG n = InterlockedExchange(&g_count_keys[which][key], 0);
+            if (n) emit("asked\t%s\t%02x\t%ld\n", g_count_names[which], key, n);
+        }
 }
 
 // find: a byte pattern in the full memory of the game, from the inside. From outside, the same
@@ -488,7 +561,8 @@ static void cmd_find(const char* rest, unsigned long long from_address, unsigned
             while (*p == '?') p++;
         } else {
             unsigned value = 0;
-            if (sscanf(p, "%2x", &value) != 1) break;
+            int used = 0;
+            if (sscanf(p, "%2x%n", &value, &used) != 1 || used != 2) break;   // two digits, always
             pattern[length] = (unsigned char)value;
             mask[length] = 0xFF;
             length++;
@@ -497,7 +571,8 @@ static void cmd_find(const char* rest, unsigned long long from_address, unsigned
         while (*p == ' ') p++;
     }
     if (length == 0) { emit("error: empty search pattern\n"); return; }
-    if (*p) { emit("error: pattern longer than %d bytes\n", (int)sizeof(pattern)); return; }
+    if (*p && length == (int)sizeof(pattern)) { emit("error: pattern longer than %d bytes\n", (int)sizeof(pattern)); return; }
+    if (*p) { emit("error: not a hex byte or a wildcard: %.40s\n", p); return; }
     // The first byte carries the jump of memchr. Without that jump this becomes a loop over eleven
     // gigabytes and takes minutes instead of seconds; so a wildcard in front is a mistake and not
     // an edge case to be caught.
@@ -546,13 +621,16 @@ static void cmd_find(const char* rest, unsigned long long from_address, unsigned
                     }
                     q = hit + 1;
                 }
-            } __except (EXCEPTION_EXECUTE_HANDLER) {
+            } __except (access_violation(GetExceptionCode())) {
                 skipped++;
             }
         }
         pointer = next_item;
     }
     emit("done\t%d\treported\t%d\tskipped\t%d\n", found, reported, skipped);
+    // The list stops at LIMIT; more hits than that is an error after the list, so nobody takes the
+    // first two hundred for all of them.
+    if (found > reported) emit("error: %d hits and only the first %d listed; narrow the search\n", found, reported);
 }
 
 // readmany: one command, many addresses. Thousands of characters meant thousands of separate
@@ -583,127 +661,99 @@ static void cmd_readmany(const char* rest)
         }
         done++;
     }
+    if (!all_read(p, 0)) { emit("error: not an address: %.40s\n", p); return; }
     emit("done\t%d\n", done);
 }
 
 static void cmd_swallow(const char* rest)
 {
-    EnterCriticalSection(&g_lock);
-    for (int i = 0; i < 256; i++) g_swallow[i] = false;
+    bool wanted[256] = {false};
     const char* p = rest;
     int count = 0;
     for (;;) {
         unsigned code = 0; int n = 0;
         if (sscanf(p, " %u%n", &code, &n) != 1) break;
-        if (code < 256) { g_swallow[code] = true; count++; }
+        if (code >= 256) { emit("error: key code %u is not a virtual key\n", code); return; }
+        if (!wanted[code]) { wanted[code] = true; count++; }
         p += n;
     }
+    if (!all_read(p, 0)) { emit("error: not a key code: %.40s\n", p); return; }
+    EnterCriticalSection(&g_lock);
+    for (int i = 0; i < 256; i++) g_swallow[i] = wanted[i];
     LeaveCriticalSection(&g_lock);
     emit("swallow\t%d\n", count);
 }
 
-// --- waiting for a change ---------------------------------------------------
-static int count_widgets(void)
-{
-    SYSTEM_INFO base;
-    GetSystemInfo(&base);
-    const unsigned char* pointer = (const unsigned char*)base.lpMinimumApplicationAddress;
-    const unsigned char* end_at = (const unsigned char*)base.lpMaximumApplicationAddress;
-    int tally = 0;
-    while (pointer < end_at) {
-        MEMORY_BASIC_INFORMATION info;
-        if (!VirtualQuery(pointer, &info, sizeof(info))) break;
-        const unsigned char* next_item = (const unsigned char*)info.BaseAddress + info.RegionSize;
-        if (info.State == MEM_COMMIT && info.Type == MEM_PRIVATE && !(info.Protect & PAGE_GUARD) &&
-            (info.Protect & (PAGE_READWRITE | PAGE_WRITECOPY))) {
-            __try {
-                for (const unsigned char* p = (const unsigned char*)info.BaseAddress; p < next_item - 8; p += 8)
-                    if (is_widget(*(const unsigned long long*)p)) tally++;
-            } __except (EXCEPTION_EXECUTE_HANDLER) {
-            }
-        }
-        pointer = next_item;
-    }
-    return tally;
-}
-
-static void cmd_waitchange(DWORD timeout)
-{
-    int start_tally = count_widgets();
-    DWORD begin = GetTickCount();
-    for (;;) {
-        Sleep(60);
-        int now = count_widgets();
-        if (now != start_tally) { emit("change\t%d\t%d\n", start_tally, now); return; }
-        if (GetTickCount() - begin >= timeout) { emit("same\t%d\n", now); return; }
-    }
-}
-
 // --- running commands and serving the pipe ----------------------------------
+// set: all seven field offsets, in hex, in one go.
 static void cmd_set(const char* rest)
 {
-    unsigned long long parent, position, size, name, text;
-    int bytes_read = sscanf(rest, "%llx %llx %llx %llx %llx", &parent, &position, &size, &name, &text);
-    if (bytes_read != 5) { emit("error: set needs five field offsets\n"); return; }
-    f_parent = (SIZE_T)parent; f_position = (SIZE_T)position; f_size = (SIZE_T)size;
-    f_name = (SIZE_T)name; f_text = (SIZE_T)text;
+    unsigned long long v[7];
+    int consumed = -1;
+    if (sscanf(rest, "%llx %llx %llx %llx %llx %llx %llx%n",
+               &v[0], &v[1], &v[2], &v[3], &v[4], &v[5], &v[6], &consumed) != 7 || !all_read(rest, consumed)) {
+        emit("error: set needs exactly seven offsets: parent position size name text children count\n");
+        return;
+    }
+    f_parent = (SIZE_T)v[0]; f_position = (SIZE_T)v[1]; f_size = (SIZE_T)v[2]; f_name = (SIZE_T)v[3];
+    f_text = (SIZE_T)v[4]; f_children = (SIZE_T)v[5]; f_count = (SIZE_T)v[6];
+    g_fields_set = true;
     emit("fields set\n");
 }
 
 static void cmd_vtables(const char* rest)
 {
-    free(g_vtables);
-    g_vtables = (unsigned long long*)malloc(sizeof(unsigned long long) * 256);
-    g_vtable_count = 0;
+    // Read and sort into a list of our own first: a refused command must not leave half a list.
+    unsigned long long fresh[256];
+    int count = 0;
     const char* p = rest;
-    while (g_vtable_count < 256) {
+    for (;;) {
         unsigned long long value = 0;
         int n = 0;
         if (sscanf(p, " %llx%n", &value, &n) != 1) break;
-        g_vtables[g_vtable_count++] = value;
+        if (count == 256) { emit("error: more than 256 vtables; this limit has to grow\n"); return; }
+        int j = count++;
+        while (j > 0 && fresh[j - 1] > value) { fresh[j] = fresh[j - 1]; j--; }
+        fresh[j] = value;
         p += n;
     }
-    for (int i = 1; i < g_vtable_count; i++) {           // insertion sort, the list is small
-        unsigned long long key = g_vtables[i];
-        int j = i - 1;
-        while (j >= 0 && g_vtables[j] > key) { g_vtables[j + 1] = g_vtables[j]; j--; }
-        g_vtables[j + 1] = key;
-    }
-    emit("vtables set\t%d\n", g_vtable_count);
+    if (!all_read(p, 0)) { emit("error: not a vtable address: %.40s\n", p); return; }
+    memcpy(g_vtables, fresh, sizeof(unsigned long long) * count);
+    g_vtable_count = count;
+    emit("vtables set\t%d\n", count);
 }
+
+// Every form below ends in %n, and `READ_ALL` accepts a form only when it read the whole command;
+// see `all_read`. A form with an optional argument is written out once per length, longest first.
+#define READ_ALL(fields, parse) ((k = -1, (parse) == (fields)) && all_read(command, k))
 
 static void dispatch(char* command)
 {
     buf_clear();
     unsigned long long a = 0, b = 0, c = 0;
     unsigned n = 0;
-    int consumed = 0;
+    int consumed = 0, k = -1;
     if (strncmp(command, "set ", 4) == 0)                 cmd_set(command + 4);
     else if (strncmp(command, "vtables ", 8) == 0)        cmd_vtables(command + 8);
-    else if (sscanf(command, "scan %llx %llx", &a, &b) == 2) cmd_scan(a, b);
+    else if (READ_ALL(2, sscanf(command, "scan %llx %llx%n", &a, &b, &k))) cmd_scan(a, b);
     else if (strcmp(command, "scan") == 0)                cmd_scan(0, 0);
-    else if (sscanf(command, "tree %llx %u", &a, &n) >= 1)  cmd_tree(a, n);
-    else if (sscanf(command, "childfield %llx %llx", &a, &b) == 2) {
-        f_children = (SIZE_T)a; f_count = (SIZE_T)b;
-        emit("childfield set\t%llx\t%llx\n", a, b);
-    }
-    else if (sscanf(command, "read %llx %u", &a, &n) == 2) cmd_read(a, n);
+    else if (READ_ALL(2, sscanf(command, "tree %llx %u%n", &a, &n, &k))) cmd_tree(a, n);
+    else if (READ_ALL(1, sscanf(command, "tree %llx%n", &a, &k)))         cmd_tree(a, 0);
+    else if (READ_ALL(2, sscanf(command, "read %llx %u%n", &a, &n, &k))) cmd_read(a, n);
     else if (strncmp(command, "readmany ", 9) == 0)       cmd_readmany(command + 9);
-    else if (sscanf(command, "findin %llx %llx %n", &a, &b, &consumed) == 2)
-                                                           cmd_find(command + consumed, a, b);
-    else if (sscanf(command, "call %llx %u %llx %llx", &a, &n, &b, &c) >= 2) cmd_call(a, n, b, c);
-    else if (strcmp(command, "keys on") == 0)         keys_enable(true);
-    else if (strcmp(command, "keys off") == 0)         keys_enable(false);
-    else if (sscanf(command, "waitkey %u", &n) == 1)  cmd_waitkey(n);
-    else if (sscanf(command, "waitchange %u", &n) == 1) cmd_waitchange(n);
-    else if (strncmp(command, "swallow", 7) == 0)         cmd_swallow(command + 7);
-    else if (sscanf(command, "mouse %llu %llu %llu", &a, &b, &c) == 3) cmd_mouse((int)a, (int)b, (int)c);
-    else if (sscanf(command, "sendkey %u", &n) == 1)  cmd_sendkey(n);
-    else if (sscanf(command, "sendchar %u", &n) == 1)  cmd_sendchar(n);
+    else if (sscanf(command, "findin %llx %llx %n", &a, &b, &consumed) == 2) cmd_find(command + consumed, a, b);
     else if (strncmp(command, "find ", 5) == 0)           cmd_find(command + 5, 0, 0);
+    else if (strcmp(command, "keys on") == 0)             keys_enable(true);
+    else if (strcmp(command, "keys off") == 0)            keys_enable(false);
+    else if (strncmp(command, "swallow", 7) == 0)         cmd_swallow(command + 7);
+    else if (READ_ALL(1, sscanf(command, "waitkey %u%n", &n, &k))) cmd_waitkey(n);
+    else if (READ_ALL(3, sscanf(command, "mouse %llu %llu %llu%n", &a, &b, &c, &k))) cmd_mouse((int)a, (int)b, (int)c);
+    else if (READ_ALL(1, sscanf(command, "sendkey %u%n", &n, &k))) cmd_sendkey(n);
+    else if (READ_ALL(1, sscanf(command, "sendchar %u%n", &n, &k))) cmd_sendchar(n);
+    else if (strcmp(command, "count") == 0)               cmd_count();
     else if (strcmp(command, "hello") == 0)
         emit("channel\t%lu\tbuilt " __DATE__ " " __TIME__ "\n", GetCurrentProcessId());
-    else emit("error: unknown command\n");
+    else emit("error: unknown command, or more than it reads: %.200s\n", command);
     emit("end\n");
 }
 
@@ -740,16 +790,15 @@ static DWORD WINAPI serve_session(LPVOID handle)
         if (bytes_read >= sizeof(command) - 1) {
             buf_clear();
             emit("error: command too long\nend\n");
-            int header_length = sprintf_s(header, sizeof(header), "reply\t%zu\n", g_len);
-            if (!emit_all(pipe, header, (size_t)header_length)) break;
-            if (!emit_all(pipe, g_buf, g_len)) break;
-            continue;
+        } else {
+            while (bytes_read && (command[bytes_read - 1] == '\n' || command[bytes_read - 1] == '\r'))
+                command[--bytes_read] = 0;
+            dispatch(command);
         }
-        while (bytes_read && (command[bytes_read - 1] == '\n' || command[bytes_read - 1] == '\r'))
-            command[--bytes_read] = 0;
-
-        dispatch(command);
-
+        if (g_lost) {                                   // what was built cannot be trusted; say so
+            buf_clear();
+            emit("error: the game had no memory left for this reply\nend\n");
+        }
         int header_length = sprintf_s(header, sizeof(header), "reply\t%zu\n", g_len);
         if (!emit_all(pipe, header, (size_t)header_length)) break;
         if (!emit_all(pipe, g_buf, g_len)) break;

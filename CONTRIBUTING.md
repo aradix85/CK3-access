@@ -33,7 +33,8 @@ keeps its widgets, so the counter could not have shown it" is.
 - **Do not add game files.** Nothing belonging to Paradox goes in this repository, ever.
 - **Bundle your C++.** A change in `tools/` counts on the next call, but the DLL only enters the
   game at injection, so a running game keeps the old one however often you build. Do the Python
-  first, gather the C++ into one round, build once, restart once.
+  first, gather the C++ into one round, build once, run `tests/test_channel.py`, which drives the
+  real DLL through the real pipe without the game, and only then restart once.
 
 Update `CHANGELOG.md`, and `ARCHITECTURE.md` only when a layer or a boundary moves. Nothing else.
 
