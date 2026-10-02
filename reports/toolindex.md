@@ -508,6 +508,8 @@ returns a pair, passed on as one thing, costs a run.
 
 | call | returns | does |
 |---|---|---|
+| `window_bindings()` | value | Window -> every shortcut its widgets declare, with what pressing it calls. Disk only. |
+| `window_keys_plan()` | nothing | Print what a key round inside the windows would press, and what it leaves to a person. |
 | `modified_keys()` | value | Binding -> (spelling, modifier keys, key) for every name in `MODIFIED`, as the file binds it. |
 | `key_code(name)` | value | The virtual key a round presses for this name, as `KEYS` spells it. |
 | `windows_on_disk()` | value | Every window the gui files declare, with the path the console wants and how it is declared. |

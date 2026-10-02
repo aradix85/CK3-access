@@ -645,13 +645,13 @@
   "counting_rule": "bindings whose name does not start with an underscore; a name starting with an underscore is the engine generic entry for one key combination and not an action of the game; those are counted apart from the named actions"
  },
  {
-  "name": "shortcuts a posted key can reach",
+  "name": "shortcuts without a modifier",
   "claimed": 115,
   "measure": "shortcuts",
   "arguments": [
    "plain"
   ],
-  "counting_rule": "named actions whose keys carry no alt, ctrl or shift AND have a key at all. Four named actions are bound to an empty string and were counted here until 1 September 2026, when the round that presses them found 115 where the claim said 119. A modifier cannot be posted into the game - measured the same day, see brief\\machine.md"
+  "counting_rule": "named actions whose keys carry no alt, ctrl or shift AND have a key at all. Four named actions are bound to an empty string and were counted here until 1 September 2026, when the round that presses them found 115 where the claim said 119. Those with a modifier go in through the channel's combo since 2 October 2026"
  },
  {
   "name": "shortcuts that need a modifier",
@@ -664,21 +664,50 @@
  },
  {
   "name": "shortcuts a widget declares",
-  "claimed": 173,
+  "claimed": 192,
   "measure": "shortcut_words",
   "arguments": [
    "declared"
   ],
-  "counting_rule": "named bindings for which at least one widget in the merged gui set carries shortcut = \"<name>\"; the rest are handled in code and name nothing"
+  "counting_rule": "named bindings for which at least one widget in the merged gui set carries shortcut = \"<name>\", every shortcut line of a block counted - a widget may carry several, and counting only the first gave 173 until 2 October 2026. Of the rest most are declared under a name the gui computes, such as tab_ plus the row number, which this does not count; eight are declared nowhere",
+  "quoted_in": [
+   "brief\\sneltoetsen.md",
+   "CHANGELOG.md"
+  ]
  },
  {
   "name": "shortcuts that resolve to a sentence on disk",
-  "claimed": 97,
+  "claimed": 104,
   "measure": "shortcut_words",
   "arguments": [
    "worded"
   ],
-  "counting_rule": "of the declared ones, those whose text or tooltip key is in the merged localisation. The difference is texts that are a data function and therefore need the running game, such as [GetPlayer.Custom(...)]"
+  "counting_rule": "of the declared ones, those whose text or tooltip key is in the merged localisation. The difference is texts that are a data function and therefore need the running game, such as [GetPlayer.Custom(...)]",
+  "quoted_in": [
+   "brief\\sneltoetsen.md"
+  ]
+ },
+ {
+  "name": "shortcuts declared only under a computed name",
+  "claimed": 41,
+  "measure": "shortcut_words",
+  "arguments": [
+   "computed"
+  ],
+  "counting_rule": "named bindings no widget declares literally, but which a computed shortcut in the merged gui set names: one of its quoted pieces is the name, or its prefix with only digits after - [Concatenate('event_option_', index + 1)] covers event_option_1 to event_option_14. That a window ever has that many rows is not part of the count",
+  "quoted_in": [
+   "brief\\sneltoetsen.md",
+   "CHANGELOG.md"
+  ]
+ },
+ {
+  "name": "shortcuts declared nowhere",
+  "claimed": 8,
+  "measure": "shortcut_words",
+  "arguments": [
+   "nowhere"
+  ],
+  "counting_rule": "named bindings neither declared literally nor covered by a computed shortcut; with the two claims above they make up every named action. On 1.20.0.3 two ledger tabs and a ledger subtab, the two screenshot keys, the event shortcut toggle and zooming"
  },
  {
   "name": "named actions bound to no key at all",

@@ -37,7 +37,7 @@ process and from files already on your disk.
   engine already keeps, a toast is meant to be said the moment it appears (built, but no real toast has been heard yet), and a reader that fails gives the
   keys back before it says so. A button the game has switched off says so before its words, what
   the game hides is left unsaid, a list says once how many rows it has, and one key asks for the
-  tooltip the gui files hang on whatever is under the cursor.
+  tooltip the gui files hang on the line you are on.
 - **The tooling never fails silently.** Anything that goes wrong leaves through one exit as a
   sentence saying what failed, where, and what to do — never as an error code or as nothing.
 - **Where a county is, from the files alone.** Its neighbours out to three rings, the seas and

@@ -11,6 +11,18 @@ keeps the numbers with the rule they were counted by. A changelog that may never
 
 ## 2026-10-02
 
+- **Which keys live in which window, and which of them only change the view, comes off disk:
+  `windowmap.py --window-keys`.** Every window is expanded and every shortcut its widgets declare is
+  filed with what pressing it calls. A key round presses only calls on a list of view changes - a
+  tab, a filter, a fold, a map mode - because a key inside a window can act on the game: alt+C
+  accepts an interaction in dozens of windows, alt+1 in the court window is a mass prisoner action,
+  and a number in the lifestyle window picks a focus. Of 718 keys with a modifier or a computed name
+  inside a window, 289 are left to press.
+- **Event options, tabs and sub-tabs declare their key after all**, under a name the gui computes -
+  `event_option_` plus the row number. Literally declared are 192 bindings, not 173: a widget may
+  carry several shortcuts and only the first was counted. With 41 under a computed name, eight are
+  declared nowhere: two ledger tabs and a sub-tab, the two screenshot keys, the event shortcut
+  toggle and zooming.
 - **Whatever the tree walk loses is heard.** It arrives on one kind of line, `missing` with an
   address and a reason, and leaves through the one exit for a failure, once per address so the
   reader polling the toast container does not repeat it every round: a node, child fields or a
@@ -171,8 +183,7 @@ keeps the numbers with the rule they were counted by. A changelog that may never
   says so, so silence has one meaning: the end of a list.
 - **The reading rule says only what is on the screen:** a rectangle outside the drawing area, a row
   clipped inside its scroll area, or an ancestor at alpha zero takes a line out — 172 of 1753 texts over
-  the harvest, 48 of 82 in the worst window. Content the game stacks under itself at alpha 1 is not yet
-  separated, and a list longer than its frame now ends where the frame does.
+  the harvest, 48 of 82 in the worst window. A list longer than its frame ends where the frame does.
 - **A bare number says what it is**, named after the data function that fills it: 89 reads as gold
   89. 153 of 169 bare numbers in the harvest get a label that way. A bare number and the label beside
   it under the same parent are one line, label first.

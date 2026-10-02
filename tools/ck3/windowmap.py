@@ -7,12 +7,14 @@ opens it, and if not, what the engine says about it. Runs on a loaded, paused ga
 Usage:  python tools\ck3\windowmap.py <pid> [<count> | <window> <window> ...]
         python tools\ck3\windowmap.py <pid> --keys
         python tools\ck3\windowmap.py <pid> --modified-keys
+        python tools\ck3\windowmap.py --window-keys
 
 A count or a list of window names makes it a trial run, and a trial run writes its result beside
 the map instead of over it. `--keys` runs only the key round, needs no -debug_mode, and adds the
 windows it opens to the map as shortcut routes without changing anything else in it.
 `--modified-keys` does the same for the bindings with a modifier, posted through the channel's
-`combo`, so the foreground is never taken.
+`combo`, so the foreground is never taken. `--window-keys` needs no game: it reads off disk which
+keys every window declares and which of them only change the view.
 """
 import collections
 import json
@@ -56,6 +58,91 @@ MODIFIED = ('ledger_window', 'hud_faith', 'hud_personal_beliefs', 'hud_culture',
 # step in a frame of its own. Assumed, not measured: a paused game on this laptop draws well over
 # ten frames a second.
 COMBO_PAUSE = 100
+# What a key inside a window does is what its widget's onclick calls, and some of those change the
+# game rather than the view: Alt+C accepts an interaction, Alt+1 in the court window is a mass
+# prisoner action, Alt+R in the army window splits an army. So this lists what may be pressed, and
+# everything else is listed for a person to decide - an unknown call is never pressed by default.
+# The top-level calls below were read from the onclicks of every binding in every window on
+# 2 October 2026; each only switches a tab, a filter, a fold, a map mode, or opens or shuts a view.
+VIEW_ONLY = re.compile(r'^(?:(?:Get)?VariableSystem\.(?:Set|Clear|Toggle|SetOrToggle)|SetMapMode'
+                       r'|OpenGameView|ToggleGameView|CharacterWindow\.SetTab|MyRealmWindow\.SetActiveTab'
+                       r'|MyRealmWindow\.ResetMapMode|SetContestInfoTab|\w+Window\.SetTraditionCategory'
+                       r'|LedgerListFilter\.SetCurrentFilter|PdxGuiFoldOut\.(?:Fold|Unfold)'
+                       r'|InteractionEffectsDescription\.Show\w+|CouncilWindow\.Set\w*Council'
+                       r'|TenetWindow\.Toggle|ReligionWindow\.Close|RiteWindow\.Close'
+                       r'|InventoryView\.ClearSelectedSlot|BarbershopBackgroundCategory\.ToggleTextSearch'
+                       r'|Activity\.OpenActivityView|TravelPlanner\.OpenTravelOptionSelectionWindow'
+                       r'|PdxGuiTriggerAllAnimations|PlaySfxEvent|CloseGameView|OpenFromViewHistory'
+                       r'|OpenGameViewData|ToggleGameViewData|PdxGuiTabs\.SetTab'
+                       r'|\w+\.(?:Close|Hide|CloseAndDeselect|CloseSubwindows|NavigateBack)'
+                       r'|\w+\.(?:Set\w*Tab|SetActiveTab|Open\w*Tab|SetShow\w+)'
+                       r'|BattleSummaryWindow\.(?:OnShow\w+|RestoreSort)|CultureWindow\.HideReformationMode'
+                       r'|CharacterLifestyleWindow\.OpenLifestyle|EpidemicsWindow\.ClearFocusedEpidemic'
+                       r'|DiarchyWindow\.ToggleAvailableDiarchs)$')
+
+
+def window_bindings():
+    """Window -> every shortcut its widgets declare, with what pressing it calls. Disk only.
+
+    Each window is expanded the way `guimap.window` expands it, and a binding is filed under the
+    innermost window it sits in, because a window inside another is an object of its own. What sits
+    under a `tooltipwidget` is left out: a tooltip is built when the pointer arrives and its keys do
+    nothing until then. A shortcut may be a name the gui computes - `[Concatenate('tab_', ...)]` -
+    and then `binding` is that expression and `keys` is None; which numbers it reaches depends on
+    how many rows the live window has.
+
+    Every row says `view_only`: True when every onclick of the widget is a call `VIEW_ONLY` lets
+    through, so a round can press it without changing the game.
+    """
+    import guimap
+    text = open(os.path.join(GAME, 'game', 'gui', 'shortcuts.shortcuts'), encoding='utf-8-sig').read()
+    bound = dict(re.findall(r'^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"([^"]*)"', text, re.M))
+    rows = guimap.files()
+    table, local = guimap.type_table(rows)
+    known = guimap.windows(rows)
+    out = collections.defaultdict(list)
+
+    def walk(node, window, top):
+        if node['type'] == 'tooltipwidget':
+            return
+        names = [v.strip('"') for k, v in node['attrs'] if k == 'name']
+        if names and names[0] in known and not top:
+            window = names[0]
+        clicks = [v for k, v in node['attrs'] if k == 'onclick']
+        calls = [m.group(1) for m in (re.match(r'\s*"?\[\s*([A-Za-z_][\w.]*)', c) for c in clicks) if m]
+        for key, value in node['attrs']:
+            if key == 'shortcut':
+                binding = value.strip('"')
+                out[window].append({'binding': binding, 'keys': bound.get(binding),
+                                    'widget': names[0] if names else None, 'calls': calls,
+                                    'view_only': bool(calls) and all(VIEW_ONLY.match(c) for c in calls)})
+        for child in node['children']:
+            walk(child, window, False)
+
+    for window in sorted(known):
+        tree, _ = guimap.window(window, table, local, known)
+        walk(tree, window, True)
+    return dict(out)
+
+
+def window_keys_plan():
+    """Print what a key round inside the windows would press, and what it leaves to a person.
+
+    Counted once per window, binding and calls: a row template repeated down a list declares the
+    same key on every row, and counting rows made the pin key 828 instead of one per window.
+    """
+    found = window_bindings()
+    pairs = {(window, r['binding'], r['keys'], tuple(r['calls']), r['view_only'])
+             for window, rows in found.items() for r in rows}
+    modified = [p for p in pairs if p[2] is None or re.search(r'alt|ctrl|shift', p[2], re.I)]
+    print('%d windows, %d keys in them; view only %d, left to a person %d; with a modifier or '
+          'computed %d, of those view only %d'
+          % (len(found), len(pairs), sum(p[4] for p in pairs), sum(not p[4] for p in pairs),
+             len(modified), sum(p[4] for p in modified)))
+    left = collections.Counter((binding, keys, ' '.join(calls) or 'no onclick')
+                               for _, binding, keys, calls, view in pairs if not view)
+    for (binding, keys, calls), count in sorted(left.items(), key=lambda item: -item[1]):
+        print('  %3d windows  %-28s %-12s %s' % (count, binding[:28], keys or 'computed', calls[:80]))
 
 
 def modified_keys():
@@ -433,6 +520,8 @@ def keys_only(pid, modified=False):
 
 
 def main():
+    if sys.argv[1:] == ['--window-keys']:
+        return window_keys_plan()
     pid = int(sys.argv[1])
     rest = sys.argv[2:]
     if rest == ['--keys']:

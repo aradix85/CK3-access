@@ -508,6 +508,11 @@ def shortcut_words(what):
     `declared` counts bindings that at least one widget declares; `worded` counts those whose text
     or tooltip key is in the localisation. The difference is texts that are a data function and
     therefore need the running game.
+
+    **Every `shortcut` line of a block counts, not the first.** A widget may declare several - the
+    speed buttons on the HUD carry four - and until 2 October 2026 only the first was read, which
+    gave 173 where 192 are declared. A name computed in the file itself, such as
+    `[Concatenate('tab_', ...)]`, is no binding name and is not counted here.
     """
     import guimap
     text = open(os.path.join(paths.GAME, 'game', 'gui', 'shortcuts.shortcuts'),
@@ -528,10 +533,10 @@ def shortcut_words(what):
             body = node.get('body')
             if not body:
                 continue
-            name = value_of(body, 'shortcut')
-            if name:
-                found.setdefault(name.strip('"'), []).append(
-                    (value_of(body, 'text'), value_of(body, 'tooltip')))
+            for child in body:
+                if child.get('key') == 'shortcut' and child.get('value'):
+                    found.setdefault(child['value'].strip('"'), []).append(
+                        (value_of(body, 'text'), value_of(body, 'tooltip')))
             walk(body)
 
     for _, _, full in guimap.files():
@@ -539,6 +544,16 @@ def shortcut_words(what):
     declared = bindings & set(found)
     if what == 'declared':
         return len(declared)
+    # A computed name - [Concatenate('tab_', ...)], [Select_CString(..., 'tab_3', 'tab_2')] - covers
+    # a binding that one of its quoted pieces names outright, or as a prefix with only digits after.
+    pieces = {piece for value in found if value.startswith('[')
+              for piece in re.findall(r"'([A-Za-z_][A-Za-z0-9_]*)'", value)}
+    computed = {n for n in bindings - declared
+                if any(n == p or (n.startswith(p) and n[len(p):].isdigit()) for p in pieces)}
+    if what == 'computed':
+        return len(computed)
+    if what == 'nowhere':
+        return len(bindings - declared - computed)
     words = guimap.localization()
     worded = {n for n in declared
               if any((k or '').strip('"') in words for pair in found[n] for k in pair)}
