@@ -238,7 +238,7 @@ returns a pair, passed on as one thing, costs a run.
 | `confirmed(tree, lines, size)` | 3-tuple | (text boxes that should be on screen, how many the recogniser reads back, how many lie |
 | `click_routes(windows)` | value | Window -> the button that opens it, from `reports\openers.json`. |
 | `open_window(game, name, row, baseline)` | 2-tuple | Open one window along the route phase 0 found for it, and prove it is drawn. |
-| `close_window(game, name, row, baseline, limit=12)` | bool | Shut it again and wait until the state before it is back. Anything left open contaminates |
+| `close_window(game, row, baseline, limit=12)` | bool | Shut it again and wait until the state before it is back. Anything left open contaminates |
 | `drawn_one(candidates, name)` | value | Of several window objects carrying the same name, the one that is actually drawn. |
 | `record_window(game, name, nodes, header, route, attempts, file, started)` | value | Everything this project can read of one drawn window, plus a capture. It stays open. |
 | `harvest(game, name, row, baseline, header)` | 2-tuple | One window, from opening to the state coming back. Returns the record, or a reason. |
@@ -302,6 +302,17 @@ returns a pair, passed on as one thing, costs a run.
 | `player(pid)` | 2-tuple | The handle of the character being played, and the name that goes with it. |
 | `main()` | nothing | - |
 | `compare(pid, save_path, count=400)` | 5-tuple | Every derived field of many characters, laid beside the save. The regression test. |
+
+## ck3\modifiers.py
+*Do system-level keys reach the game when it is in front? The first step of the modifier round.*
+
+| call | returns | does |
+|---|---|---|
+| `bring(hwnd)` | value | The foreground, from a process that does not have it: only with the input queues joined. |
+| `counted()` | value | What the game asked since the previous `count`, which also starts the next interval. |
+| `drawn_after(game, wanted, seconds=6.0)` | value | - |
+| `back_to(game, baseline, first_key)` | value of bool | Shut what opened with posted keys, and prove the state is back. |
+| `main(pid)` | nothing | - |
 
 ## ck3\numbering.py
 *Which number means which culture, faith, religion or trait - read from the running game.*
@@ -385,7 +396,7 @@ returns a pair, passed on as one thing, costs a run.
 |---|---|---|
 | `look(root, pid, window_classes)` | 4-tuple | The tree of this moment, with what is drawn, where it is, and what class each node is. |
 | `press(nodes, scales, classes, name)` | value of NoneType | Click the widget with this name that is really on screen. Returns None, or why not. |
-| `gone(pid, seconds=40)` | bool | Wait until the channel stops answering, which is the game being gone. |
+| `gone(seconds=40)` | bool | Wait until the channel stops answering, which is the game being gone. |
 | `quit_game(pid)` | nothing | - |
 
 ## ck3\reader.py

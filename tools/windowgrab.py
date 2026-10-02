@@ -33,7 +33,7 @@ def window_of(pid):
     found = []
 
     @ctypes.WINFUNCTYPE(w.BOOL, w.HWND, w.LPARAM)
-    def collect(hwnd, lparam):
+    def collect(hwnd, _lparam):
         owner = w.DWORD()
         _user32.GetWindowThreadProcessId(hwnd, ctypes.byref(owner))
         if owner.value == pid and _user32.IsWindowVisible(hwnd):
@@ -43,6 +43,8 @@ def window_of(pid):
         return True
 
     _user32.EnumWindows(collect, 0)
+    if not found:
+        raise LookupError('process %d has no visible window' % pid)
     hwnd, width, height = max(found, key=lambda v: v[1] * v[2])
     if _user32.IsIconic(hwnd):
         _user32.ShowWindow(hwnd, SW_SHOWNOACTIVATE)

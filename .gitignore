@@ -10,6 +10,7 @@ dll/*.obj
 dll/*.exp
 dll/*.lib
 dll/*.pdb
+dll/*.nativecodeanalysis.xml
 __pycache__/
 *.pyc
 

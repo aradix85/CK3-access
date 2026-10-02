@@ -40,6 +40,11 @@ Update `CHANGELOG.md`, and `ARCHITECTURE.md` only when a layer or a boundary mov
 
 ## Before it can be merged: `python tools/check.py`, `python -m pytest`, `python -m ruff check .`
 
+The DLL build stops on every compiler warning, the code analysis of `/analyze` included, and `pytest`
+runs clang-tidy over it with the checks in `dll/.clang-tidy` when LLVM is installed. Each check that
+is switched off there or in `pyproject.toml` carries its reason; switch one off the same way, with
+the measurement, or fix what it found.
+
 `check.py` recomputes every number in `reports/claims.json` against the disk and verifies that every
 project path the documentation names still exists. `pytest` runs the suite in `tests/`; `ruff`
 lints everything, configured in `pyproject.toml`. All three have to pass.

@@ -83,7 +83,7 @@ def read_image(screenshot):
     if getattr(result, 'boxes', None) is None:
         return []
     lines = [(*_box(crop), text.strip())
-              for crop, text in zip(result.boxes, result.txts)]
+              for crop, text in zip(result.boxes, result.txts, strict=True)]
     lines.sort(key=lambda r: (r[1], r[0]))
     return lines
 

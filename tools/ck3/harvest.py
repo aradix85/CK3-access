@@ -357,7 +357,7 @@ def open_window(game, name, row, baseline):
     return None, tries
 
 
-def close_window(game, name, row, baseline, limit=12):
+def close_window(game, row, baseline, limit=12):
     """Shut it again and wait until the state before it is back. Anything left open contaminates
     every window after this one, which is why this is a stop condition and not a warning."""
     for attempt in range(limit):
@@ -449,7 +449,7 @@ def harvest(game, name, row, baseline, header):
         # lies on top of that point, not on the widget it was aimed at, so a miss opens *something*
         # often enough. Putting the state back here is what keeps a miss from contaminating every
         # window after it, and if it cannot be put back that is the round's stop condition.
-        came_back = close_window(game, name, row, baseline)
+        came_back = close_window(game, row, baseline)
         return ({'window': name, 'opened': False, 'state_returned': came_back,
                  'reason': 'did not open in %d %s'
                            % (attempts, 'try' if attempts == 1 else 'tries')},
@@ -457,7 +457,7 @@ def harvest(game, name, row, baseline, header):
     route = ('shortcut ' + row['shortcut'] if row.get('shortcut')
              else 'click ' + row['button'] if row.get('click') else 'GUI.CreateWidget')
     record = record_window(game, name, nodes, header, route, attempts, row.get('file'), started)
-    if not close_window(game, name, row, baseline):
+    if not close_window(game, row, baseline):
         return record, 'state did not come back'
     record['seconds'] = round(time.time() - started, 1)
     return record, None
@@ -497,7 +497,7 @@ def chain_step(game, route, source_row, windows, baseline, header, tables):
     nodes, attempts = open_window(game, source, source_row, baseline)
     if nodes is None:
         return None, ('source %s did not open' % source
-                      if close_window(game, source, back, baseline) else 'state did not come back')
+                      if close_window(game, back, baseline) else 'state did not come back')
     spots, live, acting, nodes, scales, classes = openers.spots_for_goal(
         game, game.pid, source, route['goal'], tables)
     buttons = openers.clickable_map(live, acting)
@@ -508,7 +508,7 @@ def chain_step(game, route, source_row, windows, baseline, header, tables):
         why = sorted({s['why_not'] or 'covered everywhere' for s in spots})
         reason = 'nothing in %s can be pressed for it: %s' % (
             source, ', '.join(why) or 'no live widget carries the call')
-        return None, reason if close_window(game, source, back, baseline) else 'state did not come back'
+        return None, reason if close_window(game, back, baseline) else 'state did not come back'
     spot, point = usable[0]
     _, _, before = game.state()
     if spot['name']:
@@ -521,7 +521,7 @@ def chain_step(game, route, source_row, windows, baseline, header, tables):
                                   derive.class_map(game.pid, {a: k[0] for a, k in full.items()}),
                                   spot['name'])
         if refused:
-            return None, (refused if close_window(game, source, back, baseline)
+            return None, (refused if close_window(game, back, baseline)
                           else 'state did not come back')
     else:
         channel.ask('mouse %d %d 1' % point)
@@ -542,7 +542,7 @@ def chain_step(game, route, source_row, windows, baseline, header, tables):
     if not names:
         reason = 'pressing %s in %s brought up %s' % (
             spot['name'] or spot['class'], source, ', '.join(sorted(opened)) or 'nothing')
-        return None, reason if close_window(game, source, back, baseline) else 'state did not come back'
+        return None, reason if close_window(game, back, baseline) else 'state did not come back'
     route_text = 'chain %s in %s' % (spot['name'] or spot['class'], source)
     records = []
     for name in names:
@@ -551,7 +551,7 @@ def chain_step(game, route, source_row, windows, baseline, header, tables):
         record['view'] = route['view']
         record['opened_with'] = [n for n in names if n != name]
         records.append(record)
-    if not close_window(game, names[0], back, baseline):
+    if not close_window(game, back, baseline):
         return records, 'state did not come back'
     for record in records:
         record['seconds'] = round(time.time() - started, 1)

@@ -31,18 +31,32 @@ def vcvars():
     return found.group(1) if found and os.path.exists(found.group(1)) else None
 
 
-@pytest.fixture(scope='module')
-def host(tmp_path_factory):
+@pytest.fixture(scope='module', params=['plain', 'asan'])
+def host(request, tmp_path_factory):
+    """The target running a DLL: `plain` the one the build made, `asan` one built here with
+    AddressSanitizer around both, which aborts the target and says so on the first bad access."""
     if not os.path.exists(DLL):
         pytest.skip('dll\\channel.dll is not built')
     if not vcvars():
         pytest.skip('no MSVC to build the target with')
     if channel.alive():
         pytest.skip('the game is running, and it answers on the same pipe')
-    work = tmp_path_factory.mktemp('channel')
-    subprocess.run('call "%s" >nul && cl /nologo /W3 /Od "%s" user32.lib /Fe:host.exe' % (vcvars(), SOURCE),
-                   shell=True, check=True, capture_output=True, cwd=work)
-    process = subprocess.Popen([str(work / 'host.exe'), DLL], stdout=subprocess.PIPE, text=True)
+    work = tmp_path_factory.mktemp(request.param)
+    dll = DLL
+    lines = ['@echo off', 'call "%s" >nul' % vcvars()]
+    sanitize = ''
+    if request.param == 'asan':
+        dll = str(work / 'channel.dll')
+        sanitize = '/Zi /fsanitize=address'
+        lines += ['cl /nologo /Od %s /D_CRT_SECURE_NO_WARNINGS /LD "%s" user32.lib /Fe:channel.dll || exit /b 1'
+                  % (sanitize, os.path.join(ROOT, 'dll', 'channel.cpp')),
+                  'copy /y "%VCToolsInstallDir%bin\\Hostx64\\x64\\clang_rt.asan_dynamic-x86_64.dll" . || exit /b 1']
+    lines.append('cl /nologo /Od %s "%s" user32.lib /Fe:host.exe || exit /b 1' % (sanitize, SOURCE))
+    (work / 'build.bat').write_text('\r\n'.join(lines) + '\r\n')
+    built = subprocess.run(['cmd', '/c', 'build.bat'], capture_output=True, text=True, cwd=work)
+    assert built.returncode == 0, built.stdout + built.stderr
+    process = subprocess.Popen([str(work / 'host.exe'), dll], stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE, text=True)
     objects = [int(value, 16) for value in process.stdout.readline().split()[1:]]
     assert process.stdout.readline().strip() == 'loaded'
     while not channel.alive():
@@ -51,6 +65,8 @@ def host(tmp_path_factory):
     channel.close()
     process.kill()
     process.wait()
+    said = process.stderr.read()
+    assert 'AddressSanitizer' not in said, said
 
 
 def lines_of(command):
@@ -145,3 +161,25 @@ def test_every_command(host):
         check(command, 'removed, so refused', refused)
 
     assert not failed, '\n'.join(failed)
+
+
+def clang_tidy():
+    """Where LLVM's installer says it put itself. It writes the 32-bit view of the registry."""
+    import winreg
+    try:
+        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r'SOFTWARE\LLVM\LLVM', 0,
+                            winreg.KEY_READ | winreg.KEY_WOW64_32KEY) as key:
+            found = os.path.join(winreg.QueryValue(key, None), 'bin', 'clang-tidy.exe')
+    except OSError:
+        return None
+    return found if os.path.exists(found) else None
+
+
+def test_clang_tidy_finds_nothing():
+    """The checks in `dll\\.clang-tidy`, each finding an error; the MSVC analysis runs in the build."""
+    if not clang_tidy() or not vcvars():
+        pytest.skip('clang-tidy or MSVC is not installed')
+    done = subprocess.run('call "%s" >nul && "%s" channel.cpp --quiet -- --driver-mode=cl /EHsc'
+                          % (vcvars(), clang_tidy()), shell=True, capture_output=True, text=True,
+                          cwd=os.path.join(ROOT, 'dll'))
+    assert done.returncode == 0, done.stdout + done.stderr

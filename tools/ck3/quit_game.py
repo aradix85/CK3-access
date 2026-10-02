@@ -73,7 +73,7 @@ def press(nodes, scales, classes, name):
         name, len(found), ', '.join(sorted(set(refused))))
 
 
-def gone(pid, seconds=40):
+def gone(seconds=40):
     """Wait until the channel stops answering, which is the game being gone.
 
     It asks `alive` rather than `ask`, because here the link disappearing is what success looks
@@ -128,7 +128,7 @@ def quit_game(pid):
             raise SystemExit('the confirmation is up but %s' % why)
         print('pressed exit to desktop')
 
-    if gone(pid):
+    if gone():
         print('the game is gone, and it ended itself')
     else:
         print('the game is still there after forty seconds. It is not killed; look at the screen.')

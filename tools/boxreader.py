@@ -143,7 +143,7 @@ def read_box_conf(screenshot, x, y, width, height, margin=0):
     best = output[0].argmax(axis=-1)
     scores = output[0].max(axis=-1)
     text, confidences, previous = [], [], -1
-    for i, score in zip(best, scores):
+    for i, score in zip(best, scores, strict=True):
         if i != previous and i != 0:
             text.append(_list[i])
             confidences.append(float(score))

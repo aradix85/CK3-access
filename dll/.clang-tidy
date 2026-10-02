@@ -1,0 +1,17 @@
+# The checks tests/test_channel.py runs on channel.cpp, and every finding fails it.
+# Switched off, each for its reason - measured on 2 October 2026, none of them found a fault here:
+#   bugprone-easily-swappable-parameters    an address and a count are both numbers; style
+#   bugprone-unchecked-string-to-number-conversion   sscanf with a %n that all_read checks, and
+#                                           every argument comes from our own Python
+#   performance-no-int-to-ptr               reading memory at a given address is the whole job
+#   performance-enum-size                   four counters
+Checks: >
+  -*,
+  clang-analyzer-*,
+  bugprone-*,
+  performance-*,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-unchecked-string-to-number-conversion,
+  -performance-no-int-to-ptr,
+  -performance-enum-size
+WarningsAsErrors: '*'

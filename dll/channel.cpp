@@ -48,7 +48,7 @@ static void buf_add(const char* text, size_t n)
 
 static void emit(const char* format, ...)
 {
-    char line[16384];
+    char line[12288];   // the longest line is a widget: a name of 512 and a text of 8192
     va_list list_start;
     va_start(list_start, format);
     int n = vsnprintf(line, sizeof(line), format, list_start);
@@ -77,12 +77,11 @@ static void buf_hex(const unsigned char* p, size_t count)
     if (out) buf_add(part, out);
 }
 
-// Did a parse read the whole command? `consumed` is where it stopped, from a trailing %n, or -1
-// when the parse never got there. A command with text left over is refused, never shortened: an
-// argument that is dropped looks exactly like one that arrived.
+// Did a parse read the whole command? `consumed` is where it stopped, from the trailing %n, which
+// sscanf always fills once every conversion before it matched. A command with text left over is
+// refused, never shortened: an argument that is dropped looks exactly like one that arrived.
 static bool all_read(const char* command, int consumed)
 {
-    if (consumed < 0) return false;
     const char* p = command + consumed;
     while (*p == ' ' || *p == '\t') p++;
     return *p == 0;
@@ -689,7 +688,7 @@ static void cmd_swallow(const char* rest)
 static void cmd_set(const char* rest)
 {
     unsigned long long v[7];
-    int consumed = -1;
+    int consumed = 0;
     if (sscanf(rest, "%llx %llx %llx %llx %llx %llx %llx%n",
                &v[0], &v[1], &v[2], &v[3], &v[4], &v[5], &v[6], &consumed) != 7 || !all_read(rest, consumed)) {
         emit("error: set needs exactly seven offsets: parent position size name text children count\n");
@@ -725,14 +724,14 @@ static void cmd_vtables(const char* rest)
 
 // Every form below ends in %n, and `READ_ALL` accepts a form only when it read the whole command;
 // see `all_read`. A form with an optional argument is written out once per length, longest first.
-#define READ_ALL(fields, parse) ((k = -1, (parse) == (fields)) && all_read(command, k))
+#define READ_ALL(fields, parse) ((parse) == (fields) && all_read(command, k))
 
 static void dispatch(char* command)
 {
     buf_clear();
     unsigned long long a = 0, b = 0, c = 0;
     unsigned n = 0;
-    int consumed = 0, k = -1;
+    int consumed = 0, k = 0;
     if (strncmp(command, "set ", 4) == 0)                 cmd_set(command + 4);
     else if (strncmp(command, "vtables ", 8) == 0)        cmd_vtables(command + 8);
     else if (READ_ALL(2, sscanf(command, "scan %llx %llx%n", &a, &b, &k))) cmd_scan(a, b);

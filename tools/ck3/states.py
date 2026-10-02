@@ -74,7 +74,11 @@ def wait(pid, timeout=900):
     while time.time() - start < timeout:
         if not psutil.pid_exists(pid):
             raise SystemExit('the game is gone while waiting for it')
-        words = [t for *_, t in _screen(pid)]
+        try:
+            words = [t for *_, t in _screen(pid)]
+        except LookupError:             # started, but its window does not exist yet
+            time.sleep(5)
+            continue
         text = ' | '.join(words)
         if IN_GAME.search(text) and 'Loading' not in text:
             return 'game'

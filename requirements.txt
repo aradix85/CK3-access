@@ -13,6 +13,7 @@ numpy>=2.4.0
 rapidocr>=3.9.2
 openvino>=2026.2.0
 onnx>=1.17.0
+psutil>=7.2.2
 
 # Only for checking a rename round; not needed to run anything.
 pyflakes>=3.2.0

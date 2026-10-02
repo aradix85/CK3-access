@@ -20,6 +20,18 @@ line-length = 100
 # and that is how a check gets ignored.
 ignore = ["E402"]
 
+# **Two sets on top of the default, measured 2 October 2026 against every set ruff has.** Of 801
+# findings across them nearly all were style or a deliberate choice; these two pointed at real
+# faults. B905: `zip` without `strict=` cuts the longer list off without a word, and silence is
+# what this project worries about most - two cases in the text recogniser. ARG: a parameter nobody
+# uses is dead code a caller still has to fill - three of them. A name starting with an underscore
+# is a signature someone else fixed, such as a Windows callback.
+extend-select = ["B905", "ARG"]
+
+[tool.ruff.lint.per-file-ignores]
+# A fixture parameter is how pytest switches a fixture on, and a stand-in takes what it replaces.
+"tests/*" = ["ARG"]
+
 [tool.pytest.ini_options]
 # Only `tests\` is collected. Anything under `tools\` that is run by hand speaks through NVDA and
 # sleeps, so collecting it would make a test run talk - see tools\nvda\check_speech_by_ear.py.

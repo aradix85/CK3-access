@@ -34,6 +34,21 @@ keeps the numbers with the rule they were counted by. A changelog that may never
   MSVC's `/analyze` led to catching only access violations where everything was caught, and to a
   64-bit clock in `waitkey`; a reply that does not fit in memory is an error instead of a crash
   inside the game, and `keys on` says so when it could not hook the window.
+- **`tools/ck3/modifiers.py`** measures whether shift+F1 reaches the game as a system-level key with
+  the game in front, with the channel counting what the game asks Windows meanwhile. It says through
+  NVDA when it takes the foreground and when it gives it back. Not run against the game yet.
+- **`states.wait` waits for a game window that does not exist yet** instead of falling over:
+  `windowgrab.window_of` says "no visible window" with a `LookupError` of its own now, where it
+  raised an empty-sequence error. requirements.txt names psutil, which `states.py` needs.
+- **`tests/test_channel.py` runs twice**: on the DLL the build made, and on one it builds with
+  AddressSanitizer around DLL and target, where any report of that guard fails it.
+- **The DLL build stops on any warning, and pytest runs clang-tidy.** `/W4 /WX /analyze` passes
+  without a single suppression in the source; clang-tidy runs the checks in `dll/.clang-tidy`,
+  each switched-off check with its reason, and on its first run it found a reserved name of our
+  own. ruff adds two sets that pointed at real faults out of 801 findings over every set it has:
+  `zip` without `strict=`, which cut a list off in silence in the text recogniser, and unused
+  arguments - three dead parameters are gone. mypy was measured too and left out: none of the
+  445 functions carries a type, and its one finding that was not a missing annotation fails loudly.
 - **The documentation follows 1.20.** The README gives the window count and the start time measured
   on 1.20.0.3 and says a toast is announced once one comes, not that one has been heard; and
   `ARCHITECTURE.md` no longer says a modifier key is never needed - trying every shortcut needs it,

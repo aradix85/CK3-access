@@ -563,7 +563,7 @@ def _siblings_spread(chunks, f_parent, offset, families=40):
     return spread / float(len(big))
 
 
-def _pos_field(chunks, f_parent, f_size, addresses, spread_required=100):
+def _pos_field(chunks, f_parent, f_size, spread_required=100):
     """Prediction: a position field fits inside its parent, spreads its siblings, and carries as
     many different values as there are places on the screen.
 
@@ -726,7 +726,7 @@ def derive_all(pid):
     roots = [a for a, b in chunks.items()
                if int.from_bytes(b[f_parent:f_parent + 8], 'little') not in addresses]
     f_size = _size_field(chunks, roots, width, height)
-    f_position = _pos_field(chunks, f_parent, f_size, set(addresses))
+    f_position = _pos_field(chunks, f_parent, f_size)
     f_name = _name_field(chunks, gui_text())
     classes = class_map(pid, addresses)
     text_boxes = [a for a, k in classes.items() if k == 'Textbox']
@@ -837,7 +837,7 @@ def position_from_tree(pid, fields, nodes=1000):
     configure_channel(fields)
     root, walked = quick_root(fields, pid)
     chunks, _ = chunks_of(list(walked)[:nodes])
-    from_tree = _pos_field(chunks, fields['parent'], fields['size'], set(chunks))
+    from_tree = _pos_field(chunks, fields['parent'], fields['size'])
     if from_tree != fields['position']:
         print('position: the scan said +0x%03X, the tree says +0x%03X; the tree decides'
               % (fields['position'], from_tree))
