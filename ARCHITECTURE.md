@@ -32,16 +32,18 @@ AddressSanitizer around both. The build stops on any compiler warning, the code 
 `/analyze` included, and pytest runs clang-tidy. Building and testing take seconds; a restart of
 the game takes minutes, so the DLL is tested before the game ever sees it.
 
-Python on the other side is fast enough, and that is measured: re-checking the derivation once took
+A question through the pipe is cheap, and that is measured: re-checking the derivation once took
 122 seconds, nearly all of it the Python side polling in fixed steps, and a growing wait made it 3
-seconds without a line of C++. Two rules keep it there: let the DLL walk the tree and return a
-compact answer rather than raw bytes, and react to keys and events instead of walking the tree every
-frame.
+seconds without a line of C++. What is slow is reading a window the reader has not seen yet: that
+takes seconds, most of them walking the tree through the pipe, and it is the first reason the reader
+moves inside. Until then two rules hold: let the DLL walk the tree and return a compact answer rather
+than raw bytes, and react to keys and events instead of walking the tree every frame.
 
 **The pipe is a workbench, not a product.** It answers anything that can open it, and the primitives
 add up to remote control plus arbitrary memory reads — right for mapping an interface, wrong to
-ship, and in multiplayer a cheating tool. A released build carries no pipe. The DLL never opens a
-network connection.
+ship, and in multiplayer a cheating tool. A released build will carry no pipe: the plan is one source
+and two builds, the one for players compiled without it, because a switch at start-up would leave the
+code in the file for anyone who finds the switch. The DLL never opens a network connection.
 
 **One rule for anything added here:** a limit either grows or announces itself, never silently. The
 costliest bug in this project was a tree walk that stopped at 20,000 nodes and dropped children
