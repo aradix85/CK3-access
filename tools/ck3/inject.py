@@ -61,8 +61,9 @@ def start_with_dll(exe_path, dll_path, arguments=''):
     **The game is asked to show its window without taking the foreground**, because the player
     reads along in another window. Measured 2 October 2026: started without this, the game took the
     foreground by itself twenty seconds in, while no script of ours touched its window. Windows uses
-    `wShowWindow` instead of what the program asks for on its first ShowWindow call; whether the
-    game's SDL window honours it is checked at the next start, with the foreground logged.
+    `wShowWindow` instead of what the program asks for on its first ShowWindow call, and the game
+    honours it: with this, the player's window stayed in front through a start, a bookmark loading
+    and a new game being set up, while the game's window stood visible and not minimised.
     """
     startup = STARTUPINFOW()
     startup.cb = ctypes.sizeof(startup)

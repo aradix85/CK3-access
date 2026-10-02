@@ -12,8 +12,9 @@ keeps the numbers with the rule they were counted by. A changelog that may never
 ## 2026-10-02
 
 - **Alt+G opens the College of Cardinals on a ruler whose faith elects them**, measured on a
-  Chalcedonian prince-archbishop in 867; seven of the nine combinations the HUD declares now open
-  a window. The two left need a war and a running activity.
+  Chalcedonian prince-archbishop in 867 and on the king of England in 1066, and **alt+W opens the war
+  overview on a ruler at war** - that king, in a war at the start of 1066. Eight of the nine
+  combinations the HUD declares now open a window; alt+A needs a running activity.
 - **Keys inside a window are pressed and measured: `windowmap.py <pid> --window-keys <window> ...`.**
   It opens each window along its route, presses every key that only changes the view, and says
   whether the window's own text changed, another window opened or the window shut - a tab opens
@@ -23,9 +24,10 @@ keeps the numbers with the rule they were counted by. A changelog that may never
 - **A window whose only key is a combination opens again in the harvest.** The map has carried six
   since this morning, and the harvest looked their keys up as plain keys; one function now presses
   a key as the map spells it, through `combo` when it holds a modifier.
-- The injector asks Windows to show the game without activating it, because the game took the
-  foreground by itself at start-up while the player was reading in another window. Whether the game
-  honours that is measured at the next start.
+- **The game starts without taking the foreground.** Started plainly, it brought its window to the
+  front twenty seconds in while the player was reading in another window; the injector now asks
+  Windows to show it without activating it, and through a start, a bookmark loading and a new game
+  being set up the player's window stayed in front while the game's window stood visible.
 
 - **Which keys live in which window, and which of them only change the view, comes off disk:
   `windowmap.py --window-keys`.** Every window is expanded and every shortcut its widgets declare is

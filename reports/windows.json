@@ -2664,7 +2664,7 @@
    "nodes_added": 2,
    "seconds": 7.0,
    "shape": "top level",
-   "shortcut": null
+   "shortcut": "alt+W"
   },
   "war_results": {
    "cleaned_up": true,
