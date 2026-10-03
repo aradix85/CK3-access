@@ -46,7 +46,7 @@ COMPASS = {(0, 1): 'north', (0, -1): 'south', (1, 0): 'east', (-1, 0): 'west',
 
 
 def _map_file(name):
-    return os.path.join(paths.GAME, 'game', 'map_data', name)
+    return os.path.join(paths.require('GAME'), 'game', 'map_data', name)
 
 
 def province_colours():

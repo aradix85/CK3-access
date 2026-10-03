@@ -175,9 +175,10 @@ def files(with_mods=True):
     the redefinition vanished - measured 26 August 2026 against the harvest, where two widget
     names of the Historical Figure mod were missing from 70 windows.
     """
-    layers = [('clausewitz', os.path.join(paths.GAME, 'clausewitz')),
-              ('jomini', os.path.join(paths.GAME, 'jomini')),
-              ('game', os.path.join(paths.GAME, 'game'))]
+    game = paths.require('GAME')
+    layers = [('clausewitz', os.path.join(game, 'clausewitz')),
+              ('jomini', os.path.join(game, 'jomini')),
+              ('game', os.path.join(game, 'game'))]
     if with_mods:
         layers += [('mod', folder) for folder in paths.mod_folders()]
     found = []
@@ -515,7 +516,7 @@ def localization(language='english'):
     says what that key reads as. A mod that ships a key of the same name replaces it, so the mods
     come last here as well.
     """
-    folders = [os.path.join(paths.GAME, 'game', 'localization', language)]
+    folders = [os.path.join(paths.require('GAME'), 'game', 'localization', language)]
     for folder in paths.mod_folders():
         folders.append(os.path.join(folder, 'localization', language))
     out = {}

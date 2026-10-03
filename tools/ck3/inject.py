@@ -8,6 +8,9 @@ returns zero is a fault that must be visible.
 """
 import ctypes
 import ctypes.wintypes as wt
+from typing import TypeVar
+
+T = TypeVar('T')
 
 CREATE_SUSPENDED = 0x00000004
 STARTF_USESHOWWINDOW = 0x00000001
@@ -33,6 +36,11 @@ class STARTUPINFOW(ctypes.Structure):
 class PROCESS_INFORMATION(ctypes.Structure):
     _fields_ = [('hProcess', wt.HANDLE), ('hThread', wt.HANDLE),
                 ('dwProcessId', wt.DWORD), ('dwThreadId', wt.DWORD)]
+    # What reading a field gives: a null handle reads as None.
+    hProcess: int | None
+    hThread: int | None
+    dwProcessId: int
+    dwThreadId: int
 
 # Without these declarations ctypes truncates 64-bit addresses to 32 bits and everything points nowhere.
 k32.VirtualAllocEx.restype = ctypes.c_void_p
@@ -49,13 +57,13 @@ k32.CreateRemoteThread.argtypes = [wt.HANDLE, ctypes.c_void_p, ctypes.c_size_t, 
 k32.GetExitCodeThread.argtypes = [wt.HANDLE, ctypes.POINTER(wt.DWORD)]
 
 
-def _require(result, what):
+def _require(result: T, what: str) -> T:
     if not result:
         raise ctypes.WinError(ctypes.get_last_error(), what)
     return result
 
 
-def start_with_dll(exe_path, dll_path, arguments=''):
+def start_with_dll(exe_path: str, dll_path: str, arguments: str = '') -> int:
     """Starts exe_path suspended, loads dll_path into it, resumes the process. Returns the pid.
 
     **The game is asked to show its window without taking the foreground**, because the player

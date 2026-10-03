@@ -11,7 +11,6 @@ from ctypes import wintypes
 
 from tools import paths
 
-INSTALL = paths.GAME
 ROOT_CLASS = b'.?AVCPdxGuiWidget@@'
 
 _k32 = ctypes.WinDLL('kernel32', use_last_error=True)

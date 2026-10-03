@@ -11,7 +11,7 @@ and the real seam.
 
 import pytest
 
-from tools.ck3 import derive
+from tools.ck3 import channel, derive
 from tools.nvda import speech
 
 WIDGET = 'w\t1000\t5\t0\t0\t10\t10\t0\troot\t'
@@ -27,7 +27,7 @@ def heard(monkeypatch):
 
 
 def answer(monkeypatch, *lines):
-    monkeypatch.setattr(derive.channel, 'ask', lambda _command, **_keywords: '\n'.join(lines))
+    monkeypatch.setattr(channel, 'ask', lambda _command, **_keywords: '\n'.join(lines))
 
 
 def test_a_whole_tree_says_nothing(heard, monkeypatch):

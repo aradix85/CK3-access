@@ -26,9 +26,7 @@ from tools import paths, windowgrab
 from tools.ck3 import channel, memory, vtablemap
 from tools.nvda import speech
 
-INSTALL = memory.INSTALL
-PROJECT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-STORED = os.path.join(PROJECT, 'reports', 'fields.json')
+STORED = os.path.join(paths.REPORTS, 'fields.json')
 CHUNK = 0x420          # roomier than the largest widget object
 
 
@@ -334,9 +332,10 @@ def scale_anchors():
     if _ANCHORS is not None:
         return _ANCHORS
     anchors = {}
-    for pattern in (os.path.join(INSTALL, 'game', 'gui', '**', '*.gui'),
-                    os.path.join(INSTALL, 'clausewitz', 'gui', '**', '*.gui'),
-                    os.path.join(INSTALL, 'jomini', '**', '*.gui')):
+    game = paths.require('GAME')
+    for pattern in (os.path.join(game, 'game', 'gui', '**', '*.gui'),
+                    os.path.join(game, 'clausewitz', 'gui', '**', '*.gui'),
+                    os.path.join(game, 'jomini', '**', '*.gui')):
         for path in glob.glob(pattern, recursive=True):
             lines = pathlib.Path(path).read_text(encoding='utf-8', errors='replace').splitlines()
             for i, line in enumerate(lines):
@@ -653,12 +652,13 @@ def _file_chunk(pattern, text_encoding='utf-8'):
 
 
 def gui_text():
-    return (_file_chunk(os.path.join(INSTALL, 'game', 'gui', '**', '*.gui')) +
-            _file_chunk(os.path.join(INSTALL, 'clausewitz', 'gui', '**', '*.gui')))
+    game = paths.require('GAME')
+    return (_file_chunk(os.path.join(game, 'game', 'gui', '**', '*.gui')) +
+            _file_chunk(os.path.join(game, 'clausewitz', 'gui', '**', '*.gui')))
 
 
 def localization_text():
-    return _file_chunk(os.path.join(INSTALL, 'game', 'localization', 'english',
+    return _file_chunk(os.path.join(paths.require('GAME'), 'game', 'localization', 'english',
                                       '**', '*.yml'), 'utf-8-sig')
 
 

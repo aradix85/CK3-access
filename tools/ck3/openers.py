@@ -102,7 +102,7 @@ def buttons_on_disk():
     windows = set(json.loads(pathlib.Path(os.path.join(paths.PROJECT, 'reports', 'windows.json')).read_text(encoding='utf-8'))['windows'])
     found: dict[str, dict] = {}
     beneath: dict[str, dict] = {}
-    for root, _, names in os.walk(paths.GAME):
+    for root, _, names in os.walk(paths.require('GAME')):
         for name in sorted(names):
             if not name.endswith('.gui'):
                 continue

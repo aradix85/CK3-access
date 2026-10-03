@@ -39,7 +39,7 @@ def files(branch):
     replaces it whole rather than merging into it. Sorting this list away would put a mod's
     `00_...txt` in front of the game's and lose exactly the entries a mod means to add.
     """
-    layers = [('game', os.path.join(paths.GAME, 'game', 'common'))]
+    layers = [('game', os.path.join(paths.require('GAME'), 'game', 'common'))]
     layers += [('mod', os.path.join(folder, 'common')) for folder in paths.mod_folders()]
     found = []
     for layer, base in layers:

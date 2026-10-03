@@ -13,5 +13,6 @@
 import appModuleHandler
 
 
-class AppModule(appModuleHandler.AppModule):
+# NVDA's module exists only inside NVDA, so outside it the base class has no type to check against.
+class AppModule(appModuleHandler.AppModule):  # type: ignore[misc]
     sleepMode = True

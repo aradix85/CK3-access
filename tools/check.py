@@ -24,8 +24,6 @@ from collections.abc import Callable
 from tools import paths, terminal
 
 PROJ = paths.PROJECT
-GAME = paths.GAME
-DOCS = paths.DOCS
 
 
 def _path(part):
@@ -34,9 +32,10 @@ def _path(part):
     `<workshop>` is derived from the game folder rather than written down: the Steam library that
     holds the game holds the workshop content two levels up, whichever drive it is on.
     """
-    workshop = os.path.join(os.path.dirname(os.path.dirname(GAME)), 'workshop', 'content', '1158310')
-    return (part.replace('<game>', GAME).replace('<project>', PROJ)
-            .replace('<documents>', DOCS).replace('<workshop>', workshop))
+    game = paths.require('GAME')
+    workshop = os.path.join(os.path.dirname(os.path.dirname(game)), 'workshop', 'content', '1158310')
+    return (part.replace('<game>', game).replace('<project>', PROJ)
+            .replace('<documents>', paths.require('DOCS')).replace('<workshop>', workshop))
 
 
 def bytes_of(part):
@@ -411,7 +410,7 @@ def mod_windows(part):
     count = 0
     for row in rows.values():
         rel = (row.get('file') or '').replace('/', os.sep)
-        if not any(os.path.exists(os.path.join(GAME, layer, rel))
+        if not any(os.path.exists(os.path.join(paths.require('GAME'), layer, rel))
                    for layer in ('game', 'clausewitz', 'jomini')):
             count += 1
     return count
@@ -474,7 +473,7 @@ def shortcuts(what):
     action of the game. Those are counted apart. What is left are the named game actions, split
     by whether the binding needs shift, ctrl or alt.
     """
-    path = os.path.join(paths.GAME, 'game', 'gui', 'shortcuts.shortcuts')
+    path = os.path.join(paths.require('GAME'), 'game', 'gui', 'shortcuts.shortcuts')
     text = pathlib.Path(path).read_text(encoding='utf-8-sig', errors='replace')
     rows = re.findall(r'^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"([^"]*)"', text, re.MULTILINE)
     named = [(n, k) for n, k in rows if not n.startswith('_')]
@@ -516,7 +515,7 @@ def shortcut_words(what):
     `[Concatenate('tab_', ...)]`, is no binding name and is not counted here.
     """
     from tools.ck3 import guimap
-    text = pathlib.Path(os.path.join(paths.GAME, 'game', 'gui', 'shortcuts.shortcuts')).read_text(encoding='utf-8-sig', errors='replace')
+    text = pathlib.Path(os.path.join(paths.require('GAME'), 'game', 'gui', 'shortcuts.shortcuts')).read_text(encoding='utf-8-sig', errors='replace')
     rows = re.findall(r'^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"([^"]*)"', text, re.MULTILINE)
     bindings = {n for n, _ in rows if not n.startswith('_')}
 

@@ -27,7 +27,6 @@ import time
 from tools import paths, terminal
 from tools.ck3 import channel, derive, memory, vtablemap
 
-GAME = paths.GAME
 OUT = os.path.join(paths.REPORTS, 'windows.json')
 # The keys a round presses on a bare screen. The F row, plus every binding in shortcuts.shortcuts
 # without a modifier whose name says it can bring something up there: situations 0, character
@@ -88,7 +87,7 @@ def window_bindings():
     through, so a round can press it without changing the game.
     """
     from tools.ck3 import guimap
-    text = pathlib.Path(os.path.join(GAME, 'game', 'gui', 'shortcuts.shortcuts')).read_text(encoding='utf-8-sig')
+    text = pathlib.Path(os.path.join(paths.require('GAME'), 'game', 'gui', 'shortcuts.shortcuts')).read_text(encoding='utf-8-sig')
     bound = dict(re.findall(r'^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"([^"]*)"', text, re.MULTILINE))
     rows = guimap.files()
     table, local = guimap.type_table(rows)
@@ -204,7 +203,7 @@ def window_keys_round(game, names):
     from tools.ck3 import harvest
     with open(OUT, encoding='utf-8') as file:
         windows = json.load(file)['windows']
-    text = pathlib.Path(os.path.join(GAME, 'game', 'gui', 'shortcuts.shortcuts')).read_text(encoding='utf-8-sig')
+    text = pathlib.Path(os.path.join(paths.require('GAME'), 'game', 'gui', 'shortcuts.shortcuts')).read_text(encoding='utf-8-sig')
     bound = {n: k for n, k in re.findall(r'^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"([^"]*)"', text, re.MULTILINE)
              if k.strip()}
     plan = window_bindings()
@@ -266,7 +265,7 @@ def window_keys_round(game, names):
 def modified_keys():
     """Binding -> (spelling, modifier keys, key) for every name in `MODIFIED`, as the file binds it."""
     from tools.ck3 import modifiers
-    text = pathlib.Path(os.path.join(GAME, 'game', 'gui', 'shortcuts.shortcuts')).read_text(encoding='utf-8-sig')
+    text = pathlib.Path(os.path.join(paths.require('GAME'), 'game', 'gui', 'shortcuts.shortcuts')).read_text(encoding='utf-8-sig')
     bound = dict(re.findall(r'^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"([^"]*)"', text, re.MULTILINE))
     out = {}
     for name in MODIFIED:

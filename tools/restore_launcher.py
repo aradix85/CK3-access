@@ -12,7 +12,7 @@ from tools import paths
 from tools.nvda import speech
 
 ORIGINAL = os.path.join(paths.PROJECT, 'launcher-settings.original.json')
-TARGET = os.path.join(paths.GAME, 'launcher', 'launcher-settings.json')
+TARGET = os.path.join(paths.require('GAME'), 'launcher', 'launcher-settings.json')
 
 
 def sha256(path):

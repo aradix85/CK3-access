@@ -3,7 +3,7 @@ import io
 import sys
 
 
-def utf8():
+def utf8() -> None:
     """UTF-8 out, an unprintable character replaced rather than fatal, and a line at a time.
 
     The console's own code page turns a name with an accent into noise or an exception, and output

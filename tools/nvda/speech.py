@@ -46,7 +46,7 @@ REPLACE, QUEUE = 'replace', 'queue'
 _client: 'ctypes.WinDLL | Recorder | None' = None
 
 
-def client():
+def client() -> 'ctypes.WinDLL | Recorder':
     global _client
     if _client is None:
         _client = ctypes.windll.LoadLibrary(DLL)
@@ -56,36 +56,36 @@ def client():
 class Recorder:
     """A stand-in client that keeps what it was given. For tests and for the beta gate."""
 
-    def __init__(self):
-        self.spoken = []
-        self.brailled = []
+    def __init__(self) -> None:
+        self.spoken: list[str | None] = []
+        self.brailled: list[str | None] = []
         self.cancels = 0
 
-    def nvdaController_testIfRunning(self):
+    def nvdaController_testIfRunning(self) -> int:
         return 0
 
-    def nvdaController_speakText(self, text):
+    def nvdaController_speakText(self, text: ctypes.c_wchar_p) -> int:
         self.spoken.append(text.value)
         return 0
 
-    def nvdaController_brailleMessage(self, text):
+    def nvdaController_brailleMessage(self, text: ctypes.c_wchar_p) -> int:
         self.brailled.append(text.value)
         return 0
 
-    def nvdaController_cancelSpeech(self):
+    def nvdaController_cancelSpeech(self) -> int:
         self.cancels += 1
         return 0
 
 
-def nvda_running():
+def nvda_running() -> bool:
     return client().nvdaController_testIfRunning() == 0
 
 
-def silence():
+def silence() -> None:
     client().nvdaController_cancelSpeech()
 
 
-def output(text, mode=REPLACE, braille=None):
+def output(text: str, mode: str = REPLACE, braille: str | None = None) -> None:
     """Speak, and write to the braille display in the same breath.
 
     braille=None means the same text, which is what almost every call wants: the user reads
@@ -107,7 +107,7 @@ def output(text, mode=REPLACE, braille=None):
         raise OSError(f'NVDA returned error code {int(error)} on braille')
 
 
-def failure(where, what, remedy, mode=REPLACE):
+def failure(where: str, what: str, remedy: str, mode: str = REPLACE) -> str:
     """The exit for a failure: one sentence carrying where, what, and what to do now.
 
     No error code, no path, no exclamation mark without words. A player cannot act on an offset

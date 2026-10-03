@@ -16,15 +16,15 @@ import os
 import winreg
 
 
-def _from_env(name):
+def _from_env(name: str) -> str | None:
     value = os.environ.get(name)
     return value if value and os.path.isdir(value) else None
 
 
-def _steam_libraries():
+def _steam_libraries() -> list[str]:
     """The Steam folders from the registry and from `libraryfolders.vdf`; a player may use
     more than one drive."""
-    folders = []
+    folders: list[str] = []
     for branch, build_key in ((winreg.HKEY_CURRENT_USER, r'Software\Valve\Steam'),
                          (winreg.HKEY_LOCAL_MACHINE, r'SOFTWARE\WOW6432Node\Valve\Steam')):
         try:
@@ -50,7 +50,7 @@ def _steam_libraries():
     return out
 
 
-def _find_game():
+def _find_game() -> str | None:
     candidates = [os.path.join(b, 'steamapps', 'common', 'Crusader Kings III')
                   for b in _steam_libraries()]
     for path in candidates:
@@ -59,10 +59,10 @@ def _find_game():
     return None
 
 
-def _find_docs():
+def _find_docs() -> str | None:
     """The Documents folder comes from the registry, because it can be moved or redirected
     (OneDrive) and is named differently on a non-English Windows."""
-    base = None
+    base: str | None = None
     try:
         build_key = r'Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders'
         with winreg.OpenKey(winreg.HKEY_CURRENT_USER, build_key) as k:
@@ -92,7 +92,7 @@ REPORTS = os.path.join(PROJECT, 'reports')
 DLL = os.path.join(PROJECT, 'dll', 'channel.dll')
 
 
-def mod_folders():
+def mod_folders() -> list[str]:
     """The folders of the mods that are switched on, in load order.
 
     The engine merges these over its own files, so anything reading game files off disk has to
@@ -124,13 +124,13 @@ def mod_folders():
     return out
 
 
-def require(name):
+def require(name: str) -> str:
     """Return a path, or stop with a sentence saying what needs to happen.
 
     Stop hard at the site of the problem: a missing path that travels on as an empty string
     produces an error three layers away that has nothing to do with the cause.
     """
-    value = globals().get(name)
+    value: str | None = globals().get(name)
     if not value or not os.path.exists(value):
         raise SystemExit(
             f'{name} not found ({value!r}). Set the environment variable CK3_GAME or CK3_DOCS, '
