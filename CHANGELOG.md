@@ -31,8 +31,7 @@ keeps the numbers with the rule they were counted by. A changelog that may never
 
 - **Alt+G opens the College of Cardinals on a ruler whose faith elects them**, measured on a
   Chalcedonian prince-archbishop in 867 and on the king of England in 1066, and **alt+W opens the war
-  overview on a ruler at war** - that king, in a war at the start of 1066. Eight of the nine
-  combinations the HUD declares now open a window; alt+A needs a running activity.
+  overview on a ruler at war** - that king, in a war at the start of 1066.
 - **Keys inside a window are pressed and measured: `windowmap.py <pid> --window-keys <window> ...`.**
   It opens each window along its route, presses every key that only changes the view, and says
   whether the window's own text changed, another window opened or the window shut - a tab opens
