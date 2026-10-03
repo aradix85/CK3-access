@@ -76,7 +76,9 @@ def widget_vtables():
     return len(memory.widget_vtables())
 
 
-CHANNEL_PARSE = re.compile(r'(?:strcmp|strncmp|sscanf)\(command,\s*"([a-z_]+(?: [a-z_]+)?)')
+# The dispatch chain names each command once as `is("word")`, or as `strcmp(command, "...")` when
+# the command is a fixed phrase such as `keys on`.
+CHANNEL_PARSE = re.compile(r'(?:\bstrcmp\(command,\s*|\bis\()"([a-z_]+(?: [a-z_]+)?)"')
 # Backticked phrases that look like a command but belong to someone else's vocabulary.
 NOT_OURS = {'git': 'a program', 'effect': "the game's own console"}
 

@@ -52,7 +52,7 @@ def host(request, tmp_path_factory):
     if request.param == 'asan':
         dll = str(work / 'channel.dll')
         sanitize = '/Zi /fsanitize=address'
-        lines += ['cl /nologo /Od %s /D_CRT_SECURE_NO_WARNINGS /LD "%s" user32.lib /Fe:channel.dll || exit /b 1'
+        lines += ['cl /nologo /Od %s /LD "%s" user32.lib /Fe:channel.dll || exit /b 1'
                   % (sanitize, os.path.join(ROOT, 'dll', 'channel.cpp')),
                   'copy /y "%VCToolsInstallDir%bin\\Hostx64\\x64\\clang_rt.asan_dynamic-x86_64.dll" . || exit /b 1']
     lines.append('cl /nologo /Od %s "%s" user32.lib /Fe:host.exe || exit /b 1' % (sanitize, SOURCE))
@@ -199,6 +199,17 @@ def test_every_command(host):
     check('keys off', 'unchanged', lambda ls: ls == ['keys unchanged'])
     for command in ('childfield f0 fc', 'call %s 0' % h(A), 'waitchange 1', 'count on'):
         check(command, 'removed, so refused', refused)
+
+    # A number is digits only, and fits its field. Measured on the sscanf reader, 3 October 2026: a
+    # minus came out as the number counted down from the top (`sendkey -1` sent key 4294967295), and
+    # a key code too big for 32 bits wrapped round silently - `combo 50 160 4294967408` sent shift+F1.
+    for command in ('sendkey -1', 'sendkey +1', 'sendkey 4294967296', 'read %s -8' % h(PAGE),
+                    'tree 1' + '0' * 16, 'mouse -5 5 0'):
+        check(command, 'refused', refused)
+    check('swallow 38 -40', 'a sign refused', error('not a key code'))
+    check('vtables 1 -2', 'a sign refused', error('not a vtable address'))
+    check('combo 50 160 4294967408', 'too big for 32 bits', error('not a key code'))
+    check('find  ?? 4b', 'blanks before the pattern', error('first byte cannot be a wildcard'))
 
     assert not failed, '\n'.join(failed)
 

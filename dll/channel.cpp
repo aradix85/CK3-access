@@ -7,6 +7,7 @@
 // The DLL knows nothing about CK3. Python derives the field offsets and the widget vtables and
 // passes them in; all that lives here is the machinery to walk memory with them.
 #include <windows.h>
+#include <errno.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -82,14 +83,55 @@ static void buf_hex(const unsigned char* p, size_t count)
     if (out) buf_add(part, out);
 }
 
-// Did a parse read the whole command? `consumed` is where it stopped, from the trailing %n, which
-// sscanf always fills once every conversion before it matched. A command with text left over is
-// refused, never shortened: an argument that is dropped looks exactly like one that arrived.
-static bool all_read(const char* command, int consumed)
+// --- reading a command ------------------------------------------------------
+// Commands come from our own Python, but this is where outside input enters the game process, so a
+// number is read strictly: digits only, no sign, nothing too big for its field. A command with text
+// left over is refused, never shortened: an argument that is dropped looks exactly like one that
+// arrived. A number is one of two kinds, named by a letter: `x` an address in hex, `u` a count or
+// a code in decimal that fits 32 bits.
+
+// The value of a hex digit, or -1. A decimal digit is one whose value is under ten.
+static int digit_value(char ch)
 {
-    const char* p = command + consumed;
+    if (ch >= '0' && ch <= '9') return ch - '0';
+    if (ch >= 'a' && ch <= 'f') return ch - 'a' + 10;
+    if (ch >= 'A' && ch <= 'F') return ch - 'A' + 10;
+    return -1;
+}
+
+// Nothing but blanks from here to the end of the command.
+static bool all_read(const char* p)
+{
     while (*p == ' ' || *p == '\t') p++;
     return *p == 0;
+}
+
+// One number of this kind off the front of *p, past blanks; *p then stands right after it.
+// strtoull alone would take a sign - a minus hands back the number counted down from the top - and
+// report an overflow only through errno; here both are a refusal.
+static bool take(const char** p, char kind, unsigned long long* out)
+{
+    const int base = kind == 'x' ? 16 : 10;
+    const unsigned long long most = kind == 'x' ? ULLONG_MAX : UINT_MAX;
+    const char* start = *p;
+    while (*start == ' ' || *start == '\t') start++;
+    const int first = digit_value(*start);
+    if (first < 0 || first >= base) return false;
+    char* end = NULL;
+    errno = 0;
+    const unsigned long long value = strtoull(start, &end, base);
+    if (errno == ERANGE || value > most) return false;
+    *out = value;
+    *p = end;
+    return true;
+}
+
+// The numbers of a command, one letter each in `form`, and nothing after them.
+static bool args(const char* p, const char* form, unsigned long long* out)
+{
+    for (; *form; form++, out++)
+        if (!take(&p, *form, out)) return false;
+    return all_read(p);
 }
 
 // --- reading memory safely --------------------------------------------------
@@ -117,6 +159,15 @@ static unsigned long long read64(const void* address)
 {
     if (!readable(address, 8)) return 0;
     return *(const unsigned long long*)address;
+}
+
+// The one place a number becomes a pointer. Reading memory at an address that is handed over - by
+// Python, by a child list in the game, by Windows - is what this DLL is for, so the cast is the job
+// itself and cannot go; this is the single exception to the check that warns about it.
+template <typename Pointer, typename Whole>
+static Pointer as_pointer(Whole number)
+{
+    return reinterpret_cast<Pointer>(number);   // NOLINT(performance-no-int-to-ptr): see above
 }
 
 static float read_float(const void* address)
@@ -168,19 +219,21 @@ static bool is_widget(unsigned long long vtable)
 
 // --- the commands -----------------------------------------------------------
 
+// A stretch of the game's memory: from, up to but not including to. A null end stands for that end
+// of what the process can address. One parameter instead of two, so the ends cannot change places.
+struct Span { const unsigned char* from; const unsigned char* to; };
+
 // scan: every address that holds a widget vtable, with that vtable, and nothing else - it runs
 // before the field offsets are known, because the derivation starts here. Every eight bytes up to
 // the end of a region are a candidate. Without bounds it walks all eleven gigabytes of the game.
-static void cmd_scan(unsigned long long from_address, unsigned long long to_address)
+static void cmd_scan(Span span)
 {
     if (g_vtable_count == 0) { emit("error: no vtables set\n"); return; }
 
     SYSTEM_INFO base;
     GetSystemInfo(&base);
-    const unsigned char* pointer = from_address ? (const unsigned char*)from_address
-                                      : (const unsigned char*)base.lpMinimumApplicationAddress;
-    const unsigned char* end_at = to_address ? (const unsigned char*)to_address
-                                     : (const unsigned char*)base.lpMaximumApplicationAddress;
+    const unsigned char* pointer = span.from ? span.from : (const unsigned char*)base.lpMinimumApplicationAddress;
+    const unsigned char* end_at = span.to ? span.to : (const unsigned char*)base.lpMaximumApplicationAddress;
     int found = 0;
     int skipped = 0;
 
@@ -230,7 +283,7 @@ static void emit_widget(const unsigned char* p, char* name, char* text, size_t s
         emit("missing\t%llx\ttext of %zu characters cut short\n", (unsigned long long)p, text_length);
 }
 
-static void cmd_tree(unsigned long long root, unsigned limit)
+static void cmd_tree(const unsigned char* root, unsigned limit)
 {
     if (!g_fields_set || g_vtable_count == 0) { emit("error: set and vtables come first\n"); return; }
     // The queue grows; a limit applies only when the caller asks for one, and is reported.
@@ -239,12 +292,12 @@ static void cmd_tree(unsigned long long root, unsigned limit)
     if (!work) { emit("error: out of memory\n"); return; }
 
     unsigned work_count = 0, done = 0, clipped = 0, foreign = 0;
-    work[work_count++] = root;
+    work[work_count++] = (unsigned long long)root;
     char name[512], text[8192];
 
     __try {
         while (done < work_count) {
-            const unsigned char* p = (const unsigned char*)work[done++];
+            const unsigned char* p = as_pointer<const unsigned char*>(work[done++]);
             // Only the vtable has to be readable: every field below is checked on its own, and an
             // object may end right before an uncommitted page.
             if (!readable(p, 8)) { emit("missing\t%llx\tunreadable\n", (unsigned long long)p); continue; }
@@ -265,11 +318,11 @@ static void cmd_tree(unsigned long long root, unsigned limit)
                 emit("missing\t%llx\t%u children is not believable\n", (unsigned long long)p, how_many);
                 continue;
             }
-            if (!readable((const void*)list_start, (SIZE_T)how_many * 8)) {
+            if (!readable(as_pointer<const void*>(list_start), (SIZE_T)how_many * 8)) {
                 emit("missing\t%llx\tchild list unreadable\n", list_start);
                 continue;
             }
-            const unsigned long long* children = (const unsigned long long*)list_start;
+            const unsigned long long* children = as_pointer<const unsigned long long*>(list_start);
             for (unsigned i = 0; i < how_many; i++) {
                 if (!children[i]) continue;
                 if (limit && work_count >= limit) { clipped++; continue; }
@@ -295,13 +348,12 @@ static void cmd_tree(unsigned long long root, unsigned limit)
 }
 
 // read: raw bytes at an address, as hex.
-static void cmd_read(unsigned long long address, unsigned count)
+static void cmd_read(const unsigned char* address, unsigned count)
 {
     // Quietly returning less than was asked makes the caller think he has everything.
     if (count > 65536) { emit("error: at most 65536 bytes per call\n"); return; }
-    const unsigned char* p = (const unsigned char*)address;
-    if (!readable(p, count)) { emit("error: unreadable\n"); return; }
-    buf_hex(p, count);
+    if (!readable(address, count)) { emit("error: unreadable\n"); return; }
+    buf_hex(address, count);
     emit("\n");
 }
 
@@ -340,7 +392,7 @@ static void keys_enable(bool enable)
         g_window = NULL;
         EnumWindows(visit_window, 0);
         if (!g_window) { emit("error: no window found\n"); return; }
-        g_old_proc = (WNDPROC)SetWindowLongPtrW(g_window, GWLP_WNDPROC, (LONG_PTR)our_proc);
+        g_old_proc = as_pointer<WNDPROC>(SetWindowLongPtrW(g_window, GWLP_WNDPROC, (LONG_PTR)our_proc));
         if (!g_old_proc) { emit("error: the window procedure was not replaced: %lu\n", GetLastError()); return; }
         emit("keys on\n");
     } else if (!enable && g_old_proc) {
@@ -539,7 +591,7 @@ static void count_patch(void)
                     g_count_how[i] = "import slot not writable";
                     continue;
                 }
-                g_count_real[i] = (void*)slots->u1.Function;
+                g_count_real[i] = as_pointer<void*>(slots->u1.Function);
                 MemoryBarrier();
                 slots->u1.Function = (ULONGLONG)ours[i];
                 VirtualProtect(&slots->u1.Function, sizeof(slots->u1.Function), old, &old);
@@ -593,20 +645,19 @@ static void hold(unsigned code, LONG down)
 #define COMBO_PAUSE_MOST 1000
 static void cmd_combo(const char* rest)
 {
-    unsigned pause = 0, codes[COMBO_MODIFIERS + 1] = {0};
-    int count = 0, n = 0;
-    if (sscanf(rest, "%u%n", &pause, &n) != 1) { emit("error: combo needs a pause in ms first\n"); return; }
-    const char* p = rest + n;
-    for (;;) {
-        unsigned code = 0;
-        if (sscanf(p, " %u%n", &code, &n) != 1) break;
+    unsigned long long asked = 0, code = 0;
+    unsigned codes[COMBO_MODIFIERS + 1] = {0};
+    int count = 0;
+    const char* p = rest;
+    if (!take(&p, 'u', &asked)) { emit("error: combo needs a pause in ms first\n"); return; }
+    while (take(&p, 'u', &code)) {
         if (count == COMBO_MODIFIERS + 1) { emit("error: at most %d modifiers and one key\n", COMBO_MODIFIERS); return; }
-        if (code >= 256) { emit("error: key code %u is not a virtual key\n", code); return; }
-        codes[count++] = code;
-        p += n;
+        if (code >= 256) { emit("error: key code %llu is not a virtual key\n", code); return; }
+        codes[count++] = static_cast<unsigned>(code);
     }
-    if (!all_read(p, 0)) { emit("error: not a key code: %.40s\n", p); return; }
-    if (pause > COMBO_PAUSE_MOST) { emit("error: a pause of %u ms; at most %d\n", pause, COMBO_PAUSE_MOST); return; }
+    if (!all_read(p)) { emit("error: not a key code: %.40s\n", p); return; }
+    if (asked > COMBO_PAUSE_MOST) { emit("error: a pause of %llu ms; at most %d\n", asked, COMBO_PAUSE_MOST); return; }
+    const DWORD pause = static_cast<DWORD>(asked);
     if (count < 2) { emit("error: combo needs at least one modifier and a key\n"); return; }
     unsigned key = codes[count - 1];
     if (generic_of(key)) { emit("error: the last code is the key, and %u is a modifier\n", key); return; }
@@ -653,12 +704,13 @@ static void cmd_combo(const char* rest)
 // find: a byte pattern in the full memory of the game, from the inside. From outside, the same
 // search costs minutes because every byte has to go through a pipe; here only the answer is left.
 // Meant for research: take a sentence that is certainly on screen and see where it lives.
-static void cmd_find(const char* rest, unsigned long long from_address, unsigned long long to_address)
+static void cmd_find(const char* rest, Span span)
 {
     unsigned char pattern[128];
     unsigned char mask[128];
     int length = 0;
     const char* p = rest;
+    while (*p == ' ') p++;
     while (*p && length < (int)sizeof(pattern)) {
         if (*p == '?') {
             pattern[length] = 0;
@@ -666,10 +718,10 @@ static void cmd_find(const char* rest, unsigned long long from_address, unsigned
             length++;
             while (*p == '?') p++;
         } else {
-            unsigned value = 0;
-            int used = 0;
-            if (sscanf(p, "%2x%n", &value, &used) != 1 || used != 2) break;   // two digits, always
-            pattern[length] = (unsigned char)value;
+            const int high = digit_value(p[0]);
+            const int low = high < 0 ? -1 : digit_value(p[1]);
+            if (low < 0) break;                                 // two digits, always
+            pattern[length] = static_cast<unsigned char>(high * 16 + low);
             mask[length] = 0xFF;
             length++;
             p += 2;
@@ -689,8 +741,8 @@ static void cmd_find(const char* rest, unsigned long long from_address, unsigned
     GetSystemInfo(&base);
     const unsigned char* pointer = (const unsigned char*)base.lpMinimumApplicationAddress;
     const unsigned char* end_at = (const unsigned char*)base.lpMaximumApplicationAddress;
-    if (from_address) pointer = (const unsigned char*)from_address;
-    if (to_address && (const unsigned char*)to_address < end_at) end_at = (const unsigned char*)to_address;
+    if (span.from) pointer = span.from;
+    if (span.to && span.to < end_at) end_at = span.to;
 
     int found = 0, reported = 0, skipped = 0;
     while (pointer < end_at) {
@@ -742,21 +794,16 @@ static void cmd_find(const char* rest, unsigned long long from_address, unsigned
 // reads of about 0.7 ms each; this turns those into one answer.
 static void cmd_readmany(const char* rest)
 {
-    unsigned count = 0;
-    int consumed = 0;
-    if (sscanf(rest, "%u%n", &count, &consumed) != 1) {
+    unsigned long long count = 0, address = 0;
+    const char* p = rest;
+    if (!take(&p, 'u', &count)) {
         emit("error: readmany <count> <address> <address> ...\n");
         return;
     }
     if (count > 65536) { emit("error: at most 65536 bytes per address\n"); return; }
-    const char* p = rest + consumed;
     int done = 0;
-    while (*p) {
-        unsigned long long address = 0;
-        int n = 0;
-        if (sscanf(p, " %llx%n", &address, &n) != 1) break;
-        p += n;
-        const unsigned char* q = (const unsigned char*)address;
+    while (take(&p, 'x', &address)) {
+        const unsigned char* q = as_pointer<const unsigned char*>(address);
         if (!readable(q, count)) {
             emit("l\t%llx\tunreadable\n", address);
         } else {
@@ -766,7 +813,7 @@ static void cmd_readmany(const char* rest)
         }
         done++;
     }
-    if (!all_read(p, 0)) { emit("error: not an address: %.40s\n", p); return; }
+    if (!all_read(p)) { emit("error: not an address: %.40s\n", p); return; }
     emit("done\t%d\n", done);
 }
 
@@ -775,14 +822,12 @@ static void cmd_swallow(const char* rest)
     bool wanted[256] = {false};
     const char* p = rest;
     int count = 0;
-    for (;;) {
-        unsigned code = 0; int n = 0;
-        if (sscanf(p, " %u%n", &code, &n) != 1) break;
-        if (code >= 256) { emit("error: key code %u is not a virtual key\n", code); return; }
+    unsigned long long code = 0;
+    while (take(&p, 'u', &code)) {
+        if (code >= 256) { emit("error: key code %llu is not a virtual key\n", code); return; }
         if (!wanted[code]) { wanted[code] = true; count++; }
-        p += n;
     }
-    if (!all_read(p, 0)) { emit("error: not a key code: %.40s\n", p); return; }
+    if (!all_read(p)) { emit("error: not a key code: %.40s\n", p); return; }
     EnterCriticalSection(&g_lock);
     for (int i = 0; i < 256; i++) g_swallow[i] = wanted[i];
     LeaveCriticalSection(&g_lock);
@@ -794,9 +839,7 @@ static void cmd_swallow(const char* rest)
 static void cmd_set(const char* rest)
 {
     unsigned long long v[7];
-    int consumed = 0;
-    if (sscanf(rest, "%llx %llx %llx %llx %llx %llx %llx%n",
-               &v[0], &v[1], &v[2], &v[3], &v[4], &v[5], &v[6], &consumed) != 7 || !all_read(rest, consumed)) {
+    if (!args(rest, "xxxxxxx", v)) {
         emit("error: set needs exactly seven offsets: parent position size name text children count\n");
         return;
     }
@@ -812,51 +855,54 @@ static void cmd_vtables(const char* rest)
     unsigned long long fresh[256];
     int count = 0;
     const char* p = rest;
-    for (;;) {
-        unsigned long long value = 0;
-        int n = 0;
-        if (sscanf(p, " %llx%n", &value, &n) != 1) break;
+    unsigned long long value = 0;
+    while (take(&p, 'x', &value)) {
         if (count == 256) { emit("error: more than 256 vtables; this limit has to grow\n"); return; }
         int j = count++;
         while (j > 0 && fresh[j - 1] > value) { fresh[j] = fresh[j - 1]; j--; }
         fresh[j] = value;
-        p += n;
     }
-    if (!all_read(p, 0)) { emit("error: not a vtable address: %.40s\n", p); return; }
+    if (!all_read(p)) { emit("error: not a vtable address: %.40s\n", p); return; }
     memcpy(g_vtables, fresh, sizeof(unsigned long long) * count);
     g_vtable_count = count;
     emit("vtables set\t%d\n", count);
 }
 
-// Every form below ends in %n, and `READ_ALL` accepts a form only when it read the whole command;
-// see `all_read`. A form with an optional argument is written out once per length, longest first.
-#define READ_ALL(fields, parse) ((parse) == (fields) && all_read(command, k))
-
+// The command word picks the handler; a word whose arguments are read here is accepted only when
+// `args` read all of them, and a form with an optional argument is tried once per length, longest
+// first. A word that needs arguments wants something after it, or it is an unknown command.
 static void dispatch(char* command)
 {
     buf_clear();
-    unsigned long long a = 0, b = 0, c = 0;
-    unsigned n = 0;
-    int consumed = 0, k = 0;
-    if (strncmp(command, "set ", 4) == 0)                 cmd_set(command + 4);
-    else if (strncmp(command, "vtables ", 8) == 0)        cmd_vtables(command + 8);
-    else if (READ_ALL(2, sscanf(command, "scan %llx %llx%n", &a, &b, &k))) cmd_scan(a, b);
-    else if (strcmp(command, "scan") == 0)                cmd_scan(0, 0);
-    else if (READ_ALL(2, sscanf(command, "tree %llx %u%n", &a, &n, &k))) cmd_tree(a, n);
-    else if (READ_ALL(1, sscanf(command, "tree %llx%n", &a, &k)))         cmd_tree(a, 0);
-    else if (READ_ALL(2, sscanf(command, "read %llx %u%n", &a, &n, &k))) cmd_read(a, n);
-    else if (strncmp(command, "readmany ", 9) == 0)       cmd_readmany(command + 9);
-    else if (sscanf(command, "findin %llx %llx %n", &a, &b, &consumed) == 2) cmd_find(command + consumed, a, b);
-    else if (strncmp(command, "find ", 5) == 0)           cmd_find(command + 5, 0, 0);
-    else if (strcmp(command, "keys on") == 0)             keys_enable(true);
-    else if (strcmp(command, "keys off") == 0)            keys_enable(false);
-    else if (strncmp(command, "swallow", 7) == 0)         cmd_swallow(command + 7);
-    else if (READ_ALL(1, sscanf(command, "waitkey %u%n", &n, &k))) cmd_waitkey(n);
-    else if (READ_ALL(3, sscanf(command, "mouse %llu %llu %llu%n", &a, &b, &c, &k))) cmd_mouse((int)a, (int)b, (int)c);
-    else if (READ_ALL(1, sscanf(command, "sendkey %u%n", &n, &k))) cmd_sendkey(n);
-    else if (READ_ALL(1, sscanf(command, "sendchar %u%n", &n, &k))) cmd_sendchar(n);
-    else if (strcmp(command, "count") == 0)               cmd_count();
-    else if (strncmp(command, "combo ", 6) == 0)          cmd_combo(command + 6);
+    const char* rest = command + strcspn(command, " ");
+    const size_t length = (size_t)(rest - command);
+    auto is = [command, length](const char* word) {
+        return strlen(word) == length && strncmp(command, word, length) == 0;
+    };
+    auto at = [](unsigned long long number) { return as_pointer<const unsigned char*>(number); };
+    unsigned long long v[3] = {0};
+    const char* pattern = rest;   // findin: what follows its two addresses
+    if (is("set") && *rest)                                cmd_set(rest);
+    else if (is("vtables") && *rest)                       cmd_vtables(rest);
+    else if (is("scan") && args(rest, "xx", v))            cmd_scan(Span{at(v[0]), at(v[1])});
+    else if (is("scan") && args(rest, "", v))              cmd_scan(Span{});
+    else if (is("tree") && args(rest, "xu", v))            cmd_tree(at(v[0]), static_cast<unsigned>(v[1]));
+    else if (is("tree") && args(rest, "x", v))             cmd_tree(at(v[0]), 0);
+    else if (is("read") && args(rest, "xu", v))            cmd_read(at(v[0]), static_cast<unsigned>(v[1]));
+    else if (is("readmany") && *rest)                      cmd_readmany(rest);
+    else if (is("findin") && take(&pattern, 'x', &v[0]) && take(&pattern, 'x', &v[1]))
+        cmd_find(pattern, Span{at(v[0]), at(v[1])});
+    else if (is("find") && *rest)                          cmd_find(rest, Span{});
+    else if (strcmp(command, "keys on") == 0)              keys_enable(true);
+    else if (strcmp(command, "keys off") == 0)             keys_enable(false);
+    else if (is("swallow"))                                cmd_swallow(rest);
+    else if (is("waitkey") && args(rest, "u", v))          cmd_waitkey(static_cast<DWORD>(v[0]));
+    else if (is("mouse") && args(rest, "uuu", v))
+        cmd_mouse(static_cast<int>(v[0]), static_cast<int>(v[1]), static_cast<int>(v[2]));
+    else if (is("sendkey") && args(rest, "u", v))          cmd_sendkey(static_cast<unsigned>(v[0]));
+    else if (is("sendchar") && args(rest, "u", v))         cmd_sendchar(static_cast<unsigned>(v[0]));
+    else if (strcmp(command, "count") == 0)                cmd_count();
+    else if (is("combo") && *rest)                         cmd_combo(rest);
     else if (strcmp(command, "hello") == 0)
         emit("channel\t%lu\tbuilt " __DATE__ " " __TIME__ "\n", GetCurrentProcessId());
     else emit("error: unknown command, or more than it reads: %.200s\n", command);
