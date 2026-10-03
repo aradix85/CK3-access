@@ -53,3 +53,5 @@ tools/nvda/*.exe
 # machine-specific copies of settings
 pdx_settings.origineel.txt
 launcher-settings.original.json
+# This machine has MSVC and LLVM: a test that would skip for want of them fails here instead.
+.tools-required

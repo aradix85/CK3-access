@@ -25,6 +25,18 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 DLL = os.path.join(ROOT, 'dll', 'channel.dll')
 SOURCE = os.path.join(ROOT, 'tests', 'channel_host.c')
+# On the maintainer's machine a missing tool fails the run instead of skipping it: a green run must not
+# hide a check that never ran (her decision, 3 October 2026). The marker `.tools-required` is kept out
+# of the repository by .gitignore, so a clone without MSVC or LLVM still skips. A running game stays a
+# skip everywhere: it answers on the same pipe, and that is no missing tool.
+TOOLS_REQUIRED = os.path.exists(os.path.join(ROOT, '.tools-required'))
+
+
+def missing(reason):
+    """A tool this test needs is not there: a failure where tools are required, a skip elsewhere."""
+    if TOOLS_REQUIRED:
+        pytest.fail(reason + ' (and .tools-required says this machine has it)')
+    pytest.skip(reason)
 
 
 def vcvars():
@@ -39,9 +51,9 @@ def host(request, tmp_path_factory):
     """The target running a DLL: `plain` the one the build made, `asan` one built here with
     AddressSanitizer around both, which aborts the target and says so on the first bad access."""
     if not os.path.exists(DLL):
-        pytest.skip('dll\\channel.dll is not built')
+        missing('dll\\channel.dll is not built')
     if not vcvars():
-        pytest.skip('no MSVC to build the target with')
+        missing('no MSVC to build the target with')
     if channel.alive():
         pytest.skip('the game is running, and it answers on the same pipe')
     work = tmp_path_factory.mktemp(request.param)
@@ -242,7 +254,7 @@ def clang_tidy():
 def test_clang_tidy_finds_nothing():
     """The checks in `dll\\.clang-tidy`, each finding an error; the MSVC analysis runs in the build."""
     if not clang_tidy() or not vcvars():
-        pytest.skip('clang-tidy or MSVC is not installed')
+        missing('clang-tidy or MSVC is not installed')
     done = subprocess.run(f'call "{vcvars()}" >nul && "{clang_tidy()}" channel.cpp --quiet -- --driver-mode=cl /EHsc', shell=True, capture_output=True, check=False, text=True,
                           cwd=os.path.join(ROOT, 'dll'))
     assert done.returncode == 0, done.stdout + done.stderr
