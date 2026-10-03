@@ -203,15 +203,27 @@ def test_every_command(host):
 
 
 def clang_tidy():
-    """Where LLVM's installer says it put itself. It writes the 32-bit view of the registry."""
+    """Where Windows says LLVM's installer put itself: the InstallLocation of its uninstall entry.
+
+    The NSIS installer of LLVM 22 also wrote `SOFTWARE\\LLVM\\LLVM`; the MSI of LLVM 23 does not,
+    measured 3 October 2026, and a lookup on that key turned this check into a quiet skip. Both
+    registry views are walked because a 32-bit and a 64-bit installer each write their own.
+    """
     import winreg
-    try:
-        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r'SOFTWARE\LLVM\LLVM', 0,
-                            winreg.KEY_READ | winreg.KEY_WOW64_32KEY) as key:
-            found = os.path.join(winreg.QueryValue(key, None), 'bin', 'clang-tidy.exe')
-    except OSError:
-        return None
-    return found if os.path.exists(found) else None
+    uninstall = r'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall'
+    for view in (winreg.KEY_WOW64_64KEY, winreg.KEY_WOW64_32KEY):
+        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, uninstall, 0, winreg.KEY_READ | view) as root:
+            for i in range(winreg.QueryInfoKey(root)[0]):
+                with winreg.OpenKey(root, winreg.EnumKey(root, i)) as entry:
+                    try:
+                        name = winreg.QueryValueEx(entry, 'DisplayName')[0]
+                        where = winreg.QueryValueEx(entry, 'InstallLocation')[0]
+                    except OSError:         # most entries lack one of the two
+                        continue
+                found = os.path.join(where, 'bin', 'clang-tidy.exe')
+                if name == 'LLVM' and os.path.exists(found):
+                    return found
+    return None
 
 
 def test_clang_tidy_finds_nothing():

@@ -5,6 +5,9 @@
 #                                           every argument comes from our own Python
 #   performance-no-int-to-ptr               reading memory at a given address is the whole job
 #   performance-enum-size                   four counters
+#   bugprone-signed-bitwise                 new in clang-tidy 23; its 24 findings on 3 October 2026 were
+#                                           Windows constants (PAGE_*, the lParam bits of a key), byte
+#                                           masks on a promoted char, and pipe buffer sizes
 Checks: >
   -*,
   clang-analyzer-*,
@@ -12,6 +15,7 @@ Checks: >
   performance-*,
   -bugprone-easily-swappable-parameters,
   -bugprone-unchecked-string-to-number-conversion,
+  -bugprone-signed-bitwise,
   -performance-no-int-to-ptr,
   -performance-enum-size
 WarningsAsErrors: '*'
