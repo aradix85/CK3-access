@@ -24,6 +24,7 @@ import pathlib
 
 import numpy
 import openvino
+from numpy.typing import NDArray
 from PIL import Image
 
 HEIGHT = 48
@@ -37,11 +38,12 @@ _CACHE = os.path.join(_OWN, 'ov_cache')
 
 _core: openvino.Core | None = None
 _device = 'NPU'
-_requests = {}
+# OpenVINO ships no types, so to mypy these requests are unknown; the class is named for the reader.
+_requests: dict[int, openvino.InferRequest] = {}
 _list: list[str] = []
 
 
-def _source_model():
+def _source_model() -> str:
     """The onnx file that rapidocr fetched itself."""
     import rapidocr
     path = os.path.join(os.path.dirname(rapidocr.__file__), 'models', 'PP-OCRv6_rec_tiny.onnx')
@@ -52,7 +54,7 @@ def _source_model():
     return path
 
 
-def _decode():
+def _decode() -> None:
     """One-off: convert the onnx and pull out the character list.
 
     The width stays free here; it is only fixed at compile time, because every width bucket has its
@@ -71,7 +73,7 @@ def _decode():
     openvino.save_model(openvino.convert_model(source), _IR)
 
 
-def _charset(output_width):
+def _charset(output_width: int) -> list[str]:
     """The list must be exactly as long as the model has channels, or everything shifts."""
     raw = pathlib.Path(_CHARS).read_text(encoding='utf-8').split('\n')
     for candidate in (raw, ['blank'] + raw, ['blank'] + raw + [' ']):
@@ -80,7 +82,7 @@ def _charset(output_width):
     raise ValueError(f'character list of {len(raw)} does not fit {int(output_width)} model channels')
 
 
-def _request_for(width):
+def _request_for(width: int) -> openvino.InferRequest:
     """The compiled model for this width bucket; compiling happens once per bucket."""
     global _list
     assert _core is not None, 'warm_up() compiles the first model and sets the core'
@@ -93,7 +95,7 @@ def _request_for(width):
     return _requests[width]
 
 
-def warm_up(device='NPU'):
+def warm_up(device: str = 'NPU') -> None:
     """Compiling costs a few seconds; after that it sits in the model cache."""
     global _core, _device, _requests
     if not (os.path.exists(_IR) and os.path.exists(_CHARS)):
@@ -106,7 +108,7 @@ def warm_up(device='NPU'):
     _request_for(BOX)
 
 
-def _preprocess(cut, width):
+def _preprocess(cut: Image.Image, width: int) -> NDArray[numpy.float32]:
     """The way PaddleOCR does it: scale to height 48, then pad after normalising.
 
     Padding before normalising makes the padding black instead of neutral, and then it reads
@@ -121,7 +123,8 @@ def _preprocess(cut, width):
     return canvas[None]
 
 
-def read_box_conf(screenshot, x, y, width, height, margin=0):
+def read_box_conf(screenshot: Image.Image, x: int, y: int, width: int, height: int,
+                  margin: int = 0) -> tuple[str, float]:
     """Returns (text, confidence) of one box.
 
     The confidence is the mean of the highest probability per accepted character. It comes free
@@ -143,7 +146,9 @@ def read_box_conf(screenshot, x, y, width, height, margin=0):
     output = next(iter(_request_for(box).infer([_preprocess(cut, box)]).values()))
     best = output[0].argmax(axis=-1)
     scores = output[0].max(axis=-1)
-    text, confidences, previous = [], [], -1
+    text: list[str] = []
+    confidences: list[float] = []
+    previous = -1
     for i, score in zip(best, scores, strict=True):
         if i != previous and i != 0:
             text.append(_list[i])
@@ -153,6 +158,7 @@ def read_box_conf(screenshot, x, y, width, height, margin=0):
     return ''.join(text).strip(), confidence
 
 
-def read_box(screenshot, x, y, width, height, margin=0):
+def read_box(screenshot: Image.Image, x: int, y: int, width: int, height: int,
+             margin: int = 0) -> str:
     """Text only. Same call as `ocr.read_box`."""
     return read_box_conf(screenshot, x, y, width, height, margin)[0]

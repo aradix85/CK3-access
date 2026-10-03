@@ -15,12 +15,15 @@ route needs a fixed input shape and deliberately does not live in this file.
 """
 import ctypes
 import sys
+from collections.abc import Sequence
 
 import numpy
 from PIL import Image, ImageGrab
 
 try:
     from rapidocr import EngineType, LangDet, LangRec, ModelType, OCRVersion, RapidOCR
+    from rapidocr.ch_ppocr_rec.typings import TextRecOutput
+    from rapidocr.utils.output import RapidOCROutput
 except ModuleNotFoundError as missing:
     # The Python session of the radix-mcp server is its own venv, and the recogniser is left out of
     # it on purpose: a second copy of the whole stack can drift from hers without a word. So say
@@ -46,10 +49,12 @@ _CHOICE = {
     'Global.use_cls': False,
 }
 
-_instance = None
+_instance: RapidOCR | None = None
+# One line of text: x, y, width, height in the points of its image, and what it says.
+Line = tuple[int, int, int, int, str]
 
 
-def _engine():
+def _engine() -> RapidOCR:
     """The engine is only built on first use; loading costs about a second."""
     global _instance
     if _instance is None:
@@ -57,7 +62,7 @@ def _engine():
     return _instance
 
 
-def warm_up():
+def warm_up() -> None:
     """Pay the startup cost at a moment when nobody is waiting.
 
     Note: `use_det` and `use_rec` stick to the engine once you pass them in. A warm-up round
@@ -70,17 +75,21 @@ def warm_up():
     _engine()(probe, use_det=True, use_cls=False, use_rec=True)
 
 
-def _box(points):
+def _box(points: Sequence[Sequence[float]]) -> tuple[int, int, int, int]:
     xs = [p[0] for p in points]
     ys = [p[1] for p in points]
     return int(min(xs)), int(min(ys)), int(max(xs) - min(xs)), int(max(ys) - min(ys))
 
 
-def read_image(screenshot):
+def read_image(screenshot: Image.Image) -> list[Line]:
     """Returns a list of (x, y, width, height, text) in the points of this image."""
     result = _engine()(numpy.array(screenshot.convert('RGB')),
                           use_det=True, use_cls=False, use_rec=True)
-    if getattr(result, 'boxes', None) is None:
+    # Detection with recognition always answers in this form, empty boxes when nothing is found
+    # (measured 3 October 2026, rapidocr 3.9.2); anything else is a rapidocr that changed.
+    if not isinstance(result, RapidOCROutput):
+        raise TypeError(f'rapidocr answered detection plus recognition with {type(result).__name__}')
+    if result.boxes is None or result.txts is None:
         return []
     lines = [(*_box(crop), text.strip())
               for crop, text in zip(result.boxes, result.txts, strict=True)]
@@ -88,7 +97,8 @@ def read_image(screenshot):
     return lines
 
 
-def read_box(screenshot, x, y, width, height, margin=2):
+def read_box(screenshot: Image.Image, x: int, y: int, width: int, height: int,
+             margin: int = 2) -> str:
     """Reads one box whose position is already known from the widget tree.
 
     Detection goes off here: it exists to find text, and we already know where it is. On a small
@@ -103,12 +113,15 @@ def read_box(screenshot, x, y, width, height, margin=2):
     part = screenshot.convert('RGB').crop((max(0, x - margin), max(0, y - margin),
                                       x + width + margin, y + height + margin))
     result = _engine()(numpy.array(part), use_det=False, use_cls=False, use_rec=True)
-    if not getattr(result, 'txts', None):
+    # Recognition alone always answers in this form, an empty text when nothing is there.
+    if not isinstance(result, TextRecOutput):
+        raise TypeError(f'rapidocr answered recognition alone with {type(result).__name__}')
+    if not result.txts:
         return ''
     return result.txts[0].strip()
 
 
-def read_screen(box=None):
+def read_screen(box: tuple[int, int, int, int] | None = None) -> list[Line]:
     """Returns a list of (x, y, width, height, text) in screen points.
 
     This grabs the whole screen and therefore the foreground window. For the game,

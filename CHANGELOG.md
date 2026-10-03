@@ -13,6 +13,7 @@ Outcomes, newest first. No release yet.
 - ruff runs its own default rules, which cover pyflakes, so pyflakes is no longer a requirement. Tests and files outside the repository included, it finds nothing: f-strings throughout, every file closed after use. The reader and the map layer say exactly what they said before.
 - On a machine marked with `.tools-required` the channel test fails, rather than skips, when MSVC or clang-tidy is missing.
 - The tool index shows keyword-only parameters, and no longer counts the returns of a function defined inside another: `states.console` and `harvest.chain_round` return nothing, `windowgrab.window_of` a 3-tuple.
+- The text recogniser checks which form rapidocr answers in and stops on any other, instead of reading fields that may not be there; it reads a harvest capture exactly as before.
 - The channel's one retry is tested without a game: a link that breaks is tried once more, a link that will not open is said once.
 - The channel test no longer fails when someone holds ctrl, shift or alt while it runs: it watches the real keyboard throughout and repeats a disturbed key.
 - The game model holds on a state begun and played on 1.20: 400 characters, all 19 fields agree with the save.
