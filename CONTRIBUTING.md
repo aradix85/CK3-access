@@ -1,87 +1,45 @@
 # Contributing
 
-Contributions are welcome, including ones written with an AI assistant — most of this project was.
-There is one house rule that matters more than style.
+Contributions are welcome, including ones written with an AI assistant.
 
 ## Bring the measurement
 
-Do not write "this is faster" or "this fixes the offsets". Write what you measured, against what,
-and what the number was before and after.
-
-> Click points were 92.5 points off in x (median, 24 words on the main menu, checked against the
-> text recogniser). With the scale applied: 9.7 — and that 9.7 is text alignment inside the box, not
-> position, so each word is compared on the edge it is aligned to.
-
-Give the worst case beside the median as well: a median of half a point once hid two words out of
-thirteen that were 96 points off.
-
-A claim without a measurement cannot be reviewed, because the reviewer cannot run your machine, your
-save, your DLC set or your mods. A number with a counting rule can. The same goes for negative
-results: "it does not work" is not reportable; "the window count did not change, but a closed window
-keeps its widgets, so the counter could not have shown it" is.
+Don't write "this is faster" or "this fixes the offsets". Write what you measured, against what, and
+the number before and after — and the worst case beside the median. A negative result needs the same:
+say why your check could have seen the effect.
 
 ## Before you open a pull request
 
-- **Test it small first, and pick hard cases.** Five items from the known problem cases, not the
-  first five on the list. A run that finishes without an error is not a result; a prediction that
-  came true is.
-- **State the build.** Game version, DLC, mods, and whether debug mode was on.
-- **English only.** Names, comments, docstrings, messages, the channel protocol and the keys in
-  `reports/` are all English. Mixing a second language back in is how a half-finished rename hides.
-- **Derive, do not hard-code.** No memory addresses, field offsets, click coordinates or widget
-  positions in source. Derive it and verify it at runtime.
-- **Do not add game files.** Nothing belonging to Paradox goes in this repository, ever.
-- **Bundle your C++.** A change in `tools/` counts on the next call, but the DLL only enters the
-  game at injection, so a running game keeps the old one however often you build. Do the Python
-  first, gather the C++ into one round, build once, run `tests/test_channel.py`, which drives the
-  real DLL through the real pipe without the game, and only then restart once.
+- **Test small first, on hard cases.** A run without errors is not a result; a prediction that came
+  true is.
+- **State the build:** game version, DLC, mods, debug mode on or off.
+- **English only**, in names, comments, messages and the channel protocol.
+- **Derive, don't hard-code** memory addresses, field offsets or click positions.
+- **No game files**, ever.
+- **Bundle your C++:** the DLL only enters the game at injection. Do the Python first, build once, run
+  `tests/test_channel.py`, then restart the game.
+- Update `CHANGELOG.md` in one line per change; `ARCHITECTURE.md` only when a part or a boundary moves.
 
-Update `CHANGELOG.md`, and `ARCHITECTURE.md` only when a layer or a boundary moves. Nothing else.
+## Checks that must pass
 
-## Before it can be merged: `python tools/check.py`, `python -m pytest`, `python -m ruff check .`
+`python tools/check.py`, `python -m pytest` and `python -m ruff check .`. `check.py` recomputes every
+number in `reports/claims.json` and checks that every path the documents name exists. A number that
+carries a decision belongs in `claims.json` with its counting rule. After a rename, also run
+`python -m pyflakes tools`.
 
-The DLL build stops on every compiler warning, the code analysis of `/analyze` included, and `pytest`
-runs clang-tidy over it with the checks in `dll/.clang-tidy` when LLVM is installed. Each check that
-is switched off there or in `pyproject.toml` carries its reason; switch one off the same way, with
-the measurement, or fix what it found.
+Don't name a script `test_*.py` unless pytest should collect it: scripts under `tools/` that are run by
+hand may speak through NVDA.
 
-`check.py` recomputes every number in `reports/claims.json` against the disk and verifies that every
-project path the documentation names still exists. `pytest` runs the suite in `tests/`; `ruff`
-lints everything, configured in `pyproject.toml`. All three have to pass.
-
-Do not name a script `test_*.py` unless pytest should collect it. Anything under `tools/` that is
-run by hand speaks through NVDA and sleeps, so collecting it would make a test run talk — that is
-why the speech round is `tools/nvda/check_speech_by_ear.py` and not test_speech.py.
-
-A number that carries a decision belongs in `claims.json` with its counting rule — what was counted,
-where, and how — rather than in prose. Three counts here were wrong because a folder was not walked,
-and nobody could see it because the rule was never written down. If a document repeats one of those
-numbers, list it under `quoted_in` and `check.py` will hold the document to it.
-
-On a fresh clone the claims about the executable, the saves, the DLL and the harvest read as drifted
-until you have built the DLL and have the game on disk; that is the tool working. The harvested
-window records are not in the repository — they are megabytes of one machine's measurements — so the
-claims counted over them measure nothing until you run a harvest of your own. Some claims are also
-quoted in the maintainer's working notes, which `.gitignore` keeps out; `check.py` counts those as
-unverifiable here rather than reporting them as missing files. After a rename, also
-run `python -m pyflakes tools` — a rename that compiles can still be half done.
-
-**You are not missing a document.** The maintainer keeps working notes, in Dutch, which are not part
-of this repository and go stale within a day. Nothing in a pull request should depend on them, and
-anything a contributor needs to know belongs here, in `ARCHITECTURE.md`, or in a counting rule in
-`reports/claims.json`. If you hit something that seems to assume knowledge you do not have, that is
-a bug in these files — say so in an issue.
+On a fresh clone some claims read as drifted until you have built the DLL and have the game on disk,
+and claims over the harvest measure nothing until you run a harvest of your own. The maintainer's
+working notes are not part of the repository and nothing should depend on them.
 
 ## Reporting a problem as a blind user
 
-Include the game version, your DLC and mod list, and what the tool said out loud when it went wrong.
-If it fell silent instead, that is the most useful bug report there is — silence is the failure mode
-this project worries about most.
+Include the game version, your DLC and mods, and what the tool said when it went wrong. If it fell
+silent instead, say so — that is the most useful report there is.
 
-## Screen readers other than NVDA
+## Other screen readers
 
-Only NVDA is supported, for an honest reason: the maintainer is blind and cannot test JAWS,
-Narrator or anything else. Shipping unverified backends would mean shipping a screen reader that
-might go quiet, which is worse than not supporting it. If you use something else and are willing to
-test, say so in an issue — adding Prism or SRAL behind the existing speech seam is a small change;
-verifying it is the part that needs you.
+Only NVDA is supported, because the maintainer cannot test anything else. If you use another screen
+reader and can test, open an issue: adding Prism or SRAL behind the speech seam is a small change.

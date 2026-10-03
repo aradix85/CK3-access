@@ -6,300 +6,102 @@ Seven parts, split where a game patch is most likely to hit.
 |---|---|---|
 | 1 | **The channel** — `dll/channel.cpp` | a few primitives over a pipe; knows nothing about the game |
 | 2 | **Derivation** — `tools/ck3/derive.py` | finds every memory offset again at each start |
-| 3 | **Visibility** | which of the tree is really on screen, and which window lies on top |
-| 4 | **Input** | keys taken before the game sees them; clicks posted inward |
-| 5 | **Reading the game** | five independent sources, and their disagreement is the test |
-| 6 | **Presentation** — `screens/`, `tools/ck3/reading.py`, `tools/ck3/reader.py` | what gets said, in what order, and on which key |
+| 3 | **Visibility** | what of the tree is really on screen, and which window lies on top |
+| 4 | **Input** | keys taken before the game sees them; clicks and keys posted inward |
+| 5 | **Reading the game** | five independent sources; their disagreement is the test |
+| 6 | **Presentation** — `screens/`, `tools/ck3/reading.py`, `tools/ck3/reader.py` | what gets said, in what order, on which key |
 | 7 | **Speech** — `tools/nvda/speech.py` | one seam to NVDA, speech and braille together |
 
-**Where this is heading, because it decides where new code belongs.** Installing has to end up
-meaning one DLL, the NVDA controller client beside it, and a launch option: no Python, no paths. So
-the logic moves inside the DLL eventually. Move something inward when a measurement says it pays,
-and keep tuning in a data file rather than in C++. Two things never move: speech and braille stay
-outside, receiving keys stays inside.
+**Direction:** installing should end up as one DLL, the NVDA controller client beside it, and a
+launch option — no Python. So logic moves into the DLL when a measurement says it pays. Speech and
+braille stay outside; receiving keys stays inside.
 
-## 1. The channel — `dll/channel.cpp`
+## 1. The channel
 
-A DLL injected into `ck3.exe`, exposing a handful of primitives over a named pipe: read memory, read
-many addresses at once, walk the widget tree from a root, post a click, a key, a character or a
-combination with its modifier held, and, as an instrument, count what the game asks Windows about the
-keyboard. That is all. It does not know what a county is, and it contains no speech.
+An injected DLL exposing primitives over a named pipe: read memory, walk the widget tree, post a
+click, a key, a character or a key combination. It contains no game knowledge and no speech.
+- Tested without the game: `tests/test_channel.py` drives every command through the real pipe
+  against a fake widget tree, also under AddressSanitizer. The build stops on any warning.
+- A limit either grows or announces itself, never silently.
+- **The pipe is a workbench, not a product.** A released build is compiled without it; the DLL never
+  opens a network connection.
 
-**It is tested without the game.** `tests/test_channel.py` loads the DLL into a small program of its
-own that builds a fake widget tree and an off-screen window logging every key it is sent, and drives
-every command through the real pipe, also with
-AddressSanitizer around both. The build stops on any compiler warning, the code analysis of
-`/analyze` included, and pytest runs clang-tidy. Building and testing take seconds; a restart of
-the game takes minutes, so the DLL is tested before the game ever sees it.
+## 2. Derivation
 
-A question through the pipe is cheap, and that is measured: re-checking the derivation once took
-122 seconds, nearly all of it the Python side polling in fixed steps, and a growing wait made it 3
-seconds without a line of C++. What is slow is reading a window the reader has not seen yet: that
-takes seconds, most of them walking the tree through the pipe, and it is the first reason the reader
-moves inside. Until then two rules hold: let the DLL walk the tree and return a compact answer rather
-than raw bytes, and react to keys and events instead of walking the tree every frame.
+No memory layout is hard-coded. Widget vtables come from the RTTI in the executable; nine field
+offsets are derived from the running game and rechecked at each start, and derived again if a check
+fails. Between 1.16 and 1.19 one offset moved; nothing downstream noticed.
 
-**The pipe is a workbench, not a product.** It answers anything that can open it, and the primitives
-add up to remote control plus arbitrary memory reads — right for mapping an interface, wrong to
-ship, and in multiplayer a cheating tool. A released build will carry no pipe: the plan is one source
-and two builds, the one for players compiled without it, because a switch at start-up would leave the
-code in the file for anyone who finds the switch. The DLL never opens a network connection.
+## 3. Visibility
 
-**One rule for anything added here:** a limit either grows or announces itself, never silently. The
-costliest bug in this project was a tree walk that stopped at 20,000 nodes and dropped children
-without a word.
+Every window is built up front and stays in the tree, so being in the tree says nothing. What decides
+whether something is drawn:
+- **A state byte**, along the parent chain: 0x08 means hidden. On a window, zero means drawn; other
+  values are being measured again, since a drawn planner carried 0x20. On a button, low bits mean
+  switched off.
+- **Alpha** along the parent chain.
+- **Clipping** by the nearest scroll area.
+- **Geometry:** some windows place drawn buttons outside the drawing area at any resolution, so the
+  product must say when a button cannot be reached.
 
-## 2. Derivation — `tools/ck3/derive.py`
+Which drawn window is on top follows sibling draw order. A click needs all of this, or it lands on
+whatever lies underneath.
 
-Nothing about memory layout is hard-coded. At every start the widget vtables are located through the
-RTTI tree in the executable, and nine field offsets are derived from the running process and
-re-verified. Seven — parent, children, count, position, size, name, text — come out of one read.
-Alpha and the window flag do not: their meaning only shows when the state changes, so they are
-derived by opening a window and requiring both to flip there and back while a window that stays shut
-does not move. If verification fails, everything is derived again.
+## 4. Input
 
-This is the layer that survives patches: between 1.16 and 1.19 one of the seven moved and the other
-six did not. Nothing downstream needs to care.
-
-## 3. Visibility — which of it is actually on screen
-
-Every window is built up front and kept in the tree, so "it is in the tree" says nothing about
-whether a player can see it. Four mechanisms decide that, and all four are needed:
-
-- **A window flag** says whether a window is drawn at all. Alpha does not: windows sit at alpha 1
-  without being drawn. Zero means drawn, but not every other value means hidden: on 1.20 an activity
-  planner was on the screen with 0x20 in that byte, so which bits hide a window is being measured
-  again. **The same byte says a second thing on a button:** its low bits mean the
-  game has switched that button off. Measured by emptying the save dialog's name field, with the
-  cancel button beside it as the counter-example, and crossed against the gui files over three
-  windows and 6906 widgets - no widget carries those bits without an `enabled` condition on itself
-  or an ancestor. So it is one state byte read for every widget, and a screen no longer needs a
-  rule of its own to say a button is dead. **And 0x08 in that byte, on a widget or any ancestor, is
-  the game hiding it:** a `visible` condition that does not hold leaves the widget in the tree with
-  its alpha up and sets this bit. Over seven windows 2777 of the 2784 widgets carrying it have such a
-  condition on themselves or an ancestor, and the text recogniser read back none of 79 hidden boxes
-  that passed every other test, against 208 of 214 shown ones. Clicking and reading both ask it.
-- **Alpha along the whole parent chain**, not on the widget itself.
-- **Clipping.** A row scrolled past the end of its list keeps alpha 1 and a rectangle; what decides
-  it is the frame of the nearest scroll area above it.
-- **Geometry.** A widget can be laid outside the drawing area entirely, and not marginally: of the
-  203 windows harvested by 31 August 2026, 76 place a drawn button outside it, some as far as
-  x2315 — wider than this machine's screen. A larger resolution only half solves it and a tester has other
-  measurements anyway, so it is a property to live with rather than a setting.
-
-Sibling draw order is a separate question and answers a different one: which of several drawn
-windows is on top. Without it the tooling reads the wrong event when two are stacked, and clicks a
-button that another window covers: a window later in the tree lies on top, and a button whose middle
-falls inside such a window's rectangle is refused as covered. Measured on two events, where the
-full-screen one caught a click meant for the other.
-
-Anything that clicks needs the flag as well as the alpha: a widget can pass every alpha and geometry
-test and still sit inside a shut window, and the click then lands on the map.
-
-## 4. Input — posted inward, and taken before the game sees it
-
-**Receiving.** The DLL hooks the game's window procedure and can swallow keys before the game acts
-on them. That is how the finished thing has to work: the reader owns the arrow keys, vanilla keeps
-the rest. A hook in the game's own window procedure sees only what was meant for the game, and that
-filter comes free.
-
-**Sending.** Mouse and key messages are posted into the process, so the game never needs focus and
-the player's screen stays theirs. The product does not do this; it is how the game gets driven while
-the interface is being mapped.
-
-**A posted click lands on whatever is topmost at that point, not on the widget you aimed at.** So a
-click is a measurement with a witness, never an assumption: press, read the drawn set, put the state
-back, record the point with the result. `tools/ck3/openers.py` works that way. What "topmost" means
-is measured: the last-drawn button that carries an action of its own. A layout container catches
-nothing, and a button with no action passes the click on to what is under it — ten of ten on the
-ledger's category tabs, each of which is covered completely by such a button. **Between windows
-more catches:** a window later in the tree catches with a plain background too, unless the widget is
-`alwaystransparent`, which the game's gui carries 977 times — the full-screen event caught a click
-with a background, and a see-through icon of another event let one through.
-
-**A modifier key reaches the game from inside too, through `combo`.** A posted key message carries
-no modifier state. Measured on 1.20.0.3, first with SendInput and the game in front: shift+F1 opened
-the ledger and F1 alone the character window, and the channel's `count` saw the game ask
-`GetKeyState` 44 times during shift+F1, every time for left shift, and nothing else - no raw input,
-and nothing at all during F1 or at rest. That is SDL, which sits inside the executable, checking a
-shift it believes is down and letting go of one Windows does not hold; it is why a posted shift
-never arrived, and why a counter tried on a plain key could not move. So `combo` posts the modifiers,
-the key and the releases with a pause after each step, and while a modifier of its own is down the
-wrappers `count` hangs in the import table answer that it is; outside a combination every answer
-is the real one. With the game in the background it opened the same windows SendInput did and two
-more, and chose an event option with shift+1 where ctrl+1 did not. The product never sends keys
-and does not need this; mapping the interface does, to try every shortcut without taking the
-player's screen, and `tools/ck3/windowmap.py` with `--modified-keys` does that.
+- **Receiving:** the DLL hooks the game's window procedure and swallows the keys the reader owns.
+- **Sending:** mouse and key messages are posted into the process, so the player's screen is never
+  taken. The product never sends keys; this is for mapping the interface.
+- **A posted click lands on what is topmost at that point.** A click is therefore a measurement: press,
+  read what is drawn, put the state back (`tools/ck3/openers.py`).
+- **Modifiers:** a posted key carries no modifier state, so `combo` holds the modifier for the game
+  while the combination runs. `tools/ck3/modifiers.py` is the measurement with real keys it was
+  checked against.
 
 ## 5. Reading the game
 
-Five independent sources, and their disagreement is the test.
+- **The widget tree** — names, rectangles, text: what is on screen now.
+- **The game model** — the same values raw. `tools/ck3/anchor.py` reaches the databases,
+  `tools/ck3/model.py` derives the character record, `tools/ck3/numbering.py` maps numbers to keys,
+  `tools/ck3/calibrate.py` checks four hundred characters against a save.
+- **The `.gui` files** — meaning: which data function fills a widget. `tools/ck3/guimap.py` parses
+  them properly, layers and mods merged in load order.
+- **The save** — ground truth, valid only for the state that wrote it.
+- **The static data files** — `tools/ck3/database.py` and `tools/ck3/mapdata.py`.
 
-### The five sources
+Text recognition (`tools/ocr.py`) is a witness, never the product.
 
-- **The widget tree** — structure, names, rectangles and text: what is on screen right now.
-- **The game model in memory** — the same values raw, plus what no open window is showing.
-  `tools/ck3/anchor.py` walks from a global in the executable to a database of the game state;
-  `tools/ck3/model.py` derives what sits where inside a character record. No offset is written
-  down. `tools/ck3/calibrate.py` holds four hundred characters against a save and names the field
-  that disagrees. `tools/ck3/numbering.py` does the same walk for the culture, faith, religion,
-  rite, trait and title databases; on 1.20 the culture, faith and religion records changed their
-  layout and are being derived again, and traits and titles have not been tried there yet.
-- **The `.gui` files** — meaning: which data function fills a widget, which localisation key it
-  carries. `tools/ck3/guimap.py` parses the format properly rather than matching lines, merging the
-  three engine layers and the active mods in load order. Needs no game running.
-- **The save file**, plain text once uncompressed — the ground truth to check against. Two limits:
-  a save belongs to the state that wrote it, so the numbering of cultures and faiths is read out of
-  the running game instead; and the levies and military power are recomputed around loading, so the
-  answer key has to be a save written from the state now loaded.
-- **The static data files** — the de jure hierarchy, traits, and the map itself.
-  `tools/ck3/database.py` reads them the way the engine merges them, so a number out of memory
-  becomes the name a player sees; `tools/ck3/mapdata.py` turns the province image and the title
-  nesting into where a county is, what it borders and how far away it lies, and it takes any title
-  down to the county under it, so a capital a character holds resolves to a place.
+**Open a window the way a player does.** The console builds any window but hands over no data context,
+so it yields captions without values. **Check the window map against the game**, not the files:
+`windowmap.unmapped` lists what the engine built that the map lacks. **The chain** reaches windows that
+wait on a state: open one window, press what the files say reaches the target (`openers.py --chain`).
 
-Optical character recognition sits beside these as a witness, never as the product: if the tree says
-a word is at x=262 and the recogniser reads it there, the geometry is right.
+**The tree and the files are joined by structure, not by name** (`tools/ck3/pairing.py`), because most
+widgets that show text have no name. Things a line-based gui reader gets wrong: the last definition
+wins, also for a second `onclick` in the same block; `block "x"` and `block = "x"` both occur; tooltips
+nest without end; and a scroll area draws its scrollbar last whatever the file says.
 
-### Getting a window open, which decides how much the first source holds
+## 6. Presentation
 
-**A window has to be opened the way a player opens it, or the first source is half empty.** The
-console builds any window on demand, which makes coverage independent of who is playing, but it
-hands over shape and captions and no data context: 6.6 text boxes per window against 23.7 through a
-shortcut and 32.8 through a click. None of the twelve `GUI.` console commands takes a context, so
-there is no way around it. Structure is collected the cheap way and data the slow way, and
-`tools/ck3/harvest.py` knows all three routes, and the chain below as a fourth.
+Not sorted by screen position; one keystroke gives one unit of speech plus braille.
+`tools/ck3/reader.py` claims up, down, F12 and Delete and gives every key back on the way out. An event
+is noticed through the child count of the layer that holds events.
 
-**And the map of what can be opened is checked against the game, not against the files.** Listing
-the shapes a window can be declared in finds only the shapes somebody thought of, and it was wrong
-twice - the second time by forty-seven windows, the search filter and the ledger's filter among
-them. A window the map has never seen cannot even refuse; it is absent from the count rather than
-reported. The engine builds every window up front and keeps it in the tree, so the live tree is the
-whole list, and `windowmap.unmapped` says what is in it that the map lacks.
+**Screen files** under `screens/` hold exceptions only, in the game's own format; whatever they do not
+name is read in gui-file order, so a stale file costs detail, never the screen. `tools/ck3/screens.py`
+checks every reference against the expanded gui tree. Two blocks are applied: `order` and `key`.
 
-**A fourth route reaches what no single action opens: the chain.** Some windows wait on a state
-rather than on a button — a variable another window sets — so they are reached by opening one window
-and acting inside it. `tools/ck3/openers.py`, behind `--chain`, reads the target's own `visible`
-line to learn what has to happen, aligns the open window against the files to find the widget that
-does it, and presses it only when it can say which widget it means. That is what the last two
-closed windows needed. `openers.chain_routes` lists every such step the files offer from the windows a
-round can open by itself, and `harvest.py --chain` walks them. For a view whose name is no window name
-the press is the measurement: which window the engine puts behind a view is not written anywhere.
+## 7. Speech
 
-### Joining the tree to the files
+Two functions: `output(text, mode, braille)` and `failure(where, what, remedy)`.
+- **Braille is never optional;** a different braille text needs a reason at the call site.
+- The official NVDA controller client, not Tolk. LGPL 2.1: link dynamically, ship unchanged.
+- Two modes, replace and queue.
+- **Nothing speaks when there is nothing to say.** Only a real fault speaks, as one sentence a player
+  can act on. `tools/never_silent.py` is the proof and the gate in front of a beta.
 
-**The first two sources are joined by structure, not by name.** `tools/ck3/pairing.py` lays the
-expanded tree from disk against the harvested tree on class and child order, so meaning reaches a
-widget carrying no name — more than nine in ten of the ones that show text. Names are kept out of
-the alignment on purpose, which leaves them free to score it: 98.4 per cent land right. One template
-row on disk has to be allowed to become many live rows.
+## Deliberately not done
 
-**Four things about the gui format that a line-based reader gets wrong.** Load order carries
-meaning, because the last definition of a template wins. The same last-wins rule applies inside a
-block: `onclick` may be written twice, and only the second one fires. That is not a curiosity — it
-has killed two routes that read as working in the file, so check what the expansion keeps before
-concluding a button opens anything. `block "x"` and `block = "x"`
-both occur. And a tooltip contains widgets with tooltips of their own, without end, so the expansion
-has to stop there.
-
-**And one thing the engine does that no file says.** A scroll area draws its scrollbar last whatever
-the order on disk, so an alignment that runs on child order has to move it there first. Until that
-was found, every list declared the other way round lost its whole content: 67 texts, and with them
-the buttons that switch the ledger between its eleven categories.
-
-## 6. Presentation — what gets said, in what order, and on which key
-
-What gets spoken, in what order, and what is left out. This decides whether the result is usable,
-and it is the one place measurement cannot answer the question.
-
-Two rules are fixed: output is not sorted by screen position, which is a sighted reader's order; and
-one keystroke produces one unit of speech plus braille. It belongs in data rather than in code.
-
-**`tools/ck3/reader.py` is where that second rule becomes real.** It claims the arrow keys through
-the DLL, hands out one unit per press, and gives every key back on the way out — a reader that owns
-the arrows and dies without a word leaves a keyboard that half works. It claims four keys and no
-more — up and down to step, F12 to switch it off and on, Delete for what explains the line you are
-on — because what else is wanted cannot be decided before somebody has heard it.
-
-It carries no watcher over the windows, and the reason is section 4: the hook reports every key the
-game receives, swallowed or not, so a key that is not the reader's says the screen may have changed.
-An event is the exception, arriving while nobody presses anything, and it is noticed through a
-number the engine already keeps — the layers under the root count their own children, and one of
-them holds nothing but events. All of them are read in one question.
-
-**That data is a screen file, one per screen, under `screens/`.** It is written in the game's own
-format and read with the gui parser of section 5, so there is no second parser to keep working and
-a tester who mods already knows the syntax. A screen file holds exceptions and never a description
-of a whole screen: what to read first, which key does something on a row, how a repeated row reads,
-which state
-goes in front of the words, what the explain key reaches for. Whatever it does not name is read in
-the order the gui files give. A file that falls behind a patch therefore costs detail and never the
-screen itself, which is the difference between this and a mod that replaces the window outright.
-`tools/ck3/screens.py` checks each file against the expanded gui tree and names every window, data
-function and widget name that is gone — the same idea as checking every path a document mentions.
-A selector is allowed to match several widgets on disk; the live tree decides which one is there.
-
-**Two of the five blocks are applied, and the other three deliberately are not.** The format and
-its checker came first and nothing read them, so a file could be written, pass the check and
-change nothing at all - which it did until 20 September 2026. `order` decides which lines come
-first. `key` names the key that does something on a row and is said once against the line that
-counts the list, because it is the same key for every row and a sentence per row is noise. Of the
-rest: `list` with its count and its closing line is what the generic rule already does for every
-repeated container; `state` is a field now, read for every widget, and only the event flags
-`dangerous` and `special` still want a way out; and `explain` names a data function that nothing
-here can evaluate, so wiring it would be machinery for a case that cannot occur. **A line may name
-a widget instead of a data function, and sometimes it has to** - the box holding a character's
-name carries no function at all, and pointing at one that does not fill it passes the check and
-reads nothing. That check proves a name is not gone; it does not prove it points at the widget
-you meant.
-
-**A third rule was fixed and has since been withdrawn: addressing a widget by name.** The intent
-stands, since an index among siblings breaks the moment a mod adds a row inside a vanilla window,
-but only about a fifth of the widgets that carry text have a name, and a name is not unique within a
-window either. The structural alignment in section 5 replaces it.
-
-**Draw order lives in exactly one place.** The channel walks each child list in the engine's own
-order and the tree reader keeps the lines that way; the parent offset never says in which place. A
-pass that sorts the children destroys the only copy.
-
-## 7. Speech — `tools/nvda/speech.py`
-
-Two functions. `output(text, mode, braille)` says something; `failure(where, what, remedy)` says
-something went wrong. That is the whole layer and it is meant to stay that way.
-
-**Braille is never optional** — a seam a caller can forget a channel in loses that channel
-eventually. The Fallout 4 accessibility mod lost its braille display that way, and the Skyrim
-Access mod never calls `brailleMessage` at all. A braille text that differs from the speech is
-allowed but is the exception and needs a reason at the call site; a shorter wording of the same
-sentence is not one. Behind it, the official NVDA controller client rather than Tolk. **It is
-LGPL 2.1, so it must be linked dynamically and shipped unchanged.**
-
-Two modes, replace and queue. Priority-with-resume was rejected: it interrupts and then carries on
-with the old sentence. NVDA's own `next` priority is not used either — it can discard speech that
-is already waiting rather than overtaking it. Keeping the seam thin is deliberate: swapping in
-Prism or SRAL for other screen readers should be a day's work.
-
-**Nothing speaks when there is nothing to say.** A keystroke that turns up an empty list stays
-quiet, and there is no wrapper that checks whether a handler produced anything. Only a real fault
-speaks. `failure` turns one into a sentence a player can act on — no error code, no path, no
-exclamation mark without words. It is the one place in the seam allowed to swallow: it writes the
-sentence out before it speaks it, so an exit that cannot reach NVDA still cannot lose the message.
-Everywhere else a failure breaks where it happens. `tools/never_silent.py` is the proof, two real
-failure paths, and it is the gate in front of a beta.
-
-The NVDA client is a module attribute built on first use, so a test can put a recorder in its
-place. That one indirection is all the seam has, and it is why the tests and the gate need no
-screen reader.
-
-No worker thread: this runs in its own process beside the game and handing over a sentence costs
-0.44 ms, so there is nothing to absorb. A plugin living inside the game needs one, which is why
-the Skyrim Access mod has it.
-
-## What is deliberately not done
-
-- No decompiling or rebuilding the engine. Reading memory and data files is ordinary modding;
-  rebuilding the engine would put every accessibility mod for these games at risk.
-- No redistribution of game files.
-- No driving the game from outside with synthetic input at the OS level. The one tool that does,
-  `tools/ck3/modifiers.py`, is the measurement with real keys that `combo` was checked against.
-- No hard-coded memory addresses, field offsets or click positions. All three are derived.
+- No decompiling or rebuilding the engine; no redistribution of game files.
+- No synthetic input from outside the process.
+- No hard-coded addresses, offsets or click positions.
