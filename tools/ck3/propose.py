@@ -22,20 +22,24 @@ draft like any other.
 """
 import os
 import sys
+from typing import TypedDict
 
+from tools import paths
 from tools.ck3 import guimap
 
 TEXT_KEYS = ('text', 'raw_text')
 
 
-def attribute(node, key):
-    for own, value in node['attrs']:
-        if own == key:
-            return value
-    return None
+class Text(TypedDict):
+    """One text of a window: what it holds, the data contexts above it, its list, its widget name."""
+    text: str
+    context: tuple[str, ...]
+    list: str | None
+    name: str | None
 
 
-def texts(node, context=(), inside=None, out=None):
+def texts(node: guimap.Node, context: tuple[str, ...] = (), inside: str | None = None,
+          out: list[Text] | None = None) -> list[Text]:
     """Every text a window holds, in file order, with its subject and the list it sits in.
 
     `inside` is the data model of the nearest repeated container above, which is what turns a
@@ -45,21 +49,21 @@ def texts(node, context=(), inside=None, out=None):
         out = []
     if node['type'] == 'tooltipwidget':
         return out                      # a tooltip is for the explain key, not for the order
-    own = attribute(node, 'datacontext')
+    own = guimap.attribute(node, 'datacontext')
     below = context + ((own,) if own else ())
-    model = attribute(node, 'datamodel') or inside
+    model = guimap.attribute(node, 'datamodel') or inside
     for key in TEXT_KEYS:
-        value = attribute(node, key)
+        value = guimap.attribute(node, key)
         if value:
             out.append({'text': value, 'context': below, 'list': model,
-                        'name': attribute(node, 'name')})
+                        'name': guimap.attribute(node, 'name')})
             break
     for child in node['children']:
         texts(child, below, model, out)
     return out
 
 
-def says(value, localization):
+def says(value: str, localization: dict[str, str]) -> str:
     """What this text will say: the sentence behind a key, or the function that fills it."""
     if '[' in value:
         return value
@@ -68,7 +72,8 @@ def says(value, localization):
     return value + ' (no sentence on disk)'
 
 
-def draft(window, table, local, known, localization):
+def draft(window: str, table: guimap.Table, local: guimap.LocalTable, known: guimap.Known,
+          localization: dict[str, str]) -> tuple[str, list[Text]]:
     """One window as a screen file to correct."""
     tree, _ = guimap.window(window, table, local, known)
     found = texts(tree)
@@ -108,32 +113,32 @@ def draft(window, table, local, known, localization):
     return '\n'.join(lines) + '\n', found
 
 
-def comment(sentence, subject):
+def comment(sentence: str, subject: str) -> str:
     """The part a human reads. One line, so a long sentence is cut rather than wrapped."""
     text = (subject + ': ' if subject else '') + sentence
     text = ' '.join(text.split())
     return '\t# ' + (text[:90] + '...' if len(text) > 90 else text)
 
 
-def ordered_models(found):
+def ordered_models(found: list[Text]) -> list[str]:
     """The data models in the order they first appear, because a set would shuffle them."""
-    out = []
+    out: list[str] = []
     for one in found:
         if one['list'] and one['list'] not in out:
             out.append(one['list'])
     return out
 
 
-def main():
-    folder = sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.environ['TEMP'], 'ck3',
-                                                                'proposals')
+def main() -> None:
+    folder = sys.argv[1] if len(sys.argv) > 1 else os.path.join(paths.WORK, 'proposals')
     os.makedirs(folder, exist_ok=True)
     rows = guimap.files()
     table, local = guimap.type_table(rows)
     known = guimap.windows(rows)
     localization = guimap.localization()
 
-    total, listed, empty = 0, 0, []
+    total, listed = 0, 0
+    empty: list[str] = []
     for window in sorted(known):
         text, found = draft(window, table, local, known, localization)
         with open(os.path.join(folder, window + '.screen'), 'w', encoding='utf-8') as handle:

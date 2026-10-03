@@ -337,7 +337,7 @@ def screen_rules():
             nodes = screens.read(path)
             order: list[str] = []
             keys: dict[str, str] = {}
-            for entry in screens.entries(nodes):
+            for entry in guimap.walk(nodes):
                 if entry['key'] == 'order' and entry['body']:
                     order = [line['value'] and _function(line['value'])
                              for line in entry['body']
@@ -345,7 +345,7 @@ def screen_rules():
                 elif entry['key'] == 'list' and entry['body']:
                     model = next((_function(line['value']) for line in entry['body']
                                   if line['key'] == 'of' and line['value']), None)
-                    said = next((line['value'] for line in screens.entries(entry['body'])
+                    said = next((line['value'] for line in guimap.walk(entry['body'])
                                  if line['key'] == 'key' and line['value']), None)
                     if model and said:
                         keys[model] = said.strip('"')

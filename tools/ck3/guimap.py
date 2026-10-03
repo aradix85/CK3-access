@@ -249,12 +249,12 @@ def read(path: str) -> list[Entry]:
 MAX_DEPTH = 60
 
 
-def _walk(nodes: list[Entry]) -> Iterator[Entry]:
+def walk(nodes: list[Entry]) -> Iterator[Entry]:
     """Every entry in a parsed file, at any depth."""
     for entry in nodes:
         yield entry
         if entry['body']:
-            yield from _walk(entry['body'])
+            yield from walk(entry['body'])
 
 
 def type_table(rows: list[Row] | None = None) -> tuple[Table, LocalTable]:
@@ -272,7 +272,7 @@ def type_table(rows: list[Row] | None = None) -> tuple[Table, LocalTable]:
     table: Table = {}
     local: LocalTable = {}
     for layer, virtual, full in (rows if rows is not None else files()):
-        for entry in _walk(read(full)):
+        for entry in walk(read(full)):
             if entry['key'] in ('type', 'template'):
                 table[entry['arg']] = {'parent': entry['value'], 'body': entry['body'] or [],
                                        'file': virtual, 'layer': layer}
@@ -416,6 +416,14 @@ def build(key: str | None, body: list[Entry], templates: Templates, overrides: O
     return node
 
 
+def attribute(node: Node, key: str) -> str | None:
+    """The value of the first attribute with this key, or None when the widget has none."""
+    for name, value in node['attrs']:
+        if name == key:
+            return value
+    return None
+
+
 def windows(rows: list[Row] | None = None) -> Known:
     """Every window on disk, as name -> (virtual path, its entry).
 
@@ -449,7 +457,7 @@ def windows(rows: list[Row] | None = None) -> Known:
     out: Known = {}
     for layer, virtual, full in rows:
         entries = read(full)
-        for entry in _walk(entries):
+        for entry in walk(entries):
             if entry['key'] != 'window' or not entry['body']:
                 continue
             name = None
@@ -459,7 +467,7 @@ def windows(rows: list[Row] | None = None) -> Known:
                     break
             if name:
                 out[name] = (virtual, entry)
-        for entry in _walk(entries):
+        for entry in walk(entries):
             if entry['key'] == 'window' or not entry['body']:
                 continue
             if root(entry['key']) != 'window':

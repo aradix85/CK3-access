@@ -28,24 +28,18 @@ SCREENS = os.path.join(paths.PROJECT, 'screens')
 FUNCTION = re.compile(r'\b([A-Z][A-Za-z0-9_]*\.[A-Za-z_][A-Za-z0-9_]*)')
 
 
-def entries(nodes):
-    """Every entry in a screen file, at any depth."""
-    for entry in nodes:
-        yield entry
-        if entry['body']:
-            yield from entries(entry['body'])
-
-
-def read(path):
+def read(path: str) -> list[guimap.Entry]:
     """One screen file, parsed."""
     with open(path, encoding='utf-8') as handle:
         return guimap.parse(handle.read())
 
 
-def references(nodes):
+def references(nodes: list[guimap.Entry]) -> tuple[list[str], set[str], set[str]]:
     """What a screen file points at: its windows, its data functions, its widget names."""
-    windows, functions, names = [], set(), set()
-    for entry in entries(nodes):
+    windows: list[str] = []
+    functions: set[str] = set()
+    names: set[str] = set()
+    for entry in guimap.walk(nodes):
         value = entry['value']
         if value is None:
             continue
@@ -57,7 +51,7 @@ def references(nodes):
     return windows, functions, names
 
 
-def window_contents(node, text, names):
+def window_contents(node: guimap.Node, text: list[str], names: set[str]) -> None:
     """Every attribute value and every widget name below this node."""
     for key, value in node['attrs']:
         if value is None:
@@ -69,7 +63,7 @@ def window_contents(node, text, names):
         window_contents(child, text, names)
 
 
-def check(folder=SCREENS):
+def check(folder: str = SCREENS) -> int:
     """Every screen file against the gui files as they are on disk right now."""
     rows = guimap.files()
     table, local = guimap.type_table(rows)
@@ -101,7 +95,7 @@ def check(folder=SCREENS):
     return gone
 
 
-def main():
+def main() -> None:
     gone = check()
     if gone:
         print(f'{int(gone)} references are gone. Those screens read the wrong thing, or nothing.')

@@ -52,21 +52,23 @@ def signature(node: ast.FunctionDef) -> str:
     return '{}({})'.format(node.name, ', '.join(parts))
 
 
-def _returns(node: ast.AST) -> Iterator[ast.Return]:
-    """The return statements of this function itself, not of a function or class defined in it."""
+def _own(node: ast.AST) -> Iterator[ast.AST]:
+    """Every node of this function itself, not of a function or class defined in it."""
     for child in ast.iter_child_nodes(node):
         if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
             continue
-        if isinstance(child, ast.Return):
-            yield child
-        yield from _returns(child)
+        yield child
+        yield from _own(child)
 
 
 def return_shape(node: ast.FunctionDef) -> str:
     """The shape of what comes out, because that is what the mistakes were about."""
+    own = list(_own(node))
+    if any(isinstance(k, (ast.Yield, ast.YieldFrom)) for k in own):
+        return 'iterator'
     shapes: list[str] = []
-    for k in _returns(node):
-        if k.value is not None:
+    for k in own:
+        if isinstance(k, ast.Return) and k.value is not None:
             if isinstance(k.value, ast.Tuple):
                 shapes.append(f'{len(k.value.elts)}-tuple')
             elif isinstance(k.value, (ast.Dict, ast.DictComp)):

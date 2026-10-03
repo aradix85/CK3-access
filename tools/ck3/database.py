@@ -32,7 +32,7 @@ PLACES = {
 }
 
 
-def files(branch):
+def files(branch: str) -> list[tuple[str, str, str]]:
     """Every file of one database the engine has loaded, in load order, as (layer, virtual, full).
 
     The same replacement rule as the gui set: a mod file at a virtual path the game also has
@@ -41,7 +41,7 @@ def files(branch):
     """
     layers = [('game', os.path.join(paths.require('GAME'), 'game', 'common'))]
     layers += [('mod', os.path.join(folder, 'common')) for folder in paths.mod_folders()]
-    found = []
+    found: list[tuple[str, str, str]] = []
     for layer, base in layers:
         root = os.path.join(base, *branch.split('/'))
         if not os.path.isdir(root):
@@ -49,7 +49,8 @@ def files(branch):
         for name in sorted(os.listdir(root)):
             if name.endswith('.txt'):
                 found.append((layer, name, os.path.join(root, name)))
-    out, seen = [], set()
+    out: list[tuple[str, str, str]] = []
+    seen: set[str] = set()
     for row in reversed(found):
         if row[1] not in seen:
             seen.add(row[1])
@@ -57,13 +58,13 @@ def files(branch):
     return list(reversed(out))
 
 
-def entries(kind):
+def entries(kind: str) -> list[tuple[str, str, str]]:
     """The keys of one database in the order the files give them, as (key, layer, file).
 
     Order is kept and never sorted, because the only orderings worth testing against the game are
     the ones the files actually produce.
     """
-    out = []
+    out: list[tuple[str, str, str]] = []
     for branch, inside in PLACES[kind]:
         for layer, virtual, full in files(branch):
             nodes = guimap.parse(pathlib.Path(full).read_text(encoding='utf-8-sig', errors='replace'))
@@ -81,7 +82,7 @@ def entries(kind):
     return out
 
 
-def named(kind, localization=None):
+def named(kind: str, localization: dict[str, str] | None = None) -> dict[str, str]:
     """Key -> the sentence a player sees, for every entry that has one.
 
     The convention is measured rather than assumed: a culture and a faith are localized under
@@ -89,7 +90,7 @@ def named(kind, localization=None):
     real entries - a key that resolves to a sentence exists in two independent places.
     """
     localization = localization if localization is not None else guimap.localization()
-    out = {}
+    out: dict[str, str] = {}
     for key, _, _ in entries(kind):
         for candidate in (key, f'{kind}_{key}', f'{key}_name'):
             if candidate in localization:
@@ -98,7 +99,7 @@ def named(kind, localization=None):
     return out
 
 
-def main():
+def main() -> None:
     localization = guimap.localization()
     text = savegame.unpack(savegame.newest_readable_save())
     print(f"{'database'!s:<12} {'keys'!s:>6} {'named'!s:>6} {'files'!s:>6} {'numbered'!s:>8} {'file order agrees'}")
@@ -118,7 +119,7 @@ FAITH_ROW = re.compile(r'(\d+)=\{\s*faith_type=\w+\s+tag="([^"]+)"')
 CULTURE_ROW = re.compile(r'\n\t\t(\d+)=\{\n\t\t\tculture_template="([^"]+)"')
 
 
-def numbering(kind, text=None):
+def numbering(kind: str, text: str | None = None) -> dict[int, str]:
     """Number -> key, taken from the save rather than guessed from the file order.
 
     **The engine's numbering is not one rule.** Measured 27 August 2026 against the save of

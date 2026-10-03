@@ -106,7 +106,7 @@ returns a pair, passed on as one thing, costs a run.
 | `first_line(text)` | str of value | - |
 | `signature(node)` | value | - |
 | `return_shape(node)` | str of value | The shape of what comes out, because that is what the mistakes were about. |
-| `files()` | nothing | - |
+| `files()` | iterator | - |
 
 ## windowgrab.py
 *Grabs an image of the game window without it having to be in the foreground.*
@@ -201,7 +201,7 @@ returns a pair, passed on as one thing, costs a run.
 | `fields_for(pid)` | 2-tuple | The path walked at every start. |
 | `configure_channel(fields)` | nothing | Hands the derived offsets to the DLL. The DLL knows nothing about CK3; all knowledge about |
 | `regions(pid)` | value | The memory regions of the game, asked for from the outside. |
-| `seed_batches(pid, chunk=67108864)` | nothing | Per piece of memory the addresses found, until the caller finds a usable one. |
+| `seed_batches(pid, chunk=67108864)` | iterator | Per piece of memory the addresses found, until the caller finds a usable one. |
 
 ## ck3\guimap.py
 *Reads the meaning out of the gui files: which widget shows what.*
@@ -212,8 +212,10 @@ returns a pair, passed on as one thing, costs a run.
 | `parse(text)` | value | A gui file as a list of entries. An entry is a key with at most one of a value and a body. |
 | `files(with_mods=True)` | value | Every gui file the engine has loaded, **in load order**, as (layer, virtual path, disk path). |
 | `read(path)` | value | - |
+| `walk(nodes)` | iterator | Every entry in a parsed file, at any depth. |
 | `type_table(rows=None)` | 2-tuple | Every template the engine knows, as name -> definition. |
 | `build(key, body, templates, overrides=None, depth=0, in_tooltip=False)` | dict of value | One widget, fully expanded: inherited defaults, mixed-in templates, slots filled. |
+| `attribute(node, key)` | value of NoneType | The value of the first attribute with this key, or None when the widget has none. |
 | `windows(rows=None)` | value | Every window on disk, as name -> (virtual path, its entry). |
 | `window(name, table=None, local=None, known=None)` | 2-tuple | A window resolved into a widget tree, with a Templates carrying what went wrong. |
 | `decision_widget(name, table=None, local=None, rows=None)` | 2-tuple | The own gui of a decision, resolved into a widget tree like a window. |
@@ -355,7 +357,6 @@ returns a pair, passed on as one thing, costs a run.
 | call | returns | does |
 |---|---|---|
 | `root_finder(table)` | value | Type name -> the end of its inheritance chain, remembered, because the walk repeats itself |
-| `attribute(node, key)` | value of NoneType | - |
 | `widget_children(node, root)` | value | The children of a node that can reach the live tree, in file order. |
 | `align_row(disk, live, root)` | value | Two rows of children laid against each other on class and order alone. |
 | `live_tree(record)` | 2-tuple | The harvest is a flat list with an address and a parent address; this is it as a tree. |
@@ -379,7 +380,6 @@ returns a pair, passed on as one thing, costs a run.
 
 | call | returns | does |
 |---|---|---|
-| `attribute(node, key)` | value of NoneType | - |
 | `texts(node, context=(), inside=None, out=None)` | value | Every text a window holds, in file order, with its subject and the list it sits in. |
 | `says(value, localization)` | value | What this text will say: the sentence behind a key, or the function that fills it. |
 | `draft(window, table, local, known, localization)` | 2-tuple | One window as a screen file to correct. |
@@ -453,7 +453,6 @@ returns a pair, passed on as one thing, costs a run.
 
 | call | returns | does |
 |---|---|---|
-| `entries(nodes)` | nothing | Every entry in a screen file, at any depth. |
 | `read(path)` | value | One screen file, parsed. |
 | `references(nodes)` | 3-tuple | What a screen file points at: its windows, its data functions, its widget names. |
 | `window_contents(node, text, names)` | nothing | Every attribute value and every widget name below this node. |

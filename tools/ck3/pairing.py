@@ -17,6 +17,7 @@ import json
 import os
 import pathlib
 import re
+from typing import Any
 
 from tools import paths
 from tools.ck3 import derive, guimap
@@ -65,13 +66,6 @@ def root_finder(table):
             known[name] = walk
         return known[name]
     return root
-
-
-def attribute(node, key):
-    for name, value in node['attrs']:
-        if name == key:
-            return value
-    return None
 
 
 def widget_children(node, root):
@@ -198,7 +192,9 @@ def pairs(window, table, local, known, root, record=None, disk_tree=None):
     if disk_tree is None:
         disk_tree, _ = guimap.window(window, table, local, known)
 
-    out, work = [], [(disk_tree, top, ())]
+    # The record of a harvested widget is read from JSON and has no type of its own yet.
+    out: list[tuple[guimap.Node | None, Any, tuple[str, ...]]] = []
+    work: list[tuple[guimap.Node | None, Any, tuple[str, ...]]] = [(disk_tree, top, ())]
     while work:
         source, built, context = work.pop()
         if source is None:
@@ -206,10 +202,10 @@ def pairs(window, table, local, known, root, record=None, disk_tree=None):
             for child in by_parent.get(built['address'], []):
                 work.append((None, child, context))
             continue
-        own = attribute(source, 'datacontext')
+        own = guimap.attribute(source, 'datacontext')
         here = context + ((own,) if own else ())
         out.append((source, built, here))
-        if attribute(source, 'name') == CUSTOM_WIDGETS:
+        if guimap.attribute(source, 'name') == CUSTOM_WIDGETS:
             # Empty on disk; the decision that is open decides what goes in, by file name.
             for child in by_parent.get(built['address'], []):
                 work.append((_decision_widget(child['name'], table, local), child, here))
@@ -346,7 +342,7 @@ def sweep():
                 # parent is paired and does carry the text. This is the widget above answering for
                 # it, not a guess: the check below compares the caption with what was on screen.
                 above = by_address.get(built['parent'])
-                if above is not None and attribute(above, 'text'):
+                if above is not None and guimap.attribute(above, 'text'):
                     count['caption of the widget above'] += 1
                     source = above
                 else:
@@ -357,14 +353,14 @@ def sweep():
             count['paired'] += 1
             if context:
                 count['with data context'] += 1
-            key = attribute(source, 'text')
+            key = guimap.attribute(source, 'text')
             kind = text_source(key, localization)
             count[kind] += 1
             unexplained(count, kind, context, built, developer)
-            if kind == 'data function':
+            if kind == 'data function' and key is not None:
                 for name in FUNCTION.findall(key):
                     functions[name] += 1
-            if kind == 'plain key':
+            if kind == 'plain key' and key is not None:
                 shown = derive.strip_markup(built['text'] or '').strip()
                 expected = ICON.sub('', guimap.strip_style(localization[key])).strip()
                 count['plain key agrees' if shown == expected else 'plain key differs'] += 1

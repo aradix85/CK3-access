@@ -12,10 +12,11 @@ Outcomes, newest first. No release yet.
 - `tools` is a package: scripts start from the project folder as `python -m tools.ck3.start_game`, and `check.py` reports any start by file path or of a module that does not exist.
 - ruff runs its own default rules, which cover pyflakes, so pyflakes is no longer a requirement. Tests and files outside the repository included, it finds nothing: f-strings throughout, every file closed after use. The reader and the map layer say exactly what they said before.
 - On a machine marked with `.tools-required` the channel test fails, rather than skips, when MSVC or clang-tidy is missing.
-- The tool index shows keyword-only parameters, and no longer counts the returns of a function defined inside another: `states.console` and `harvest.chain_round` return nothing, `windowgrab.window_of` a 3-tuple.
+- The tool index shows keyword-only parameters, and no longer counts the returns of a function defined inside another: `states.console` and `harvest.chain_round` return nothing, `windowgrab.window_of` a 3-tuple, and a generator is an iterator.
 - The text recogniser checks which form rapidocr answers in and stops on any other, instead of reading fields that may not be there; it reads a harvest capture exactly as before.
 - `database.numbering` stops with a sentence where a save has no faiths block under religion, as on 1.20, instead of failing a line later on a type error.
 - guimap carries real types: an entry, a template and an expanded widget each have their fixed shape. Its unused `widgets` is gone and a gui file is closed after reading. Files, templates, all 282 windows, five fully expanded windows and every localization key read exactly as before.
+- database, screens and propose carry real types. screens and reading walk a parsed file with `guimap.walk`, propose and pairing read an attribute with `guimap.attribute`, each once instead of twice, and propose writes its drafts under the scratch folder `paths.py` names. Drafts for all 282 windows, the screen check, the screen rules, every database and the pairing sweep come out exactly as before.
 - The channel's one retry is tested without a game: a link that breaks is tried once more, a link that will not open is said once.
 - The channel test no longer fails when someone holds ctrl, shift or alt while it runs: it watches the real keyboard throughout and repeats a disturbed key.
 - The game model holds on a state begun and played on 1.20: 400 characters, all 19 fields agree with the save.
