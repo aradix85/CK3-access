@@ -694,7 +694,7 @@ def main():
         if missing:
             raise SystemExit('not a button on disk that only opens a view: {}'.format(', '.join(missing)))
         rows = [r for r in rows if r['widget'] in wanted]
-    target = (os.path.join(os.environ['TEMP'], 'ck3', 'openers_trial.json') if trial else OUT)
+    target = (os.path.join(paths.WORK, 'openers_trial.json') if trial else OUT)
     nodes, _, baseline = game.state()
     if baseline:
         raise SystemExit('these are open before the round starts: {}. Close them first, or every '

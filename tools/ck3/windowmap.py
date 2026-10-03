@@ -670,7 +670,7 @@ def main():
     if rest[:1] == ['--window-keys']:
         # A trial names its windows, and writes beside the map rather than into it.
         found = window_keys_round(Game(pid), rest[1:])
-        target = os.path.join(os.environ['TEMP'], 'ck3', 'window_keys_trial.json')
+        target = os.path.join(paths.WORK, 'window_keys_trial.json')
         with open(target, 'w', encoding='utf-8') as file:
             json.dump(found, file, ensure_ascii=False, indent=1)
         return print(f'written: {target}')
