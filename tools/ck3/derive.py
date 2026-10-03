@@ -147,23 +147,47 @@ def field_for(addresses, offset, width=1):
     return out
 
 
+SWITCHED_OFF = 0x02     # `enabled` false on this widget or an ancestor
+HIDDEN = 0x08           # a `visible` condition that does not hold, on this widget
+PASSES_CLICKS = 0x20    # `alwaystransparent`, or the class default for icons and layouts
+
+
 def flags_for(addresses):
-    """The state byte of many objects: zero is a drawn window, 0x08 hidden, low bits a switched-off button.
+    """The state byte of many objects. It is a bit pattern, and only `HIDDEN` decides what is drawn.
 
-    **0x08 on any widget is the game hiding it, measured 21 September 2026.** A `visible` condition
-    that does not hold leaves the widget in the tree with its alpha up and sets this bit: 2777 of
-    2784 widgets carrying it over seven windows had such a condition, the other seven are a closed
-    dropdown, and the text recogniser read back none of 79 hidden boxes against 208 of 214 shown.
-
-    **One byte with more than one meaning, measured 20 September 2026.** On a window object zero
-    means drawn and the higher bits mean hidden; on a button the low bits mean the game has
-    switched it off. That was found by emptying the save dialog's name field, which disables its
-    save button, while the cancel button beside it did not move - and crossed against the gui
-    files over three windows and 6906 widgets, where no widget carried those bits without an
-    `enabled` condition on itself or an ancestor. So ask it of every widget and not only of the
-    windows; the name of this function is older than what it reads.
+    **Measured 3 October 2026 on 1.20.0.3, over all 294 named window objects and the gui files, on
+    two states with the same outcome;** the harvest of 1.19.0.6 shows the same pattern. The counts
+    below are from the first.
+    0x08 hides, on any widget, and 0x10 never occurs without it. 0x20 is not about being drawn: it
+    is the game letting the mouse through - 3052 of 3052 widgets with `alwaystransparent = yes`
+    carry it, 4393 of 4398 with `no` do not, and without the line it follows the class (icons and
+    layouts pass clicks, buttons and windows catch them). The root, every layer and the activity
+    planner carry it while drawn, which is why "zero is a drawn window" failed on them. 0x04 is
+    `enabled = no` on the widget itself (407 of 407), and 0x02 goes with it and is inherited by
+    everything below: 549 widgets where it starts all carry 0x04, the 140 that inherit it none.
+    0x01 never occurs; 0x40 sits on scroll areas, edit boxes and zoom areas and is not read here.
     """
     return field_for(addresses, _visibility_offset('flag'))
+
+
+def shown(nodes, addresses):
+    """Of `addresses`, the ones nothing hides, each with its own state byte.
+
+    Hidden means 0x08 on the widget or on any ancestor; a byte that cannot be read is an object
+    that went away between the walk and this question, and counts as not shown. This is the one
+    place that says whether a window is drawn. Alpha, clipping and the drawing area are separate
+    questions (`is_visible`, `is_clipped`, `drawing_area`).
+    """
+    chains = {}
+    for address in addresses:
+        chain, node = [], address
+        while node in nodes:
+            chain.append(node)
+            node = nodes[node][5]
+        chains[address] = chain
+    flags = flags_for({a for chain in chains.values() for a in chain})
+    return {address: flags[address] for address, chain in chains.items()
+            if all(a in flags and not flags[a] & HIDDEN for a in chain)}
 
 
 def widgets(root):

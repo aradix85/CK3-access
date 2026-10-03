@@ -191,7 +191,7 @@ def live_record(game, pid, window, address=None, nodes=None):
         named = [a for a in windows if nodes[a][6] == window]
         if not named:
             raise SystemExit('%s is not in the tree at all' % window)
-        address = drawn_one(named, window)
+        address = drawn_one(nodes, named, window)
     family = harvest.subtree(nodes, address)
     addresses = [a for a, _, _ in family]
     # **Ask the scales for this window, not for the whole tree.** They come back four hundred
@@ -502,8 +502,8 @@ def on_screen(address, nodes, scales, classes):
 
     The four cheap tests come first and the channel questions last, because the disambiguation
     below runs this over every widget carrying a name - one of them 225 times: the state byte along
-    the chain (0x08 is the game hiding a widget, measured 21 September 2026, and on the nearest
-    window zero means drawn), and then `window_above`, whether a later window lies over the middle.
+    the chain (0x08 on the widget or any ancestor, the nearest window included, is the game hiding
+    it), and then `window_above`, whether a later window lies over the middle.
 
     **The edges come from the running game, and until 1 September 2026 they did not.** 1600x900
     stood here as a constant. The drawing area became 1920x1200 that day, after which every
@@ -521,21 +521,14 @@ def on_screen(address, nodes, scales, classes):
     if x < 0 or y < 0 or x + width > screen_width or y + height > screen_height:
         return 'off screen'
     # **The game hides a widget with 0x08 in its state byte, on itself or on an ancestor, and leaves
-    # alpha up.** Measured 21 September 2026 over seven windows: 2777 of the 2784 widgets carrying it
-    # have a `visible` condition on themselves or an ancestor, and a kill list button hidden that way
-    # passed every test above and opened nothing when pressed. On a window object it is the same
-    # byte: zero drawn, 0x08 not. One channel question for the whole chain.
+    # alpha up** - a window as much as a button (`derive.flags_for`). One question for the chain.
     chain = []
     node = address
     while node in nodes:
         chain.append(node)
         node = nodes[node][5]
-    flags = derive.flags_for(chain)
-    if any(flags.get(a, 0) & 0x08 for a in chain):
+    if not derive.shown(nodes, [address]):
         return 'hidden by the game'
-    window = next((a for a in chain[1:] if nodes[a][0] in game_classes), None)
-    if window is not None and flags.get(window, 0xFF) != 0x00:
-        return 'its window is not drawn'
     above = window_above(address, chain, nodes, scales)
     if above is not None:
         return 'covered by %s' % above
@@ -558,7 +551,9 @@ def window_above(address, chain, nodes, scales):
     event caught the click, and an `alwaystransparent` icon of the other event, lying outside its
     window, let one through. Its two blind spots: a see-through widget inside a window makes this
     refuse a click that would land, and a child outside a window with `allow_outside` that does
-    catch is missed. The drawn windows and the order are worked out once per tree.
+    catch is missed. A drawn window that lets the mouse through (0x20) never counts: the planner and
+    `layer_window` cover the whole screen that way. The drawn windows and the order are worked out
+    once per tree.
     """
     key = (id(nodes), len(nodes))
     if _ABOVE.get('key') != key:
@@ -567,9 +562,10 @@ def window_above(address, chain, nodes, scales):
             index[a] = counts.get(node[5], 0)
             counts[node[5]] = index[a] + 1
         windows = [a for a, node in nodes.items() if node[0] in game_classes]
-        flags = derive.flags_for(windows)
+        catching = [a for a, flag in derive.shown(nodes, windows).items()
+                    if not flag & derive.PASSES_CLICKS]
         _ABOVE.clear()
-        _ABOVE.update(key=key, index=index, drawn=[a for a in windows if flags.get(a) == 0x00])
+        _ABOVE.update(key=key, index=index, drawn=catching)
     index = _ABOVE['index']
 
     def path(a):
@@ -632,7 +628,7 @@ def subtree_of(nodes, window):
     candidates = [a for a, k in nodes.items() if k[6] == window and k[0] in game_classes]
     if not candidates:
         return None
-    root = drawn_one(candidates, window)
+    root = drawn_one(nodes, candidates, window)
     children = {}
     for address, k in nodes.items():
         children.setdefault(k[5], []).append(address)

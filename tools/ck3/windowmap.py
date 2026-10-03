@@ -184,8 +184,7 @@ def shown_texts(game, name, text_classes):
     import harvest
     nodes = game.tree()
     candidates = [a for a, k in nodes.items() if k[6] == name and k[0] in game.window_classes]
-    flags = derive.flags_for(candidates)
-    drawn = [a for a in candidates if flags.get(a) == 0x00]
+    drawn = list(derive.shown(nodes, candidates))
     if not drawn:
         return None
     if len(drawn) > 1:
@@ -395,10 +394,8 @@ class Game(object):
         """
         nodes = nodes if nodes is not None else self.tree()
         windows = [a for a, k in nodes.items() if k[0] in self.window_classes]
-        flags = derive.flags_for(windows)
         counts = collections.Counter(k[6] for k in nodes.values() if k[6])
-        drawn = {nodes[a][6] for a in windows
-                    if flags.get(a, 0xFF) == 0x00 and nodes[a][6]}
+        drawn = {nodes[a][6] for a in derive.shown(nodes, windows) if nodes[a][6]}
         return nodes, counts, drawn
 
     def console_open(self, nodes=None):
@@ -407,15 +404,15 @@ class Game(object):
         Measured 25 August 2026 by pressing the key twice with the recogniser watching: open, the
         window sits at 20,31 with a frame of 427x838 and its flag byte reads 0x00, and the screen
         carries the console's own output; shut, the frame is 0x0 and the byte reads 0x18. So the
-        ordinary window flag decides it after all - what does not work is asking `state()`, because
-        that only looks at widgets of the `Window` class and `console_window` is not one of them.
+        ordinary rule decides it after all (`derive.shown`) - what does not work is asking `state()`,
+        because that only looks at widgets of the `Window` class and `console_window` is not one.
         That is the whole reason this used to be judged by typing into it.
         """
         nodes = nodes if nodes is not None else self.tree()
         address = next((a for a, k in nodes.items() if k[6] == 'console_window'), None)
         if address is None:
             return False
-        return derive.flags_for([address]).get(address, 0xFF) == 0x00
+        return bool(derive.shown(nodes, [address]))
 
     def field_text(self, address):
         """The text of one widget, without walking the tree - a single channel question.

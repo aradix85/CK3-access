@@ -36,9 +36,9 @@ fails. Between 1.16 and 1.19 one offset moved; nothing downstream noticed.
 
 Every window is built up front and stays in the tree, so being in the tree says nothing. What decides
 whether something is drawn:
-- **A state byte**, along the parent chain: 0x08 means hidden. On a window, zero means drawn; other
-  values are being measured again, since a drawn planner carried 0x20. On a button, low bits mean
-  switched off.
+- **A state byte**, along the parent chain: only 0x08 hides (`derive.shown`). 0x20 means the widget
+  lets the mouse through, so a drawn window carrying it never catches a click. 0x02 means switched
+  off, inherited from where `enabled` is false.
 - **Alpha** along the parent chain.
 - **Clipping** by the nearest scroll area.
 - **Geometry:** some windows place drawn buttons outside the drawing area at any resolution, so the

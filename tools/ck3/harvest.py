@@ -317,7 +317,7 @@ def open_window(game, name, row, baseline):
             windowmap.press(row['shortcut'])
             for _ in range(14):
                 time.sleep(0.6)
-                if 0x00 in derive.flags_for(candidates).values():
+                if derive.shown(nodes, candidates):
                     return game.tree(), attempt
         elif row.get('click'):
             # The parent window first, and only if it is not already standing: its shortcut is a
@@ -379,7 +379,7 @@ def close_window(game, row, baseline, limit=12):
     return False
 
 
-def drawn_one(candidates, name):
+def drawn_one(nodes, candidates, name):
     """Of several window objects carrying the same name, the one that is actually drawn.
 
     `GUI.CreateWidget` builds a *new* object while the parked one keeps its name, so the tree holds
@@ -387,12 +387,12 @@ def drawn_one(candidates, name):
     looks like it contains nothing. Measured 24 August 2026 on `army_window`: two objects, both 292
     widgets; the parked one at flag 0x24 carried no text at all and the drawn one at flag 0x00
     carried Army, Always Raid and Commander. A whole round of 178 windows was taken from the wrong
-    side of that fork before this was noticed.
+    side of that fork before this was noticed. On 1.20.0.3 the parked one carries 0x18 with alpha
+    zero and the new one 0x00, measured 3 October 2026. Drawn is `derive.shown`.
     """
     if len(candidates) == 1:
         return candidates[0]
-    flags = derive.flags_for(candidates)
-    drawn = [a for a in candidates if flags.get(a, 0xFF) == 0x00]
+    drawn = list(derive.shown(nodes, candidates))
     if len(drawn) == 1:
         return drawn[0]
     if not drawn:
@@ -406,7 +406,7 @@ def record_window(game, name, nodes, header, route, attempts, file, started):
     """Everything this project can read of one drawn window, plus a capture. It stays open."""
     windows = [a for a, k in nodes.items() if k[0] in game.window_classes]
     named = [a for a in windows if nodes[a][6] == name]
-    address = drawn_one(named, name)
+    address = drawn_one(nodes, named, name)
     family = subtree(nodes, address)
     addresses = [a for a, _, _ in family]
     scales = derive.scales_for(list(nodes))

@@ -167,7 +167,8 @@ returns a pair, passed on as one thing, costs a run.
 | `drawing_area()` | value | - |
 | `use_fields(fields)` | nothing | Publish the two visibility offsets for this build. |
 | `field_for(addresses, offset, width=1)` | value | One field of many objects, in as few channel questions as possible. |
-| `flags_for(addresses)` | value | The state byte of many objects: zero is a drawn window, 0x08 hidden, low bits a switched-off button. |
+| `flags_for(addresses)` | value | The state byte of many objects. It is a bit pattern, and only `HIDDEN` decides what is drawn. |
+| `shown(nodes, addresses)` | dict | Of `addresses`, the ones nothing hides, each with its own state byte. |
 | `widgets(root)` | value | The whole tree with fields attached: address -> (vtable, x, y, width, height, parent, name, text). |
 | `scales_for(addresses)` | value | Per widget (own scale, scale from above). The two sit next to each other, so one read round. |
 | `screen_pos(nodes, address, scales, anchors=None)` | 2-tuple | The place on screen: the own position plus that of every parent, with the scale applied. |
@@ -228,7 +229,7 @@ returns a pair, passed on as one thing, costs a run.
 | `click_routes(windows)` | value | Window -> the button that opens it, from `reports\openers.json`. |
 | `open_window(game, name, row, baseline)` | 2-tuple | Open one window along the route phase 0 found for it, and prove it is drawn. |
 | `close_window(game, row, baseline, limit=12)` | bool | Shut it again and wait until the state before it is back. Anything left open contaminates |
-| `drawn_one(candidates, name)` | value | Of several window objects carrying the same name, the one that is actually drawn. |
+| `drawn_one(nodes, candidates, name)` | value | Of several window objects carrying the same name, the one that is actually drawn. |
 | `record_window(game, name, nodes, header, route, attempts, file, started)` | value | Everything this project can read of one drawn window, plus a capture. It stays open. |
 | `harvest(game, name, row, baseline, header)` | 2-tuple | One window, from opening to the state coming back. Returns the record, or a reason. |
 | `stop_checks(pid, player, player_name, before)` | nothing | The three conditions asked before every window: memory, the channel, and the player. |
@@ -418,7 +419,7 @@ returns a pair, passed on as one thing, costs a run.
 | `units(window, table, local, known, root, record)` | value | Every unit this window says, in order, each with the list it belongs to. |
 | `screen_rules()` | value | Per window, what a screen file adds on top of the reading rule. |
 | `in_order(window, found)` | value | The units with what a screen file names first, first. Stable, so the rest keeps its order. |
-| `state_word(node, by_address)` | NoneType of str | `unavailable` in front of a line whose button the game has switched off, or nothing. |
+| `state_word(node)` | value | `unavailable` in front of a line whose button the game has switched off, or nothing. |
 | `spoken(unit)` | value | One unit as it is said. |
 | `joined(found)` | value | A bare number and the label beside it under the same parent are one unit, label first. |
 | `sentences(found, window=None)` | value | The units as the lines a player hears: each one what it says, and what explains it. |

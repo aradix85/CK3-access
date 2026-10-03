@@ -4,7 +4,7 @@ Outcomes, newest first. No release yet.
 
 ## 2026-10-03
 - Alt+A opens the activity window, so all nine HUD key combinations open a window.
-- A non-zero window flag does not always mean hidden: a drawn activity planner carried 0x20. Under investigation.
+- Only state bit 0x08 hides; 0x20 lets the mouse through, so the activity planner is now read and its buttons clicked. One rule, in `derive.shown`; 0x02 marks a switched-off widget and its contents.
 - The game model holds on a state begun and played on 1.20: 400 characters, all 19 fields agree with the save.
 - The game is found through the Steam libraries in the registry only; set `CK3_GAME` otherwise.
 - Removed two unused tools; the code no longer refers to the maintainer's private notes.

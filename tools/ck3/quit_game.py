@@ -34,8 +34,7 @@ def look(root, pid, window_classes):
     """The tree of this moment, with what is drawn, where it is, and what class each node is."""
     nodes = derive.widgets(root)
     windows = [a for a, k in nodes.items() if k[0] in window_classes]
-    flags = derive.flags_for(windows)
-    drawn = {nodes[a][6] for a in windows if flags.get(a) == 0}
+    drawn = {nodes[a][6] for a in derive.shown(nodes, windows)}
     classes = derive.class_map(pid, {a: k[0] for a, k in nodes.items()})
     return nodes, derive.scales_for(list(nodes)), drawn, classes
 

@@ -238,9 +238,9 @@
  },
  {
   "name": "files that go into the repo",
-  "claimed": 70,
+  "claimed": 71,
   "measure": "repo_files",
-  "counting_rule": "files under the project folder that .gitignore does not exclude, the same set git ls-files plus git ls-files --others --exclude-standard gives; 70 since 3 October 2026, when tools/unclaimed.py and tools/ck3/textfield.py were removed because nothing used them"
+  "counting_rule": "files under the project folder that .gitignore does not exclude, the same set git ls-files plus git ls-files --others --exclude-standard gives; 71 since 3 October 2026, when tools/unclaimed.py and tools/ck3/textfield.py were removed because nothing used them and tests/test_state_byte.py was added"
  },
  {
   "name": "windows opened in the harvest round",

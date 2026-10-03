@@ -148,7 +148,7 @@ def console(pid, command):
     def is_open():
         nodes, scales, _, classes = look(root, pid, classes_of_windows)
         found = [a for a, k in nodes.items() if k[6] == 'console_window']
-        return bool(found) and derive.flags_for(found).get(found[0]) == 0, nodes, scales, classes
+        return bool(found) and bool(derive.shown(nodes, found[:1])), nodes, scales, classes
 
     opened, nodes, scales, classes = is_open()
     if not opened:

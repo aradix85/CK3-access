@@ -303,7 +303,7 @@ def units(window, table, local, known, root, record):
                     'rows': rows_of(node, by_address, source_of),
                     'fills': fills(source),
                     'name': node['name'],
-                    'state': state_word(node, by_address),
+                    'state': state_word(node),
                     'explain': explanation(node['address'], by_address, source_of, words),
                     'address': node['address'], 'parent': node['parent']})
     return out
@@ -394,29 +394,19 @@ def in_order(window, found):
     return sorted(found, key=place_of)
 
 
-UNUSABLE = 0x06
-
-
-def state_word(node, by_address):
+def state_word(node):
     """`unavailable` in front of a line whose button the game has switched off, or nothing.
 
-    **Measured 20 September 2026, and it is a field rather than a rule per screen.** The state
-    byte at the offset the window flag sits at carries the low bits 0x02 and 0x04 together on a
-    button the game has disabled: the save dialog's save button went from 0x00 to 0x06 and back
-    while the name field was emptied and typed into, and the cancel button beside it - which the
-    file leaves enabled - did not move. Over three windows and 6906 widgets no widget carried
-    those bits without an `enabled` condition on itself or an ancestor.
+    **A field rather than a rule per screen.** 0x02 in the state byte is `enabled` false on the
+    widget or on any ancestor, and the game copies it down the whole subtree (`derive.flags_for`),
+    so the text inside a switched-off button carries it itself. First seen 20 September 2026 on the
+    save dialog: its save button went from 0x00 to 0x06 and back while the name field was emptied
+    and typed into, and the cancel button beside it did not move.
 
     The word goes in front, because a state that arrives after the sentence arrives too late to
-    act on. It is looked for up the chain: the text sits inside the button,
-    and it is the button that is switched off.
+    act on.
     """
-    walk, depth = node, 0
-    while walk is not None and depth < 12:
-        if (walk.get('state') or 0) & UNUSABLE:
-            return 'unavailable'
-        walk, depth = by_address.get(walk['parent']), depth + 1
-    return None
+    return 'unavailable' if (node.get('state') or 0) & derive.SWITCHED_OFF else None
 
 
 def spoken(unit):
@@ -606,12 +596,14 @@ def live(pid, window=None, game=None, tables=None):
     openers.game_classes = game.window_classes      # live_record reads this module global
     nodes = game.tree()
     windows = [a for a, k in nodes.items() if k[0] in game.window_classes]
-    flags = derive.flags_for(windows)
+    drawn = derive.shown(nodes, windows)
 
     index, seen = {}, collections.Counter()
+    children = collections.defaultdict(list)
     for address, node in nodes.items():
         index[address] = seen[node[5]]
         seen[node[5]] += 1
+        children[node[5]].append(address)
 
     def path(address):
         out = []
@@ -620,12 +612,26 @@ def live(pid, window=None, game=None, tables=None):
             address = nodes[address][5]
         return tuple(reversed(out))
 
-    drawn = [a for a in windows if flags.get(a) == 0]
+    def shows_text(top):
+        below, stack = [], [top]
+        while stack:
+            below.append(stack.pop())
+            stack.extend(children[below[-1]])
+        kinds = derive.class_map(pid, {a: nodes[a][0] for a in below})
+        texts = [a for a in below
+                 if kinds.get(a) == 'Textbox' and derive.strip_markup(nodes[a][7] or '').strip()]
+        return bool(derive.shown(nodes, texts))
+
     here = None
     if window is None:
-        if not drawn:
+        # A window that lets the mouse through is drawn without being a panel: `layer_window` and
+        # `achievement_popup_window` stand on every screen that way, and the activity planner is
+        # one too. So a panel goes first, and one of those counts only while it shows text.
+        solid = [a for a, flag in drawn.items() if not flag & derive.PASSES_CLICKS]
+        clear = [a for a in drawn if a not in solid and shows_text(a)]
+        if not solid and not clear:
             return None, []
-        here = max(drawn, key=path)
+        here = max(solid or clear, key=path)
         window = nodes[here][6]
 
     record, _, _, _ = openers.live_record(game, pid, window, here, nodes)
