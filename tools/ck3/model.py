@@ -222,7 +222,7 @@ def answer_key(save_path, handles=None):
         sections = {'record': body,
                     'alive': savegame.block(body, 'alive_data') or '',
                     'landed': savegame.block(body, 'landed_data') or ''}
-        row = {'name': body.split('first_name="', 1)[1].split('"', 1)[0]}
+        row: dict[str, str | None] = {'name': body.split('first_name="', 1)[1].split('"', 1)[0]}
         for field, where, path in WANTED:
             section = sections[where]
             key = field

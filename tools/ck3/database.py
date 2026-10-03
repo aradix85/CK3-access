@@ -138,10 +138,13 @@ def numbering(kind, text=None):
     if kind == 'trait':
         return dict(enumerate((savegame.block(text, 'traits_lookup') or '').split()))
     if kind in ('faith', 'religion'):
-        block = savegame.block(text, 'religion')
+        block = savegame.block(text, 'religion') or ''
         inner = 'religions' if kind == 'religion' else 'faiths'
         at = block.find(f'\n\t{inner}={{')
-        rows = savegame.block(block[at:], inner)
+        rows = savegame.block(block[at:], inner) if at >= 0 else None
+        if rows is None:
+            raise SystemExit(f'the save has no {inner} block under religion, so the {kind} numbering '
+                             'cannot be read from it')
         pattern = (FAITH_ROW if kind == 'faith'
                    else re.compile(r'(\d+)=\{\s*religion_type=\w+\s+tag="([^"]+)"'))
         return {int(n): key for n, key in pattern.findall(rows)}

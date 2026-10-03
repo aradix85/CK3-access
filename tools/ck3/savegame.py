@@ -26,14 +26,14 @@ from tools import paths
 SAVE_DIR = paths.require('SAVES')
 
 
-def newest_save():
+def newest_save() -> str:
     saves = glob.glob(os.path.join(SAVE_DIR, '*.ck3'))
     if not saves:
         raise SystemExit(f'no save found in {SAVE_DIR}')
     return max(saves, key=os.path.getmtime)
 
 
-def newest_readable_save():
+def newest_readable_save() -> str:
     """The newest save that was stored as text.
 
     Needed because CK3 mixes two forms: a manual save is plain text, but an autosave is binary
@@ -51,11 +51,11 @@ def newest_readable_save():
     raise SystemExit(f'not a single save in {SAVE_DIR} is stored as text')
 
 
-def is_text(content):
+def is_text(content: str) -> bool:
     return 'living={' in content[:2000000] or 'meta_data={' in content[:200000]
 
 
-def unpack(path=None):
+def unpack(path: str | None = None) -> str:
     """The game state as text. The header before the zip differs in length per save, so it is
     searched for and not assumed."""
     path = path or newest_save()
@@ -68,7 +68,7 @@ def unpack(path=None):
         return zip.read(name).decode('utf-8', 'replace')
 
 
-def block(text, build_key, start_at=0):
+def block(text: str, build_key: str, start_at: int = 0) -> str | None:
     """The content between the braces of `key={ ... }`, with braces counted so that nested
     blocks do not close it early."""
     pos = text.find(f'\n{build_key}={{', start_at)
@@ -90,7 +90,7 @@ def block(text, build_key, start_at=0):
 _CHARACTER = re.compile(r'\n(\d+)=\{\n\tfirst_name=')
 
 
-def character_index(text):
+def character_index(text: str) -> dict[int, int]:
     """Character number -> where its block starts, in one pass.
 
     Looking one character up costs a scan of the whole game state, and a calibration round asks
@@ -107,7 +107,7 @@ def character_index(text):
 _MAPPING = re.compile(r'([a-z_][a-z_0-9]*)=([^\s{}"]+|\{[^{}]*\})', re.IGNORECASE)
 
 
-def numbers(content, prefix='', depth=0):
+def numbers(content: str | None, prefix: str = '', depth: int = 0) -> dict[str, int]:
     """Every whole number in a block, with its path as the name. Whole numbers only, because that
     is what can be found back in memory as a separate field; decimals and text cannot."""
     out: dict[str, int] = {}
@@ -132,7 +132,7 @@ def numbers(content, prefix='', depth=0):
     return out
 
 
-def player(text):
+def player(text: str) -> str:
     """The character number of the player."""
     m = re.search(r'currently_played_characters=\{\s*(\d+)', text)
     if not m:
