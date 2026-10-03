@@ -30,7 +30,7 @@ back to the game first and the failure is spoken second, and that order is the p
 
 An event is the one thing that arrives without a keystroke, so it gets the one piece of machinery
 here: the layers under the root count their own children, and an event is a new window object
-added to one of them (`brief\\presentatie.md`). Reading those counts is a single question, and one of
+added to one of them. Reading those counts is a single question, and one of
 the layers is called `events` and stands empty until one comes in. Nothing is polled that the
 engine does not already keep.
 
@@ -98,7 +98,7 @@ class Reader(object):
         """How many children each layer holds. One question, so it may be asked every round.
 
         This is what notices an event. An event does not flip a window that is already there, it
-        builds a new object (`brief\\presentatie.md`), so no list of windows we hold can contain it -
+        builds a new object, so no list of windows we hold can contain it -
         but whatever it is added to counts its own children, in the very field the tree walk runs
         on. One of these layers is called `events` and stands empty until one arrives.
         """
@@ -182,7 +182,7 @@ class Reader(object):
         **A tooltip hangs on the button and not on the text inside it**, so this looks up the
         chain; measured over the harvest on 20 September 2026, one unit in five has one that way
         and two hundred of those sit one single level up. Where the sentence has gaps in it the
-        game is adding something up, and that is `brief\\presentatie.md`, taak 10 subtaak f - so it says
+        game is adding something up, and rebuilding that sum is work still to do - so it says
         that rather than reading out a skeleton full of holes.
         """
         if not self.lines:

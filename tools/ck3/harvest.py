@@ -143,8 +143,8 @@ def widget_record(nodes, address, depth, index, scales, classes, flags, alphas):
 
     **Text from a text box or an input field.** The offset that holds the shown string belongs to
     `Textbox`; on most other classes it lands on something else and comes back as unreadable bytes
-    that look like a reading error. Measured 24 August 2026 with textfield.py, which searched per
-    widget class for a text offset and found one for `Textbox` and for no other class.
+    that look like a reading error. Measured 24 August 2026 with a search per widget class for a text
+    offset, which found one for `Textbox` and for no other class.
     **`Editbox` was a false negative, and the reason is worth keeping.** That search looked for
     where text *sits*, and an input field nobody has typed into holds nothing, so there was nothing
     to find - an instrument that cannot see a positive result. Measured again on 20 September 2026

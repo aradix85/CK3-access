@@ -26,6 +26,10 @@ keeps the numbers with the rule they were counted by. A changelog that may never
   fields agrees, the seven recomputed around loading included. The clock was run with the space bar,
   the opening event of the Iranian struggle that holds it was answered with shift+1, and the pause
   is checked on the date rather than trusted to the key.
+- **The game is found through the Steam libraries in the registry and nowhere else.** Two fixed
+  folders used to be tried after that, one of them this machine's own; if the registry does not lead
+  to the game, `CK3_GAME` says where it is. Two tools nothing used any more are gone, and the code no
+  longer points readers at the maintainer's notes, which are not public.
 
 ## 2026-10-02
 

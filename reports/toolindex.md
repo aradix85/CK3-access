@@ -100,17 +100,6 @@ returns a pair, passed on as one thing, costs a run.
 | `return_shape(node)` | value of str | The shape of what comes out, because that is what the mistakes were about. |
 | `files()` | nothing | - |
 
-## unclaimed.py
-*Sentences that count something and then claim the count is complete, and constants in code.*
-
-| call | returns | does |
-|---|---|---|
-| `files(suffixes)` | nothing | - |
-| `sentences(text)` | nothing | Rough split. A claim rarely spans a blank line, and that is all this needs. |
-| `closing_counts()` | value | Per document, the sentences that count and then close a door. |
-| `literals()` | value | Numbers in code outside comments and docstrings: a measurement, or an assumption? |
-| `main(show_all)` | nothing | - |
-
 ## windowgrab.py
 *Grabs an image of the game window without it having to be in the foreground.*
 
@@ -481,18 +470,6 @@ returns a pair, passed on as one thing, costs a run.
 | `holder(save_name, title)` | value | The running number of whoever holds the title, out of a save of that game. |
 | `new(pid, title)` | 2-tuple | From the setup screen: start at random, play the holder of the title, save. Both saves. |
 | `main()` | nothing | - |
-
-## ck3\textfield.py
-*Finds, per widget class, where the displayed text sits inside the object.*
-
-| call | returns | does |
-|---|---|---|
-| `normalize(text)` | value | The recogniser does not read perfectly. Compare in lower case without odd characters. |
-| `capture(pid, root)` | 3-tuple | Image and tree back to back, or you are comparing two different moments. |
-| `screen_boxes(full)` | value | Screen position per widget, summed along the parent chain within the same tree. |
-| `candidates(boxes, ox, oy, ob, oh, largest=400.0)` | list | Widgets covering the spot of a screen line, smallest first. |
-| `text_offsets(address, needle)` | value of list | Offsets in this object where `needle` sits as a C++ string. |
-| `search(pid, root, output)` | value | - |
 
 ## ck3\vtablemap.py
 *Derives the vtables of the widget classes and hands them to the channel.*

@@ -173,7 +173,7 @@ def on_screen(node, by_address, area):
     ancestor at alpha zero and 139 lie outside the drawing area - 172 in all, one in ten. The worst
     window, `window_situation`, said 48 of its 82 lines to nobody.
 
-    The third state `brief\\zichtbaarheid.md` used to name - content the game stacks under itself, alpha 1
+    The so-called third state - content the game stacks under itself, alpha 1
     and unclipped, such as the ledger's eleven category tabs - is the hidden bit: in the ledger of
     21 September 2026, 4087 of the 4088 widgets below the drawing area carry it. A record from
     before 20 September carries no state byte, and there only the drawing-area test catches part.
@@ -210,8 +210,7 @@ def expansion(window, table, local, known):
     tree beside it, and that is read again every time.
 
     Measured 20 September 2026 on the character window: expanding it costs 1,9 of the 2,8 seconds
-    a read takes, so a reader that opens the same window twice paid it twice. `brief\\presentatie.md`
-    said this already happened; it did not.
+    a read takes, so a reader that opens the same window twice paid it twice.
     """
     if window not in EXPANDED:
         EXPANDED[window] = guimap.window(window, table, local, known)[0]
@@ -409,7 +408,7 @@ def state_word(node, by_address):
     those bits without an `enabled` condition on itself or an ancestor.
 
     The word goes in front, because a state that arrives after the sentence arrives too late to
-    act on (`brief\\schermen.md`). It is looked for up the chain: the text sits inside the button,
+    act on. It is looked for up the chain: the text sits inside the button,
     and it is the button that is switched off.
     """
     walk, depth = node, 0

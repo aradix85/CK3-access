@@ -52,8 +52,6 @@ def _steam_libraries():
 def _find_game():
     candidates = [os.path.join(b, 'steamapps', 'common', 'Crusader Kings III')
                   for b in _steam_libraries()]
-    candidates += [r'C:\steam\steamapps\common\Crusader Kings III',
-                   r'C:\Program Files (x86)\Steam\steamapps\common\Crusader Kings III']
     for path in candidates:
         if os.path.exists(os.path.join(path, 'binaries', 'ck3.exe')):
             return path

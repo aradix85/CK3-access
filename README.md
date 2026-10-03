@@ -102,6 +102,8 @@ antivirus history.
     dll/        the injected channel (C++ source and build script)
     tools/      derivation, memory reading, gui parsing, input, speech, measurement
     reports/    generated, machine-checked facts about this build
+    screens/    screen files: what the reader says first on a screen, and which key acts on a row
+    tests/      pytest, including the DLL driven through its real pipe without the game
 
 `check_rtti.ps1` is separate from all of it: point it at any Paradox executable and it tells you in
 seconds whether this approach could work there — tens of thousands of RTTI type names and a

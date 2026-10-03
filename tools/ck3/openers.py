@@ -550,8 +550,8 @@ def window_above(address, chain, nodes, scales):
 
     **Later in the tree is drawn on top**: measured 21 September 2026 - of two event windows the
     one at path (0, 8, 0), in the layer `top`, caught a click meant for the one at (0, 7, 0) in the
-    layer `events` - and the modding wiki says the same of the order in a file
-    (`brief\\buitenwereld.md`). **The window's rectangle stands in for what really catches a
+    layer `events` - and the modding wiki says the same of the order in a file.
+    **The window's rectangle stands in for what really catches a
     click**, which the wiki gives as: a visible widget that is not `alwaystransparent`, inside its
     window unless that window has `allow_outside`. Asking that of the gui files means aligning the
     window first, seconds per click; the rectangle predicts both measured cases - the full-screen

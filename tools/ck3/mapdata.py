@@ -9,8 +9,8 @@ Nothing here is cached. The province centres and the adjacency come out of `prov
 few seconds, and a cached copy would be a file that quietly disagrees with the player's own map
 after a patch or a new mod. Derive rather than write down.
 
-The three constants below carry decisions and each was measured; the counting rules are in
-`brief\\kaart.md`, where a province lies. Distance is deliberately approximate: for playing, the
+The three constants below carry decisions and each was measured.
+Distance is deliberately approximate: for playing, the
 difference that matters is between the next county, the far side of your realm and the far side of
 the world.
 """
@@ -40,7 +40,7 @@ KM_PER_PIXEL = 1.509
 # factor two, from terrain, sea crossings and the fifteen days an embarkation costs.
 PIXELS_PER_DAY = 2.5
 
-# Within a fifth, a bearing counts as diagonal. From `brief\\schermen.md`, and it belongs in data
+# Within a fifth, a bearing counts as diagonal. It belongs in data
 # rather than in this line as soon as there is a settings file.
 DIAGONAL_MARGIN = 0.20
 
@@ -312,7 +312,7 @@ class Map:
         return out
 
     def describe(self, county):
-        """One county in sentences, in the order `brief\\schermen.md` asks for: what it is, then
+        """One county in sentences,: what it is, then
         where it sits, then what it touches. Not the reading order of the product - that is layer
         three - but enough for the user to judge the numbers against what she knows."""
         row = self.counties.get(county)

@@ -33,7 +33,7 @@ overtaking it.
 No worker thread, and that is measured rather than skipped. The Skyrim Access mod hands its text
 to one because nvdaController_* reaches NVDA over SendMessage and would stall the game's input
 thread. This seam runs in its own process beside the game, and handing over a sentence costs
-0.44 ms (27 July 2026, `brief\\niet_doen.md`), so there is nothing to absorb.
+0.44 ms (27 July 2026), so there is nothing to absorb.
 """
 import ctypes
 import os

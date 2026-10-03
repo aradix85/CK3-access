@@ -18,7 +18,7 @@
 # `state = unavailable` is a field now and holds for every button in the game; `dangerous` and
 # `special` are widgets the game hides with 0x08 when the flag does not hold, which is readable but
 # not yet wired, and one option that does carry a flag has not been seen; and `explain` names a
-# data function that nothing here can evaluate. See `brief\taken.md`, taak 10.
+# data function that nothing here can evaluate.
 
 screen = {
 	name = "event"

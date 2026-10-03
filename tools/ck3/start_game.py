@@ -1,8 +1,8 @@
 """Starts CK3 with the channel inside it, in one action.
 
 Then waits until the channel answers, so you know the DLL is really in before you try anything.
-The game itself keeps loading for several minutes after that; waiting for it belongs with
-`channel.ask('scan')`, not here.
+The game itself keeps loading for minutes after that; wait for it with `states.py <pid> wait`, which
+asks the text recogniser, not here.
 """
 import os
 import sys
