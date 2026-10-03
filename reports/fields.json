@@ -7,9 +7,10 @@
  "size": 296,
  "name": 440,
  "text": 912,
- "objects": 101691,
- "unreadable": 1,
- "roots": 903,
+ "objects": 85112,
+ "unreadable": 10,
+ "roots": 1607,
+ "skipped": "skipped 1 region of the channel's own stack, 28 kB; skipped 116 regions of memory without a cache, 3012 MB",
  "flag": 208,
  "alpha": 264
 }

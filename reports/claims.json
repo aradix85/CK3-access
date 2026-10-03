@@ -145,7 +145,8 @@
    "key",
    "objects",
    "unreadable",
-   "roots"
+   "roots",
+   "skipped"
   ],
   "counting_rule": "fields in fields.json besides the four bookkeeping keys; the seven layout offsets plus alpha and the window flag, which have been derived by toggling a window since 24 August 2026"
  },
@@ -238,7 +239,7 @@
  },
  {
   "name": "files that go into the repo",
-  "claimed": 76,
+  "claimed": 77,
   "measure": "repo_files",
   "counting_rule": "files under the project folder that .gitignore does not exclude, the same set git ls-files plus git ls-files --others --exclude-standard gives"
  },

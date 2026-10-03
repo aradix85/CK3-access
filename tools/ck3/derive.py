@@ -817,8 +817,9 @@ def class_map(pid: int, addresses: dict[int, int]) -> dict[int, str | None]:
     return {address: names.get(vtable) for address, vtable in addresses.items()}
 
 
-def derive_all(pid: int) -> Fields:
-    """Derive every field from a full scan. Expensive, so once per build."""
+def derive_all(pid: int) -> tuple[Fields, set[int]]:
+    """Derive every field from a full scan. Expensive, so once per build. The widgets the scan found
+    come back with it, so the tree can be held against them."""
     addresses, skips_of_scan = scan(0, 0)
     left_out = skipped(skips_of_scan)
     if not addresses:
@@ -840,9 +841,26 @@ def derive_all(pid: int) -> Fields:
     text_boxes = [a for a, k in classes.items() if k == 'Textbox']
     f_text = _text_field(chunks, text_boxes, localization_text(), f_name)
 
-    return {'key': build_key(), 'parent': f_parent, 'children': f_children, 'count': f_count,
-            'position': f_position, 'size': f_size, 'name': f_name, 'text': f_text,
-            'objects': len(addresses), 'unreadable': failed, 'roots': len(roots), 'skipped': left_out}
+    return ({'key': build_key(), 'parent': f_parent, 'children': f_children, 'count': f_count,
+             'position': f_position, 'size': f_size, 'name': f_name, 'text': f_text,
+             'objects': len(addresses), 'unreadable': failed, 'roots': len(roots), 'skipped': left_out},
+            set(addresses))
+
+
+def all_in_scan(nodes: Iterable[int], scanned: set[int], left_out: str) -> None:
+    """Every widget of the tree has to be in the full scan, or the scan missed some.
+
+    The scan skips the channel's own stacks and memory without a cache. Read from outside on two
+    saves of 1.20 on 4 October 2026, that memory held no vtable of any class in the exe, and on a
+    third every widget of the tree was in the scan; this is the test that keeps it so. The tree is
+    walked by following pointers and skips nothing, so a widget in skipped memory shows up here, at
+    every new derivation.
+    """
+    missing = set(nodes) - scanned
+    if missing:
+        raise SystemExit(f'{len(missing)} widgets of the tree are not in the full scan, which '
+                         f'{left_out or "skipped nothing"}; if the game was not paused, pause it and '
+                         'start again, and otherwise the scan skips memory the game now uses')
 
 
 def visibility_fields(pid: int, fields: Fields, root: int, key: int = 112,
@@ -1184,9 +1202,10 @@ def fields_for(pid: int) -> tuple[Fields, str]:
                        'it is working out the new places, which takes a few minutes')
     else:
         reason = 'no derivation for this version of the game'
-    fields = derive_all(pid)
+    fields, scanned = derive_all(pid)
     fields = position_from_tree(pid, fields)
-    root, _ = quick_root(fields, pid)
+    root, nodes = quick_root(fields, pid)
+    all_in_scan(nodes, scanned, fields.get('skipped', ''))
     fields, note = _with_visibility(pid, fields, root)
     store(fields)
     use_fields(fields)

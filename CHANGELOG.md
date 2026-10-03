@@ -5,6 +5,7 @@ Outcomes, newest first. No release yet.
 ## 2026-10-04
 - A start finds the widget tree in 2 to 10 seconds instead of 80: `scan` and `find` skip the DLL's own thread stacks, where `vtables` left a copy of its list that came back as false widgets, and write-combined memory shared with the graphics card, which held no widget and was slow to read. Both are reported, and the channel test fails on either.
 - What a search skipped is reported in regions and bytes, and every search that finds nothing says it, so "not found" never reads as "not there". Read from outside on two saves, the skipped memory held no vtable of any of the executable's classes, so no object a search looks for.
+- Every new derivation checks that each widget of the tree is in the full scan; should a patch ever put widgets in skipped memory, the derivation stops there and says what was skipped.
 - `restore_launcher` acts only when started: loading it to check imports had copied the 1.19 launcher settings over those of 1.20.
 
 ## 2026-10-03
