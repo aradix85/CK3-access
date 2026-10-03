@@ -10,7 +10,7 @@ few seconds, and a cached copy would be a file that quietly disagrees with the p
 after a patch or a new mod. Derive rather than write down.
 
 The three constants below carry decisions and each was measured; the counting rules are in
-`brief\\meetwerk.md`, where a province lies. Distance is deliberately approximate: for playing, the
+`brief\\kaart.md`, where a province lies. Distance is deliberately approximate: for playing, the
 difference that matters is between the next county, the far side of your realm and the far side of
 the world.
 """

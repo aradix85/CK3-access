@@ -38,9 +38,7 @@
    "*.gui"
   ],
   "counting_rule": "files with the gui suffix under game\\gui, all subfolders included",
-  "quoted_in": [
-   "brief\\stand.md"
-  ]
+  "quoted_in": ["brief\\gui.md"]
  },
  {
   "name": "gui files, engine layer",
@@ -51,9 +49,7 @@
    "*.gui"
   ],
   "counting_rule": "the same under clausewitz\\gui",
-  "quoted_in": [
-   "brief\\stand.md"
-  ]
+  "quoted_in": ["brief\\gui.md", "brief\\spelmodel.md"]
  },
  {
   "name": "gui files, jomini layer",
@@ -64,9 +60,7 @@
    "*.gui"
   ],
   "counting_rule": "the same under the whole jomini folder: 91 in jomini\\gui plus the encyclopedia in jomini\\jomini\\gui, which a count on jomini\\gui alone would miss",
-  "quoted_in": [
-   "brief\\stand.md"
-  ]
+  "quoted_in": ["brief\\gui.md"]
  },
  {
   "name": "gui files in the game folder, total",
@@ -237,7 +231,7 @@
   "measure": "unseen_texts",
   "arguments": ["texts"],
   "counting_rule": "every widget in a harvested record whose text is not empty once the game's markup is stripped, summed over the records that hold a window; refusal records carry a reason and no tree and do not count. Since 21 September 2026 the harvest holds the encyclopedia, 2344 texts in one window, and the windows harvested that day along a new shortcut or a chain",
-  "quoted_in": ["brief\\stand.md"]
+  "quoted_in": ["brief\\presentatie.md"]
  },
  {
   "name": "harvested texts that are in the tree but not on the screen",
@@ -245,7 +239,7 @@
   "measure": "unseen_texts",
   "arguments": ["all"],
   "counting_rule": "of those texts, the ones the reading rule skips: the rectangle falls outside the drawing area of that record, or it is clipped inside its scroll area, or an ancestor sits at alpha zero, or an ancestor carries 0x08 in its state byte - the game hiding it, which records carry since 20 September 2026. The union is smaller than the sum because a text can fail two at once. 172 of 1753 on 20 September 2026; on 21 September the rule gained the hidden state (563 texts) and the harvest the encyclopedia, most of whose list sits clipped",
-  "quoted_in": ["brief\\stand.md"]
+  "quoted_in": ["brief\\presentatie.md"]
  },
  {
   "name": "files that go into the repo",
@@ -262,10 +256,7 @@
    "windows"
   ],
   "counting_rule": "records in harvest\\ with opened true: 174 opened by the console, 17 by a shortcut, 8 by a click and 6 by a chain, counted 21 September 2026. The 15 that refuse carry a reason and no tree, and toolbars_window is the baseline state and is never harvested",
-  "quoted_in": [
-   "README.md",
-   "brief\\stand.md"
-  ]
+  "quoted_in": ["README.md", "brief\\vensters.md"]
  },
  {
   "name": "text boxes in the harvest round",
@@ -323,9 +314,7 @@
    true
   ],
   "counting_rule": "the same with the enabled mods on top. None are enabled since 1 October 2026, so this equals the vanilla count; until that day five mods added 69 files and replaced no vanilla virtual path",
-  "quoted_in": [
-   "brief\\stand.md"
-  ]
+  "quoted_in": ["brief\\gui.md"]
  },
  {
   "name": "global gui templates",
@@ -335,9 +324,7 @@
    "global"
   ],
   "counting_rule": "distinct names declared as `type` or `template` in the merged set, later declarations winning; both keywords reach across files, which is why they share one table",
-  "quoted_in": [
-   "brief\\stand.md"
-  ]
+  "quoted_in": ["brief\\gui.md"]
  },
  {
   "name": "file-local gui templates",
@@ -353,9 +340,7 @@
   "claimed": 282,
   "measure": "gui_windows",
   "counting_rule": "three shapes, one entry per name: a `window = { name = ... }` block at any depth; a block whose type resolves through its inheritance chain to `window` and which carries a name, at any depth; and a type definition that inherits from `window` and carries the name itself. **Do not add shapes here; use `windowmap.unmapped`**, which asks the running game instead: the engine builds every window up front, so the live tree is the whole list. windows.json holds the 265 of 1.19.0.6, checked that way on 20 September 2026; 1.20.0.2 added 18 and removed faith_creation_window, and the map has not been rebuilt for it yet",
-  "quoted_in": [
-   "brief\\stand.md"
-  ]
+  "quoted_in": ["brief\\patch.md", "brief\\vensters.md"]
  },
  {
   "name": "harvested widgets that carry text",
@@ -366,9 +351,7 @@
    "texts"
   ],
   "counting_rule": "every widget with a non-empty text in the 203 harvested trees, counted while walking, and the walk asserts it saw all 74548 widgets of every record; a live subtree whose parent found no source used to be skipped, which shrank this denominator by dropping exactly the hard cases",
-  "quoted_in": [
-   "brief\\stand.md"
-  ]
+  "quoted_in": ["brief\\gui.md"]
  },
  {
   "name": "harvested texts paired with a place in a gui file",
@@ -447,9 +430,7 @@
    "keys"
   ],
   "counting_rule": "top-level keys in common/culture/cultures, game folder first and any enabled mods after it in load order, a file replacing the one at the same name. No mods are enabled since 1 October 2026; with the five of before, RICE brought most of 463",
-  "quoted_in": [
-   "brief\\stand.md"
-  ]
+  "quoted_in": ["brief\\patch.md", "brief\\spelmodel.md"]
  },
  {
   "name": "cultures that also have a name in the localization",
@@ -470,9 +451,7 @@
    "keys"
   ],
   "counting_rule": "since 1.20.0.2 a faith is a top-level key in common/religion/faith_types; mods written for 1.19 still hang theirs inside a religion under `faiths`, in common/religion/religion_types, and both places are counted, so a tester's mods are read too. No mods are enabled since 1 October 2026",
-  "quoted_in": [
-   "brief\\stand.md"
-  ]
+  "quoted_in": ["brief\\patch.md", "brief\\spelmodel.md"]
  },
  {
   "name": "cultures whose number the file order predicts",
@@ -494,9 +473,7 @@
    "unexplained"
   ],
   "counting_rule": "of the 1754 harvested texts, the three kinds the files cannot foretell: the gui file says the code sets it, or the widget has a place on disk but no text source, or the alignment finds it no place at all",
-  "quoted_in": [
-   "brief\\stand.md"
-  ]
+  "quoted_in": ["brief\\gui.md"]
  },
  {
   "name": "unexplained texts that inherit a data context",
@@ -507,9 +484,7 @@
    "unexplained with data context"
   ],
   "counting_rule": "of those 631, the ones whose ancestors carry a datacontext, so that what the text is about is known even though where it comes from is not",
-  "quoted_in": [
-   "brief\\stand.md"
-  ]
+  "quoted_in": ["brief\\gui.md"]
  },
  {
   "name": "unexplained texts in the developers' own windows",
@@ -520,9 +495,7 @@
    "unexplained in developer windows"
   ],
   "counting_rule": "of those 631, the ones in a window whose gui file sits under gui/debug/ or whose name carries the word debug; fourteen windows, and nobody reads them",
-  "quoted_in": [
-   "brief\\stand.md"
-  ]
+  "quoted_in": ["brief\\gui.md"]
  },
  {
   "name": "unexplained texts in windows a player opens",
@@ -533,9 +506,7 @@
    "unexplained in player windows"
   ],
   "counting_rule": "the 631 minus the developers' own windows, over 126 windows",
-  "quoted_in": [
-   "brief\\stand.md"
-  ]
+  "quoted_in": ["brief\\gui.md"]
  },
  {
   "name": "unexplained bare numbers in windows a player opens",
@@ -546,10 +517,7 @@
    "unexplained bare number in player windows"
   ],
   "counting_rule": "of those 470, the texts that are only digits and the punctuation a number carries, so that no word says what they are; two war scores in the ledger and two in the war overview",
-  "quoted_in": [
-   "brief\\stand.md",
-   "brief\\taken.md"
-  ]
+  "quoted_in": ["brief\\gui.md"]
  },
  {
   "name": "provinces that appear on the map image",
@@ -559,9 +527,7 @@
    "provinces"
   ],
   "counting_rule": "distinct province numbers whose colour occurs in map_data\\provinces.png; the definitions list more, and the difference is provinces no pixel carries",
-  "quoted_in": [
-   "brief\\meetwerk.md"
-  ]
+  "quoted_in": ["brief\\kaart.md"]
  },
  {
   "name": "counties that hold land",
@@ -571,9 +537,7 @@
    "counties"
   ],
   "counting_rule": "counties in landed_titles with at least one barony that names a province, mods merged in load order",
-  "quoted_in": [
-   "brief\\meetwerk.md"
-  ]
+  "quoted_in": ["brief\\kaart.md"]
  },
  {
   "name": "counties that have a neighbour",
@@ -583,9 +547,7 @@
    "neighboured"
   ],
   "counting_rule": "counties with at least one other county touching them, over the touching provinces plus the special links in adjacencies.csv; lower than the counties with land because an island county can have none",
-  "quoted_in": [
-   "brief\\meetwerk.md"
-  ]
+  "quoted_in": ["brief\\kaart.md"]
  },
  {
   "name": "provinces that touch on the map image",
@@ -613,9 +575,7 @@
    "capitals"
   ],
   "counting_rule": "titles carrying a capital line; every one of those capitals is itself a county, which is what makes the step from a title to a place one hop",
-  "quoted_in": [
-   "brief\\meetwerk.md"
-  ]
+  "quoted_in": ["brief\\kaart.md"]
  },
  {
   "name": "titles that resolve to a county",
@@ -670,10 +630,7 @@
    "declared"
   ],
   "counting_rule": "named bindings for which at least one widget in the merged gui set carries shortcut = \"<name>\", every shortcut line of a block counted - a widget may carry several, and counting only the first gave 173 until 2 October 2026. Of the rest most are declared under a name the gui computes, such as tab_ plus the row number, which this does not count; eight are declared nowhere",
-  "quoted_in": [
-   "brief\\sneltoetsen.md",
-   "CHANGELOG.md"
-  ]
+  "quoted_in": ["CHANGELOG.md", "brief\\invoer.md"]
  },
  {
   "name": "shortcuts that resolve to a sentence on disk",
@@ -683,9 +640,7 @@
    "worded"
   ],
   "counting_rule": "of the declared ones, those whose text or tooltip key is in the merged localisation. The difference is texts that are a data function and therefore need the running game, such as [GetPlayer.Custom(...)]",
-  "quoted_in": [
-   "brief\\sneltoetsen.md"
-  ]
+  "quoted_in": ["brief\\invoer.md"]
  },
  {
   "name": "shortcuts declared only under a computed name",
@@ -695,10 +650,7 @@
    "computed"
   ],
   "counting_rule": "named bindings no widget declares literally, but which a computed shortcut in the merged gui set names: one of its quoted pieces is the name, or its prefix with only digits after - [Concatenate('event_option_', index + 1)] covers event_option_1 to event_option_14. That a window ever has that many rows is not part of the count",
-  "quoted_in": [
-   "brief\\sneltoetsen.md",
-   "CHANGELOG.md"
-  ]
+  "quoted_in": ["CHANGELOG.md", "brief\\invoer.md"]
  },
  {
   "name": "shortcuts declared nowhere",
