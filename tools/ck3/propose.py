@@ -73,16 +73,15 @@ def draft(window, table, local, known, localization):
     tree, _ = guimap.window(window, table, local, known)
     found = texts(tree)
 
-    lines = ['# A draft for %s, written from the gui files. None of it is a judgement yet.' % window,
+    lines = [f'# A draft for {window}, written from the gui files. None of it is a judgement yet.',
              '#',
-             '# %d texts, %d of them rows of a list. The order is the order of the gui file; the'
-             % (len(found), sum(1 for one in found if one['list'])),
+             f"# {len(found)} texts, {int(sum(1 for one in found if one['list']))} of them rows of a list. The order is the order of the gui file; the",
              '# comment behind a line is what it will say. Cut what does not matter, move what',
              '# matters up, and say it in your own words where the file has none.',
              '',
              'screen = {',
-             '\tname = "%s"' % window,
-             '\twindow = "%s"' % window,
+             f'\tname = "{window}"',
+             f'\twindow = "{window}"',
              '']
 
     loose = [one for one in found if not one['list']]
@@ -90,19 +89,19 @@ def draft(window, table, local, known, localization):
         lines.append('\torder = {')
         for one in loose:
             subject = one['context'][-1] if one['context'] else ''
-            lines.append('\t\tread = "%s"%s' % (one['text'], comment(says(one['text'], localization),
+            lines.append('\t\tread = "{}"{}'.format(one['text'], comment(says(one['text'], localization),
                                                                     subject)))
         lines += ['\t}', '']
 
     for model in ordered_models(found):
         rows = [one for one in found if one['list'] == model]
         lines += ['\tlist = {',
-                  '\t\tof = "%s"' % model,
+                  f'\t\tof = "{model}"',
                   '\t\tcount = before',
                   '\t\tclose = after',
                   '\t\titem = {']
         for one in rows:
-            lines.append('\t\t\tread = "%s"%s' % (one['text'],
+            lines.append('\t\t\tread = "{}"{}'.format(one['text'],
                                                   comment(says(one['text'], localization), '')))
         lines += ['\t\t}', '\t}', '']
     lines.append('}')
@@ -144,10 +143,9 @@ def main():
         if not found:
             empty.append(window)
 
-    print('%d windows drafted into %s.' % (len(known), folder))
-    print('%d texts in all, %d of them rows of a list.' % (total, listed))
-    print('%d windows hold no text at all on disk: %s'
-          % (len(empty), ', '.join(empty) if len(empty) < 12 else ', '.join(empty[:12]) + ' ...'))
+    print(f'{len(known)} windows drafted into {folder}.')
+    print(f'{int(total)} texts in all, {int(listed)} of them rows of a list.')
+    print(f"{len(empty)} windows hold no text at all on disk: {', '.join(empty) if len(empty) < 12 else ', '.join(empty[:12]) + ' ...'}")
 
 
 if __name__ == '__main__':

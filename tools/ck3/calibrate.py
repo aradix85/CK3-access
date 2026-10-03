@@ -21,10 +21,8 @@ import glob
 import os
 import sys
 
-from tools.ck3 import derive
-from tools.ck3 import model
-from tools.ck3 import savegame
 from tools import terminal
+from tools.ck3 import derive, model, savegame
 
 PROJECT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -47,7 +45,7 @@ def save_named(save=None):
     matches = [p for p in glob.glob(os.path.join(savegame.SAVE_DIR, '*.ck3'))
                if save.lower() in os.path.basename(p).lower()]
     if len(matches) != 1:
-        raise SystemExit('%d saves carry %r in their name, so it says nothing' % (len(matches), save))
+        raise SystemExit(f'{len(matches)} saves carry {save!r} in their name, so it says nothing')
     return matches[0]
 
 
@@ -88,17 +86,15 @@ def test_ocr(pid, nodes, addresses):
     line overlaps it carrying the same text. That is a different engine with its own detection, and
     therefore an independent witness. Rejected boxes are reported, not hidden.
     """
-    from tools import ocr
-    from tools import boxreader
-    from tools import windowgrab
-    screenshot, box_width, high = windowgrab.grab(pid)
+    from tools import boxreader, ocr, windowgrab
+    screenshot, _box_width, _high = windowgrab.grab(pid)
     lines = ocr.read_image(screenshot)
 
     ok, total, covered = 0, 0, 0
     misses: list[str] = []
     scales = derive.scales_for(list(nodes))
     for address in addresses:
-        vtable, dx, dy, width, height, parent, name, text = nodes[address]
+        _vtable, _dx, _dy, width, height, _parent, _name, text = nodes[address]
         if width < 4 or height < 4 or not derive.is_visible(nodes, address):
             continue
         x, y = derive.screen_pos(nodes, address, scales)
@@ -116,48 +112,45 @@ def test_ocr(pid, nodes, addresses):
         if _flat(read_text) == _flat(truth):
             ok += 1
         elif len(misses) < 5:
-            misses.append('%r read as %r (confidence %.2f)' % (truth, read_text, confidence))
+            misses.append(f'{truth!r} read as {read_text!r} (confidence {confidence:.2f})')
     return ok, total, covered, misses
 
 
 def main(pid, count=400, *, save=None):
     path = save_named(save)
-    print('answer key: %s' % os.path.basename(path))
+    print(f'answer key: {os.path.basename(path)}')
 
     fields = derive.fields_for(pid)[0]
     derive.configure_channel(fields)
     root = derive.quick_root(fields, pid)[0]
     nodes = derive.widgets(root)
-    print('widget tree: %d nodes' % len(nodes))
+    print(f'widget tree: {len(nodes)} nodes')
 
     ok, total, covered, misses = test_ocr(pid, nodes, text_boxes(nodes))
-    print('recognition against widget tree: %d of %d confirmed boxes '
-          '(%d rejected: covered or not drawn)' % (ok, total, covered))
+    print(f'recognition against widget tree: {int(ok)} of {int(total)} confirmed boxes '
+          f'({int(covered)} rejected: covered or not drawn)')
     for line in misses:
-        print('   %s' % line)
+        print(f'   {line}')
 
     counters, read, wrong, misses, places = model.compare(pid, path, count)
     blocks = places // 1024
-    print('game model: %d characters read across %d blocks, %d slots reused or unreadable'
-          % (read, blocks, wrong))
+    print(f'game model: {int(read)} characters read across {int(blocks)} blocks, {int(wrong)} slots reused or unreadable')
     for field, (g, t) in sorted(counters.items()):
-        print('   %-24s %d of %d%s' % (field, g, t,
-                                       '   recomputed on load' if field in model.RECOMPUTED_ON_LOAD
-                                       else ''))
+        print(f"   {field!s:<24} {int(g)} of {int(t)}{'   recomputed on load' if field in model.RECOMPUTED_ON_LOAD else ''}")
     for line in misses:
-        print('   %s' % line)
+        print(f'   {line}')
     # The verdict, because that is the whole point after a patch: which field moved? A field that
     # is recomputed around loading is called out separately - there the likely fault is the answer
     # key rather than the offset, and saying so is what stops the next session hunting a ghost.
-    shifted = ['%s (%d wrong)' % (f, t - g) for f, (g, t) in sorted(counters.items())
+    shifted = [f'{f} ({int(t - g)} wrong)' for f, (g, t) in sorted(counters.items())
                if g < t and f not in model.RECOMPUTED_ON_LOAD]
-    stale = ['%s (%d wrong)' % (f, t - g) for f, (g, t) in sorted(counters.items())
+    stale = [f'{f} ({int(t - g)} wrong)' for f, (g, t) in sorted(counters.items())
              if g < t and f in model.RECOMPUTED_ON_LOAD]
     print('   %s' % ('fields that disagree with the save: ' + ', '.join(shifted) if shifted
                      else 'every field that survives a load agrees with the save'))
     if stale:
         print('   these are recomputed around loading, so this points at the answer key rather '
-              'than at a moved field: %s' % ', '.join(stale))
+              'than at a moved field: {}'.format(', '.join(stale)))
         print('   write a save from the state now loaded and hand that one in instead')
     defects = model.check(pid)
     print('   the derivation itself %s'

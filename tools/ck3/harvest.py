@@ -40,18 +40,13 @@ window is not on disk, reached by pressing a button inside a window this round c
 import ctypes
 import json
 import os
+import pathlib
 import re
 import sys
 import time
 
-from tools.ck3 import channel
-from tools.ck3 import derive
-from tools.ck3 import model
-from tools import ocr
-from tools import paths
-from tools import windowgrab
-from tools.ck3 import windowmap
-from tools import terminal
+from tools import ocr, paths, terminal, windowgrab
+from tools.ck3 import channel, derive, model, windowmap
 
 OUT = os.path.join(paths.PROJECT, 'harvest')
 MAP = os.path.join(paths.REPORTS, 'windows.json')
@@ -154,12 +149,12 @@ def widget_record(nodes, address, depth, index, scales, classes, flags, alphas):
     `index` is the widget's place among its parent's children, written down rather than left to the
     order of the records, so that a reader of this file cannot lose it by sorting.
     """
-    vtable, x, y, width, height, parent, name, text = nodes[address]
+    _vtable, x, y, width, height, parent, name, text = nodes[address]
     screen_x, screen_y = derive.screen_pos(nodes, address, scales)
     drawn_width, drawn_height = derive.screen_size(nodes, address, scales)
     own, above = scales.get(address, (1.0, 1.0))
     kind = classes.get(address)
-    return {'address': '%x' % address, 'parent': '%x' % parent, 'depth': depth, 'index': index,
+    return {'address': f'{address:x}', 'parent': f'{parent:x}', 'depth': depth, 'index': index,
             'class': kind, 'name': name, 'text': text if kind in TEXT_CLASSES else None,
             'own_rect': [x, y, width, height],
             'screen_rect': [screen_x, screen_y, drawn_width, drawn_height],
@@ -268,7 +263,7 @@ def click_routes(windows):
     in, and that window is opened first, by its shortcut.
     """
     out = {}
-    for row in json.load(open(OPENERS, encoding='utf-8'))['buttons']:
+    for row in json.loads(pathlib.Path(OPENERS).read_text(encoding='utf-8'))['buttons']:
         for name in row.get('opens') or ():
             if name in out or 'point' not in row:
                 continue
@@ -337,7 +332,7 @@ def open_window(game, name, row, baseline):
             classes = derive.class_map(game.pid, {a: k[0] for a, k in nodes.items()})
             refused = quit_game.press(nodes, derive.scales_for(list(nodes)), classes, row['button'])
             if refused:
-                print('   %s: %s' % (name, refused))
+                print(f'   {name}: {refused}')
                 continue
             for _ in range(6):
                 time.sleep(1.0)
@@ -345,7 +340,7 @@ def open_window(game, name, row, baseline):
                 if name in drawn - baseline:
                     return nodes, attempt
         else:
-            game.command('GUI.CreateWidget %s %s' % (row['file'], name))
+            game.command('GUI.CreateWidget {} {}'.format(row['file'], name))
             for _ in range(5):
                 time.sleep(1.0)
                 nodes, _, drawn = game.state()
@@ -393,10 +388,9 @@ def drawn_one(nodes, candidates, name):
     if len(drawn) == 1:
         return drawn[0]
     if not drawn:
-        raise SystemExit('%s: %d objects carry this name and none of them is drawn'
-                         % (name, len(candidates)))
-    raise SystemExit('%s: %d objects carry this name and %d of them are drawn, so which one holds '
-                     'the content cannot be decided here' % (name, len(candidates), len(drawn)))
+        raise SystemExit(f'{name}: {len(candidates)} objects carry this name and none of them is drawn')
+    raise SystemExit(f'{name}: {len(candidates)} objects carry this name and {len(drawn)} of them are drawn, so which one holds '
+                     'the content cannot be decided here')
 
 
 def record_window(game, name, nodes, header, route, attempts, file, started):
@@ -418,7 +412,7 @@ def record_window(game, name, nodes, header, route, attempts, file, started):
     record = dict(header)
     record.update({
         'window': name, 'opened': True, 'attempts': attempts, 'file': file, 'route': route,
-        'address': '%x' % address, 'widgets': len(family),
+        'address': f'{address:x}', 'widgets': len(family),
         'tree_size': len(nodes), 'seconds': round(time.time() - started, 1)})
     record['tree'] = [widget_record(nodes, a, d, i, scales, classes, flags, alphas)
                       for a, d, i in family]
@@ -448,8 +442,7 @@ def harvest(game, name, row, baseline, header):
         # window after it, and if it cannot be put back that is the round's stop condition.
         came_back = close_window(game, row, baseline)
         return ({'window': name, 'opened': False, 'state_returned': came_back,
-                 'reason': 'did not open in %d %s'
-                           % (attempts, 'try' if attempts == 1 else 'tries')},
+                 'reason': f"did not open in {int(attempts)} {'try' if attempts == 1 else 'tries'}"},
                 'not opened' if came_back else 'state did not come back')
     route = ('shortcut ' + row['shortcut'] if row.get('shortcut')
              else 'click ' + row['button'] if row.get('click') else 'GUI.CreateWidget')
@@ -463,8 +456,7 @@ def harvest(game, name, row, baseline, header):
 def stop_checks(pid, player, player_name, before):
     """The three conditions asked before every window: memory, the channel, and the player."""
     if free_memory() < FREE_MEMORY_FLOOR:
-        raise SystemExit('stopping: %.1f GB free, below the floor of %.1f'
-                         % (free_memory(), FREE_MEMORY_FLOOR))
+        raise SystemExit(f'stopping: {free_memory():.1f} GB free, below the floor of {FREE_MEMORY_FLOOR:.1f}')
     if 'channel' not in channel.ask('hello'):
         raise SystemExit('stopping: the channel no longer answers')
     # The fifth stop condition. Cheap enough to ask every window - six four-byte reads in one
@@ -473,10 +465,9 @@ def stop_checks(pid, player, player_name, before):
     # and nothing said so.
     now, now_name = model.player(pid)
     if now != player:
-        raise SystemExit('stopping before %s: the player is no longer %s (%d) but %s (%d). '
+        raise SystemExit(f'stopping before {before}: the player is no longer {player_name} ({int(player)}) but {now_name} ({int(now)}). '
                          'Everything after this would be measured on somebody else\'s game; '
-                         'reload the state and start the round again.'
-                         % (before, player_name, player, now_name, now))
+                         'reload the state and start the round again.')
 
 
 def chain_step(game, route, source_row, windows, baseline, header, tables):
@@ -486,16 +477,16 @@ def chain_step(game, route, source_row, windows, baseline, header, tables):
     For a view whose name is no window name the press is the measurement: whichever single window
     comes up is the window the engine puts behind that view, and the record says so under `view`.
     """
-    from tools.ck3 import openers                      # openers imports this module
+    from tools.ck3 import openers  # openers imports this module
     openers.game_classes = game.window_classes
     started = time.time()
     source = route['source']
     back = {'click': True}              # close on Escape until the baseline is back
     nodes, attempts = open_window(game, source, source_row, baseline)
     if nodes is None:
-        return None, ('source %s did not open' % source
+        return None, (f'source {source} did not open'
                       if close_window(game, back, baseline) else 'state did not come back')
-    spots, live, acting, nodes, scales, classes = openers.spots_for_goal(
+    spots, live, acting, nodes, _scales, _classes = openers.spots_for_goal(
         game, game.pid, source, route['goal'], tables)
     buttons = openers.clickable_map(live, acting)
     usable = [(s, openers.reachable_point(buttons, s['address'], s['rect']))
@@ -503,7 +494,7 @@ def chain_step(game, route, source_row, windows, baseline, header, tables):
     usable = [(s, p) for s, p in usable if p is not None]
     if not usable:
         why = sorted({s['why_not'] or 'covered everywhere' for s in spots})
-        reason = 'nothing in %s can be pressed for it: %s' % (
+        reason = 'nothing in {} can be pressed for it: {}'.format(
             source, ', '.join(why) or 'no live widget carries the call')
         return None, reason if close_window(game, back, baseline) else 'state did not come back'
     spot, point = usable[0]
@@ -521,7 +512,7 @@ def chain_step(game, route, source_row, windows, baseline, header, tables):
             return None, (refused if close_window(game, back, baseline)
                           else 'state did not come back')
     else:
-        channel.ask('mouse %d %d 1' % point)
+        channel.ask(f'mouse {int(point[0])} {int(point[1])} 1')
     opened = set()
     for _ in range(6):
         time.sleep(1.0)
@@ -537,10 +528,10 @@ def chain_step(game, route, source_row, windows, baseline, header, tables):
     else:
         names = [route['target']] if route['target'] in opened else []
     if not names:
-        reason = 'pressing %s in %s brought up %s' % (
+        reason = 'pressing {} in {} brought up {}'.format(
             spot['name'] or spot['class'], source, ', '.join(sorted(opened)) or 'nothing')
         return None, reason if close_window(game, back, baseline) else 'state did not come back'
-    route_text = 'chain %s in %s' % (spot['name'] or spot['class'], source)
+    route_text = 'chain {} in {}'.format(spot['name'] or spot['class'], source)
     records = []
     for name in names:
         record = record_window(game, name, nodes, header, route_text, attempts,
@@ -570,7 +561,7 @@ def chain_round(game, pid, windows, wanted, baseline, header, player, player_nam
     routes = openers.chain_routes(set(direct), tables)
     if wanted:
         routes = [r for r in routes if (r['target'] or r['view']) in wanted]
-    aside = os.path.join(paths.PROJECT, 'harvest-%s-console-replaced' % time.strftime('%Y-%m-%d'))
+    aside = os.path.join(paths.PROJECT, 'harvest-{}-console-replaced'.format(time.strftime('%Y-%m-%d')))
 
     def player_record(name):
         path = os.path.join(OUT, name + '.json')
@@ -590,7 +581,7 @@ def chain_round(game, pid, windows, wanted, baseline, header, player, player_nam
                                          baseline, header, tables)
             if reason == 'state did not come back' or records is not None:
                 break
-            reasons.append('%s: %s' % (source, reason))
+            reasons.append(f'{source}: {reason}')
         if records is None and reason != 'state did not come back':
             reason = '; '.join(reasons)
         said = []
@@ -601,20 +592,17 @@ def chain_round(game, pid, windows, wanted, baseline, header, player, player_nam
                 if os.path.exists(target):
                     os.makedirs(aside, exist_ok=True)
                     os.replace(target, os.path.join(aside, record['window'] + '.json'))
-                json.dump(record, open(target, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
+                pathlib.Path(target).write_text(json.dumps(record, ensure_ascii=False, indent=1), encoding='utf-8')
             done += not kept
             confirmed_only += kept
-            said.append('%s, which already has a player record; that one is kept' % record['window']
-                        if kept else '%s: %d widgets, %d/%d text boxes confirmed, %.0fs' % (
-                            record['window'], record['widgets'], record['confirmed'],
-                            record['boxes'], record['seconds']))
+            said.append('{}, which already has a player record; that one is kept'.format(record['window'])
+                        if kept else f"{record['window']}: {int(record['widgets'])} widgets, {int(record['confirmed'])}/{int(record['boxes'])} text boxes confirmed, {record['seconds']:.0f}s")
         if reason == 'state did not come back':
-            raise SystemExit('stopping after %s: %s' % (label, reason))
+            raise SystemExit(f'stopping after {label}: {reason}')
         failed += records is None
-        print('%3d/%d %-34s %s' % (number, len(routes), label,
-                                   reason if records is None else '; '.join(said)))
-    print('chain routes tried %d: recorded %d, confirmed a window that already had a record %d, '
-          'not reached %d' % (done + confirmed_only + failed, done, confirmed_only, failed))
+        print(f"{int(number):3d}/{len(routes)} {label!s:<34} {reason if records is None else '; '.join(said)}")
+    print(f'chain routes tried {int(done + confirmed_only + failed)}: recorded {int(done)}, confirmed a window that already had a record {int(confirmed_only)}, '
+          f'not reached {int(failed)}')
 
 
 def main():
@@ -626,14 +614,13 @@ def main():
         raise SystemExit('--click and --chain are two rounds; run them one after the other')
     wanted = [a for a in arguments if not a.startswith('--')]
     os.makedirs(OUT, exist_ok=True)
-    windows = json.load(open(MAP, encoding='utf-8'))['windows']
+    windows = json.loads(pathlib.Path(MAP).read_text(encoding='utf-8'))['windows']
     if by_click:
         windows = click_routes(windows)
     names = [] if by_chain else (wanted or sorted(windows))
     unknown = [n for n in names if n not in windows]
     if unknown:
-        raise SystemExit('no %s route for: %s'
-                         % ('click' if by_click else 'phase 0', ', '.join(unknown)))
+        raise SystemExit('no {} route for: {}'.format('click' if by_click else 'phase 0', ', '.join(unknown)))
 
     game = windowmap.Game(pid)
     if not paused(game):
@@ -655,22 +642,18 @@ def main():
               'game_date': game_date(nodes), 'baseline': sorted(baseline),
               'player': player, 'player_name': player_name,
               'fields': {k: v for k, v in game.fields.items() if isinstance(v, int)}}
-    print('baseline %s, date %s, player %s (%d), free memory %.1f GB'
-          % (sorted(baseline) or 'nothing drawn', header['game_date'], player_name, player,
-             free_memory()))
+    print(f"baseline {sorted(baseline) or 'nothing drawn'}, date {header['game_date']}, player {player_name} ({int(player)}), free memory {free_memory():.1f} GB")
     if by_chain:
         if set(baseline) - ALWAYS_DRAWN:
-            raise SystemExit('these are already open before the round starts: %s. Close them first.'
-                             % ', '.join(sorted(set(baseline) - ALWAYS_DRAWN)))
+            raise SystemExit('these are already open before the round starts: {}. Close them first.'.format(', '.join(sorted(set(baseline) - ALWAYS_DRAWN))))
         return chain_round(game, pid, windows, wanted, baseline, header, player, player_name)
 
     left_over = [n for n in names if n in baseline and n not in ALWAYS_DRAWN]
     if left_over:
-        raise SystemExit('these are already open before the round starts: %s. A window in the '
+        raise SystemExit('these are already open before the round starts: {}. A window in the '
                          'baseline can never be seen to open, so it would be recorded as a '
                          'failure; and if it is there because an earlier run left it standing, '
-                         'every measurement after it is contaminated. Close it first.'
-                         % ', '.join(left_over))
+                         'every measurement after it is contaminated. Close it first.'.format(', '.join(left_over)))
     names = [n for n in names if n not in ALWAYS_DRAWN]
 
     done = failed = 0
@@ -680,18 +663,16 @@ def main():
             continue
         stop_checks(pid, player, player_name, name)
         record, reason = harvest(game, name, windows[name], baseline, header)
-        json.dump(record, open(target, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
+        pathlib.Path(target).write_text(json.dumps(record, ensure_ascii=False, indent=1), encoding='utf-8')
         if reason == 'state did not come back':
-            raise SystemExit('stopping after %s: %s' % (name, reason))
+            raise SystemExit(f'stopping after {name}: {reason}')
         done += reason is None
         failed += reason is not None
-        print('%3d/%d %-34s %s' % (number, len(names), name,
-                                   reason or '%d widgets, %d recognised lines, %d/%d text boxes '
-                                   'confirmed, %d off screen, %.0fs'
-                                   % (record['widgets'], len(record['recognised']),
-                                      record['confirmed'], record['boxes'],
-                                      record['offscreen'], record['seconds'])))
-    print('harvested %d, failed to open %d, written to %s' % (done, failed, OUT))
+        said = reason or (f"{int(record['widgets'])} widgets, {len(record['recognised'])} recognised lines, "
+                          f"{int(record['confirmed'])}/{int(record['boxes'])} text boxes confirmed, "
+                          f"{int(record['offscreen'])} off screen, {record['seconds']:.0f}s")
+        print(f'{int(number):3d}/{len(names)} {name!s:<34} {said}')
+    print(f'harvested {int(done)}, failed to open {int(failed)}, written to {OUT}')
 
 
 if __name__ == '__main__':

@@ -33,7 +33,7 @@ if __name__ == '__main__':
     crop_box = tuple(int(w) for w in sys.argv[2:6]) if len(sys.argv) >= 6 else None
     path, extent = capture(target, crop_box)
     import os
-    print('%s  %dx%d  %.0f kB' % (path, extent[0], extent[1], os.path.getsize(path) / 1024))
+    print(f'{path}  {int(extent[0])}x{int(extent[1])}  {os.path.getsize(path) / 1024:.0f} kB')
 
 
 def diff(box=None, pause=0.4):

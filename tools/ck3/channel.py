@@ -105,7 +105,7 @@ def _read_exact(file, count, limit):
             break
         data += part
     if len(data) != count:
-        raise OSError('reply arrived half: %d of %d bytes' % (len(data), count))
+        raise OSError(f'reply arrived half: {len(data)} of {int(count)} bytes')
     return data
 
 
@@ -117,7 +117,7 @@ def _read_header(file, limit):
         header += file.read(1)
     parts = header.decode('utf-8', 'replace').strip().split('\t')
     if len(parts) != 2 or parts[0] != 'reply':
-        raise OSError('no usable header received: %r' % header[:40])
+        raise OSError(f'no usable header received: {header[:40]!r}')
     return int(parts[1])
 
 
@@ -146,8 +146,7 @@ def ask(command, timeout=60.0, errors_ok=False):
             if not errors_ok:
                 for line in answer.split('\n'):
                     if line.startswith('error:'):
-                        raise ValueError('%s (command was %d characters: %.60s...)'
-                                         % (line.strip(), len(command), command))
+                        raise ValueError(f'{line.strip()} (command was {len(command)} characters: {command!s:.60}...)')
             return answer
         except OSError:
             close()

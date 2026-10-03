@@ -29,15 +29,8 @@ import re
 import sys
 import time
 
-from tools.ck3 import channel
-from tools.ck3 import derive
-from tools.ck3 import model
-from tools.ck3 import openers
-from tools import paths
-from tools.ck3 import savegame
-from tools.ck3 import vtablemap
-from tools.ck3 import windowmap
-from tools import terminal
+from tools import paths, terminal
+from tools.ck3 import channel, derive, model, openers, savegame, vtablemap, windowmap
 from tools.ck3.quit_game import PAUSE_MENU, look, press
 
 IN_GAME = re.compile(r'\bPaused\b|Domain Holdings|Pinned Characters')
@@ -58,8 +51,7 @@ def _ready(pid):
 
 
 def _screen(pid):
-    from tools import ocr
-    from tools import windowgrab
+    from tools import ocr, windowgrab
     image, _, _ = windowgrab.grab(pid)
     return ocr.read_image(image)
 
@@ -82,7 +74,7 @@ def wait(pid, timeout=900):
         if all(w in words for w in MAIN_MENU):
             return 'menu'
         time.sleep(15)
-    raise SystemExit('no game and no main menu on screen after %d seconds' % timeout)
+    raise SystemExit(f'no game and no main menu on screen after {int(timeout)} seconds')
 
 
 def save(pid, suffix=''):
@@ -97,25 +89,25 @@ def save(pid, suffix=''):
         time.sleep(2.0)
         nodes, scales, drawn, classes = look(root, pid, classes_of_windows)
     if PAUSE_MENU not in drawn:
-        raise SystemExit('the pause menu did not come up; drawn: %s' % ', '.join(sorted(drawn)))
+        raise SystemExit('the pause menu did not come up; drawn: {}'.format(', '.join(sorted(drawn))))
     why = press(nodes, scales, classes, 'save_button')
     if why:
-        raise SystemExit('the pause menu is up, but its save button: %s' % why)
+        raise SystemExit(f'the pause menu is up, but its save button: {why}')
     for _ in range(10):
         time.sleep(1.0)
         nodes, scales, drawn, classes = look(root, pid, classes_of_windows)
         if 'save_game_window' in drawn:
             break
     else:
-        raise SystemExit('the save dialog did not come up; drawn: %s' % ', '.join(sorted(drawn)))
+        raise SystemExit('the save dialog did not come up; drawn: {}'.format(', '.join(sorted(drawn))))
     if suffix:
         why = press(nodes, scales, classes, 'save_name')
         if why:
-            raise SystemExit('the name field: %s' % why)
+            raise SystemExit(f'the name field: {why}')
         time.sleep(0.5)
         channel.ask('sendkey 35')                     # End: a click puts the cursor where it lands
         for ch in suffix:
-            channel.ask('sendchar %d' % ord(ch))
+            channel.ask(f'sendchar {ord(ch)}')
         time.sleep(1.0)
         nodes, scales, drawn, classes = look(root, pid, classes_of_windows)
     named = [derive.strip_markup(k[7]) for k in nodes.values() if k[6] == 'save_name' and k[7]]
@@ -124,17 +116,17 @@ def save(pid, suffix=''):
         channel.ask('sendkey 27')                     # leave the dialog and the pause menu as found
         time.sleep(1.0)
         channel.ask('sendkey 27')
-        raise SystemExit('refusing to save: a save beginning with %r already exists' % name)
+        raise SystemExit(f'refusing to save: a save beginning with {name!r} already exists')
     why = press(nodes, scales, classes, 'save_button')   # the dialog covers the pause menu's own
     if why:
-        raise SystemExit('the save dialog is up, but its save button: %s' % why)
+        raise SystemExit(f'the save dialog is up, but its save button: {why}')
     for _ in range(60):
         time.sleep(1.0)
         new = set(os.listdir(paths.require('SAVES'))) - before
         if new:
             time.sleep(3.0)
             channel.ask('sendkey 27')                 # the pause menu shuts again
-            return sorted(new)[0]
+            return min(new)
     raise SystemExit('no new save appeared within a minute')
 
 
@@ -156,11 +148,11 @@ def console(pid, command):
         raise SystemExit('the console did not open; was the game started with -debug_mode?')
     why = press(nodes, scales, classes, 'console_edit')
     if why:
-        raise SystemExit('the console is open, but its input line: %s' % why)
+        raise SystemExit(f'the console is open, but its input line: {why}')
     for _ in range(60):
         channel.ask('sendkey 8')
     for ch in command:
-        channel.ask('sendchar %d' % ord(ch))
+        channel.ask(f'sendchar {ord(ch)}')
     channel.ask('sendkey 13')
     time.sleep(2.0)
     channel.ask('sendkey 192')
@@ -171,22 +163,22 @@ def _click_text(pid, wanted, tries):
     for _ in range(tries):
         for x, y, w, h, text in _screen(pid):
             if text.strip() == wanted:
-                channel.ask('mouse %d %d 1' % (x + w // 2, y + h // 2))
+                channel.ask(f'mouse {int(x + w // 2)} {int(y + h // 2)} 1')
                 return
         time.sleep(10)
-    raise SystemExit('never saw %r on the screen' % wanted)
+    raise SystemExit(f'never saw {wanted!r} on the screen')
 
 
 def holder(save_name, title):
     """The running number of whoever holds the title, out of a save of that game."""
     text = savegame.unpack(os.path.join(paths.require('SAVES'), save_name))
-    at = text.find('\tkey=%s\n' % title)
+    at = text.find(f'\tkey={title}\n')
     if at < 0:
-        raise SystemExit('%s is not in %s' % (title, save_name))
+        raise SystemExit(f'{title} is not in {save_name}')
     entry = text.rfind('\n', 0, text.rfind('={', 0, at))
     found = re.search(r'\bholder=(\d+)', text[entry:at + 1500])
     if not found:
-        raise SystemExit('%s has no holder in %s' % (title, save_name))
+        raise SystemExit(f'{title} has no holder in {save_name}')
     return int(found.group(1))
 
 
@@ -200,11 +192,11 @@ def new(pid, title):
     time.sleep(20)
     first = save(pid)
     number = holder(first, title)
-    console(pid, 'play %d' % number)
+    console(pid, f'play {int(number)}')
     time.sleep(4.0)
     now = model.player(pid)
     if now[0] != number:
-        raise SystemExit('play %d did not take: the player is %s' % (number, now))
+        raise SystemExit(f'play {int(number)} did not take: the player is {now}')
     return first, save(pid)
 
 

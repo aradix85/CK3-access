@@ -15,11 +15,11 @@ import collections
 import glob
 import json
 import os
+import pathlib
 import re
 
-from tools.ck3 import derive
-from tools.ck3 import guimap
 from tools import paths
+from tools.ck3 import derive, guimap
 
 HARVEST = os.path.join(paths.PROJECT, 'harvest')
 
@@ -193,7 +193,7 @@ def pairs(window, table, local, known, root, record=None, disk_tree=None):
     silently misses.
     """
     if record is None:
-        record = json.load(open(os.path.join(HARVEST, window + '.json'), encoding='utf-8'))
+        record = json.loads(pathlib.Path(os.path.join(HARVEST, window + '.json')).read_text(encoding='utf-8'))
     by_parent, top = live_tree(record)
     if disk_tree is None:
         disk_tree, _ = guimap.window(window, table, local, known)
@@ -326,7 +326,7 @@ def sweep():
     unplaced: collections.Counter[str] = collections.Counter()
     for record_path in sorted(glob.glob(os.path.join(HARVEST, '*.json'))):
         window = os.path.basename(record_path)[:-5]
-        record = json.load(open(record_path, encoding='utf-8'))
+        record = json.loads(pathlib.Path(record_path).read_text(encoding='utf-8'))
         if not record.get('opened') or window not in known:
             continue
         count['windows'] += 1
@@ -369,9 +369,8 @@ def sweep():
                 expected = ICON.sub('', guimap.strip_style(localization[key])).strip()
                 count['plain key agrees' if shown == expected else 'plain key differs'] += 1
         if seen != len(record['tree']):
-            raise AssertionError('%s: the walk saw %d of the %d harvested widgets - a share of '
-                                 'texts is only worth anything against the whole tree'
-                                 % (window, seen, len(record['tree'])))
+            raise AssertionError(f"{window}: the walk saw {int(seen)} of the {len(record['tree'])} harvested widgets - a share of "
+                                 'texts is only worth anything against the whole tree')
     count['data functions together'] = (count['data function']
                                         + count['data function through key'])
     return count, functions, unplaced
@@ -385,11 +384,11 @@ def main():
     # the developers' own windows - the reason for leaving the rest alone - is a number nobody can
     # recompute after the next round, and it quietly ages into a claim no one can check.
     report['no source on disk, per window'] = dict(unplaced.most_common())
-    json.dump(report, open(REPORT, 'w', encoding='utf-8'), indent=1, sort_keys=True)
+    pathlib.Path(REPORT).write_text(json.dumps(report, indent=1, sort_keys=True), encoding='utf-8')
     width = max(len(k) for k in count)
     for key in sorted(count):
-        print('%-*s %6d' % (width, key, count[key]))
-    print('\nwritten to %s' % os.path.relpath(REPORT, paths.PROJECT))
+        print(f'{key!s:<{width}} {int(count[key]):6d}')
+    print(f'\nwritten to {os.path.relpath(REPORT, paths.PROJECT)}')
 
 
 if __name__ == '__main__':

@@ -15,11 +15,7 @@ quietly does the dangerous thing is worse than no tool at all.
 import sys
 import time
 
-from tools.ck3 import channel
-from tools.ck3 import derive
-from tools.ck3 import openers
-from tools.ck3 import vtablemap
-from tools.ck3 import windowmap
+from tools.ck3 import channel, derive, openers, vtablemap, windowmap
 
 PAUSE_MENU, CONFIRMATION = 'ingame_pausemenu', 'ingame_resign_confirmation'
 
@@ -52,18 +48,17 @@ def press(nodes, scales, classes, name):
     """
     found = [a for a, k in nodes.items() if k[6] == name]
     if not found:
-        return 'there is no widget called %s' % name
+        return f'there is no widget called {name}'
     refused = []
     for address in found:
         reason = openers.on_screen(address, nodes, scales, classes)
         if reason is None:
             x, y = derive.screen_pos(nodes, address, scales)
             width, height = derive.screen_size(nodes, address, scales)
-            channel.ask('mouse %d %d 1' % (int(x + width / 2), int(y + height / 2)))
+            channel.ask(f'mouse {int(x + width / 2)} {int(y + height / 2)} 1')
             return None
         refused.append(reason)
-    return '%s is in the tree %d time(s) and none of them can be clicked: %s' % (
-        name, len(found), ', '.join(sorted(set(refused))))
+    return f"{name} is in the tree {len(found)} time(s) and none of them can be clicked: {', '.join(sorted(set(refused)))}"
 
 
 def gone(seconds=40):
@@ -110,7 +105,7 @@ def quit_game(pid):
             raise SystemExit('the pause menu did not come up, so nothing was pressed')
         why = press(nodes, scales, classes, 'exit_button')
         if why:
-            raise SystemExit('the pause menu is up but %s' % why)
+            raise SystemExit(f'the pause menu is up but {why}')
         time.sleep(2.0)
         nodes, scales, drawn, classes = look(root, pid, window_classes)
         if CONFIRMATION not in drawn:
@@ -118,7 +113,7 @@ def quit_game(pid):
                              'Drawn right now: %s' % (', '.join(sorted(drawn)) or 'nothing'))
         why = press(nodes, scales, classes, 'descktop_button')
         if why:
-            raise SystemExit('the confirmation is up but %s' % why)
+            raise SystemExit(f'the confirmation is up but {why}')
         print('pressed exit to desktop')
 
     if gone():

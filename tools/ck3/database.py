@@ -10,11 +10,11 @@ written by the engine and carries all three lists, and it needs no running game.
 for what that measurement showed, including where the file order does hold and where it does not.
 """
 import os
+import pathlib
 import re
 
-from tools.ck3 import guimap
 from tools import paths
-from tools.ck3 import savegame
+from tools.ck3 import guimap, savegame
 
 # Where each database lives, and how deep its entries sit. Since 1.20.0.2 a faith is a top-level key
 # in `religion/faith_types`; before that it hung inside a religion under `faiths`, and mods written for
@@ -66,7 +66,7 @@ def entries(kind):
     out = []
     for branch, inside in PLACES[kind]:
         for layer, virtual, full in files(branch):
-            nodes = guimap.parse(open(full, encoding='utf-8-sig', errors='replace').read())
+            nodes = guimap.parse(pathlib.Path(full).read_text(encoding='utf-8-sig', errors='replace'))
             for entry in nodes:
                 if not entry['key'] or not entry['body']:
                     continue
@@ -91,7 +91,7 @@ def named(kind, localization=None):
     localization = localization if localization is not None else guimap.localization()
     out = {}
     for key, _, _ in entries(kind):
-        for candidate in (key, '%s_%s' % (kind, key), '%s_name' % key):
+        for candidate in (key, f'{kind}_{key}', f'{key}_name'):
             if candidate in localization:
                 out[key] = localization[candidate]
                 break
@@ -101,9 +101,8 @@ def named(kind, localization=None):
 def main():
     localization = guimap.localization()
     text = savegame.unpack(savegame.newest_readable_save())
-    print('%-12s %6s %6s %6s %8s %s' % ('database', 'keys', 'named', 'files', 'numbered',
-                                        'file order agrees'))
-    for kind in PLACES:
+    print(f"{'database'!s:<12} {'keys'!s:>6} {'named'!s:>6} {'files'!s:>6} {'numbered'!s:>8} {'file order agrees'}")
+    for kind, layers in PLACES.items():
         rows = entries(kind)
         keys = [k for k, _, _ in rows]
         names = named(kind, localization)
@@ -112,9 +111,7 @@ def main():
         except KeyError:
             numbers = {}
         agree = sum(1 for n, key in numbers.items() if n < len(keys) and keys[n] == key)
-        print('%-12s %6d %6d %6d %8d %d'
-              % (kind, len(keys), len(names), sum(len(files(b)) for b, _ in PLACES[kind]),
-                 len(numbers), agree))
+        print(f'{kind:<12} {len(keys):6d} {len(names):6d} {sum(len(files(b)) for b, _ in layers):6d} {len(numbers):8d} {agree}')
 
 
 FAITH_ROW = re.compile(r'(\d+)=\{\s*faith_type=\w+\s+tag="([^"]+)"')
@@ -143,12 +140,12 @@ def numbering(kind, text=None):
     if kind in ('faith', 'religion'):
         block = savegame.block(text, 'religion')
         inner = 'religions' if kind == 'religion' else 'faiths'
-        at = block.find('\n\t%s={' % inner)
+        at = block.find(f'\n\t{inner}={{')
         rows = savegame.block(block[at:], inner)
         pattern = (FAITH_ROW if kind == 'faith'
                    else re.compile(r'(\d+)=\{\s*religion_type=\w+\s+tag="([^"]+)"'))
         return {int(n): key for n, key in pattern.findall(rows)}
-    raise KeyError('no numbering known for %r' % kind)
+    raise KeyError(f'no numbering known for {kind!r}')
 
 
 if __name__ == '__main__':

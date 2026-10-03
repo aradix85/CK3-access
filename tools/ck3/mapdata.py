@@ -17,15 +17,14 @@ the world.
 import collections
 import math
 import os
+import pathlib
 import re
 
 import numpy
 from PIL import Image
 
-from tools.ck3 import database
-from tools.ck3 import guimap
-from tools import paths
-from tools import terminal
+from tools import paths, terminal
+from tools.ck3 import database, guimap
 
 Image.MAX_IMAGE_PIXELS = None
 
@@ -54,11 +53,12 @@ def province_colours():
     """Colour -> province number, from `definition.csv`. The colour is the only link between the
     image and a number, so a province whose colour is missing here cannot exist on the map."""
     out = {}
-    for line in open(_map_file('definition.csv'), encoding='utf-8', errors='replace'):
-        parts = line.strip().split(';')
-        if len(parts) >= 5 and parts[0].isdigit() and int(parts[0]) > 0:
-            red, green, blue = (int(p) for p in parts[1:4])
-            out[(red << 16) | (green << 8) | blue] = int(parts[0])
+    with open(_map_file('definition.csv'), encoding='utf-8', errors='replace') as file:
+        for line in file:
+            parts = line.strip().split(';')
+            if len(parts) >= 5 and parts[0].isdigit() and int(parts[0]) > 0:
+                red, green, blue = (int(p) for p in parts[1:4])
+                out[(red << 16) | (green << 8) | blue] = int(parts[0])
     return out
 
 
@@ -78,8 +78,8 @@ def province_image():
     numbers = lookup[packed]
     unknown = int((numbers == 0).sum())
     if unknown:
-        raise AssertionError('%d pixels carry a colour definition.csv does not list; the image '
-                             'and the definitions have come apart' % unknown)
+        raise AssertionError(f'{int(unknown)} pixels carry a colour definition.csv does not list; the image '
+                             'and the definitions have come apart')
     return numbers
 
 
@@ -125,10 +125,11 @@ def touching(numbers=None):
 def special_links():
     """The connections the image cannot show: straits and ferries from `adjacencies.csv`."""
     out = []
-    for line in open(_map_file('adjacencies.csv'), encoding='utf-8', errors='replace'):
-        parts = line.strip().split(';')
-        if len(parts) > 3 and parts[0].isdigit() and parts[1].isdigit():
-            out.append((int(parts[0]), int(parts[1]), parts[2]))
+    with open(_map_file('adjacencies.csv'), encoding='utf-8', errors='replace') as file:
+        for line in file:
+            parts = line.strip().split(';')
+            if len(parts) > 3 and parts[0].isdigit() and parts[1].isdigit():
+                out.append((int(parts[0]), int(parts[1]), parts[2]))
     return out
 
 
@@ -139,10 +140,10 @@ def province_kinds():
     and that is an absence rather than a finding.
     """
     out = {}
-    text = open(_map_file('default.map'), encoding='utf-8', errors='replace').read()
+    text = pathlib.Path(_map_file('default.map')).read_text(encoding='utf-8', errors='replace')
     for kind in ('sea_zones', 'river_provinces', 'lakes', 'impassable_mountains',
                  'impassable_seas', 'wasteland'):
-        for found in re.finditer(r'%s\s*=\s*(RANGE\s*)?\{([^}]*)\}' % kind, text):
+        for found in re.finditer(rf'{kind}\s*=\s*(RANGE\s*)?\{{([^}}]*)\}}', text):
             numbers = [int(n) for n in found.group(2).split() if n.isdigit()]
             if found.group(1) and len(numbers) == 2:
                 numbers = list(range(numbers[0], numbers[1] + 1))
@@ -205,7 +206,7 @@ def titles():
                 walk(block['body'], below)
 
     for _, _, full in database.files('landed_titles'):
-        walk(guimap.parse(open(full, encoding='utf-8-sig', errors='replace').read()), [])
+        walk(guimap.parse(pathlib.Path(full).read_text(encoding='utf-8-sig', errors='replace')), [])
     names = guimap.localization()
     for key, row in out.items():
         row['name'] = names.get(key, key)
@@ -315,52 +316,45 @@ class Map:
         three - but enough for the user to judge the numbers against what she knows."""
         row = self.counties.get(county)
         if not row:
-            return ['%s is not a county in this installation.' % county]
-        lines = ['%s, %d baronies.' % (self.name(county), len(row.get('provinces') or []))]
+            return [f'{county} is not a county in this installation.']
+        lines = [f"{self.name(county)}, {len(row.get('provinces') or [])} baronies."]
         if row.get('chain_names'):
-            lines.append('De jure in %s.' % ', then '.join(reversed(row['chain_names'])))
+            lines.append('De jure in {}.'.format(', then '.join(reversed(row['chain_names']))))
         rings = self.rings(county)
         if rings[0]:
-            lines.append('%d neighbours: %s.'
-                         % (len(rings[0]), ', '.join(sorted(self.name(n) for n in rings[0]))))
-            lines.append('%d counties in the second ring, %d in the third.'
-                         % (len(rings[1]), len(rings[2])))
+            lines.append(f"{len(rings[0])} neighbours: {', '.join(sorted(self.name(n) for n in rings[0]))}.")
+            lines.append(f'{len(rings[1])} counties in the second ring, {len(rings[2])} in the third.')
         else:
             lines.append('No land neighbours.')
         if self.water.get(county):
-            lines.append('Borders %s.'
-                         % ', '.join('%d %s' % (count, kind.replace('_', ' '))
-                                     for kind, count in self.water[county].most_common()))
+            lines.append('Borders {}.'.format(', '.join(f"{int(count)} {kind.replace('_', ' ')}"
+                                     for kind, count in self.water[county].most_common())))
         return lines
 
     def between(self, one, two):
         """The three numbers a player asked for a place wants: how far, how long, which way."""
         far = self.apart(one, two)
         if far is None:
-            return '%s or %s has no place on the map.' % (one, two)
-        pixels, km, days = far
-        return ('%s lies %s of %s, roughly %d kilometres, about %d days of travel.'
-                % (self.name(two), self.bearing(one, two), self.name(one),
-                   round(km, -1), round(days)))
+            return f'{one} or {two} has no place on the map.'
+        _pixels, km, days = far
+        return (f'{self.name(two)} lies {self.bearing(one, two)} of {self.name(one)}, roughly {int(round(km, -1))} kilometres, about {round(days)} days of travel.')
 
 
 def main():
     terminal.utf8()
     world = Map()
-    print('%d provinces on the map, %d counties with land, %d with neighbours, %d titles'
-          % (len(world.centres), len(world.county_of and set(world.county_of.values())),
-             len(world.neighbours), len(world.titles)))
+    print(f'{len(world.centres)} provinces on the map, {len(world.county_of and set(world.county_of.values()))} counties with land, {len(world.neighbours)} with neighbours, {len(world.titles)} titles')
     placed = sum(1 for title in world.titles if world.county_for(title))
-    print('%d of %d titles land on a county' % (placed, len(world.titles)))
+    print(f'{int(placed)} of {len(world.titles)} titles land on a county')
     for title in ('b_praha', 'd_bohemia', 'k_bohemia', 'e_west_slavia', 'k_ottoman'):
-        print('   %s sits on %s' % (title, world.county_for(title)))
+        print(f'   {title} sits on {world.county_for(title)}')
     for county in ('c_praha', 'c_roma'):
         print()
         for line in world.describe(county):
-            print('   %s' % line)
+            print(f'   {line}')
     print()
     for one, two in (('c_praha', 'c_roma'), ('c_praha', 'c_middlesex'), ('c_roma', 'c_toledo')):
-        print('   %s' % world.between(one, two))
+        print(f'   {world.between(one, two)}')
 
 
 if __name__ == '__main__':

@@ -19,16 +19,13 @@ keys every window declares and which of them only change the view.
 import collections
 import json
 import os
+import pathlib
 import re
 import sys
 import time
 
-from tools.ck3 import derive
-from tools.ck3 import vtablemap
-from tools.ck3 import memory
-from tools import paths
-from tools.ck3 import channel
-from tools import terminal
+from tools import paths, terminal
+from tools.ck3 import channel, derive, memory, vtablemap
 
 GAME = paths.GAME
 OUT = os.path.join(paths.REPORTS, 'windows.json')
@@ -91,8 +88,8 @@ def window_bindings():
     through, so a round can press it without changing the game.
     """
     from tools.ck3 import guimap
-    text = open(os.path.join(GAME, 'game', 'gui', 'shortcuts.shortcuts'), encoding='utf-8-sig').read()
-    bound = dict(re.findall(r'^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"([^"]*)"', text, re.M))
+    text = pathlib.Path(os.path.join(GAME, 'game', 'gui', 'shortcuts.shortcuts')).read_text(encoding='utf-8-sig')
+    bound = dict(re.findall(r'^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"([^"]*)"', text, re.MULTILINE))
     rows = guimap.files()
     table, local = guimap.type_table(rows)
     known = guimap.windows(rows)
@@ -130,15 +127,13 @@ def window_keys_plan():
     found = window_bindings()
     pairs = {(window, r['binding'], r['keys'], tuple(r['calls']), r['view_only'])
              for window, rows in found.items() for r in rows}
-    modified = [p for p in pairs if p[2] is None or re.search(r'alt|ctrl|shift', p[2], re.I)]
-    print('%d windows, %d keys in them; view only %d, left to a person %d; with a modifier or '
-          'computed %d, of those view only %d'
-          % (len(found), len(pairs), sum(p[4] for p in pairs), sum(not p[4] for p in pairs),
-             len(modified), sum(p[4] for p in modified)))
+    modified = [p for p in pairs if p[2] is None or re.search(r'alt|ctrl|shift', p[2], re.IGNORECASE)]
+    print(f'{len(found)} windows, {len(pairs)} keys in them; view only {int(sum(p[4] for p in pairs))}, left to a person {int(sum(not p[4] for p in pairs))}; with a modifier or '
+          f'computed {len(modified)}, of those view only {int(sum(p[4] for p in modified))}')
     left = collections.Counter((binding, keys, ' '.join(calls) or 'no onclick')
                                for _, binding, keys, calls, view in pairs if not view)
     for (binding, keys, calls), count in sorted(left.items(), key=lambda item: -item[1]):
-        print('  %3d windows  %-28s %-12s %s' % (count, binding[:28], keys or 'computed', calls[:80]))
+        print(f"  {int(count):3d} windows  {binding[:28]!s:<28} {keys or 'computed'!s:<12} {calls[:80]}")
 
 
 def presses_for(rows, bound, numbers=3):
@@ -184,8 +179,7 @@ def shown_texts(game, name, text_classes):
     if not drawn:
         return None
     if len(drawn) > 1:
-        raise SystemExit('%d drawn windows are called %s; which one to read is not decided'
-                         % (len(drawn), name))
+        raise SystemExit(f'{len(drawn)} drawn windows are called {name}; which one to read is not decided')
     below = [a for a, _, _ in harvest.subtree(nodes, drawn[0])]
     flags = derive.flags_for(below)
     hidden = set()
@@ -210,8 +204,8 @@ def window_keys_round(game, names):
     from tools.ck3 import harvest
     with open(OUT, encoding='utf-8') as file:
         windows = json.load(file)['windows']
-    text = open(os.path.join(GAME, 'game', 'gui', 'shortcuts.shortcuts'), encoding='utf-8-sig').read()
-    bound = {n: k for n, k in re.findall(r'^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"([^"]*)"', text, re.M)
+    text = pathlib.Path(os.path.join(GAME, 'game', 'gui', 'shortcuts.shortcuts')).read_text(encoding='utf-8-sig')
+    bound = {n: k for n, k in re.findall(r'^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"([^"]*)"', text, re.MULTILINE)
              if k.strip()}
     plan = window_bindings()
     base = vtablemap.module_base(game.pid)
@@ -224,7 +218,7 @@ def window_keys_round(game, names):
         nodes, _ = harvest.open_window(game, name, row, baseline)
         if nodes is None:
             out[name] = 'did not open'
-            print('%s: did not open' % name)
+            print(f'{name}: did not open')
             continue
         time.sleep(1.0)
         before = shown_texts(game, name, text_classes)
@@ -244,11 +238,11 @@ def window_keys_round(game, names):
             elif opened:
                 what = 'opened ' + ', '.join(opened)
             elif after != before:
-                what = 'changed the text: %d lines, was %d' % (len(after), len(before))
+                what = f'changed the text: {len(after)} lines, was {len(before)}'
             else:
                 what = 'nothing'
             results.append((binding, keys, what))
-            print('  %-24s %-14s %-16s %s' % (name[:24], keys, binding[:16], what))
+            print(f'  {name[:24]!s:<24} {keys!s:<14} {binding[:16]!s:<16} {what}')
             for _ in range(3):
                 if not drawn - baseline - {name}:
                     break
@@ -258,22 +252,22 @@ def window_keys_round(game, names):
             if name not in drawn:
                 nodes, _ = harvest.open_window(game, name, row, baseline)
                 if nodes is None:
-                    raise SystemExit('%s did not open again after %s' % (name, keys))
+                    raise SystemExit(f'{name} did not open again after {keys}')
                 time.sleep(1.0)
             before = shown_texts(game, name, text_classes)
         out[name] = results
         if not harvest.close_window(game, row, baseline):
-            raise SystemExit('after %s the state did not come back; shut it by hand' % name)
+            raise SystemExit(f'after {name} the state did not come back; shut it by hand')
         if not harvest.paused(game):
-            raise SystemExit('after %s the clock is running; pause the game by hand' % name)
+            raise SystemExit(f'after {name} the clock is running; pause the game by hand')
     return out
 
 
 def modified_keys():
     """Binding -> (spelling, modifier keys, key) for every name in `MODIFIED`, as the file binds it."""
     from tools.ck3 import modifiers
-    text = open(os.path.join(GAME, 'game', 'gui', 'shortcuts.shortcuts'), encoding='utf-8-sig').read()
-    bound = dict(re.findall(r'^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"([^"]*)"', text, re.M))
+    text = pathlib.Path(os.path.join(GAME, 'game', 'gui', 'shortcuts.shortcuts')).read_text(encoding='utf-8-sig')
+    bound = dict(re.findall(r'^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"([^"]*)"', text, re.MULTILINE))
     out = {}
     for name in MODIFIED:
         *held, key = bound[name].lower().split('+')
@@ -311,10 +305,9 @@ def press(spelling):
     *held, key = spelling.lower().split('+')
     code = key_of(key)
     if held:
-        channel.ask('combo %d %s' % (COMBO_PAUSE, ' '.join(
-            str(c) for c in [modifiers.MODIFIERS[m] for m in held] + [code])))
+        channel.ask(f"combo {int(COMBO_PAUSE)} {' '.join(str(c) for c in [modifiers.MODIFIERS[m] for m in held] + [code])}")
     else:
-        channel.ask('sendkey %d' % code)
+        channel.ask(f'sendkey {int(code)}')
 
 
 def windows_on_disk():
@@ -365,7 +358,7 @@ def classes(pid):
     return {base + v for v in (memory.vtables_by_name('Window') or [])}
 
 
-class Game(object):
+class Game:
     """The actions on the running game, each with the measurement that says whether it landed."""
 
     def __init__(self, pid):
@@ -451,9 +444,10 @@ class Game(object):
             x, y = derive.screen_pos(nodes, self.field, scales)
             b, h = derive.screen_size(nodes, self.field, scales)
             self.pos = (int(x + b / 2), int(y + h / 2))
-        channel.ask('mouse %d %d 1' % self.pos)
+        click_x, click_y = self.pos
+        channel.ask(f'mouse {int(click_x)} {int(click_y)} 1')
         time.sleep(0.4)
-        channel.ask('sendchar %d' % ord('#'))
+        channel.ask(f"sendchar {ord('#')}")
         time.sleep(0.4)
         ok = '#' in self.field_text(self.field)
         channel.ask('sendkey 8')
@@ -471,18 +465,18 @@ class Game(object):
         for _ in range(len(self.field_text(self.field)) + 4):
             channel.ask('sendkey 8')
         for char in text:
-            channel.ask('sendchar %d' % ord(char))
+            channel.ask(f'sendchar {ord(char)}')
         time.sleep(0.35)
         present = self.field_text(self.field)
         if text[-14:] not in present:
             # Focus lost: establish it once more, and otherwise stop hard.
             self.set_console(True)
             for char in text:
-                channel.ask('sendchar %d' % ord(char))
+                channel.ask(f'sendchar {ord(char)}')
             time.sleep(0.35)
             present = self.field_text(self.field)
             if text[-14:] not in present:
-                raise SystemExit('the console does not catch the input; field holds %r' % present[:60])
+                raise SystemExit(f'the console does not catch the input; field holds {present[:60]!r}')
         log = paths.require('ERROR_LOG')
         size = os.path.getsize(log)
         channel.ask('sendkey 13')
@@ -506,7 +500,7 @@ def shortcut_round(game, presses=None):
     """
     out = {}
     if presses is None:
-        presses = [(name, lambda code=code: channel.ask('sendkey %d' % code), False)
+        presses = [(name, lambda code=code: channel.ask(f'sendkey {int(code)}'), False)
                    for code, name in sorted(KEYS.items())]
     # Only with -debug_mode is there a console to shut; a round without it has nothing to do here.
     if game.console_open():
@@ -515,12 +509,12 @@ def shortcut_round(game, presses=None):
         _, _, open_now = game.state()
         if not open_now:
             break
-        print('  closing first: %s' % ', '.join(sorted(open_now)))
+        print('  closing first: {}'.format(', '.join(sorted(open_now))))
         channel.ask('sendkey 27')
         time.sleep(1.6)
     _, _, baseline = game.state()
     if baseline:
-        print('  NOTE: did not start empty, still open: %s' % ', '.join(sorted(baseline)))
+        print('  NOTE: did not start empty, still open: {}'.format(', '.join(sorted(baseline))))
     # Imported here because harvest imports this module.
     from tools.ck3.harvest import paused
     for name, press, twice in presses:
@@ -550,13 +544,12 @@ def shortcut_round(game, presses=None):
             # open, and a contaminated state makes every measurement after it worthless. The
             # state coming back is the most important stop condition this project has, so it
             # stops rather than adapts.
-            raise SystemExit('after %s the state did not come back; still drawn: %s. '
-                             'Shut it by hand before starting again'
-                             % (name, ', '.join(sorted(restored - baseline))))
+            raise SystemExit('after {} the state did not come back; still drawn: {}. '
+                             'Shut it by hand before starting again'.format(name, ', '.join(sorted(restored - baseline))))
         if not paused(game):
-            raise SystemExit('after %s the clock is running. Pause the game by hand; a running '
-                             'clock makes the state unrepeatable' % name)
-        print('  %-10s %s' % (name, ', '.join(sorted(added)) or 'no change'))
+            raise SystemExit(f'after {name} the clock is running. Pause the game by hand; a running '
+                             'clock makes the state unrepeatable')
+        print(f"  {name!s:<10} {', '.join(sorted(added)) or 'no change'}")
     return out
 
 
@@ -575,7 +568,7 @@ def create_round(game, windows, limit=None):
     for i, window in enumerate(names, 1):
         path = windows[window]['file']
         started = time.time()
-        messages = game.command('GUI.CreateWidget %s %s' % (path, window), nodes)
+        messages = game.command(f'GUI.CreateWidget {path} {window}', nodes)
         nodes, after_count, after_drawn = game.state()
         added = after_count.get(window, 0) - counts.get(window, 0)
         row = {'file': path,
@@ -594,8 +587,7 @@ def create_round(game, windows, limit=None):
             row['cleaned_up'] = len(nodes) <= previous + 40
             row['nodes_added'] = len(nodes) - previous
             if not row['cleaned_up']:
-                print('  NOTE: %s left %d nodes behind (was %d, now %d)'
-                      % (window, len(nodes) - previous, before_cleanup, len(nodes)))
+                print(f'  NOTE: {window} left {int(len(nodes) - previous)} nodes behind (was {int(before_cleanup)}, now {len(nodes)})')
         else:
             counts, drawn = after_count, after_drawn
             row['cleaned_up'] = None
@@ -603,9 +595,7 @@ def create_round(game, windows, limit=None):
         previous = len(nodes)
         row['seconds'] = round(time.time() - started, 1)
         out[window] = row
-        print('%3d/%d %5.1fs %-40s created %-5s drawn %-5s cleaned up %-5s %s'
-              % (i, len(names), row['seconds'], window[:40], row['created'],
-                 row['drawn'], row['cleaned_up'], row['message'][-50:]))
+        print(f"{int(i):3d}/{len(names)} {row['seconds']:5.1f}s {window[:40]!s:<40} created {row['created']!s:<5} drawn {row['drawn']!s:<5} cleaned up {row['cleaned_up']!s:<5} {row['message'][-50:]}")
     return out
 
 
@@ -651,7 +641,7 @@ def keys_only(pid, modified=False):
     else:
         channel.ask('count')
         presses = [(spelling, lambda held=held, code=code: channel.ask(
-                        'combo %d %s' % (COMBO_PAUSE, ' '.join(str(c) for c in held + [code]))), True)
+                        f"combo {int(COMBO_PAUSE)} {' '.join(str(c) for c in held + [code])}"), True)
                    for spelling, held, code in modified_keys().values()]
         found = shortcut_round(game, presses)
         print('the game asked meanwhile:', ' | '.join(
@@ -661,15 +651,14 @@ def keys_only(pid, modified=False):
     added = []
     for window, key in sorted(found.items()):
         if window not in result['windows']:
-            raise SystemExit('%s opened on %s and the map does not know it; run '
-                             'windowmap.unmapped first' % (window, key))
+            raise SystemExit(f'{window} opened on {key} and the map does not know it; run '
+                             'windowmap.unmapped first')
         if not result['windows'][window].get('shortcut'):
             result['windows'][window]['shortcut'] = key
-            added.append('%s on %s' % (window, key))
+            added.append(f'{window} on {key}')
     with open(OUT, 'w', encoding='utf-8') as file:
         json.dump(result, file, ensure_ascii=False, indent=1, sort_keys=True)
-    print('windows with a key: %d, new in the map: %d%s'
-          % (len(found), len(added), (' - ' + ', '.join(added)) if added else ''))
+    print(f"windows with a key: {len(found)}, new in the map: {len(added)}{(' - ' + ', '.join(added)) if added else ''}")
 
 
 def main():
@@ -683,7 +672,7 @@ def main():
         target = os.path.join(os.environ['TEMP'], 'ck3', 'window_keys_trial.json')
         with open(target, 'w', encoding='utf-8') as file:
             json.dump(found, file, ensure_ascii=False, indent=1)
-        return print('written: %s' % target)
+        return print(f'written: {target}')
     if rest == ['--keys']:
         return keys_only(pid)
     if rest == ['--modified-keys']:
@@ -698,15 +687,14 @@ def main():
         # had failed. The hard cases go in by hand.
         missing = [name for name in chosen if name not in with_console]
         if missing:
-            raise SystemExit('no console route for: %s' % ', '.join(missing))
+            raise SystemExit('no console route for: {}'.format(', '.join(missing)))
         with_console = {name: with_console[name] for name in chosen}
-    print('windows on disk: %d, of which %d have a console route; trying %d'
-          % (len(windows), sum(1 for r in windows.values() if r['console']), len(with_console)))
+    print(f"windows on disk: {len(windows)}, of which {int(sum(1 for r in windows.values() if r['console']))} have a console route; trying {len(with_console)}")
 
     game = Game(pid)
     print('shortcuts:')
     shortcuts = shortcut_round(game)
-    print('windows with a shortcut: %d' % len(shortcuts))
+    print(f'windows with a shortcut: {len(shortcuts)}')
 
     print('GUI.CreateWidget:')
     created = create_round(game, with_console, limit)
@@ -722,8 +710,8 @@ def main():
         elif not row['console']:
             # Not a failure and not written down as one: the route does not exist for this shape.
             out['created'] = None
-            out['reason'] = ('declared as a %s, so GUI.CreateWidget cannot find it - '
-                             'it looks only at the top level of a file' % row['shape'])
+            out['reason'] = ('declared as a {}, so GUI.CreateWidget cannot find it - '
+                             'it looks only at the top level of a file'.format(row['shape']))
         result['windows'][name] = out
     target = os.path.abspath(OUT if not (chosen or limit)
                              else os.path.join(os.environ['TEMP'], 'ck3', 'windows_trial.json'))
@@ -735,9 +723,8 @@ def main():
     ok = sum(1 for v in result['windows'].values() if v.get('created'))
     drawn = sum(1 for v in result['windows'].values() if v.get('drawn'))
     no_route = sum(1 for v in result['windows'].values() if not v['console'])
-    print('\ncreated %d, of those drawn %d, with shortcut %d, no console route %d, out of %d'
-          % (ok, drawn, len(shortcuts), no_route, len(windows)))
-    print('written: %s' % target)
+    print(f'\ncreated {int(ok)}, of those drawn {int(drawn)}, with shortcut {len(shortcuts)}, no console route {int(no_route)}, out of {len(windows)}')
+    print(f'written: {target}')
 
 
 if __name__ == '__main__':

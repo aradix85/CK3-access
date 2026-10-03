@@ -31,10 +31,8 @@ import re
 import sys
 import time
 
-from tools.ck3 import derive
-from tools.ck3 import guimap
-from tools.ck3 import pairing
 from tools import paths
+from tools.ck3 import derive, guimap, pairing
 from tools.nvda import speech
 
 HARVEST = os.path.join(paths.PROJECT, 'harvest')
@@ -120,8 +118,7 @@ def name_of(model):
     kind = head.split('.')[0]
     word = head.split('.')[-1]
     for prefix in ('Get', 'Access'):
-        if word.startswith(prefix):
-            word = word[len(prefix):]
+        word = word.removeprefix(prefix)
     for suffix in ('String', 'Text'):
         if word.endswith(suffix) and len(word) > len(suffix):
             word = word[:-len(suffix)]
@@ -423,8 +420,8 @@ def spoken(unit):
     if unit['fills'] and NUMBER.match(said):
         label = name_of(unit['fills'])
         if label:
-            said = '%s %s' % (label, said)
-    return '%s, %s' % (unit['state'], said) if unit.get('state') else said
+            said = f'{label} {said}'
+    return '{}, {}'.format(unit['state'], said) if unit.get('state') else said
 
 
 def joined(found):
@@ -473,7 +470,7 @@ def joined(found):
         taken.add(partner)
         if partner < index and out and out[-1] is label:
             out.pop()
-        out.append(dict(label, text='%s %s' % (label['text'], unit['text'])))
+        out.append(dict(label, text='{} {}'.format(label['text'], unit['text'])))
     return out
 
 
@@ -541,7 +538,7 @@ def sentences(found, window=None):
                     said_here[-1] += ', ' + ', '.join(spoken(one) for one in inner)
                 else:
                     word_inner = name_of(chain_of(inner[0])[base])
-                    said_here[-1] += ', %d %s' % (len(inner_rows), word_inner)
+                    said_here[-1] += f', {len(inner_rows)} {word_inner}'
             first = own[0] if own else None
             for index, say in enumerate(said_here):
                 unit = own[index] if index < len(own) else first
@@ -552,10 +549,10 @@ def sentences(found, window=None):
         if len(firsts) == 1 and not said:
             out += lines
             continue
-        out.append({'say': '%d %s:%s' % (len(firsts), word, ', ' + said if said else ''),
+        out.append({'say': f"{len(firsts)} {word}:{', ' + said if said else ''}",
                     'explain': None})
         out += lines
-        out.append({'say': 'end of the %s' % word, 'explain': None})
+        out.append({'say': f'end of the {word}', 'explain': None})
     return out
 
 
@@ -586,8 +583,8 @@ def live(pid, window=None, game=None, tables=None):
     neither changes while the game runs.
     """
     import collections
-    from tools.ck3 import openers
-    from tools.ck3 import windowmap
+
+    from tools.ck3 import openers, windowmap
 
     if game is None:
         game = windowmap.Game(pid)
@@ -653,9 +650,9 @@ def main():
         if name is None:
             print('no window is drawn; this is the main menu, and that is panels and not windows')
             return
-        print('%s, %d lines' % (name, len(lines)))
+        print(f'{name}, {len(lines)} lines')
         for line in lines:
-            print('    %-60s %s' % (line['say'], line['explain'] or ''))
+            print(f"    {line['say']!s:<60} {line['explain'] or ''}")
         if aloud:
             for line in lines:
                 speech.output(line['say'], speech.QUEUE)
@@ -669,14 +666,14 @@ def main():
     table, local = guimap.type_table(rows)
     known = guimap.windows(rows)
     root = pairing.root_finder(table)
-    print('the templates of %d gui files, once: %.1f s' % (len(rows), time.time() - start))
+    print(f'the templates of {len(rows)} gui files, once: {time.time() - start:.1f} s')
 
     for window in windows:
         start = time.time()
         lines = read(window, table, local, known, root)
-        print('\n%s, %d lines, %.2f s' % (window, len(lines), time.time() - start))
+        print(f'\n{window}, {len(lines)} lines, {time.time() - start:.2f} s')
         for line in lines:
-            print('    %-60s %s' % (line['say'], line['explain'] or ''))
+            print(f"    {line['say']!s:<60} {line['explain'] or ''}")
         if aloud:
             for line in lines:
                 speech.output(line['say'], speech.QUEUE)

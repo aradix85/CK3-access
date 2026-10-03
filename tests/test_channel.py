@@ -46,17 +46,17 @@ def host(request, tmp_path_factory):
         pytest.skip('the game is running, and it answers on the same pipe')
     work = tmp_path_factory.mktemp(request.param)
     dll = DLL
-    lines = ['@echo off', 'call "%s" >nul' % vcvars()]
+    lines = ['@echo off', f'call "{vcvars()}" >nul']
     sanitize = ''
     if request.param == 'asan':
         dll = str(work / 'channel.dll')
         sanitize = '/Zi /fsanitize=address'
-        lines += ['cl /nologo /Od %s /LD "%s" user32.lib /Fe:channel.dll || exit /b 1'
-                  % (sanitize, os.path.join(ROOT, 'dll', 'channel.cpp')),
+        lines += ['cl /nologo /Od {} /LD "{}" user32.lib /Fe:channel.dll || exit /b 1'.format(sanitize, os.path.join(ROOT, 'dll', 'channel.cpp')),
                   'copy /y "%VCToolsInstallDir%bin\\Hostx64\\x64\\clang_rt.asan_dynamic-x86_64.dll" . || exit /b 1']
-    lines.append('cl /nologo /Od %s "%s" user32.lib /Fe:host.exe || exit /b 1' % (sanitize, SOURCE))
+    lines.append(f'cl /nologo /Od {sanitize} "{SOURCE}" user32.lib /Fe:host.exe || exit /b 1')
     (work / 'build.bat').write_text('\r\n'.join(lines) + '\r\n')
-    built = subprocess.run(['cmd', '/c', 'build.bat'], capture_output=True, text=True, cwd=work)
+    built = subprocess.run(['cmd', '/c', 'build.bat'], capture_output=True, text=True, cwd=work,
+                           check=False)                 # the return code is asserted below, with the output
     assert built.returncode == 0, built.stdout + built.stderr
     with subprocess.Popen([str(work / 'host.exe'), dll, str(work / 'keys.log')], stdout=subprocess.PIPE,
                           stderr=subprocess.PIPE, text=True) as process:      # closes both pipes
@@ -98,14 +98,14 @@ def counts(lines):
 
 
 def test_every_command(host):
-    pid, (A, B, C, D, E, F, G, PAGE, MANY), log = host
+    pid, (A, B, _C, D, E, F, G, PAGE, MANY), log = host
     h = '%x'.__mod__
     failed = []
 
     def check(command, what, test):
         lines = lines_of(command)
         if not test(lines):
-            failed.append('%s - %s: %s' % (command[:60], what, ' / '.join(lines)[:300]))
+            failed.append('{} - {}: {}'.format(command[:60], what, ' / '.join(lines)[:300]))
 
     def wait_then(seconds, *args):
         time.sleep(seconds)
@@ -123,12 +123,12 @@ def test_every_command(host):
             len(g.split()) == len(k.split()) and all(b in ('?', a) for a, b in zip(g.split(), k.split(), strict=True))
             for g, k in zip(got, keys, strict=True))
         if not (answer(lines) if callable(answer) else lines == answer) or not fits:
-            failed.append('%s - %s / keys: %s' % (command, ' / '.join(lines), ' / '.join(got)))
+            failed.append('{} - {} / keys: {}'.format(command, ' / '.join(lines), ' / '.join(got)))
 
-    check('hello', 'answers from the target', lambda ls: ls[0].startswith('channel\t%d\t' % pid))
+    check('hello', 'answers from the target', lambda ls: ls[0].startswith(f'channel\t{int(pid)}\t'))
     check('hello x', 'refused', refused)
     check('tree ' + h(A), 'no walk before set and vtables', error('set and vtables come first'))
-    check('scan %s %s' % (h(PAGE), h(PAGE + 4096)), 'no scan before vtables', error('no vtables set'))
+    check(f'scan {h(PAGE)} {h(PAGE + 4096)}', 'no scan before vtables', error('no vtables set'))
     check('set 8 10 18 20 40 60', 'six offsets refused', error('set needs exactly seven'))
     check('set 8 10 18 20 40 60 68 70', 'eight offsets refused', error('set needs exactly seven'))
     check('set 8 10 18 20 40 60 68', 'seven accepted', lambda ls: ls == ['fields set'])
@@ -141,9 +141,9 @@ def test_every_command(host):
           and 'not widgets\t1' in ls and ls[-1] == 'done\t7' and not any(line.startswith('error') for line in ls))
     check('tree ' + h(A), 'the fields of one widget', lambda ls: any(
         row[1:] == [h(B), '1111', '1.0', '2.0', '3.0', '4.0', h(A), 'child', 'Hello'] for row in kind(ls, 'w')))
-    check('tree %s 2' % h(A), 'a limit says so', lambda ls: any(line.startswith('limit hit\t') for line in ls))
-    check('tree %s 2 x' % h(A), 'refused', refused)
-    check('scan %s %s' % (h(PAGE), h(PAGE + 4096)), 'up to the last eight bytes of a region',
+    check(f'tree {h(A)} 2', 'a limit says so', lambda ls: any(line.startswith('limit hit\t') for line in ls))
+    check(f'tree {h(A)} 2 x', 'refused', refused)
+    check(f'scan {h(PAGE)} {h(PAGE + 4096)}', 'up to the last eight bytes of a region',
           lambda ls: addresses(ls, 'w') == {A, B, E, F, G, PAGE + 4088} and ls[-1] == 'done\t6\tskipped\t0')
     check('scan 1', 'refused', refused)
 
@@ -154,15 +154,15 @@ def test_every_command(host):
     check('count', 'read again at once: near zero', lambda ls: all(int(row[3]) <= 2 for row in counts(ls).values()))
     check('count x', 'refused', refused)
 
-    check('read %s 8' % h(PAGE), 'the root vtable', lambda ls: ls == ['1111000000000000'])
-    check('read %s 8 9' % h(PAGE), 'refused', refused)
-    check('readmany 8 %s %s' % (h(A), h(B)), 'two lines', lambda ls: len(kind(ls, 'l')) == 2 and ls[-1] == 'done\t2')
-    check('readmany 8 %s zz' % h(A), 'refused at zz', error('not an address'))
-    check('findin %s %s 72 6f 6f 74' % (h(PAGE), h(PAGE + 0x80)), 'the name root, once',
+    check(f'read {h(PAGE)} 8', 'the root vtable', lambda ls: ls == ['1111000000000000'])
+    check(f'read {h(PAGE)} 8 9', 'refused', refused)
+    check(f'readmany 8 {h(A)} {h(B)}', 'two lines', lambda ls: len(kind(ls, 'l')) == 2 and ls[-1] == 'done\t2')
+    check(f'readmany 8 {h(A)} zz', 'refused at zz', error('not an address'))
+    check(f'findin {h(PAGE)} {h(PAGE + 0x80)} 72 6f 6f 74', 'the name root, once',
           lambda ls: [row[1] for row in kind(ls, 't')] == [h(A + 0x20)])
-    check('findin %s %s 43 4b 33 21' % (h(MANY), h(MANY + 4096)), 'more than 200 hits is an error',
+    check(f'findin {h(MANY)} {h(MANY + 4096)} 43 4b 33 21', 'more than 200 hits is an error',
           lambda ls: len(kind(ls, 't')) == 200 and error('300 hits and only the first 200')(ls))
-    check('findin %s %s 43 4' % (h(PAGE), h(PAGE + 64)), 'one hex digit refused', error('not a hex byte'))
+    check(f'findin {h(PAGE)} {h(PAGE + 64)} 43 4', 'one hex digit refused', error('not a hex byte'))
     check('find ?? 4b', 'a wildcard first refused', error('first byte cannot be a wildcard'))
 
     arrives('sendkey 112', ['key sent\t112'], ['down 70 0 0 0 0', 'up 70 0 0 0 0'])
@@ -198,13 +198,13 @@ def test_every_command(host):
     check('waitkey 10', 'nothing pressed', lambda ls: ls == [])
     check('keys off', 'puts the window back', lambda ls: ls == ['keys off'])
     check('keys off', 'unchanged', lambda ls: ls == ['keys unchanged'])
-    for command in ('childfield f0 fc', 'call %s 0' % h(A), 'waitchange 1', 'count on'):
+    for command in ('childfield f0 fc', f'call {h(A)} 0', 'waitchange 1', 'count on'):
         check(command, 'removed, so refused', refused)
 
     # A number is digits only, and fits its field. Measured on the sscanf reader, 3 October 2026: a
     # minus came out as the number counted down from the top (`sendkey -1` sent key 4294967295), and
     # a key code too big for 32 bits wrapped round silently - `combo 50 160 4294967408` sent shift+F1.
-    for command in ('sendkey -1', 'sendkey +1', 'sendkey 4294967296', 'read %s -8' % h(PAGE),
+    for command in ('sendkey -1', 'sendkey +1', 'sendkey 4294967296', f'read {h(PAGE)} -8',
                     'tree 1' + '0' * 16, 'mouse -5 5 0'):
         check(command, 'refused', refused)
     check('swallow 38 -40', 'a sign refused', error('not a key code'))
@@ -243,7 +243,6 @@ def test_clang_tidy_finds_nothing():
     """The checks in `dll\\.clang-tidy`, each finding an error; the MSVC analysis runs in the build."""
     if not clang_tidy() or not vcvars():
         pytest.skip('clang-tidy or MSVC is not installed')
-    done = subprocess.run('call "%s" >nul && "%s" channel.cpp --quiet -- --driver-mode=cl /EHsc'
-                          % (vcvars(), clang_tidy()), shell=True, capture_output=True, text=True,
+    done = subprocess.run(f'call "{vcvars()}" >nul && "{clang_tidy()}" channel.cpp --quiet -- --driver-mode=cl /EHsc', shell=True, capture_output=True, check=False, text=True,
                           cwd=os.path.join(ROOT, 'dll'))
     assert done.returncode == 0, done.stdout + done.stderr

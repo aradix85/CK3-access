@@ -190,7 +190,7 @@ returns a pair, passed on as one thing, costs a run.
 | `localization_text()` | value | - |
 | `strip_markup(text)` | value | Strips the game's markup codes; those do not appear in the localization files. |
 | `class_map(pid, addresses)` | dict | Address -> class name, through the vtable. `addresses` is a dict {address: vtable}, not a list. |
-| `derive_all(pid)` | value | Derive every field from a full scan. Expensive, so once per build. |
+| `derive_all(pid)` | dict | Derive every field from a full scan. Expensive, so once per build. |
 | `visibility_fields(pid, fields, root, key=112, subject='character_window', control='council_window')` | value of dict | Derive the two visibility offsets by toggling a window and watching what moves. |
 | `position_from_tree(pid, fields, nodes=1000)` | value | Derive the position field a second time, from the live tree instead of the scan. |
 | `store(fields)` | nothing | - |

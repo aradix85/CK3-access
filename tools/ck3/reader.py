@@ -43,14 +43,8 @@ is not a window, so the place you stand on does not move. Decided with the playe
 """
 import sys
 
-from tools.ck3 import channel
-from tools.ck3 import derive
-from tools.ck3 import guimap
-from tools.ck3 import memory
-from tools.ck3 import pairing
-from tools.ck3 import reading
+from tools.ck3 import channel, derive, guimap, memory, pairing, reading, windowmap
 from tools.nvda import speech
-from tools.ck3 import windowmap
 
 UP, DOWN, TOGGLE, EXPLAIN = 38, 40, 123, 46
 POLL = 400          # milliseconds the DLL waits for a key before answering with nothing
@@ -72,7 +66,7 @@ def gui_tables():
     return table, local, known, pairing.root_finder(table)
 
 
-class Reader(object):
+class Reader:
     """Where the reader stands: which window, which line, and whether it is listening at all."""
 
     def __init__(self, pid):
@@ -149,7 +143,7 @@ class Reader(object):
             window, lines = reading.live(self.pid, game=self.game, tables=self.tables)
         except guimap.GuiError as trouble:
             self.lines, self.at = [], 0
-            speech.failure('the reader', 'it does not know this window: %s' % trouble,
+            speech.failure('the reader', f'it does not know this window: {trouble}',
                            'close it and open another screen, and report the name')
             return None
         self.lines, self.at = lines, 0
@@ -212,7 +206,7 @@ def loop(reader):
     takes seconds. By the time we ask, the game has long since answered.
     """
     while True:
-        pressed = keys_waiting(channel.ask('waitkey %d' % POLL, timeout=POLL / 1000.0 + 30))
+        pressed = keys_waiting(channel.ask(f'waitkey {int(POLL)}', timeout=POLL / 1000.0 + 30))
         for code in pressed:
             if code == TOGGLE:
                 reader.toggle()
@@ -235,7 +229,7 @@ def loop(reader):
         now = reader.counts()
         if now != reader.counted:
             moved = sorted(reader.layers[a] for a in now if now[a] != reader.counted.get(a))
-            print('layer changed: %s' % ', '.join(moved), flush=True)
+            print('layer changed: {}'.format(', '.join(moved)), flush=True)
             reader.refresh()
 
 
@@ -250,17 +244,14 @@ def main():
     reader = Reader(pid)
     channel.ask('keys on')
     reader.claim()
-    print('reader ready on pid %d: F12 switches it on, up and down step through the window'
-          % pid, flush=True)
-    print('watching %d toast container(s)' % len(reader.toasts), flush=True)
-    print('watching %d layers: %s' % (len(reader.layers), ', '.join(
-        '%s %d' % (reader.layers[a], count) for a, count in sorted(
-            reader.counted.items(), key=lambda pair: reader.layers[pair[0]]))), flush=True)
+    print(f'reader ready on pid {int(pid)}: F12 switches it on, up and down step through the window', flush=True)
+    print(f'watching {len(reader.toasts)} toast container(s)', flush=True)
+    print(f"watching {len(reader.layers)} layers: {', '.join(f'{reader.layers[a]} {count}' for a, count in sorted(reader.counted.items(), key=lambda pair: reader.layers[pair[0]]))}", flush=True)
     try:
         loop(reader)
     except BaseException as trouble:
         give_back()
-        speech.failure('the reader', 'it stopped after %s' % type(trouble).__name__,
+        speech.failure('the reader', f'it stopped after {type(trouble).__name__}',
                        'the game has its keys back, start the reader again')
         raise
     give_back()

@@ -13,6 +13,7 @@ Usage:
 import glob
 import io
 import os
+import pathlib
 import re
 import zipfile
 
@@ -28,7 +29,7 @@ SAVE_DIR = paths.require('SAVES')
 def newest_save():
     saves = glob.glob(os.path.join(SAVE_DIR, '*.ck3'))
     if not saves:
-        raise SystemExit('no save found in %s' % SAVE_DIR)
+        raise SystemExit(f'no save found in {SAVE_DIR}')
     return max(saves, key=os.path.getmtime)
 
 
@@ -47,7 +48,7 @@ def newest_readable_save():
                 return path
         except SystemExit:
             continue
-    raise SystemExit('not a single save in %s is stored as text' % SAVE_DIR)
+    raise SystemExit(f'not a single save in {SAVE_DIR} is stored as text')
 
 
 def is_text(content):
@@ -58,10 +59,10 @@ def unpack(path=None):
     """The game state as text. The header before the zip differs in length per save, so it is
     searched for and not assumed."""
     path = path or newest_save()
-    raw = open(path, 'rb').read()
+    raw = pathlib.Path(path).read_bytes()
     start = raw.find(b'PK\x03\x04')
     if start < 0:
-        raise SystemExit('no zip in %s - is this an ironman save?' % os.path.basename(path))
+        raise SystemExit(f'no zip in {os.path.basename(path)} - is this an ironman save?')
     with zipfile.ZipFile(io.BytesIO(raw[start:])) as zip:
         name = 'gamestate' if 'gamestate' in zip.namelist() else zip.namelist()[0]
         return zip.read(name).decode('utf-8', 'replace')
@@ -70,9 +71,9 @@ def unpack(path=None):
 def block(text, build_key, start_at=0):
     """The content between the braces of `key={ ... }`, with braces counted so that nested
     blocks do not close it early."""
-    pos = text.find('\n%s={' % build_key, start_at)
+    pos = text.find(f'\n{build_key}={{', start_at)
     if pos < 0:
-        pos = text.find('%s={' % build_key, start_at)
+        pos = text.find(f'{build_key}={{', start_at)
         if pos < 0:
             return None
     i = text.index('{', pos) + 1
@@ -103,7 +104,7 @@ def character_index(text):
     return {int(m.group(1)): m.start() for m in _CHARACTER.finditer(text)}
 
 
-_MAPPING = re.compile(r'([a-z_][a-z_0-9]*)=([^\s{}"]+|\{[^{}]*\})', re.I)
+_MAPPING = re.compile(r'([a-z_][a-z_0-9]*)=([^\s{}"]+|\{[^{}]*\})', re.IGNORECASE)
 
 
 def numbers(content, prefix='', depth=0):
@@ -119,11 +120,11 @@ def numbers(content, prefix='', depth=0):
             parts = value[1:-1].split()
             for n, part in enumerate(parts):
                 if re.fullmatch(r'-?\d+', part):
-                    out['%s.%d' % (path, n)] = int(part)
+                    out[f'{path}.{int(n)}'] = int(part)
         elif re.fullmatch(r'-?\d+', value):
             out[path] = int(value)
     # nested blocks separately, because the regexp above only catches flat assignments
-    for m in re.finditer(r'\n\t*([a-z_][a-z_0-9]*)=\{', content, re.I):
+    for m in re.finditer(r'\n\t*([a-z_][a-z_0-9]*)=\{', content, re.IGNORECASE):
         name = m.group(1)
         part = block(content, name, m.start())
         if part is not None and len(part) < 20000:
@@ -141,10 +142,10 @@ def player(text):
 
 if __name__ == '__main__':
     path = newest_readable_save()
-    print('save: %s' % os.path.basename(path))
+    print(f'save: {os.path.basename(path)}')
     text = unpack(path)
     number = player(text)
     values = numbers(block(text, number))
-    print('player: %s, %d numbers in his record' % (number, len(values)))
+    print(f'player: {number}, {len(values)} numbers in his record')
     for name in sorted(values)[:40]:
-        print('   %-40s %d' % (name, values[name]))
+        print(f'   {name!s:<40} {int(values[name])}')

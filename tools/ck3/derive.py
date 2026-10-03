@@ -14,18 +14,17 @@ found, this file stops hard and names that field.
 """
 import glob
 import json
+import math
 import os
+import pathlib
 import re
 import struct
 import sys
 import time
 
-from tools.ck3 import vtablemap
-from tools.ck3 import memory
-from tools.ck3 import channel
-from tools import paths
+from tools import paths, windowgrab
+from tools.ck3 import channel, memory, vtablemap
 from tools.nvda import speech
-from tools import windowgrab
 
 INSTALL = memory.INSTALL
 PROJECT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -46,11 +45,11 @@ def window_size(pid):
 def build_key():
     """How you tell it is still the same build. If the exe changes, everything lapses."""
     st = os.stat(paths.require('EXE'))
-    return '%d-%d' % (st.st_size, int(st.st_mtime))
+    return f'{int(st.st_size)}-{int(st.st_mtime)}'
 
 
 def read(address, count):
-    line = channel.ask('read %x %d' % (address, count), timeout=20,
+    line = channel.ask(f'read {address:x} {int(count)}', timeout=20,
                         errors_ok=True).split('\n')[0].strip()
     return None if line.startswith('error') else bytes.fromhex(line)
 
@@ -59,7 +58,7 @@ def scan(from_address, to_address):
     """Address -> vtable. Both come from the vtable comparison and do not depend on the field
     offsets we are looking for."""
     found = {}
-    answer = channel.ask('scan %x %x' % (from_address, to_address) if to_address else 'scan', timeout=300)
+    answer = channel.ask(f'scan {from_address:x} {to_address:x}' if to_address else 'scan', timeout=300)
     for line in answer.split('\n'):
         part = line.split('\t')
         if part[0] == 'w':
@@ -69,7 +68,7 @@ def scan(from_address, to_address):
 
 def tree(root):
     found = {}
-    for line in channel.ask('tree %x' % root, timeout=60).split('\n'):
+    for line in channel.ask(f'tree {root:x}', timeout=60).split('\n'):
         part = line.split('\t')
         if part[0] == 'w':
             found[int(part[1], 16)] = int(part[2], 16)
@@ -119,8 +118,8 @@ def use_fields(fields):
 def _visibility_offset(which):
     value = ALPHA if which == 'alpha' else WINDOW_FLAG
     if value is None:
-        raise SystemExit('the %s offset is not known yet: call fields_for(pid) first, which '
-                         'derives it or reads it back from the stored derivation' % which)
+        raise SystemExit(f'the {which} offset is not known yet: call fields_for(pid) first, which '
+                         'derives it or reads it back from the stored derivation')
     return value
 
 
@@ -137,7 +136,7 @@ def field_for(addresses, offset, width=1):
     out, items = {}, sorted(addresses)
     for start in range(0, len(items), 400):
         part = items[start:start + 400]
-        ask = 'readmany %d ' % width + ' '.join('%x' % (a + offset) for a in part)
+        ask = f'readmany {int(width)} ' + ' '.join('%x' % (a + offset) for a in part)
         for line in channel.ask(ask, timeout=120).split('\n'):
             d = line.split('\t')
             if d[0] == 'l' and len(d) > 2 and d[2] != 'unreadable':
@@ -202,7 +201,7 @@ def widgets(root):
     parent is, never in which place. Rebuild children from this dict and do not sort them.
     """
     nodes, missing = {}, []
-    for line in channel.ask('tree %x' % root, timeout=60).split('\n'):
+    for line in channel.ask(f'tree {root:x}', timeout=60).split('\n'):
         d = line.split('\t')
         if d[0] == 'w':
             nodes[int(d[1], 16)] = (int(d[2], 16), float(d[3]), float(d[4]), float(d[5]),
@@ -215,8 +214,7 @@ def widgets(root):
     # widgets. Spoken once per address, because the reader asks for the toast container every round
     # and a node that stays unreadable would otherwise be said every 400 ms.
     if missing:
-        print('tree from %x: %d places lost: %s' % (root, len(missing), '; '.join(
-            '%s %s' % pair for pair in missing[:5])), file=sys.stderr, flush=True)
+        print(f"tree from {root:x}: {len(missing)} places lost: {'; '.join(f'{pair[0]} {pair[1]}' for pair in missing[:5])}", file=sys.stderr, flush=True)
         new = {address for address, _ in missing} - _MISSING_SAID
         if new:
             _MISSING_SAID.update(new)
@@ -263,8 +261,8 @@ def _scale_of(scales, address):
     """
     pair = scales.get(address)
     if pair is None:
-        raise KeyError('no scale for %x: ask scales_for for the whole tree, not only the widgets '
-                       'you are placing - screen_pos needs every parent as well' % address)
+        raise KeyError(f'no scale for {address:x}: ask scales_for for the whole tree, not only the widgets '
+                       'you are placing - screen_pos needs every parent as well')
     return pair
 
 
@@ -340,7 +338,7 @@ def scale_anchors():
                     os.path.join(INSTALL, 'clausewitz', 'gui', '**', '*.gui'),
                     os.path.join(INSTALL, 'jomini', '**', '*.gui')):
         for path in glob.glob(pattern, recursive=True):
-            lines = open(path, encoding='utf-8', errors='replace').read().splitlines()
+            lines = pathlib.Path(path).read_text(encoding='utf-8', errors='replace').splitlines()
             for i, line in enumerate(lines):
                 if 'ScaleToFitElement' not in line or line.lstrip().startswith('#'):
                     continue
@@ -490,10 +488,9 @@ def _count_field(chunks, children_of):
     runner_up = best[1][1] if len(best) > 1 else 0
     if hit < 0.95 * len(children_of):
         raise SystemExit(
-            'deriving failed on field: child count (best +0x%03X explains %d of %d, '
-            'runner-up %d)' % (offset, hit, len(children_of), runner_up))
-    print('count: +0x%03X explains %d of %d parents, runner-up %d'
-          % (offset, hit, len(children_of), runner_up))
+            f'deriving failed on field: child count (best +0x{offset:03X} explains {int(hit)} of {len(children_of)}, '
+            f'runner-up {int(runner_up)})')
+    print(f'count: +0x{offset:03X} explains {int(hit)} of {len(children_of)} parents, runner-up {int(runner_up)}')
     return offset
 
 
@@ -522,8 +519,7 @@ def _child_field(chunks, children_of, samples=20):
             best = (offset, ok)
     if best[0] is not None and best[1] >= max(3, 0.8 * len(probe)):
         return best[0]
-    raise SystemExit('deriving failed on field: child list (best explained %d of %d parents)'
-                     % (best[1], len(probe)))
+    raise SystemExit(f'deriving failed on field: child list (best explained {int(best[1])} of {len(probe)} parents)')
 
 
 def _size_field(chunks, roots, window_width, window_height):
@@ -547,14 +543,14 @@ def _size_field(chunks, roots, window_width, window_height):
             if abs(scale_x - scale_y) < 0.005 and 0.4 <= scale_x <= 2.5:
                 return offset
     raise SystemExit('deriving failed on field: size (no root in proportion with the '
-                     'drawing area of %dx%d)' % (window_width, window_height))
+                     f'drawing area of {int(window_width)}x{int(window_height)})')
 
 
 def _spread(chunks, offset):
     values = set()
     for b in chunks.values():
         x, y = _pair(b, offset)
-        if x == x and y == y and abs(x) < 1e6 and abs(y) < 1e6:
+        if not math.isnan(x) and not math.isnan(y) and abs(x) < 1e6 and abs(y) < 1e6:
             values.add((round(x, 1), round(y, 1)))
     return len(values)
 
@@ -609,14 +605,14 @@ def _pos_field(chunks, f_parent, f_size, spread_required=100):
         if families is None or families < 0.9:
             continue
         ok = pairs = 0
-        for address, b in chunks.items():
+        for b in chunks.values():
             parent = int.from_bytes(b[f_parent:f_parent + 8], 'little')
             if parent not in chunks:
                 continue
             kx, ky = _pair(b, offset)
             kb, kh = _pair(b, f_size)
             ob, oh = _pair(chunks[parent], f_size)
-            if not all(v == v for v in (kx, ky, kb, kh, ob, oh)):
+            if any(math.isnan(v) for v in (kx, ky, kb, kh, ob, oh)):
                 continue
             pairs += 1
             if -2.0 <= kx and -2.0 <= ky and kx + kb <= ob + 2.0 and ky + kh <= oh + 2.0:
@@ -628,8 +624,7 @@ def _pos_field(chunks, f_parent, f_size, spread_required=100):
                          'spreads its siblings)')
     rows.sort(reverse=True)
     for distinct, offset, ok, pairs in rows[:3]:
-        print('position candidate +0x%03X: %d distinct values, fits %d of %d parent boxes'
-              % (offset, distinct, ok, pairs))
+        print(f'position candidate +0x{offset:03X}: {int(distinct)} distinct values, fits {int(ok)} of {int(pairs)} parent boxes')
     return rows[0][1]
 
 
@@ -752,9 +747,9 @@ def derive_all(pid):
     text_boxes = [a for a, k in classes.items() if k == 'Textbox']
     f_text = _text_field(chunks, text_boxes, localization_text(), f_name)
 
-    return dict(key=build_key(), parent=f_parent, children=f_children, count=f_count,
-                position=f_position, size=f_size, name=f_name, text=f_text,
-                objects=len(addresses), unreadable=failed, roots=len(roots))
+    return {'key': build_key(), 'parent': f_parent, 'children': f_children, 'count': f_count,
+            'position': f_position, 'size': f_size, 'name': f_name, 'text': f_text,
+            'objects': len(addresses), 'unreadable': failed, 'roots': len(roots)}
 
 
 def visibility_fields(pid, fields, root, key=112, subject='character_window',
@@ -785,20 +780,20 @@ def visibility_fields(pid, fields, root, key=112, subject='character_window',
             named.setdefault(k[6], a)
     for name in (subject, control):
         if name not in named:
-            raise SystemExit('deriving visibility failed: no window object called %s in this tree; '
-                             'this derivation needs a loaded game, not the main menu' % name)
+            raise SystemExit(f'deriving visibility failed: no window object called {name} in this tree; '
+                             'this derivation needs a loaded game, not the main menu')
 
     def snapshot():
         return {name: read(named[name], CHUNK) for name in (subject, control)}
 
     def toggle(before, what):
-        channel.ask('sendkey %d' % key)
+        channel.ask(f'sendkey {int(key)}')
         for _ in range(20):
             time.sleep(0.5)
             after = snapshot()
             if after[subject] != before[subject]:
                 return after
-        raise SystemExit('deriving visibility failed: %s changed nothing in ten seconds' % what)
+        raise SystemExit(f'deriving visibility failed: {what} changed nothing in ten seconds')
 
     start = snapshot()
     opened = toggle(start, 'opening')
@@ -818,7 +813,7 @@ def visibility_fields(pid, fields, root, key=112, subject='character_window',
         changed = [o for o in range(word, word + 4) if before[o] != after[o]]
         return changed == [offset]
 
-    flag = [o for o in range(0, CHUNK)
+    flag = [o for o in range(CHUNK)
             if start[subject][o] == closed[subject][o] != opened[subject][o] == 0
             and alone_in_its_word(start[subject], opened[subject], o)
             and not moved(start[control], opened[control], o, 1)]
@@ -828,12 +823,9 @@ def visibility_fields(pid, fields, root, key=112, subject='character_window',
              and start[subject][o:o + 4] == closed[subject][o:o + 4]
              and not moved(start[control], opened[control], o, 4)]
     if len(flag) != 1 or len(alpha) != 1:
-        raise SystemExit('deriving visibility failed: %d candidates for the flag %s and %d for '
-                         'alpha %s; expected exactly one of each'
-                         % (len(flag), ['0x%03X' % o for o in flag[:6]],
-                            len(alpha), ['0x%03X' % o for o in alpha[:6]]))
-    print('flag: +0x%03X, alpha: +0x%03X (%s toggled, %s did not move)'
-          % (flag[0], alpha[0], subject, control))
+        raise SystemExit(f"deriving visibility failed: {len(flag)} candidates for the flag {[f'0x{o:03X}' for o in flag[:6]]} and {len(alpha)} for "
+                         f"alpha {[f'0x{o:03X}' for o in alpha[:6]]}; expected exactly one of each")
+    print(f'flag: +0x{flag[0]:03X}, alpha: +0x{alpha[0]:03X} ({subject} toggled, {control} did not move)')
     return dict(fields, flag=flag[0], alpha=alpha[0])
 
 
@@ -855,12 +847,11 @@ def position_from_tree(pid, fields, nodes=1000):
     walking it needs the parent and children offsets.
     """
     configure_channel(fields)
-    root, walked = quick_root(fields, pid)
+    _root, walked = quick_root(fields, pid)
     chunks, _ = chunks_of(list(walked)[:nodes])
     from_tree = _pos_field(chunks, fields['parent'], fields['size'])
     if from_tree != fields['position']:
-        print('position: the scan said +0x%03X, the tree says +0x%03X; the tree decides'
-              % (fields['position'], from_tree))
+        print('position: the scan said +0x{:03X}, the tree says +0x{:03X}; the tree decides'.format(fields['position'], from_tree))
     return dict(fields, position=from_tree)
 
 
@@ -983,7 +974,7 @@ def verify(fields, root, nodes, pid):
     if tested < 5:
         defects.append('too few parents with children found to test against')
     elif misses:
-        defects.append('child list and parent field contradict each other in %d places' % misses)
+        defects.append(f'child list and parent field contradict each other in {int(misses)} places')
 
     if root in chunks:
         b, h = _pair(chunks[root], fields['size'])
@@ -991,15 +982,13 @@ def verify(fields, root, nodes, pid):
         scale_y = window_height / h if h else 0.0
         if not scale_x or abs(scale_x - scale_y) > 0.005:
             defects.append('the root is out of proportion with the drawing area '
-                               '(%.0fx%.0f against window %dx%d)'
-                               % (b, h, window_width, window_height))
+                               f'({b:.0f}x{h:.0f} against window {int(window_width)}x{int(window_height)})')
 
     gui = gui_text()
     names = {t for t in (_cstring(b, fields['name']) for b in chunks.values()) if t}
     hit = sum(1 for n in names if n in gui)
     if not names or hit < 0.6 * len(names):
-        defects.append('names do not appear in the gui files (%d of %d)'
-                           % (hit, len(names)))
+        defects.append(f'names do not appear in the gui files ({int(hit)} of {len(names)})')
 
     defects.extend(_position_check(fields, nodes))
     defects.extend(_visibility_check(fields, chunks, nodes, pid))
@@ -1028,9 +1017,8 @@ def _position_check(fields, nodes, how_many=800):
     distinct = _spread(chunks, fields['position'])
     families = _siblings_spread(chunks, fields['parent'], fields['position'])
     if distinct < 100 or families is None or families < 0.9:
-        return ['position at +0x%03X does not behave like one: %d distinct values, %s of families '
-                'spread their children' % (fields['position'], distinct,
-                                           'no' if families is None else '%.2f' % families)]
+        return [(f"position at +0x{fields['position']:03X} does not behave like one: {int(distinct)} distinct values, {'no' if families is None else f'{families:.2f}'} of families "
+                 'spread their children')]
     return []
 
 
@@ -1052,7 +1040,7 @@ def _visibility_check(fields, chunks, nodes, pid):
     defects = []
     alphas = [struct.unpack_from('<f', b, fields['alpha'])[0] for b in chunks.values()]
     if not alphas or any(a < 0.0 or a > 1.0 for a in alphas) or 1.0 not in alphas:
-        defects.append('alpha at +0x%03X is not a fraction across the sample' % fields['alpha'])
+        defects.append('alpha at +0x{:03X} is not a fraction across the sample'.format(fields['alpha']))
 
     module = vtablemap.module_base(pid)
     window_classes = {module + v for v in (memory.vtables_by_name('Window') or [])}
@@ -1062,10 +1050,9 @@ def _visibility_check(fields, chunks, nodes, pid):
                if (k[0] if isinstance(k, tuple) else k) in window_classes][:400]
     values = list(flags_for(windows).values()) if windows else []
     if not values:
-        defects.append('no window object could be read at +0x%03X' % fields['flag'])
+        defects.append('no window object could be read at +0x{:03X}'.format(fields['flag']))
     elif any(v & ~0x3F for v in values):
-        defects.append('the window flag at +0x%03X carries bits it never carries (%s)'
-                       % (fields['flag'], sorted({'0x%02X' % v for v in values})[:6]))
+        defects.append('the window flag at +0x{:03X} carries bits it never carries ({})'.format(fields['flag'], sorted({f'0x{v:02X}' for v in values})[:6]))
     return defects
 
 
@@ -1111,14 +1098,14 @@ def _with_visibility(pid, fields, root):
     try:
         return visibility_fields(pid, fields, root), ''
     except SystemExit as why:
-        return fields, '; visibility not derived (%s)' % why
+        return fields, f'; visibility not derived ({why})'
 
 
 def configure_channel(fields):
     """Hands the derived offsets to the DLL. The DLL knows nothing about CK3; all knowledge about
     it lives here. It walks nothing until this has been called."""
-    channel.ask('set %x %x %x %x %x %x %x' % tuple(fields[name] for name in (
-        'parent', 'position', 'size', 'name', 'text', 'children', 'count')))
+    channel.ask('set {:x} {:x} {:x} {:x} {:x} {:x} {:x}'.format(*tuple(fields[name] for name in (
+        'parent', 'position', 'size', 'name', 'text', 'children', 'count'))))
 
 
 def _start_block():
@@ -1126,8 +1113,8 @@ def _start_block():
     print(why)
     for name in ('parent', 'children', 'count', 'position', 'size', 'name', 'text',
                  'alpha', 'flag'):
-        print('%-9s +0x%03X' % (name, fields[name]) if name in fields
-              else '%-9s not derived in this game state' % name)
+        print(f'{name!s:<9} +0x{fields[name]:03X}' if name in fields
+              else f'{name!s:<9} not derived in this game state')
 
 
 def regions(pid):
@@ -1141,7 +1128,7 @@ def regions(pid):
     k32 = memory._k32
     handle = k32.OpenProcess(0x0410, False, pid)
     if not handle:
-        raise SystemExit('cannot open the game process: %d' % pid)
+        raise SystemExit(f'cannot open the game process: {int(pid)}')
     items = []
     address = 0x10000
     info = memory.Region()

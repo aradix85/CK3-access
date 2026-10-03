@@ -13,10 +13,8 @@ one `Seats` and asks it many times rather than calling a function per question. 
 """
 import sys
 
-from tools.ck3 import mapdata
-from tools.ck3 import model
-from tools.ck3 import numbering
 from tools import terminal
+from tools.ck3 import mapdata, model, numbering
 
 
 class Seats:
@@ -65,23 +63,23 @@ def main(pid):
     seats = Seats(pid)
     handle, name = model.player(pid)
     number = model.character(pid, handle).get('realm_capital')
-    print('player            : %s, handle %d' % (name, handle))
-    print('realm_capital     : %s -> %s' % (number, seats.title_of(number)))
-    print('sits on           : %s' % (seats.where(handle),))
+    print(f'player            : {name}, handle {int(handle)}')
+    print(f'realm_capital     : {number} -> {seats.title_of(number)}')
+    print(f'sits on           : {seats.where(handle)}')
 
     numbers = sorted(seats.titles)
     landed = sum(1 for n in numbers if seats.county_of(n))
-    print('title numbers     : %d, standing on a county: %d' % (len(numbers), landed))
+    print(f'title numbers     : {len(numbers)}, standing on a county: {int(landed)}')
 
     # The test that can fail: every title the files carry has to be reachable from some number.
     # A numbering off by one slot loses the lot, which is what the shifted read showed at 0 of 300.
     on_disk = numbering.on_disk('title')
     reached = {seats.title_of(n) for n in numbers} & on_disk
-    print('titles on disk    : %d, reached from a number: %d' % (len(on_disk), len(reached)))
+    print(f'titles on disk    : {len(on_disk)}, reached from a number: {len(reached)}')
     missed = sorted(on_disk - reached)
-    print('not reached       : %d  %s' % (len(missed), missed[:8]))
+    print(f'not reached       : {len(missed)}  {missed[:8]}')
     extra = sorted({seats.title_of(n) for n in numbers} - on_disk)
-    print('held beyond disk  : %d  %s' % (len(extra), extra[:4]))
+    print(f'held beyond disk  : {len(extra)}  {extra[:4]}')
 
 
 if __name__ == '__main__':

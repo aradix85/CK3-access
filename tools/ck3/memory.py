@@ -4,8 +4,9 @@ Finds the field offsets again at every start instead of writing them down, so th
 shifts the layout gives a clear failure instead of nonsense.
 """
 import ctypes
-import struct
+import pathlib
 import re
+import struct
 from ctypes import wintypes
 
 from tools import paths
@@ -64,9 +65,9 @@ def widget_vtables():
     global WIDGET_VTABLES
     if WIDGET_VTABLES is not None:
         return WIDGET_VTABLES
-    data = open(paths.require('EXE'), 'rb').read()
+    data = pathlib.Path(paths.require('EXE')).read_bytes()
     base, sections = _sections(data)
-    rdata = [s for s in sections if s[0] == '.rdata'][0]
+    rdata = next(s for s in sections if s[0] == '.rdata')
 
     def to_offset(rva):
         for _, va, size, raw in sections:
@@ -115,9 +116,9 @@ def vtables_by_name(part):
     `TextBox`), `Window`, `PushButton`, `Icon`, `HBoxLayout`, `VBoxLayout`. So check a filter on
     its count before using it. Measured 30 July 2026: `TextBox` gives zero, `Textbox` gives four.
     """
-    data = open(paths.require('EXE'), 'rb').read()
+    data = pathlib.Path(paths.require('EXE')).read_bytes()
     base, sections = _sections(data)
-    rdata = [s for s in sections if s[0] == '.rdata'][0]
+    rdata = next(s for s in sections if s[0] == '.rdata')
 
     def to_offset(rva):
         for _, va, size, raw in sections:
@@ -149,7 +150,7 @@ def vtables_by_name(part):
 
 
 def screen_size():
-    text = open(paths.require('SETTINGS'), encoding='utf-8', errors='ignore').read()
+    text = pathlib.Path(paths.require('SETTINGS')).read_text(encoding='utf-8', errors='ignore')
     pos = text.index('fullscreen_resolution')
     found = re.search(r'value="(\d+)x(\d+)"', text[pos:pos + 200])
     if found is None:
@@ -166,5 +167,5 @@ def type_name_count():
     names but no widget classes means the base class is called something else, and that is one
     constant to change. Without this distinction the two look alike.
     """
-    data = open(paths.require('EXE'), 'rb').read()
+    data = pathlib.Path(paths.require('EXE')).read_bytes()
     return len(set(re.findall(rb'\.\?A[VU][A-Za-z0-9_@?$]{2,120}@@', data)))

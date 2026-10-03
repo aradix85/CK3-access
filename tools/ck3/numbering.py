@@ -21,16 +21,13 @@ count from the database rather than from anywhere else.
 """
 import json
 import os
+import pathlib
 import re
 import struct
 import sys
 
-from tools.ck3 import anchor
-from tools.ck3 import database
-from tools.ck3 import derive
-from tools.ck3 import mapdata
-from tools.ck3 import model
 from tools import terminal
+from tools.ck3 import anchor, database, derive, mapdata, model
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -79,7 +76,7 @@ def _key_test(known):
     here read struct padding and pointer halves, which carry bytes no key does.
     """
     letters = ''.join(sorted(set(''.join(known))))
-    return re.compile('^[A-Za-z][%s]+$' % re.escape(letters))
+    return re.compile(f'^[A-Za-z][{re.escape(letters)}]+$')
 
 
 def on_disk(kind):
@@ -150,7 +147,7 @@ def _places(pid, kind, layout):
     head = derive.read(address, 64)
     table, blocks = struct.unpack_from('<QI', head, HEAD['table'])
     count = struct.unpack_from('<I', head, HEAD['count'])[0]
-    starts = struct.unpack('<%dQ' % blocks, derive.read(table, blocks * 8))
+    starts = struct.unpack(f'<{int(blocks)}Q', derive.read(table, blocks * 8))
     records = {n: starts[n // BLOCK] + (n % BLOCK) * layout['record'] for n in range(count)}
     if shape == 'blocks':
         return {n: at + layout['key'] for n, at in records.items()}
@@ -198,7 +195,7 @@ def keys(pid, kind):
     layout = derive_layout(pid, kind)
     count, found = _read(pid, kind, layout)
     if not _holds(kind, count, found):
-        raise SystemExit('the layout just derived for %s does not read %d keys' % (kind, count))
+        raise SystemExit(f'the layout just derived for {kind} does not read {int(count)} keys')
     return found
 
 
@@ -225,9 +222,9 @@ def _winner(scores, what):
     """The one candidate the files agree with. A tie is a failure rather than a coin toss."""
     ranked = sorted(scores.items(), key=lambda pair: -pair[1])
     if not ranked:
-        raise SystemExit('no %s agrees with the files on disk' % what)
+        raise SystemExit(f'no {what} agrees with the files on disk')
     if len(ranked) > 1 and ranked[1][1] == ranked[0][1]:
-        raise SystemExit('two candidates for the %s score alike' % what)
+        raise SystemExit(f'two candidates for the {what} score alike')
     return ranked[0][0]
 
 
@@ -361,7 +358,7 @@ def _derive_indirect(address, known):
 
 
 def _stored(kind):
-    stored = json.load(open(MODEL, encoding='utf-8'))
+    stored = json.loads(pathlib.Path(MODEL).read_text(encoding='utf-8'))
     if stored.get('key') != derive.build_key():
         return None
     return stored.get('databases', {}).get(kind)
@@ -377,10 +374,10 @@ def derive_layout(pid, kind):
         layout = _derive_indirect(address, known)
     else:
         layout = _derive_array(address, known)
-    stored = json.load(open(MODEL, encoding='utf-8'))
+    stored = json.loads(pathlib.Path(MODEL).read_text(encoding='utf-8'))
     stored['key'] = derive.build_key()
     stored.setdefault('databases', {})[kind] = layout
-    json.dump(stored, open(MODEL, 'w', encoding='utf-8'), indent=1, ensure_ascii=False)
+    pathlib.Path(MODEL).write_text(json.dumps(stored, indent=1, ensure_ascii=False), encoding='utf-8')
     return layout
 
 
@@ -388,9 +385,8 @@ def main(pid):
     for kind in CLASSES:
         found = keys(pid, kind)
         known = on_disk(kind)
-        print('%-9s %4d numbers in the running game, %4d of them keys the files carry, %4d on disk'
-              % (kind, len(found), sum(1 for t in found.values() if t in known), len(known)))
-        print('          %s' % ', '.join('%d=%s' % (n, found[n]) for n in sorted(found)[:6]))
+        print(f'{kind!s:<9} {len(found):4d} numbers in the running game, {int(sum(1 for t in found.values() if t in known)):4d} of them keys the files carry, {len(known):4d} on disk')
+        print('          {}'.format(', '.join(f'{int(n)}={found[n]}' for n in sorted(found)[:6])))
 
 
 if __name__ == '__main__':

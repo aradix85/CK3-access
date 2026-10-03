@@ -19,8 +19,8 @@ import os
 import re
 import sys
 
-from tools.ck3 import guimap
 from tools import paths
+from tools.ck3 import guimap
 
 SCREENS = os.path.join(paths.PROJECT, 'screens')
 
@@ -33,8 +33,7 @@ def entries(nodes):
     for entry in nodes:
         yield entry
         if entry['body']:
-            for deeper in entries(entry['body']):
-                yield deeper
+            yield from entries(entry['body'])
 
 
 def read(path):
@@ -95,18 +94,17 @@ def check(folder=SCREENS):
         missing += sorted(one for one in functions if one not in blob)
         missing += sorted('the widget ' + one for one in widgets if one not in present)
         for one in missing:
-            print('%s points at %s, and the gui files no longer have it.' % (name, one))
+            print(f'{name} points at {one}, and the gui files no longer have it.')
         gone += len(missing)
 
-        print('%s: %d windows, %d data functions and %d widget names, %d of them gone.'
-              % (name, len(windows), len(functions), len(widgets), len(missing)))
+        print(f'{name}: {len(windows)} windows, {len(functions)} data functions and {len(widgets)} widget names, {len(missing)} of them gone.')
     return gone
 
 
 def main():
     gone = check()
     if gone:
-        print('%d references are gone. Those screens read the wrong thing, or nothing.' % gone)
+        print(f'{int(gone)} references are gone. Those screens read the wrong thing, or nothing.')
     else:
         print('Every screen file still fits the gui files on disk.')
     sys.exit(1 if gone else 0)

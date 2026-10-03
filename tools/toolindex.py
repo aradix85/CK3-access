@@ -10,6 +10,7 @@ Usage: python -m tools.toolindex
 """
 import ast
 import os
+import pathlib
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SOURCE = os.path.join(ROOT, 'tools')
@@ -37,12 +38,12 @@ def signature(node):
         if i < required:
             parts.append(name)
         else:
-            parts.append('%s=%s' % (name, ast.unparse(args.defaults[i - required])))
+            parts.append(f'{name}={ast.unparse(args.defaults[i - required])}')
     if args.vararg:
         parts.append('*' + args.vararg.arg)
     if args.kwarg:
         parts.append('**' + args.kwarg.arg)
-    return '%s(%s)' % (node.name, ', '.join(parts))
+    return '{}({})'.format(node.name, ', '.join(parts))
 
 
 def return_shape(node):
@@ -53,7 +54,7 @@ def return_shape(node):
             continue
         if isinstance(k, ast.Return) and k.value is not None:
             if isinstance(k.value, ast.Tuple):
-                shapes.append('%d-tuple' % len(k.value.elts))
+                shapes.append(f'{len(k.value.elts)}-tuple')
             elif isinstance(k.value, (ast.Dict, ast.DictComp)):
                 shapes.append('dict')
             elif isinstance(k.value, (ast.List, ast.ListComp)):
@@ -90,24 +91,23 @@ lines = ['# Tool index - calls and the shape of what they return', '',
           'returns a pair, passed on as one thing, costs a run.', '']
 
 for path in files():
-    tree = ast.parse(open(path, 'r', encoding='utf-8').read())
+    tree = ast.parse(pathlib.Path(path).read_text(encoding='utf-8'))
     public = [k for k in tree.body
                if isinstance(k, ast.FunctionDef) and not k.name.startswith('_')]
     if not public:
         continue
-    lines.append('## %s' % os.path.relpath(path, SOURCE).replace('/', '\\'))
+    lines.append('## {}'.format(os.path.relpath(path, SOURCE).replace('/', '\\')))
     target = first_line(ast.get_docstring(tree))
     if target:
-        lines.append('*%s*' % target)
+        lines.append(f'*{target}*')
     lines.append('')
     lines.append('| call | returns | does |')
     lines.append('|---|---|---|')
     for k in public:
-        lines.append('| `%s` | %s | %s |'
-                      % (signature(k), return_shape(k),
+        lines.append('| `{}` | {} | {} |'.format(signature(k), return_shape(k),
                          first_line(ast.get_docstring(k)) or '-'))
     lines.append('')
 
 os.makedirs(os.path.dirname(OUT), exist_ok=True)
-open(OUT, 'w', encoding='utf-8').write('\n'.join(lines) + '\n')
-print('%s written, %d lines' % (OUT, len(lines) + 1))
+pathlib.Path(OUT).write_text('\n'.join(lines) + '\n', encoding='utf-8')
+print(f'{OUT} written, {int(len(lines) + 1)} lines')

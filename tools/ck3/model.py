@@ -26,17 +26,13 @@ Usage:
 """
 import json
 import os
+import pathlib
 import struct
 import sys
 import time
 
-from tools.ck3 import anchor
-from tools.ck3 import channel
-from tools.ck3 import derive
-from tools import paths
-from tools.ck3 import savegame
-from tools.ck3 import vtablemap
-from tools import terminal
+from tools import paths, terminal
+from tools.ck3 import anchor, channel, derive, savegame, vtablemap
 
 MODEL = os.path.join(paths.PROJECT, 'reports', 'model.json')
 FIXED = 100000
@@ -120,12 +116,12 @@ def value_of(chunk, offset, form):
 
 
 def stored():
-    model = json.load(open(MODEL, encoding='utf-8'))
+    model = json.loads(pathlib.Path(MODEL).read_text(encoding='utf-8'))
     return model if model.get('key') == derive.build_key() else None
 
 
 def _store(model):
-    json.dump(model, open(MODEL, 'w', encoding='utf-8'), indent=1, ensure_ascii=False)
+    pathlib.Path(MODEL).write_text(json.dumps(model, indent=1, ensure_ascii=False), encoding='utf-8')
 
 
 def readmany(addresses, count):
@@ -141,7 +137,7 @@ def readmany(addresses, count):
     per_question = max(1, min(400, 32768 // count))
     for start in range(0, len(addresses), per_question):
         part = addresses[start:start + per_question]
-        answer = channel.ask('readmany %d %s' % (count, ' '.join('%x' % a for a in part)),
+        answer = channel.ask(f"readmany {int(count)} {' '.join(f'{a:x}' for a in part)}",
                              timeout=180)
         for line in answer.split('\n'):
             piece = line.split('\t')
@@ -169,12 +165,12 @@ def _record_length(block_start, model):
 
 def _layout(pid):
     """Where every record starts, from the block table in one read, and how long a record is."""
-    model = json.load(open(MODEL, encoding='utf-8'))
+    model = json.loads(pathlib.Path(MODEL).read_text(encoding='utf-8'))
     db = anchor.database(pid)
     header = derive.read(db, 24)
     table = struct.unpack_from('<Q', header, 8)[0]
     blocks = struct.unpack_from('<I', header, 16)[0]
-    starts = struct.unpack('<%dQ' % blocks, derive.read(table, blocks * 8))
+    starts = struct.unpack(f'<{int(blocks)}Q', derive.read(table, blocks * 8))
     model['record_length'] = _record_length(starts[0], model)
     return model, starts, blocks
 
@@ -232,7 +228,7 @@ def answer_key(save_path, handles=None):
             key = field
             if path:
                 section, key = savegame.block(section, path[0]) or '', path[1]
-            found = re.search(r'\b%s=(-?[\d.]+)' % key, section)
+            found = re.search(rf'\b{key}=(-?[\d.]+)', section)
             row[field] = found.group(1) if found else None
         rows[number] = row
     return rows
@@ -315,8 +311,7 @@ def derive_all(pid, rows, block_bytes=1024):
     """
     good, wrong = records_for(pid, list(rows))
     if len(good) < 20:
-        raise SystemExit('only %d of %d records could be read and matched; too few to derive on'
-                         % (len(good), len(rows)))
+        raise SystemExit(f'only {len(good)} of {len(rows)} records could be read and matched; too few to derive on')
     length = len(next(iter(good.values())))
 
     name_counts: dict[tuple[int, str], int] = {}
@@ -348,7 +343,7 @@ def derive_all(pid, rows, block_bytes=1024):
 
     scalar: dict[tuple[str, int, str], int] = {}
     for handle, chunk in good.items():
-        for offset in range(0, length - 8):
+        for offset in range(length - 8):
             for width in (4, 8):
                 for field, form in patterns[handle].get(chunk[offset:offset + width], ()):
                     scalar[(field, offset, form)] = scalar.get((field, offset, form), 0) + 1
@@ -366,7 +361,7 @@ def derive_all(pid, rows, block_bytes=1024):
             chunk = chunks.get(targets[handle])
             if chunk is None:
                 continue
-            for offset in range(0, len(chunk) - 8):
+            for offset in range(len(chunk) - 8):
                 for width in (4, 8):
                     for field, form in patterns[handle].get(chunk[offset:offset + width], ()):
                         spot = (field, pointer_offset, offset, form)
@@ -378,7 +373,7 @@ def build(pid, rows, block_bytes=1024, against=None):
     """Derive and fold the result into the model, keeping the offsets relative to the handle
     field - the base `reports\\claims.json` and `check.py` already count against."""
     good, wrong, name, asked, scalar, indirect = derive_all(pid, rows, block_bytes)
-    model = json.load(open(MODEL, encoding='utf-8'))
+    model = json.loads(pathlib.Path(MODEL).read_text(encoding='utf-8'))
     fields, places, evidence = {}, {}, {}
 
     for field, _, _ in WANTED:
@@ -386,7 +381,7 @@ def build(pid, rows, block_bytes=1024, against=None):
         chosen = _best(direct, asked.get(field, 0))
         if chosen:
             fields[field] = chosen[0]
-            evidence[field] = '%d of %d in the record' % (chosen[2], asked[field])
+            evidence[field] = f'{int(chosen[2])} of {int(asked[field])} in the record'
             continue
         through = {}
         for (f, pointer, offset, form), hits in indirect.items():
@@ -394,12 +389,11 @@ def build(pid, rows, block_bytes=1024, against=None):
                 through[((pointer, offset), form)] = hits
         chosen = _best(through, asked.get(field, 0))
         if not chosen:
-            evidence[field] = 'nowhere, in none of the six forms (%d characters carry it)' \
-                % asked.get(field, 0)
+            evidence[field] = f'nowhere, in none of the six forms ({int(asked.get(field, 0))} characters carry it)'
             continue
         (pointer, offset), form, hits = chosen
         places[field] = {'pointer': pointer, 'offset': offset, 'form': form}
-        evidence[field] = '%d of %d through the pointer at +0x%03x' % (hits, asked[field], pointer)
+        evidence[field] = f'{int(hits)} of {int(asked[field])} through the pointer at +0x{pointer:03x}'
 
     model['key'] = derive.build_key()
     model['name'] = {'offset': name[0], 'form': 'string'}
@@ -408,8 +402,7 @@ def build(pid, rows, block_bytes=1024, against=None):
     model['evidence'] = evidence
     # Which save it was derived against belongs in the file. A save carries the state that wrote
     # it, so an offset table without its provenance is a number nobody can put back in context.
-    model['derived_on'] = '%s, %d characters, %d records unreadable or reused, against %s' \
-        % (time.strftime('%Y-%m-%d'), len(good), wrong, against or 'an unnamed save')
+    model['derived_on'] = f"{time.strftime('%Y-%m-%d')}, {len(good)} characters, {int(wrong)} records unreadable or reused, against {against or 'an unnamed save'}"
     _store(model)
     return model
 
@@ -449,8 +442,8 @@ def check(pid, wanted=400):
     own = sum(1 for slot, chunk in records.items()
               if struct.unpack_from('<I', chunk, 0)[0] & mask == slot)
     if own < 0.9 * len(records):
-        defects.append('only %d of %d records carry the slot they were read from, so the record '
-                       'length or the handle offset has moved' % (own, len(records)))
+        defects.append(f'only {int(own)} of {len(records)} records carry the slot they were read from, so the record '
+                       'length or the handle offset has moved')
 
     if 'name' in model:
         readable = 0
@@ -458,8 +451,7 @@ def check(pid, wanted=400):
             if text and len(text) >= 2 and text.isprintable():
                 readable += 1
         if readable < 0.5 * len(records):
-            defects.append('only %d of %d records hold a readable name at +0x%03x'
-                           % (readable, len(records), model['name']['offset']))
+            defects.append(f"only {int(readable)} of {len(records)} records hold a readable name at +0x{model['name']['offset']:03x}")
 
     places = model.get('indirect', {})
     targets = {}
@@ -476,8 +468,8 @@ def check(pid, wanted=400):
         # the whole database: 51 carry no money block and 171 no landed block, because most
         # characters are neither alive nor a ruler. What would be a defect is too few to check on.
         if len(here) < 20:
-            defects.append('only %d of %d records carry the pointer at +0x%03x, too few to '
-                           'check it against' % (len(here), len(records), pointer))
+            defects.append(f'only {len(here)} of {len(records)} records carry the pointer at +0x{pointer:03x}, too few to '
+                           'check it against')
         targets[pointer] = (here, readmany(sorted(set(here.values())), 0x400))
 
     live = {}
@@ -502,8 +494,7 @@ def check(pid, wanted=400):
             else:
                 broken += 1
         if held + broken >= 20 and held < 0.95 * (held + broken):
-            defects.append('%s %s %s fails for %d of the %d characters where it applies'
-                           % (left, how, right, broken, held + broken))
+            defects.append(f'{left} {how} {right} fails for {int(broken)} of the {int(held + broken)} characters where it applies')
 
     # A shifted offset usually lands on an identifier or half a pointer, and those are enormous.
     # The band is wide on purpose: it is here to catch nonsense, not to judge a rich duke.
@@ -512,17 +503,17 @@ def check(pid, wanted=400):
         seen = [values[field] for values in live.values() if field in values]
         wild = [value for value in seen if abs(value) > limit]
         if len(seen) >= 20 and len(wild) > 0.05 * len(seen):
-            defects.append('%s is outside any believable range for %d of the %d characters that '
-                           'carry it' % (field, len(wild), len(seen)))
+            defects.append(f'{field} is outside any believable range for {len(wild)} of the {len(seen)} characters that '
+                           'carry it')
     return defects
 
 
 def character(pid, handle, records=None):
     """Every field of one character: the scalars from the record, the rest through the pointers."""
-    model = json.load(open(MODEL, encoding='utf-8'))
+    model = json.loads(pathlib.Path(MODEL).read_text(encoding='utf-8'))
     good = records or records_for(pid, [handle])[0]
     if handle not in good:
-        raise ValueError('character %d is not in the database, or the slot was reused' % handle)
+        raise ValueError(f'character {int(handle)} is not in the database, or the slot was reused')
     chunk = good[handle]
     values = {'number': struct.unpack_from('<I', chunk, 0)[0] & model['number_mask'],
               'generation': struct.unpack_from('<I', chunk, 0)[0] >> 24}
@@ -564,15 +555,15 @@ def derive_player(pid, number):
     base = vtablemap.module_base(pid)
     pattern = struct.pack('<I', number).hex()
     if pattern[:2] == '00':
-        raise SystemExit('character %d begins with a zero byte, so it cannot lead a search; '
-                         'derive against a state whose player has another number' % number)
-    answer = channel.ask('findin %x %x %s' % (base, base + MODULE_SPAN, pattern), timeout=900)
+        raise SystemExit(f'character {int(number)} begins with a zero byte, so it cannot lead a search; '
+                         'derive against a state whose player has another number')
+    answer = channel.ask(f'findin {base:x} {base + MODULE_SPAN:x} {pattern}', timeout=900)
     spots = [int(line.split('\t')[1], 16) - base
              for line in answer.split('\n') if line.startswith('t\t')]
     if not spots:
-        raise SystemExit('no place in the module holds %d; either this is not the player of the '
-                         'state that is loaded, or the game keeps him somewhere else now' % number)
-    model = json.load(open(MODEL, encoding='utf-8'))
+        raise SystemExit(f'no place in the module holds {int(number)}; either this is not the player of the '
+                         'state that is loaded, or the game keeps him somewhere else now')
+    model = json.loads(pathlib.Path(MODEL).read_text(encoding='utf-8'))
     # One state leaves coincidences in: on 1.20.0.3 the 1066 player, 32769, sat in 27 places and the
     # 867 player in 8, and only 6 held both. So a second derivation on the same build keeps the
     # places both states agree on, and says which characters it rests on.
@@ -584,10 +575,9 @@ def derive_player(pid, number):
                              'the player is kept somewhere else, or one of the two was not loaded')
         spots = both
     model['key'] = derive.build_key()
-    model['player_spots'] = ['%x' % spot for spot in sorted(spots)]
-    model['player_derived_on'] = time.strftime('%Y-%m-%d %H:%M') + ' against character %d' % number \
-        + (', keeping the places that also held the player before (%s)'
-           % model.get('player_derived_on', '?') if earlier else '')
+    model['player_spots'] = [f'{spot:x}' for spot in sorted(spots)]
+    model['player_derived_on'] = time.strftime('%Y-%m-%d %H:%M') + f' against character {int(number)}' \
+        + (', keeping the places that also held the player before ({})'.format(model.get('player_derived_on', '?')) if earlier else '')
     _store(model)
     return sorted(spots)
 
@@ -610,18 +600,16 @@ def player(pid):
     raw = readmany(spots, 4)
     missing = [s for s in spots if s not in raw]
     if missing:
-        raise SystemExit('%d of the %d places the player is kept in cannot be read'
-                         % (len(missing), len(spots)))
+        raise SystemExit(f'{len(missing)} of the {len(spots)} places the player is kept in cannot be read')
     values = {struct.unpack('<I', raw[s])[0] for s in spots}
     if len(values) > 1:
-        raise SystemExit('the %d places that hold the player disagree: %s. One of them is not the '
-                         'player after all, so the derivation has to be done again'
-                         % (len(spots), ', '.join(str(v) for v in sorted(values))))
+        raise SystemExit(f"the {len(spots)} places that hold the player disagree: {', '.join(str(v) for v in sorted(values))}. One of them is not the "
+                         'player after all, so the derivation has to be done again')
     handle = values.pop()
     good, _ = records_for(pid, [handle])
     if handle not in good:
-        raise SystemExit('the player reads as %d, and the character database has no such '
-                         'character; the derivation no longer holds' % handle)
+        raise SystemExit(f'the player reads as {int(handle)}, and the character database has no such '
+                         'character; the derivation no longer holds')
     name = names_of(good, stored()['name']['offset']).get(handle)
     return handle, name
 
@@ -639,42 +627,37 @@ def main():
             path = os.path.join(savegame.SAVE_DIR, path)
         number = savegame.player(savegame.unpack(path))
         spots = derive_player(pid, int(number))
-        print('%s says its player is %s; %d places in the module hold it: %s'
-              % (os.path.basename(path), number, len(spots),
-                 ', '.join('+%x' % spot for spot in spots)))
+        print(f"{os.path.basename(path)} says its player is {number}; {len(spots)} places in the module hold it: {', '.join(f'+{spot:x}' for spot in spots)}")
         handle, name = player(pid)
-        print('reading it back gives %d, %s' % (handle, name))
+        print(f'reading it back gives {int(handle)}, {name}')
         return
 
     if len(sys.argv) > 2:
         path = sys.argv[2]
         if not os.path.isabs(path):
             path = os.path.join(savegame.SAVE_DIR, path)
-        print('deriving against %s' % os.path.basename(path))
+        print(f'deriving against {os.path.basename(path)}')
         rows = answer_key(path)
         spread = sorted(rows)[::max(1, len(rows) // 80)][:80]
         model = build(pid, {h: rows[h] for h in spread}, against=os.path.basename(path))
-        print('%s\n' % model['derived_on'])
-        print('name at +0x%03x' % model['name']['offset'])
+        print('{}\n'.format(model['derived_on']))
+        print('name at +0x{:03x}'.format(model['name']['offset']))
         for field, _, _ in WANTED:
             if field in model['fields']:
-                print('   %-24s record +0x%03x            %s'
-                      % (field, model['fields'][field], model['evidence'][field]))
+                print(f"   {field!s:<24} record +0x{model['fields'][field]:03x}            {model['evidence'][field]}")
             elif field in model['indirect']:
                 place = model['indirect'][field]
-                print('   %-24s record +0x%03x -> +0x%03x %-8s %s'
-                      % (field, place['pointer'], place['offset'], place['form'],
-                         model['evidence'][field]))
+                print(f"   {field!s:<24} record +0x{place['pointer']:03x} -> +0x{place['offset']:03x} {place['form']!s:<8} {model['evidence'][field]}")
             else:
-                print('   %-24s %s' % (field, model['evidence'][field]))
-        print('')
+                print(f"   {field!s:<24} {model['evidence'][field]}")
+        print()
 
     if stored() is None:
         raise SystemExit('there is no derivation for this build; give a save to derive against')
     defects = check(pid)
     for defect in defects:
-        print('DEFECT: %s' % defect)
-    print('the stored derivation %s' % ('has %d defects' % len(defects) if defects
+        print(f'DEFECT: {defect}')
+    print('the stored derivation %s' % (f'has {len(defects)} defects' if defects
                                         else 'holds against the running game'))
 
 
@@ -698,7 +681,7 @@ def compare(pid, save_path, count=400):
     and the seven that do not - because a disagreement in the second group says the answer key is
     the wrong file, and a disagreement in the first says a field has moved.
     """
-    model, starts, blocks = _layout(pid)
+    model, _starts, blocks = _layout(pid)
     slots = blocks * model['block_size']
     rows = answer_key(save_path)
     handles = [h for h in sorted(rows)][::max(1, len(rows) // count)][:count] or list(rows)
@@ -742,6 +725,5 @@ def compare(pid, save_path, count=400):
             ok, total = counters.get(field, (0, 0))
             counters[field] = (ok + (1 if agrees else 0), total + 1)
             if not agrees and len(misses) < 5:
-                misses.append('%s of character %d: memory %s, save %s'
-                              % (field, handle, live[field], text))
+                misses.append(f'{field} of character {int(handle)}: memory {live[field]}, save {text}')
     return counters, len(good), wrong, misses, slots

@@ -15,11 +15,9 @@ speaks. So this proves what the failure exit does, and nothing about how much th
 import json
 import os
 
-from tools import paths
+from tools import paths, terminal
+from tools.ck3 import channel, derive
 from tools.nvda import speech
-from tools.ck3 import channel
-from tools.ck3 import derive
-from tools import terminal
 
 terminal.utf8()
 
@@ -33,8 +31,8 @@ def _sentences_from(step, work):
     work()
     said = heard.spoken[before:]
     if not said:
-        raise SystemExit('SILENT: %s failed without a word. That is the whole point of this '
-                         'proof, so nothing else here matters until it speaks.' % step)
+        raise SystemExit(f'SILENT: {step} failed without a word. That is the whole point of this '
+                         'proof, so nothing else here matters until it speaks.')
     return said
 
 
@@ -48,10 +46,9 @@ def _silence_expected(step, work):
     before = len(heard.spoken)
     work()
     if len(heard.spoken) > before:
-        raise SystemExit('%s spoke, and it had no reason to: %s\nThat is most likely a game '
+        raise SystemExit(f'{step} spoke, and it had no reason to: {heard.spoken[-1]}\nThat is most likely a game '
                          'sitting on the main menu, where the recheck turns down a derivation '
-                         'that is perfectly good. Load a save and run this again.'
-                         % (step, heard.spoken[-1]))
+                         'that is perfectly good. Load a save and run this again.')
 
 
 def link_taken_away():
@@ -143,19 +140,17 @@ def main():
 
     if heard.brailled != heard.spoken:
         raise SystemExit('speech and braille came out different, so one of the two channels is '
-                         'dropping sentences:\nspoken:   %s\nbrailled: %s'
-                         % (heard.spoken, heard.brailled))
+                         f'dropping sentences:\nspoken:   {heard.spoken}\nbrailled: {heard.brailled}')
 
     for step, sentences in said.items():
-        print('%s spoke %d time(s):' % (step, len(sentences)))
+        print(f'{step} spoke {len(sentences)} time(s):')
         for sentence in sentences:
             print('   ', sentence)
 
     if len(set(heard.spoken)) < 2:
         raise SystemExit('Both steps spoke, but with the same words, so a tester cannot tell them '
                          'apart. That counts as a failure.')
-    print('\nTwo real failures, %d different sentences, no silence, braille alongside every one.'
-          % len(set(heard.spoken)))
+    print(f'\nTwo real failures, {len(set(heard.spoken))} different sentences, no silence, braille alongside every one.')
 
 
 if __name__ == '__main__':

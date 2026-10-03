@@ -70,7 +70,7 @@ def start_with_dll(exe_path, dll_path, arguments=''):
     startup.dwFlags = STARTF_USESHOWWINDOW
     startup.wShowWindow = SW_SHOWNOACTIVATE
     pid = PROCESS_INFORMATION()
-    command = ctypes.create_unicode_buffer('"%s" %s' % (exe_path, arguments))
+    command = ctypes.create_unicode_buffer(f'"{exe_path}" {arguments}')
 
     _require(k32.CreateProcessW(exe_path, command, None, None, False, CREATE_SUSPENDED,
                             None, None, ctypes.byref(startup), ctypes.byref(pid)),

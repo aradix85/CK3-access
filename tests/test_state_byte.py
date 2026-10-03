@@ -7,8 +7,7 @@ and only 0x08, on the widget or an ancestor, hides. The fixtures below are the v
 1.20.0.3: a drawn panel at 0x00 under a root at 0x20, a shut one at 0x18, the planner at 0x20.
 """
 
-from tools.ck3 import derive
-from tools.ck3 import reading
+from tools.ck3 import derive, reading
 
 # address -> (vtable, x, y, width, height, parent, name, text), the shape `derive.widgets` returns
 NODES = {

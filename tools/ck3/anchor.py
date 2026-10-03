@@ -26,14 +26,12 @@ Deriving costs about two and a half minutes, rechecking a fraction of a second.
 """
 import json
 import os
+import pathlib
 import struct
 import sys
 
-from tools.ck3 import derive
-from tools.ck3 import vtablemap
-from tools.ck3 import memory
-from tools.ck3 import channel
 from tools import terminal
+from tools.ck3 import channel, derive, memory, vtablemap
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -48,7 +46,7 @@ def _model():
 
 
 def _store(model):
-    json.dump(model, open(MODEL, 'w', encoding='utf-8'), indent=1, ensure_ascii=False)
+    pathlib.Path(MODEL).write_text(json.dumps(model, indent=1, ensure_ascii=False), encoding='utf-8')
 
 
 def vtables(pid, name=CLASS):
@@ -60,7 +58,7 @@ def vtables(pid, name=CLASS):
     """
     found = [rva for rva, written in memory.vtables_by_name(name).items() if written == name]
     if not found:
-        raise SystemExit('no vtable named %s in the exe' % name)
+        raise SystemExit(f'no vtable named {name} in the exe')
     return [vtablemap.module_base(pid) + rva for rva in sorted(found)]
 
 
@@ -98,7 +96,7 @@ def find_objects(pid, name=CLASS, valid=is_ref_database):
             if valid(address) and address not in found:
                 found.append(address)
     if not found:
-        raise SystemExit('no object of %s found in memory' % name)
+        raise SystemExit(f'no object of {name} found in memory')
     return found
 
 
@@ -126,7 +124,7 @@ def derive_global(pid, name=CLASS, valid=is_ref_database, tries=4):
             held = derive.read(where, 8)
             if held is not None and struct.unpack('<Q', held)[0] == address:
                 return where - base, address
-    raise SystemExit('no global pointing at %s; only heap and stack copies' % name)
+    raise SystemExit(f'no global pointing at {name}; only heap and stack copies')
 
 
 def object_of(pid, name=CLASS, valid=is_ref_database):
@@ -170,9 +168,9 @@ if __name__ == '__main__':
     pid = int(sys.argv[1])
     db = database(pid)
     blocks, slots = size(pid, db)
-    print('database at %x, %d blocks, %d character slots' % (db, blocks, slots))
+    print(f'database at {db:x}, {int(blocks)} blocks, {int(slots)} character slots')
     # Reading a character is `model.py`: this module's job ends at the database. Imported here
     # rather than at the top, because model imports this one.
     from tools.ck3 import model
     for number in [int(a) for a in sys.argv[2:]] or [32769]:
-        print('%d -> %s' % (number, model.character(pid, number)))
+        print(f'{int(number)} -> {model.character(pid, number)}')

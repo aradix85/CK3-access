@@ -35,24 +35,20 @@ Runs without -debug_mode: the console is shut only when there is one.
 """
 import json
 import os
+import pathlib
 import re
 import sys
 import time
 
-from tools.ck3 import channel
-from tools.ck3 import derive
-from tools.ck3 import guimap
-from tools import paths
-from tools.ck3 import vtablemap
-from tools.ck3 import windowmap
-from tools import terminal
-from tools.ck3.harvest import free_memory, game_date, paused, drawn_one, FREE_MEMORY_FLOOR
+from tools import paths, terminal
+from tools.ck3 import channel, derive, guimap, vtablemap, windowmap
+from tools.ck3.harvest import FREE_MEMORY_FLOOR, drawn_one, free_memory, game_date, paused
 
 OUT = os.path.join(paths.PROJECT, 'reports', 'openers.json')
 ONLY_A_VIEW = re.compile(r"^\[\s*(?:Open|Toggle)GameView(?:Data)?\s*\(\s*'([^']+)'[^\[\]]*\)\s*\]$")
 NAME = re.compile(r'\bname\s*=\s*"([^"]+)"')
 SHORTCUT = re.compile(r'\bshortcut\s*=\s*"([^"]+)"')
-ONCLICK = re.compile(r'\bonclick\s*=\s*(.+)', re.I)
+ONCLICK = re.compile(r'\bonclick\s*=\s*(.+)', re.IGNORECASE)
 SETTLE = 1.8
 game_classes = set()
 
@@ -103,8 +99,7 @@ def buttons_on_disk():
     added where the name is still free, so a widget that opens a view itself always wins - the
     child closes before its parent, and without that rule it would shadow the parent's own row.
     """
-    windows = set(json.load(open(os.path.join(paths.PROJECT, 'reports', 'windows.json'),
-                                 encoding='utf-8'))['windows'])
+    windows = set(json.loads(pathlib.Path(os.path.join(paths.PROJECT, 'reports', 'windows.json')).read_text(encoding='utf-8'))['windows'])
     found: dict[str, dict] = {}
     beneath: dict[str, dict] = {}
     for root, _, names in os.walk(paths.GAME):
@@ -113,53 +108,54 @@ def buttons_on_disk():
                 continue
             stack: list[dict] = []
             last = ''
-            for line in open(os.path.join(root, name), encoding='utf-8-sig', errors='replace'):
-                for piece in re.split(r'([{}])', line.split('#')[0]):
-                    if piece == '{':
-                        stack.append({'name': None, 'views': [], 'shortcut': None,
-                                      'opener': last})
-                    elif piece == '}':
-                        if not stack:
-                            continue
-                        block = stack.pop()
-                        carries = block['views'] or block['shortcut']
-                        if not block['name'] and carries and stack \
-                                and block['opener'].startswith('blockoverride'):
-                            stack[-1]['views'] += block['views']
-                            stack[-1]['shortcut'] = stack[-1]['shortcut'] or block['shortcut']
-                            continue
-                        row = None
-                        if block['name'] and len(block['views']) == 1 and block['views'][0]:
-                            row = {'via': 'onclick', 'target': block['views'][0]}
-                        elif block['name'] and block['shortcut'] in windows:
-                            row = {'via': 'shortcut', 'target': block['shortcut']}
-                        if row:
-                            row.update({'widget': block['name'], 'file': name})
-                            found.setdefault(block['name'], row)
-                        elif not block['name'] and stack and stack[-1]['name']:
-                            if len(block['views']) == 1 and block['views'][0]:
+            with open(os.path.join(root, name), encoding='utf-8-sig', errors='replace') as file:
+                for line in file:
+                    for piece in re.split(r'([{}])', line.split('#')[0]):
+                        if piece == '{':
+                            stack.append({'name': None, 'views': [], 'shortcut': None,
+                                          'opener': last})
+                        elif piece == '}':
+                            if not stack:
+                                continue
+                            block = stack.pop()
+                            carries = block['views'] or block['shortcut']
+                            if not block['name'] and carries and stack \
+                                    and block['opener'].startswith('blockoverride'):
+                                stack[-1]['views'] += block['views']
+                                stack[-1]['shortcut'] = stack[-1]['shortcut'] or block['shortcut']
+                                continue
+                            row = None
+                            if block['name'] and len(block['views']) == 1 and block['views'][0]:
                                 row = {'via': 'onclick', 'target': block['views'][0]}
-                            elif block['shortcut'] in windows:
+                            elif block['name'] and block['shortcut'] in windows:
                                 row = {'via': 'shortcut', 'target': block['shortcut']}
                             if row:
-                                row.update({'widget': stack[-1]['name'], 'file': name,
-                                            'under': True})
-                                beneath.setdefault(stack[-1]['name'], row)
-                    elif stack:
-                        if piece.strip():
+                                row.update({'widget': block['name'], 'file': name})
+                                found.setdefault(block['name'], row)
+                            elif not block['name'] and stack and stack[-1]['name']:
+                                if len(block['views']) == 1 and block['views'][0]:
+                                    row = {'via': 'onclick', 'target': block['views'][0]}
+                                elif block['shortcut'] in windows:
+                                    row = {'via': 'shortcut', 'target': block['shortcut']}
+                                if row:
+                                    row.update({'widget': stack[-1]['name'], 'file': name,
+                                                'under': True})
+                                    beneath.setdefault(stack[-1]['name'], row)
+                        elif stack:
+                            if piece.strip():
+                                last = piece.strip().splitlines()[-1].strip()
+                            named = NAME.search(piece)
+                            if named:
+                                stack[-1]['name'] = named.group(1)
+                            short = SHORTCUT.search(piece)
+                            if short:
+                                stack[-1]['shortcut'] = short.group(1)
+                            click = ONCLICK.search(piece)
+                            if click:
+                                only = ONLY_A_VIEW.match(click.group(1).strip().strip('"'))
+                                stack[-1]['views'].append(only.group(1) if only else None)
+                        elif piece.strip():
                             last = piece.strip().splitlines()[-1].strip()
-                        named = NAME.search(piece)
-                        if named:
-                            stack[-1]['name'] = named.group(1)
-                        short = SHORTCUT.search(piece)
-                        if short:
-                            stack[-1]['shortcut'] = short.group(1)
-                        click = ONCLICK.search(piece)
-                        if click:
-                            only = ONLY_A_VIEW.match(click.group(1).strip().strip('"'))
-                            stack[-1]['views'].append(only.group(1) if only else None)
-                    elif piece.strip():
-                        last = piece.strip().splitlines()[-1].strip()
     for widget, row in beneath.items():
         found.setdefault(widget, row)
     return sorted(found.values(), key=lambda row: row['widget'])
@@ -188,7 +184,7 @@ def live_record(game, pid, window, address=None, nodes=None):
     if address is None:
         named = [a for a in windows if nodes[a][6] == window]
         if not named:
-            raise SystemExit('%s is not in the tree at all' % window)
+            raise SystemExit(f'{window} is not in the tree at all')
         address = drawn_one(nodes, named, window)
     family = harvest.subtree(nodes, address)
     addresses = [a for a, _, _ in family]
@@ -280,14 +276,14 @@ def fires_for(source, goal):
         if key not in ('onclick', 'onrightclick') or not value:
             continue
         if key in last:
-            others.append('shadowed %s: %s' % (key, last[key]))
+            others.append(f'shadowed {key}: {last[key]}')
         last[key] = value
     wanted = []
     for key, value in last.items():
         if key == 'onclick' and reaches(value, goal):
             wanted.append(value)
         else:
-            others.append('%s: %s' % (key, value))
+            others.append(f'{key}: {value}')
     return wanted, others
 
 
@@ -305,7 +301,7 @@ def chain_routes(start, tables=None):
     on disk can sit in a row the live window does not build, so the first source is not always
     the one that works - `culture_window` from the character finder was the case.
     """
-    table, local, known, root = tables or gui_tables()
+    table, local, known, _root = tables or gui_tables()
     goals = {w: goal_of(w, known) for w in known}
     found: dict[str, dict] = {}
     for source in sorted(start):
@@ -530,7 +526,7 @@ def on_screen(address, nodes, scales, classes):
         return 'hidden by the game'
     above = window_above(address, chain, nodes, scales)
     if above is not None:
-        return 'covered by %s' % above
+        return f'covered by {above}'
     return None
 
 
@@ -602,7 +598,8 @@ def press(address, nodes, scales, classes, row):
     width, height = derive.screen_size(nodes, address, scales)
     row['point'] = [int(x + width / 2), int(y + height / 2)]
     row['box'] = [round(x), round(y), round(width), round(height)]
-    channel.ask('mouse %d %d 1' % tuple(row['point']))
+    click_x, click_y = row['point']
+    channel.ask(f'mouse {int(click_x)} {int(click_y)} 1')
     return None
 
 
@@ -661,18 +658,14 @@ def try_button(game, row, address, nodes, scales, classes, floor, date, number, 
     if landed is None and fallback is not None and back_to(game, fallback):
         landed = 'fell back'
     row['state_returned'] = landed is not None
-    print('%3d/%d %-32s %-24s %-18s opened %s%s'
-          % (number, total, row['widget'], row['target'], where,
-             row['opens'] or 'nothing', '' if landed == 'ok' else '  (%s)' % (landed or 'STUCK')))
+    print(f"{int(number):3d}/{int(total)} {row['widget']!s:<32} {row['target']!s:<24} {where!s:<18} opened {row['opens'] or 'nothing'}{'' if landed == 'ok' else '  (%s)' % (landed or 'STUCK')}")
     if landed is None:
-        raise SystemExit('something stayed open after clicking %s; stopping, because every '
-                         'measurement after this one would be contaminated' % row['widget'])
+        raise SystemExit('something stayed open after clicking {}; stopping, because every '
+                         'measurement after this one would be contaminated'.format(row['widget']))
     if free_memory() < FREE_MEMORY_FLOOR:
-        raise SystemExit('free memory %.1f GB is under the floor of %.1f GB'
-                         % (free_memory(), FREE_MEMORY_FLOOR))
+        raise SystemExit(f'free memory {free_memory():.1f} GB is under the floor of {FREE_MEMORY_FLOOR:.1f} GB')
     if game_date(game.tree()) != date:
-        raise SystemExit('the date moved from %s to %s: the clock is running'
-                         % (date, game_date(game.tree())))
+        raise SystemExit(f'the date moved from {date} to {game_date(game.tree())}: the clock is running')
     return landed
 
 
@@ -699,17 +692,15 @@ def main():
     if wanted:
         missing = sorted(set(wanted) - {r['widget'] for r in rows})
         if missing:
-            raise SystemExit('not a button on disk that only opens a view: %s' % ', '.join(missing))
+            raise SystemExit('not a button on disk that only opens a view: {}'.format(', '.join(missing)))
         rows = [r for r in rows if r['widget'] in wanted]
     target = (os.path.join(os.environ['TEMP'], 'ck3', 'openers_trial.json') if trial else OUT)
     nodes, _, baseline = game.state()
     if baseline:
-        raise SystemExit('these are open before the round starts: %s. Close them first, or every '
-                         'window this round sees will be attributed to a click that did not open it'
-                         % ', '.join(sorted(baseline)))
+        raise SystemExit('these are open before the round starts: {}. Close them first, or every '
+                         'window this round sees will be attributed to a click that did not open it'.format(', '.join(sorted(baseline))))
     date = game_date(nodes)
-    print('%d buttons on disk open nothing but a view; fields %s, date %s, free memory %.1f GB'
-          % (len(rows), why, date, free_memory()))
+    print(f'{len(rows)} buttons on disk open nothing but a view; fields {why}, date {date}, free memory {free_memory():.1f} GB')
 
     by_name: dict[str, list[int]] = {}
     for address, k in nodes.items():
@@ -736,8 +727,7 @@ def main():
                 try_button(game, row, usable[0], nodes, scales, classes, baseline, date,
                            number, len(rows), 'the screen')
             else:
-                row['reason'] = ('%d widgets carry this name and %d of them are on screen'
-                                 % (len(here), len(usable)))
+                row['reason'] = (f'{len(here)} widgets carry this name and {len(usable)} of them are on screen')
         else:
             try_button(game, row, here[0], nodes, scales, classes, baseline, date,
                        number, len(rows), 'the screen')
@@ -749,7 +739,7 @@ def main():
     for row in rows:
         if row.get('opens') and len(row['opens']) == 1:
             doors.setdefault(row['opens'][0], row['widget'])
-    print('\nphase two: %d windows can be opened first, then looked inside' % len(doors))
+    print(f'\nphase two: {len(doors)} windows can be opened first, then looked inside')
 
     for window, opener in sorted(doors.items()):
         waiting = [r for r in rows if r['reason'] is not None]
@@ -796,9 +786,9 @@ def main():
             inside_scales = derive.scales_for(list(inside_nodes))
             inside_classes = derive.class_map(pid, {a: k[0] for a, k in inside_nodes.items()})
 
-        print('   %-28s %d of the %d still waiting were in it' % (window, found, len(waiting)))
+        print(f'   {window!s:<28} {int(found)} of the {len(waiting)} still waiting were in it')
         if not back_to(game, baseline):
-            raise SystemExit('%s would not close again' % window)
+            raise SystemExit(f'{window} would not close again')
 
     os.makedirs(os.path.dirname(target), exist_ok=True)
     with open(target, 'w', encoding='utf-8') as file:
@@ -807,9 +797,8 @@ def main():
     pressed = [r for r in rows if r.get('point')]
     opened = [r for r in pressed if r['opens']]
     agreed = [r for r in opened if any(r['target'] in w or w in r['target'] for w in r['opens'])]
-    print('\npressed %d of %d, of those %d opened a window and %d matched the view name'
-          % (len(pressed), len(rows), len(opened), len(agreed)))
-    print('written to %s%s' % (target, ' (a trial, beside the map)' if trial else ''))
+    print(f'\npressed {len(pressed)} of {len(rows)}, of those {len(opened)} opened a window and {len(agreed)} matched the view name')
+    print('written to {}{}'.format(target, ' (a trial, beside the map)' if trial else ''))
 
 
 
@@ -823,19 +812,17 @@ def chain(pid, window, target, press_it=True):
     global game_classes
     game = windowmap.Game(pid)
     game_classes = game.window_classes
-    nodes, _, baseline = game.state()
+    _, _, baseline = game.state()
     if window not in baseline:
-        raise SystemExit('%s is not open; open it first, this only does the step inside it'
-                         % window)
+        raise SystemExit(f'{window} is not open; open it first, this only does the step inside it')
     tables = gui_tables()
     goal = goal_of(target, tables[2])
     if goal[0] == 'view':
-        print('%s is reached by opening the view %s' % (target, goal[1]))
+        print(f'{target} is reached by opening the view {goal[1]}')
     else:
-        print('%s is reached by setting %s to %s'
-              % (target, goal[1], goal[2] if goal[2] is not None else 'anything'))
-    spots, record, acting, nodes, scales, classes = spots_for_goal(game, pid, window, goal, tables)
-    print('%d widgets in %s carry a call that does that' % (len(spots), window))
+        print('{} is reached by setting {} to {}'.format(target, goal[1], goal[2] if goal[2] is not None else 'anything'))
+    spots, record, acting, _nodes, _scales, _classes = spots_for_goal(game, pid, window, goal, tables)
+    print(f'{len(spots)} widgets in {window} carry a call that does that')
     usable = []
     buttons = clickable_map(record, acting)
     for spot in spots:
@@ -851,18 +838,16 @@ def chain(pid, window, target, press_it=True):
             spot['why_not'] = 'covered everywhere, at its middle by %s' % (
                 (top['name'] or top['class']) if top else 'nothing readable')
     for spot in spots[:12]:
-        print('   %x %-12s %-18s rect %s %s'
-              % (spot['address'], spot['class'], spot['name'] or '-', spot['rect'],
-                 spot['why_not'] or 'CLICKABLE and reachable'))
+        print(f"   {spot['address']:x} {spot['class']!s:<12} {spot['name'] or '-'!s:<18} rect {spot['rect']} {spot['why_not'] or 'CLICKABLE and reachable'}")
         for call in spot['also_does'][:2]:
-            print('        also: %s' % call[:86])
-    print('%d of them can actually be reached by a click' % len(usable))
+            print(f'        also: {call[:86]}')
+    print(f'{len(usable)} of them can actually be reached by a click')
     if not press_it or not usable:
         return spots
     spot = usable[0]
     point = spot['point']
-    print('pressing %x at %d,%d' % (spot['address'], point[0], point[1]))
-    channel.ask('mouse %d %d 1' % point)
+    print(f"pressing {spot['address']:x} at {int(point[0])},{int(point[1])}")
+    channel.ask(f'mouse {int(point[0])} {int(point[1])} 1')
     for _ in range(6):
         time.sleep(SETTLE)
         _, _, drawn = game.state()

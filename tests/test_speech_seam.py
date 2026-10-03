@@ -42,7 +42,8 @@ def test_replace_silences_first_and_queue_does_not(heard):
     assert heard.cancels == 1
 
 
-def test_an_unknown_mode_breaks_where_it_happens(heard):
+@pytest.mark.usefixtures('heard')
+def test_an_unknown_mode_breaks_where_it_happens():
     with pytest.raises(ValueError):
         speech.output('text', 'sideways')
 
@@ -54,7 +55,7 @@ def test_a_failure_is_written_out_even_when_it_cannot_be_spoken(capsys):
     sentence goes to stderr first, which cannot fall over, and only then to NVDA.
     """
     class Deaf(speech.Recorder):
-        def nvdaController_speakText(self, text):
+        def nvdaController_speakText(self, _text):
             raise OSError('NVDA is gone')
 
     previous = speech._client

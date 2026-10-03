@@ -44,7 +44,7 @@ def window_of(pid):
 
     _user32.EnumWindows(collect, 0)
     if not found:
-        raise LookupError('process %d has no visible window' % pid)
+        raise LookupError(f'process {int(pid)} has no visible window')
     hwnd, width, height = max(found, key=lambda v: v[1] * v[2])
     if _user32.IsIconic(hwnd):
         _user32.ShowWindow(hwnd, SW_SHOWNOACTIVATE)
@@ -109,4 +109,4 @@ if __name__ == '__main__':
     import sys
     screenshot, b, h = grab(int(sys.argv[1]))
     screenshot.save(sys.argv[2])
-    print('capture %dx%d written to %s' % (b, h, sys.argv[2]))
+    print(f'capture {int(b)}x{int(h)} written to {sys.argv[2]}')

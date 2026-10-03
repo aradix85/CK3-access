@@ -133,11 +133,11 @@ def require(name):
     value = globals().get(name)
     if not value or not os.path.exists(value):
         raise SystemExit(
-            '%s not found (%r). Set the environment variable CK3_GAME or CK3_DOCS, '
-            'or check whether the game and the saves are on this machine.' % (name, value))
+            f'{name} not found ({value!r}). Set the environment variable CK3_GAME or CK3_DOCS, '
+            'or check whether the game and the saves are on this machine.')
     return value
 
 
 if __name__ == '__main__':
     for name in ('GAME', 'DOCS', 'PROJECT', 'WORK', 'EXE', 'SETTINGS', 'SAVES', 'ERROR_LOG'):
-        print('%-13s %s' % (name, globals()[name]))
+        print(f'{name!s:<13} {globals()[name]}')

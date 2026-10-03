@@ -25,9 +25,9 @@ except ModuleNotFoundError as missing:
     # The Python session of the radix-mcp server is its own venv, and the recogniser is left out of
     # it on purpose: a second copy of the whole stack can drift from hers without a word. So say
     # where to run instead of falling over three imports deep, where it reads as a broken project.
-    raise SystemExit('the text recogniser is not installed in this Python (%s is missing, %s). That '
+    raise SystemExit(f'the text recogniser is not installed in this Python ({missing.name} is missing, {sys.executable}). That '
                      'is the venv of the radix-mcp server; run this through pwsh, which starts her '
-                     'own Python where it is.' % (missing.name, sys.executable)) from None
+                     'own Python where it is.') from None
 
 ctypes.windll.user32.SetProcessDPIAware()
 
@@ -122,4 +122,4 @@ def read_screen(box=None):
 
 if __name__ == '__main__':
     for x, y, b, h, text in read_screen():
-        print('%5d,%5d  %3dx%-3d  %s' % (x, y, b, h, text))
+        print(f'{int(x):5d},{int(y):5d}  {int(b):3d}x{int(h):<3d}  {text}')

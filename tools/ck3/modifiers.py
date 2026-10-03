@@ -32,11 +32,9 @@ import ctypes.wintypes as wt
 import sys
 import time
 
-from tools.ck3 import channel
+from tools import terminal, windowgrab
+from tools.ck3 import channel, states
 from tools.nvda import speech
-from tools.ck3 import states
-from tools import windowgrab
-from tools import terminal
 
 user32 = ctypes.WinDLL('user32', use_last_error=True)
 kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
@@ -86,7 +84,7 @@ def bring(hwnd):
     return user32.GetForegroundWindow() == hwnd
 
 
-class Keys(object):
+class Keys:
     def __init__(self, game_window):
         self.game = game_window
         self.down = []
@@ -95,7 +93,7 @@ class Keys(object):
         event = INPUT(type=INPUT_KEYBOARD)
         event.u.ki = KEYBDINPUT(vk, user32.MapVirtualKeyW(vk, 0), KEYEVENTF_KEYUP if up else 0, 0, 0)
         if user32.SendInput(1, ctypes.byref(event), ctypes.sizeof(INPUT)) != 1:
-            raise OSError('SendInput refused, error %d' % ctypes.get_last_error())
+            raise OSError(f'SendInput refused, error {int(ctypes.get_last_error())}')
 
     def send(self, vk, up):
         if user32.GetForegroundWindow() != self.game:
@@ -120,8 +118,7 @@ class Keys(object):
             time.sleep(0.1)
         time.sleep(0.2)
         if not all(held(vk) and held(GENERIC[vk]) for vk in modifiers):
-            raise SystemExit('Windows does not hold %s down after SendInput; nothing was pressed with it'
-                             % ', '.join('0x%02X' % vk for vk in modifiers if not held(vk)))
+            raise SystemExit('Windows does not hold {} down after SendInput; nothing was pressed with it'.format(', '.join(f'0x{vk:02X}' for vk in modifiers if not held(vk))))
         self.send(key, False)
         time.sleep(0.05)
         self.send(key, True)
@@ -142,7 +139,7 @@ def counted():
         if part[0] == 'count':
             out[part[1]] = int(part[3])
         elif part[0] == 'asked':
-            out['%s %s' % (part[1], part[2])] = int(part[3])
+            out[f'{part[1]} {part[2]}'] = int(part[3])
     return out
 
 
@@ -157,13 +154,13 @@ def drawn_after(game, wanted, seconds=6.0):
 
 def back_to(game, baseline, first_key):
     """Shut what opened with posted keys, and prove the state is back."""
-    channel.ask('sendkey %d' % first_key)
+    channel.ask(f'sendkey {int(first_key)}')
     for _ in range(4):
         time.sleep(1.4)
         _, _, now = game.state()
         if now == baseline:
             return True
-        channel.ask('sendkey %d' % VK_ESCAPE)
+        channel.ask(f'sendkey {int(VK_ESCAPE)}')
     return game.state()[2] == baseline
 
 
@@ -174,7 +171,7 @@ def main(pid):
     game = windowmap.Game(pid)
     _, _, baseline = game.state()
     if baseline:
-        raise SystemExit('not starting from an empty screen; still drawn: %s' % ', '.join(sorted(baseline)))
+        raise SystemExit('not starting from an empty screen; still drawn: {}'.format(', '.join(sorted(baseline))))
     if not paused(game):
         raise SystemExit('the clock is running; pause the game first')
     print('counter:', ' | '.join(line for line in channel.ask('count').split('\n') if line.startswith('count')))
@@ -215,8 +212,7 @@ def main(pid):
             bring(hers)
         speech.output('the key test is done, the foreground is yours again')
     for name, numbers in results.items():
-        print('%-20s %s' % (name, ', '.join('%s %d' % pair for pair in numbers.items() if pair[1])
-                                  or 'nothing counted'))
+        print(f"{name!s:<20} {', '.join(f'{key} {count}' for key, count in numbers.items() if count) or 'nothing counted'}")
     print('clock standing:', paused(game))
 
 

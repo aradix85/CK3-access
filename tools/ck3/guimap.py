@@ -30,7 +30,7 @@ TOKEN = re.compile(r'''
     | (?P<string>"(?:[^"\\]|\\.)*")
     | (?P<punct>[{}=])
     | (?P<word>[^\s{}="\#]+)
-''', re.X)
+''', re.VERBOSE)
 
 
 def tokens(text):
@@ -45,7 +45,7 @@ def tokens(text):
     while at < len(text):
         found = TOKEN.match(text, at)
         if not found:
-            raise GuiError('line %d: cannot read character %r' % (line, text[at]))
+            raise GuiError(f'line {int(line)}: cannot read character {text[at]!r}')
         body = found.group()
         at = found.end()
         kind = found.lastgroup
@@ -72,7 +72,7 @@ def parse(text):
     found = tokens(text)
     at, out = _block(found, 0, out=[])
     if at != len(found):
-        raise GuiError('stray %r after the last block' % (found[at][1],))
+        raise GuiError(f'stray {found[at][1]!r} after the last block')
     return out
 
 
@@ -90,8 +90,8 @@ def _block(found, at, out):
 def _want(found, at, body):
     if at >= len(found) or found[at][1] != body:
         if at >= len(found):
-            raise GuiError('expected %r at the end of the file' % body)
-        raise GuiError('line %d: expected %r, found %r' % (found[at][2], body, found[at][1]))
+            raise GuiError(f'expected {body!r} at the end of the file')
+        raise GuiError(f'line {int(found[at][2])}: expected {body!r}, found {found[at][1]!r}')
     return at + 1
 
 
@@ -118,7 +118,7 @@ def _one(found, at):
             # refusing here would mean a second parser for the data folders.
             at, body = _block(found, at, out=[])
             return at, _entry(None, body=body)
-        raise GuiError('line %d: a stray %r' % (line, word))
+        raise GuiError(f'line {int(line)}: a stray {word!r}')
 
     if word in ('block', 'blockoverride'):
         at = _skip_equals(found, at)
@@ -209,8 +209,7 @@ def _walk(nodes):
     for entry in nodes:
         yield entry
         if entry['body']:
-            for deeper in _walk(entry['body']):
-                yield deeper
+            yield from _walk(entry['body'])
 
 
 def type_table(rows=None):
@@ -471,7 +470,7 @@ def window(name, table=None, local=None, known=None):
     if known is None:
         known = windows(rows if rows is not None else files())
     if name not in known:
-        raise GuiError('no window named %r on disk' % name)
+        raise GuiError(f'no window named {name!r} on disk')
     virtual, entry = known[name]
     templates = Templates(table, local, virtual)
     return build(entry['key'], entry['body'], templates), templates
@@ -496,14 +495,14 @@ def decision_widget(name, table=None, local=None, rows=None):
     wanted = DECISION_WIDGETS + name.lower() + '.gui'
     found = [(virtual, full) for _, virtual, full in rows if virtual.replace('\\', '/').lower() == wanted]
     if not found:
-        raise GuiError('no decision widget %r on disk' % name)
+        raise GuiError(f'no decision widget {name!r} on disk')
     virtual, full = found[-1]
     for entry in read(full):
         if entry['body'] and any(inner['key'] == 'name' and inner['value'] == name
                                  for inner in entry['body']):
             templates = Templates(table, local, virtual)
             return build(entry['key'], entry['body'], templates), templates
-    raise GuiError('%s has no block named %r' % (virtual, name))
+    raise GuiError(f'{virtual} has no block named {name!r}')
 
 
 LOCALIZATION = re.compile(r'^\s*([^\s:#][^\s:]*):\s*\d*\s*"(.*)"\s*$')
@@ -527,11 +526,12 @@ def localization(language='english'):
             for name in sorted(names):
                 if not name.endswith('.yml'):
                     continue
-                for line in open(os.path.join(root, name), encoding='utf-8-sig',
-                                 errors='replace'):
-                    found = LOCALIZATION.match(line)
-                    if found:
-                        out[found.group(1)] = found.group(2)
+                with open(os.path.join(root, name), encoding='utf-8-sig',
+                                 errors='replace') as file:
+                    for line in file:
+                        found = LOCALIZATION.match(line)
+                        if found:
+                            out[found.group(1)] = found.group(2)
     return out
 
 
@@ -565,8 +565,7 @@ def widgets(node, path=(), context=()):
         row.update({key: own[key] for key in own if key != 'datacontext'})
         yield row
     for child in node['children']:
-        for deeper in widgets(child, path + (node['type'],), below):
-            yield deeper
+        yield from widgets(child, path + (node['type'],), below)
 
 
 STYLE = re.compile(r'#[A-Za-z0-9_;:,]+\s|#!')

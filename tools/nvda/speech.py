@@ -95,16 +95,16 @@ def output(text, mode=REPLACE, braille=None):
     if mode == REPLACE:
         silence()
     elif mode != QUEUE:
-        raise ValueError('unknown mode: %r' % mode)
+        raise ValueError(f'unknown mode: {mode!r}')
 
     error = client().nvdaController_speakText(ctypes.c_wchar_p(text))
     if error:
-        raise OSError('NVDA returned error code %d on speech' % error)
+        raise OSError(f'NVDA returned error code {int(error)} on speech')
 
     error = client().nvdaController_brailleMessage(
         ctypes.c_wchar_p(text if braille is None else braille))
     if error:
-        raise OSError('NVDA returned error code %d on braille' % error)
+        raise OSError(f'NVDA returned error code {int(error)} on braille')
 
 
 def failure(where, what, remedy, mode=REPLACE):
@@ -119,10 +119,10 @@ def failure(where, what, remedy, mode=REPLACE):
     fail, and only then to NVDA. It returns the sentence, so a caller can raise with the same
     words the player just heard.
     """
-    sentence = '%s: %s, %s' % (where, what, remedy)
+    sentence = f'{where}: {what}, {remedy}'
     print(sentence, file=sys.stderr, flush=True)
     try:
         output(sentence, mode)
-    except Exception as trouble:
-        print('that sentence did not reach NVDA: %s' % trouble, file=sys.stderr, flush=True)
+    except Exception as trouble:  # noqa: BLE001 - the failure exit must never fail; the sentence is on stderr already
+        print(f'that sentence did not reach NVDA: {trouble}', file=sys.stderr, flush=True)
     return sentence

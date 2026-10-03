@@ -10,19 +10,18 @@ Besides the numbers it checks the names: every project path a document mentions 
 
 Usage:  python -m tools.check [--all]
 """
+import fnmatch
 import glob
 import io
 import json
 import os
+import pathlib
 import re
 import sys
 import zipfile
-import fnmatch
 from collections.abc import Callable
 
-
-from tools import paths
-from tools import terminal
+from tools import paths, terminal
 
 PROJ = paths.PROJECT
 GAME = paths.GAME
@@ -55,14 +54,14 @@ def files_in(part, pattern):
 
 
 def json_field(part, *keys):
-    value = json.load(open(_path(part), encoding='utf-8'))
+    value = json.loads(pathlib.Path(_path(part)).read_text(encoding='utf-8'))
     for build_key in keys:
         value = value[build_key]
     return value
 
 
 def json_keys(part, *skip):
-    value = json.load(open(_path(part), encoding='utf-8'))
+    value = json.loads(pathlib.Path(_path(part)).read_text(encoding='utf-8'))
     return len([k for k in value if k not in skip])
 
 
@@ -91,8 +90,7 @@ def _documents():
 
 def channel_commands():
     """Every command the DLL accepts, read out of its dispatch chain."""
-    source = open(os.path.join(PROJ, 'dll', 'channel.cpp'), encoding='utf-8',
-                  errors='replace').read()
+    source = pathlib.Path(os.path.join(PROJ, 'dll', 'channel.cpp')).read_text(encoding='utf-8', errors='replace')
     return set(CHANNEL_PARSE.findall(source))
 
 
@@ -117,20 +115,20 @@ def channel_names():
     claim = re.compile(r'^([a-z_]+)(?: ([a-z_]+)|(?: <[^>]+>(?:\.\.\.)?)+(?: \.\.\.)?)$')
     problems, checked = [], 0
     for path in _documents():
-        for number, line in enumerate(open(path, encoding='utf-8'), 1):
-            for piece in re.findall(r'`([^`]+)`', line):
-                piece = piece.replace('\\|', '|').split('|')[0].strip()
-                found = claim.match(piece)
-                if not found or found.group(1) in NOT_OURS:
-                    continue
-                checked += 1
-                if found.group(1) not in known and piece not in known:
-                    problems.append('%s line %d: `%s` is not a channel command'
-                                    % (os.path.relpath(path, PROJ), number, piece))
-    text = ' '.join(open(p, encoding='utf-8').read() for p in _documents())
+        with open(path, encoding='utf-8') as file:
+            for number, line in enumerate(file, 1):
+                for piece in re.findall(r'`([^`]+)`', line):
+                    piece = piece.replace('\\|', '|').split('|')[0].strip()
+                    found = claim.match(piece)
+                    if not found or found.group(1) in NOT_OURS:
+                        continue
+                    checked += 1
+                    if found.group(1) not in known and piece not in known:
+                        problems.append(f'{os.path.relpath(path, PROJ)} line {int(number)}: `{piece}` is not a channel command')
+    text = ' '.join(pathlib.Path(p).read_text(encoding='utf-8') for p in _documents())
     for command in sorted(known):
-        if '`%s' % command not in text:
-            problems.append('the DLL accepts `%s` and no document mentions it' % command)
+        if f'`{command}' not in text:
+            problems.append(f'the DLL accepts `{command}` and no document mentions it')
     return problems, checked
 
 
@@ -197,7 +195,7 @@ def ledger_buildings(what):
                     reaching += 1
         _LEDGER.update(boxes=len(boxes), acting=acting, opens_holding_view=reaching)
     if what not in _LEDGER:
-        raise KeyError('no such ledger building count: %r' % what)
+        raise KeyError(f'no such ledger building count: {what!r}')
     return _LEDGER[what]
 
 
@@ -220,7 +218,7 @@ def gui_dlc(what):
     found = set()
     total = 0
     for _, _, full in guimap_files():
-        for name in DLC_CHECK.findall(open(full, encoding='utf-8-sig', errors='replace').read()):
+        for name in DLC_CHECK.findall(pathlib.Path(full).read_text(encoding='utf-8-sig', errors='replace')):
             found.add(name)
             total += 1
     return total if what == 'checks' else len(found)
@@ -277,10 +275,11 @@ def ignored(relative):
     global _ignore_lines
     if _ignore_lines is None:
         _ignore_lines = []
-        for line in open(os.path.join(PROJ, '.gitignore'), encoding='utf-8'):
-            line = line.split('#')[0].strip().rstrip('/')
-            if line:
-                _ignore_lines.append(line)
+        with open(os.path.join(PROJ, '.gitignore'), encoding='utf-8') as file:
+            for line in file:
+                line = line.split('#')[0].strip().rstrip('/')
+                if line:
+                    _ignore_lines.append(line)
     parts = relative.replace('\\', '/').split('/')
     branches = ['/'.join(parts[:i + 1]) for i in range(len(parts))]
     return any(fnmatch.fnmatch(branch, line) for line in _ignore_lines for branch in branches)
@@ -373,28 +372,29 @@ def document_paths():
     missing, seen = [], 0
     for doc in docs:
         fenced = False
-        for number, line in enumerate(open(doc, encoding='utf-8'), 1):
-            if line.startswith('```'):
-                fenced = not fenced
-                continue
-            parts = ([line.strip().split(' ')[0]] if fenced
-                     else [p.strip() for p in line.split('`')[1::2]])
-            for part in parts:
-                part = part.rstrip('.,;:').replace('/', os.sep)
-                if any(c in part for c in '<>*|=') or part.startswith('.'):
+        with open(doc, encoding='utf-8') as file:
+            for number, line in enumerate(file, 1):
+                if line.startswith('```'):
+                    fenced = not fenced
                     continue
-                if os.sep not in part:
-                    if not part.lower().endswith(ours):
+                parts = ([line.strip().split(' ')[0]] if fenced
+                         else [p.strip() for p in line.split('`')[1::2]])
+                for part in parts:
+                    part = part.rstrip('.,;:').replace('/', os.sep)
+                    if any(c in part for c in '<>*|=') or part.startswith('.'):
+                        continue
+                    if os.sep not in part:
+                        if not part.lower().endswith(ours):
+                            continue
+                        seen += 1
+                        if part.lower() not in on_disk:
+                            missing.append((os.path.relpath(doc, PROJ), number, part))
+                        continue
+                    if part.split(os.sep)[0].lower() not in tops:
                         continue
                     seen += 1
-                    if part.lower() not in on_disk:
+                    if not os.path.exists(os.path.join(PROJ, part)):
                         missing.append((os.path.relpath(doc, PROJ), number, part))
-                    continue
-                if part.split(os.sep)[0].lower() not in tops:
-                    continue
-                seen += 1
-                if not os.path.exists(os.path.join(PROJ, part)):
-                    missing.append((os.path.relpath(doc, PROJ), number, part))
     return seen, missing
 
 
@@ -407,7 +407,7 @@ def mod_windows(part):
     loaded: none of them defines a window at all, so this has to stay zero. If it ever is not, the
     map was regenerated with a mod that does replace or add screens.
     """
-    rows = json.load(open(_path(part), encoding='utf-8'))['windows']
+    rows = json.loads(pathlib.Path(_path(part)).read_text(encoding='utf-8'))['windows']
     count = 0
     for row in rows.values():
         rel = (row.get('file') or '').replace('/', os.sep)
@@ -428,7 +428,7 @@ def harvest_total(part, field):
     """
     total = 0
     for name in sorted(glob.glob(os.path.join(_path(part), '*.json'))):
-        record = json.load(open(name, encoding='utf-8'))
+        record = json.loads(pathlib.Path(name).read_text(encoding='utf-8'))
         if field == 'windows':
             total += 1 if record.get('opened') else 0
         else:
@@ -475,14 +475,14 @@ def shortcuts(what):
     by whether the binding needs shift, ctrl or alt.
     """
     path = os.path.join(paths.GAME, 'game', 'gui', 'shortcuts.shortcuts')
-    text = open(path, encoding='utf-8-sig', errors='replace').read()
-    rows = re.findall(r'^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"([^"]*)"', text, re.M)
+    text = pathlib.Path(path).read_text(encoding='utf-8-sig', errors='replace')
+    rows = re.findall(r'^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"([^"]*)"', text, re.MULTILINE)
     named = [(n, k) for n, k in rows if not n.startswith('_')]
     # A binding with an empty key string is declared and bound to nothing - `event_option_14`,
     # `menu_14`, `sub_tab_14`, `tab_14`. Counting those among the keys we could press was wrong
     # here on 1 September 2026 and the sweep found it: 119 became 115 the moment a key was needed.
     bound = [(n, k) for n, k in named if k.strip()]
-    plain = [(n, k) for n, k in bound if not re.search(r'alt|ctrl|shift', k, re.I)]
+    plain = [(n, k) for n, k in bound if not re.search(r'alt|ctrl|shift', k, re.IGNORECASE)]
     if what == 'bindings':
         return len(rows)
     if what == 'generic':
@@ -495,7 +495,7 @@ def shortcuts(what):
         return len(plain)
     if what == 'modified':
         return len(bound) - len(plain)
-    raise KeyError('no such shortcut count: %r' % what)
+    raise KeyError(f'no such shortcut count: {what!r}')
 
 
 def shortcut_words(what):
@@ -516,9 +516,8 @@ def shortcut_words(what):
     `[Concatenate('tab_', ...)]`, is no binding name and is not counted here.
     """
     from tools.ck3 import guimap
-    text = open(os.path.join(paths.GAME, 'game', 'gui', 'shortcuts.shortcuts'),
-                encoding='utf-8-sig', errors='replace').read()
-    rows = re.findall(r'^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"([^"]*)"', text, re.M)
+    text = pathlib.Path(os.path.join(paths.GAME, 'game', 'gui', 'shortcuts.shortcuts')).read_text(encoding='utf-8-sig', errors='replace')
+    rows = re.findall(r'^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"([^"]*)"', text, re.MULTILINE)
     bindings = {n for n, _ in rows if not n.startswith('_')}
 
     def value_of(body, key):
@@ -541,7 +540,7 @@ def shortcut_words(what):
             walk(body)
 
     for _, _, full in guimap.files():
-        walk(guimap.parse(open(full, encoding='utf-8-sig', errors='replace').read()))
+        walk(guimap.parse(pathlib.Path(full).read_text(encoding='utf-8-sig', errors='replace')))
     declared = bindings & set(found)
     if what == 'declared':
         return len(declared)
@@ -560,7 +559,7 @@ def shortcut_words(what):
               if any((k or '').strip('"') in words for pair in found[n] for k in pair)}
     if what == 'worded':
         return len(worded)
-    raise KeyError('no such shortcut word count: %r' % what)
+    raise KeyError(f'no such shortcut word count: {what!r}')
 
 
 # Each takes its own arguments, from the claim's `arguments`.
@@ -603,15 +602,14 @@ def quoted_numbers(claims):
                 if ignored(name):
                     absent += 1
                     continue
-                problems.append('%s quotes %s, which does not exist' % (claim['name'], name))
+                problems.append('{} quotes {}, which does not exist'.format(claim['name'], name))
                 continue
             seen += 1
             measure = MEASURES[claim['measure']]
             measured = str(measure(*claim.get('arguments', [])))
-            text = open(path, encoding='utf-8').read()
-            if not re.search(r'(?<![\d.])%s(?![\d])' % re.escape(measured), text):
-                problems.append('%s says %s, and %s does not'
-                                % (claim['name'], measured, name))
+            text = pathlib.Path(path).read_text(encoding='utf-8')
+            if not re.search(rf'(?<![\d.]){re.escape(measured)}(?![\d])', text):
+                problems.append('{} says {}, and {} does not'.format(claim['name'], measured, name))
     return problems, seen, absent
 
 
@@ -630,68 +628,60 @@ def script_runs():
     wrong, seen = [], 0
     for path in texts:
         name = os.path.relpath(path, PROJ)
-        for number, line in enumerate(open(path, encoding='utf-8'), 1):
-            for found in RUN_MODULE.finditer(line):
-                if line[found.end():found.end() + 2] == '.<':
-                    continue                    # `tools.ck3.<name>` is a placeholder, not a start
-                module = found.group(1)
-                seen += 1
-                if not os.path.exists(os.path.join(PROJ, *module.split('.')) + '.py'):
-                    wrong.append('%s line %d starts %s, which does not exist' % (name, number, module))
-            for run in RUN_FILE.findall(line):
-                wrong.append('%s line %d starts %s by its path, which no longer works' % (name, number, run))
+        with open(path, encoding='utf-8') as file:
+            for number, line in enumerate(file, 1):
+                for found in RUN_MODULE.finditer(line):
+                    if line[found.end():found.end() + 2] == '.<':
+                        continue                    # `tools.ck3.<name>` is a placeholder, not a start
+                    module = found.group(1)
+                    seen += 1
+                    if not os.path.exists(os.path.join(PROJ, *module.split('.')) + '.py'):
+                        wrong.append(f'{name} line {int(number)} starts {module}, which does not exist')
+                for run in RUN_FILE.findall(line):
+                    wrong.append(f'{name} line {int(number)} starts {run} by its path, which no longer works')
     return wrong, seen
 
 
 def main(all_of_them):
-    claims = json.load(open(os.path.join(PROJ, 'reports', 'claims.json'),
-                                encoding='utf-8'))
+    claims = json.loads(pathlib.Path(os.path.join(PROJ, 'reports', 'claims.json')).read_text(encoding='utf-8'))
     drifted = []
     for claim in claims:
         measure = MEASURES[claim['measure']]
         measured = measure(*claim.get('arguments', []))
         matches = str(measured) == str(claim['claimed'])
         if all_of_them or not matches:
-            print('%s %s: the document says %s, measured %s'
-                  % ('   ' if matches else 'DRIFTED', claim['name'],
+            print('{} {}: the document says {}, measured {}'.format('   ' if matches else 'DRIFTED', claim['name'],
                      claim['claimed'], measured))
             if not matches:
-                print('        counting rule: %s' % claim['counting_rule'])
+                print('        counting rule: {}'.format(claim['counting_rule']))
         if not matches:
             drifted.append(claim['name'])
 
-    print('')
+    print()
     if drifted:
-        print('%d of the %d numbers no longer match the disk.'
-              % (len(drifted), len(claims)))
+        print(f'{len(drifted)} of the {len(claims)} numbers no longer match the disk.')
     else:
-        print('All %d numbers match the disk.' % len(claims))
+        print(f'All {len(claims)} numbers match the disk.')
 
     seen, missing = document_paths()
     for doc, number, part in missing:
-        print('GONE    %s line %d names %s' % (doc, number, part))
-    print('%d of the %d project paths named in the documents exist.'
-          % (seen - len(missing), seen))
+        print(f'GONE    {doc} line {int(number)} names {part}')
+    print(f'{int(seen - len(missing))} of the {int(seen)} project paths named in the documents exist.')
 
     wrong, claimed = channel_names()
     for problem in wrong:
-        print('STALE   %s' % problem)
-    print('%d of the %d channel commands named in the documents exist.'
-          % (claimed - len(wrong), claimed))
+        print(f'STALE   {problem}')
+    print(f'{int(claimed - len(wrong))} of the {int(claimed)} channel commands named in the documents exist.')
 
     quotes, counted, absent = quoted_numbers(claims)
     for problem in quotes:
-        print('QUOTED  %s' % problem)
-    print('%d of the %d numbers a document quotes are still the measured ones.%s'
-          % (counted - len(quotes), counted,
-             '' if not absent else ' %d more are quoted only in documents that are not in this '
-                                   'repository, so they cannot be checked here.' % absent))
+        print(f'QUOTED  {problem}')
+    print(f"{int(counted - len(quotes))} of the {int(counted)} numbers a document quotes are still the measured ones.{'' if not absent else f' {int(absent)} more are quoted only in documents that are not in this repository, so they cannot be checked here.'}")
 
     runs, started = script_runs()
     for problem in runs:
-        print('RUN     %s' % problem)
-    print('%d of the %d script starts named in documents and code are modules that exist.'
-          % (started - len([r for r in runs if 'does not exist' in r]), started))
+        print(f'RUN     {problem}')
+    print(f"{int(started - len([r for r in runs if 'does not exist' in r]))} of the {int(started)} script starts named in documents and code are modules that exist.")
     return 1 if drifted or missing or wrong or quotes or runs else 0
 
 

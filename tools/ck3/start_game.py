@@ -8,9 +8,8 @@ import os
 import sys
 import time
 
-from tools.ck3 import inject
-from tools.ck3 import channel
 from tools import paths
+from tools.ck3 import channel, inject
 
 GAME = paths.require('EXE')
 WORK_DIR = os.path.dirname(GAME)         # CK3 looks for its files from here
@@ -30,10 +29,10 @@ def start(timeout=60.0, arguments=''):
                 return number, answer.strip().splitlines()[0]
         except OSError:
             time.sleep(0.5)
-    raise OSError('the channel did not answer within %.0f seconds' % timeout)
+    raise OSError(f'the channel did not answer within {timeout:.0f} seconds')
 
 
 if __name__ == '__main__':
     number, greeting = start(arguments=' '.join(sys.argv[1:]))
-    print('game started, pid %d' % number)
+    print(f'game started, pid {int(number)}')
     print(greeting)

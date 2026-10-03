@@ -20,6 +20,7 @@ Do not quantise for the NPU: measured, int8 costs three errors over 35 boxes the
 no time. On the CPU int8 is worth it (35 ms down to 7 ms).
 """
 import os
+import pathlib
 
 import numpy
 import openvino
@@ -64,7 +65,7 @@ def _decode():
         if attribute.key == 'character':
             chars = attribute.value
     if chars is None:
-        raise ValueError('no character list in the metadata of %s' % source)
+        raise ValueError(f'no character list in the metadata of {source}')
     with open(_CHARS, 'w', encoding='utf-8') as file:
         file.write(chars)
     openvino.save_model(openvino.convert_model(source), _IR)
@@ -72,12 +73,11 @@ def _decode():
 
 def _charset(output_width):
     """The list must be exactly as long as the model has channels, or everything shifts."""
-    raw = open(_CHARS, encoding='utf-8').read().split('\n')
+    raw = pathlib.Path(_CHARS).read_text(encoding='utf-8').split('\n')
     for candidate in (raw, ['blank'] + raw, ['blank'] + raw + [' ']):
         if len(candidate) == output_width:
             return candidate
-    raise ValueError('character list of %d does not fit %d model channels'
-                     % (len(raw), output_width))
+    raise ValueError(f'character list of {len(raw)} does not fit {int(output_width)} model channels')
 
 
 def _request_for(width):
@@ -140,7 +140,7 @@ def read_box_conf(screenshot, x, y, width, height, margin=0):
                                       x + width + margin, y + height + margin))
     scaled = cut.width * HEIGHT / cut.height
     box = BOX * int(numpy.ceil(scaled / BOX))
-    output = list(_request_for(box).infer([_preprocess(cut, box)]).values())[0]
+    output = next(iter(_request_for(box).infer([_preprocess(cut, box)]).values()))
     best = output[0].argmax(axis=-1)
     scores = output[0].max(axis=-1)
     text, confidences, previous = [], [], -1
