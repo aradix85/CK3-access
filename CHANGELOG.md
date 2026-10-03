@@ -15,6 +15,7 @@ Outcomes, newest first. No release yet.
 - The tool index shows keyword-only parameters, and no longer counts the returns of a function defined inside another: `states.console` and `harvest.chain_round` return nothing, `windowgrab.window_of` a 3-tuple.
 - The text recogniser checks which form rapidocr answers in and stops on any other, instead of reading fields that may not be there; it reads a harvest capture exactly as before.
 - `database.numbering` stops with a sentence where a save has no faiths block under religion, as on 1.20, instead of failing a line later on a type error.
+- guimap carries real types: an entry, a template and an expanded widget each have their fixed shape. Its unused `widgets` is gone and a gui file is closed after reading. Files, templates, all 282 windows, five fully expanded windows and every localization key read exactly as before.
 - The channel's one retry is tested without a game: a link that breaks is tried once more, a link that will not open is said once.
 - The channel test no longer fails when someone holds ctrl, shift or alt while it runs: it watches the real keyboard throughout and repeats a disturbed key.
 - The game model holds on a state begun and played on 1.20: 400 characters, all 19 fields agree with the save.

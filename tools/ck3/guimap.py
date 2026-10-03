@@ -13,9 +13,49 @@ the first line, and a plain `utf-8` read swallows that line without a word.
 """
 import collections
 import os
+import pathlib
 import re
+from collections.abc import Callable, Iterator
+from typing import TypedDict
 
 from tools import paths
+
+# One token: its kind, its text, and the line it starts on.
+Token = tuple[str, str, int]
+# One gui file: its layer, its virtual path, and where it sits on disk.
+Row = tuple[str, str, str]
+
+
+class Entry(TypedDict):
+    """One entry of a parsed file, in one of the four shapes `parse` describes."""
+    key: str | None
+    arg: str | None
+    value: str | None
+    body: 'list[Entry] | None'
+
+
+class Definition(TypedDict):
+    """A template: what it inherits from, its own body, and where it is written."""
+    parent: str | None
+    body: list[Entry]
+    file: str
+    layer: str
+
+
+class Node(TypedDict):
+    """A widget expanded: its attributes as (key, value), and its children built the same way."""
+    type: str | None
+    attrs: list[tuple[str | None, str | None]]
+    children: 'list[Node]'
+    truncated: bool
+
+
+# Template name -> definition, global; (file, name) -> definition for `local_type`; slot -> content.
+Table = dict[str | None, Definition]
+LocalTable = dict[tuple[str, str | None], Definition]
+Overrides = dict[str | None, list[Entry]]
+# Window name -> the file it is written in, and its entry.
+Known = dict[str, tuple[str, Entry]]
 
 
 class GuiError(Exception):
@@ -33,7 +73,7 @@ TOKEN = re.compile(r'''
 ''', re.VERBOSE)
 
 
-def tokens(text):
+def tokens(text: str) -> list[Token]:
     """The file as a flat list of (kind, text, line). Comments and whitespace are dropped here so
     the parser never has to think about them, and a `#` inside a quoted string stays inside it -
     `default_format = "#medium"` is a value, not a comment, and reading it as one silently eats
@@ -41,10 +81,12 @@ def tokens(text):
 
     The line number rides along because a parser that only says *what* it choked on leaves you
     grepping through a hundred thousand lines for the one that did it."""
-    out, at, line = [], 0, 1
+    out: list[Token] = []
+    at, line = 0, 1
     while at < len(text):
         found = TOKEN.match(text, at)
-        if not found:
+        # Every alternative of TOKEN is a named group, so a match always names its kind.
+        if not found or found.lastgroup is None:
             raise GuiError(f'line {int(line)}: cannot read character {text[at]!r}')
         body = found.group()
         at = found.end()
@@ -55,11 +97,12 @@ def tokens(text):
     return out
 
 
-def _entry(key, arg=None, value=None, body=None):
+def _entry(key: str | None, arg: str | None = None, value: str | None = None,
+           body: list[Entry] | None = None) -> Entry:
     return {'key': key, 'arg': arg, 'value': value, 'body': body}
 
 
-def parse(text):
+def parse(text: str) -> list[Entry]:
     """A gui file as a list of entries. An entry is a key with at most one of a value and a body.
 
     Four shapes, because the grammar is not plain key-value:
@@ -76,7 +119,7 @@ def parse(text):
     return out
 
 
-def _block(found, at, out):
+def _block(found: list[Token], at: int, out: list[Entry]) -> tuple[int, list[Entry]]:
     """Entries until the matching `}` or the end of the file. Returns where it stopped."""
     while at < len(found):
         kind, body = found[at][0], found[at][1]
@@ -87,7 +130,7 @@ def _block(found, at, out):
     return at, out
 
 
-def _want(found, at, body):
+def _want(found: list[Token], at: int, body: str) -> int:
     if at >= len(found) or found[at][1] != body:
         if at >= len(found):
             raise GuiError(f'expected {body!r} at the end of the file')
@@ -95,19 +138,19 @@ def _want(found, at, body):
     return at + 1
 
 
-def _skip_equals(found, at):
+def _skip_equals(found: list[Token], at: int) -> int:
     """`block "x" {}` and `block = "x" {}` both occur, and so do both spellings of
     `blockoverride`. Measured 26 August 2026: eleven of the 563 files use the second form, and a
     reader that knows only the first stops dead on them."""
     return at + 1 if at < len(found) and found[at][1] == '=' and found[at][0] == 'punct' else at
 
 
-def _body(found, at):
+def _body(found: list[Token], at: int) -> tuple[int, list[Entry]]:
     at = _want(found, at, '{')
     return _block(found, at, out=[])
 
 
-def _one(found, at):
+def _one(found: list[Token], at: int) -> tuple[int, Entry]:
     """One entry, starting at `at`."""
     kind, word, line = found[at]
     at += 1
@@ -161,7 +204,7 @@ def _one(found, at):
     return at, _entry(None, value=word)
 
 
-def files(with_mods=True):
+def files(with_mods: bool = True) -> list[Row]:
     """Every gui file the engine has loaded, **in load order**, as (layer, virtual path, disk path).
 
     The virtual path is what the console wants and what the layers share: `game/gui/hud.gui`,
@@ -181,7 +224,7 @@ def files(with_mods=True):
               ('game', os.path.join(game, 'game'))]
     if with_mods:
         layers += [('mod', folder) for folder in paths.mod_folders()]
-    found = []
+    found: list[Row] = []
     for layer, base in layers:
         for root, _, names in os.walk(base):
             for name in sorted(names):
@@ -190,7 +233,8 @@ def files(with_mods=True):
                 full = os.path.join(root, name)
                 virtual = os.path.relpath(full, base).replace(os.sep, '/')
                 found.append((layer, virtual, full))
-    out, seen = [], set()
+    out: list[Row] = []
+    seen: set[str] = set()
     for row in reversed(found):
         if row[1] not in seen:
             seen.add(row[1])
@@ -198,14 +242,14 @@ def files(with_mods=True):
     return list(reversed(out))
 
 
-def read(path):
-    return parse(open(path, encoding='utf-8-sig', errors='replace').read())
+def read(path: str) -> list[Entry]:
+    return parse(pathlib.Path(path).read_text(encoding='utf-8-sig', errors='replace'))
 
 
 MAX_DEPTH = 60
 
 
-def _walk(nodes):
+def _walk(nodes: list[Entry]) -> Iterator[Entry]:
     """Every entry in a parsed file, at any depth."""
     for entry in nodes:
         yield entry
@@ -213,7 +257,7 @@ def _walk(nodes):
             yield from _walk(entry['body'])
 
 
-def type_table(rows=None):
+def type_table(rows: list[Row] | None = None) -> tuple[Table, LocalTable]:
     """Every template the engine knows, as name -> definition.
 
     Three keywords, and the difference is reach. `type` and `template` are global: a window in one
@@ -225,7 +269,8 @@ def type_table(rows=None):
 
     Later layers win, which is why `files()` hands them over in the order the engine loads them.
     """
-    table, local = {}, {}
+    table: Table = {}
+    local: LocalTable = {}
     for layer, virtual, full in (rows if rows is not None else files()):
         for entry in _walk(read(full)):
             if entry['key'] in ('type', 'template'):
@@ -241,24 +286,25 @@ def type_table(rows=None):
 class Templates:
     """The template table plus the one file being read, because `local_type` only holds there."""
 
-    def __init__(self, table, local, virtual):
+    def __init__(self, table: Table, local: LocalTable, virtual: str) -> None:
         self.table, self.local, self.virtual = table, local, virtual
         self.truncated = 0
         self.nested_tooltips = 0
         self.unknown_using: collections.Counter[str] = collections.Counter()
         self.slots_default = self.slots_filled = 0
-        self.used: collections.Counter[str] = collections.Counter()
-        self.declared: collections.Counter[str] = collections.Counter()
+        self.used: collections.Counter[str | None] = collections.Counter()
+        self.declared: collections.Counter[str | None] = collections.Counter()
 
-    def look_up(self, name):
+    def look_up(self, name: str) -> Definition | None:
         return self.local.get((self.virtual, name)) or self.table.get(name)
 
-    def chain(self, name):
+    def chain(self, name: str | None) -> list[list[Entry]]:
         """The bodies of the inheritance chain, the base first.
 
         `type textbox = textbox` is how the engine's own widgets get their defaults, so a type
         whose parent is itself is where the chain ends and the C++ begins."""
-        out, seen = [], set()
+        out: list[list[Entry]] = []
+        seen: set[str] = set()
         while name and name not in seen:
             seen.add(name)
             found = self.look_up(name)
@@ -269,13 +315,14 @@ class Templates:
         return list(reversed(out))
 
 
-def _inline_using(nodes, templates, depth, seen):
+def _inline_using(nodes: list[Entry], templates: Templates, depth: int,
+                  seen: frozenset[str]) -> list[Entry]:
     """`using = X` drops the body of template X in at that spot.
 
     Only its own body, not the bodies of its ancestors: `using = Font_Size_Small` inside a button
     is meant to add a font size, not to make the button inherit whatever textbox happens to
     default to."""
-    out = []
+    out: list[Entry] = []
     for entry in nodes:
         if entry['key'] != 'using' or not entry['value']:
             out.append(entry)
@@ -292,13 +339,14 @@ def _inline_using(nodes, templates, depth, seen):
     return out
 
 
-def _fill_blocks(nodes, overrides, templates, depth, seen=frozenset()):
+def _fill_blocks(nodes: list[Entry], overrides: Overrides, templates: Templates, depth: int,
+                 seen: frozenset[str | None] = frozenset()) -> list[Entry]:
     """Named slots take the content that was written for them, or their own default.
 
     `seen` holds the slots being filled right now. Content written for a slot can declare a slot
     of the same name again, and then filling it means filling it forever - measured on 39 of the
     196 windows, which ran Python out of stack before anything said why."""
-    out = []
+    out: list[Entry] = []
     for entry in nodes:
         if entry['key'] == 'blockoverride':
             continue
@@ -320,7 +368,8 @@ def _fill_blocks(nodes, overrides, templates, depth, seen=frozenset()):
     return out
 
 
-def build(key, body, templates, overrides=None, depth=0, in_tooltip=False):
+def build(key: str | None, body: list[Entry], templates: Templates, overrides: Overrides | None = None,
+          depth: int = 0, in_tooltip: bool = False) -> Node:
     """One widget, fully expanded: inherited defaults, mixed-in templates, slots filled.
 
     Every block becomes a node, including property groups like `size` and `state`. Nothing has to
@@ -341,20 +390,20 @@ def build(key, body, templates, overrides=None, depth=0, in_tooltip=False):
         templates.truncated += 1
         return {'type': key, 'attrs': [], 'children': [], 'truncated': True}
 
-    nodes = []
+    nodes: list[Entry] = []
     for inherited in templates.chain(key):
         nodes += inherited
     nodes += body
     nodes = _inline_using(nodes, templates, depth, frozenset())
 
-    effective = dict(overrides or {})
+    effective: Overrides = dict(overrides or {})
     for entry in nodes:
         if entry['key'] == 'blockoverride':
             effective[entry['arg']] = entry['body'] or []
             templates.declared[entry['arg']] += 1
     flat = _fill_blocks(nodes, effective, templates, depth)
 
-    node = {'type': key, 'attrs': [], 'children': [], 'truncated': False}
+    node: Node = {'type': key, 'attrs': [], 'children': [], 'truncated': False}
     for entry in flat:
         if entry['body'] is None:
             node['attrs'].append((entry['key'], entry['value']))
@@ -367,7 +416,7 @@ def build(key, body, templates, overrides=None, depth=0, in_tooltip=False):
     return node
 
 
-def windows(rows=None):
+def windows(rows: list[Row] | None = None) -> Known:
     """Every window on disk, as name -> (virtual path, its entry).
 
     The same list `reports\\windows.json` is built from, but with the body attached, so a caller
@@ -397,7 +446,7 @@ def windows(rows=None):
     rows = rows if rows is not None else files()
     table, _ = type_table(rows)
     root = _root_finder(table)
-    out = {}
+    out: Known = {}
     for layer, virtual, full in rows:
         entries = read(full)
         for entry in _walk(entries):
@@ -432,13 +481,14 @@ def windows(rows=None):
     return out
 
 
-def _root_finder(table):
+def _root_finder(table: Table) -> Callable[[str | None], str | None]:
     """Type name -> the end of its inheritance chain, remembered, because the walk repeats."""
-    known = {}
+    known: dict[str | None, str | None] = {}
 
-    def root(name):
+    def root(name: str | None) -> str | None:
         if name not in known:
-            seen, walk = set(), name
+            seen: set[str] = set()
+            walk = name
             while walk and walk not in seen:
                 seen.add(walk)
                 found = table.get(walk)
@@ -450,7 +500,8 @@ def _root_finder(table):
     return root
 
 
-def window(name, table=None, local=None, known=None):
+def window(name: str, table: Table | None = None, local: LocalTable | None = None,
+           known: Known | None = None) -> tuple[Node, Templates]:
     """A window resolved into a widget tree, with a Templates carrying what went wrong.
 
     **Build it under the key the block was written with, not under `window`.** A window declared
@@ -465,7 +516,7 @@ def window(name, table=None, local=None, known=None):
     on every single read.
     """
     rows = None
-    if table is None:
+    if table is None or local is None:
         rows = files()
         table, local = type_table(rows)
     if known is None:
@@ -474,13 +525,14 @@ def window(name, table=None, local=None, known=None):
         raise GuiError(f'no window named {name!r} on disk')
     virtual, entry = known[name]
     templates = Templates(table, local, virtual)
-    return build(entry['key'], entry['body'], templates), templates
+    return build(entry['key'], entry['body'] or [], templates), templates
 
 
 DECISION_WIDGETS = 'gui/decision_view_widgets/'
 
 
-def decision_widget(name, table=None, local=None, rows=None):
+def decision_widget(name: str, table: Table | None = None, local: LocalTable | None = None,
+                    rows: list[Row] | None = None) -> tuple[Node, Templates]:
     """The own gui of a decision, resolved into a widget tree like a window.
 
     A decision can name a gui file of its own with `widget = { gui = "..." }` in common\\decisions,
@@ -491,7 +543,7 @@ def decision_widget(name, table=None, local=None, rows=None):
     the file's name. The last file of that name in load order wins, as everywhere in the engine.
     """
     rows = rows if rows is not None else files()
-    if table is None:
+    if table is None or local is None:
         table, local = type_table(rows)
     wanted = DECISION_WIDGETS + name.lower() + '.gui'
     found = [(virtual, full) for _, virtual, full in rows if virtual.replace('\\', '/').lower() == wanted]
@@ -509,7 +561,7 @@ def decision_widget(name, table=None, local=None, rows=None):
 LOCALIZATION = re.compile(r'^\s*([^\s:#][^\s:]*):\s*\d*\s*"(.*)"\s*$')
 
 
-def localization(language='english'):
+def localization(language: str = 'english') -> dict[str, str]:
     """Key -> sentence, from the localization files of the game and of the active mods.
 
     This is the other half of the meaning: the gui file says which key a widget carries, and this
@@ -519,7 +571,7 @@ def localization(language='english'):
     folders = [os.path.join(paths.require('GAME'), 'game', 'localization', language)]
     for folder in paths.mod_folders():
         folders.append(os.path.join(folder, 'localization', language))
-    out = {}
+    out: dict[str, str] = {}
     for base in folders:
         if not os.path.isdir(base):
             continue
@@ -536,44 +588,11 @@ def localization(language='english'):
     return out
 
 
-MEANING = ('text', 'tooltip', 'raw_tooltip', 'tooltip_text', 'datacontext', 'onclick',
-           'shortcut', 'visible', 'default_format', 'value', 'texture', 'frame', 'tooltipvisible')
-
-
-def widgets(node, path=(), context=()):
-    """One row per widget that carries a name, with where its content comes from.
-
-    `context` is the data context of every ancestor, in order. A widget hardly ever names its own
-    subject: `datacontext = "[CharacterWindow.GetCharacter]"` sits on the window and everything
-    below it says `[Character.GetName]`. Reading a text key without that chain gives you a
-    sentence and no idea who it is about.
-
-    A name that starts with an underscore is a state, not a widget - `state = { name = _show }` -
-    and never reaches the tree in memory.
-    """
-    own = collections.defaultdict(list)
-    for key, value in node['attrs']:
-        if key in MEANING and value is not None:
-            own[key].append(value)
-    below = context + tuple(own.get('datacontext', ()))
-    name = None
-    for key, value in node['attrs']:
-        if key == 'name' and value and not value.startswith('_'):
-            name = value
-    if name:
-        row = {'name': name, 'type': node['type'], 'path': path + (node['type'],),
-               'context': below}
-        row.update({key: own[key] for key in own if key != 'datacontext'})
-        yield row
-    for child in node['children']:
-        yield from widgets(child, path + (node['type'],), below)
-
-
 STYLE = re.compile(r'#[A-Za-z0-9_;:,]+\s|#!')
 PLACEHOLDER = 'DEFAULT_TEXT'
 
 
-def strip_style(text):
+def strip_style(text: str | None) -> str:
     """The style markup as it is written in the localization files: `#weak ... #!`.
 
     A different thing from `derive.strip_markup`, which strips the byte codes the game has already

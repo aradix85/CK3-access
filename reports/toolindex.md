@@ -218,7 +218,6 @@ returns a pair, passed on as one thing, costs a run.
 | `window(name, table=None, local=None, known=None)` | 2-tuple | A window resolved into a widget tree, with a Templates carrying what went wrong. |
 | `decision_widget(name, table=None, local=None, rows=None)` | 2-tuple | The own gui of a decision, resolved into a widget tree like a window. |
 | `localization(language='english')` | value | Key -> sentence, from the localization files of the game and of the active mods. |
-| `widgets(node, path=(), context=())` | nothing | One row per widget that carries a name, with where its content comes from. |
 | `strip_style(text)` | value | The style markup as it is written in the localization files: `#weak ... #!`. |
 
 ## ck3\harvest.py

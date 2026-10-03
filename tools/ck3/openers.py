@@ -221,9 +221,9 @@ def goal_of(target, known=None):
     `knight_permissions` on one merely existing. A target without such a condition is taken to be
     a view that some button opens, which is what every chain step before 31 August 2026 was.
     """
-    entry = (known if known is not None else guimap.windows()).get(target, (None, None))[1]
-    for item in (entry or {}).get('body', ()):
-        if item.get('key') == 'visible' and item.get('value'):
+    on_disk = (known if known is not None else guimap.windows()).get(target)
+    for item in (on_disk[1]['body'] if on_disk else None) or []:
+        if item['key'] == 'visible' and item['value']:
             found = CONDITION.search(item['value'])
             if found:
                 return ('variable', found.group(2), found.group(3) or None)

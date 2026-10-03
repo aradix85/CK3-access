@@ -221,7 +221,7 @@ def pairs(window, table, local, known, root, record=None, disk_tree=None):
 
 
 CUSTOM_WIDGETS = 'custom_widgets_container'
-_decision_widgets = {}
+_decision_widgets: dict[str, guimap.Node | None] = {}
 
 
 def _decision_widget(name, table, local):
