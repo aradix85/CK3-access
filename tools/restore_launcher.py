@@ -15,7 +15,7 @@ ORIGINAL = os.path.join(paths.PROJECT, 'launcher-settings.original.json')
 TARGET = os.path.join(paths.require('GAME'), 'launcher', 'launcher-settings.json')
 
 
-def sha256(path):
+def sha256(path: str) -> str:
     with open(path, 'rb') as file:
         return hashlib.sha256(file.read()).hexdigest()
 

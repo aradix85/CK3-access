@@ -16,7 +16,7 @@ WORK_DIR = os.path.dirname(GAME)         # CK3 looks for its files from here
 CHANNEL = paths.DLL
 
 
-def start(timeout=60.0, arguments=''):
+def start(timeout: float = 60.0, arguments: str = '') -> tuple[int, str]:
     """Arguments are passed on to the game; `-debug_mode` opens the console. That flag belongs to
     research and never to the product."""
     os.chdir(WORK_DIR)

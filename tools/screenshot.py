@@ -16,9 +16,12 @@ from tools import paths
 ctypes.windll.user32.SetProcessDPIAware()
 os.makedirs(paths.WORK, exist_ok=True)
 DEFAULT = os.path.join(paths.WORK, 'beeld.jpg')
+# (left, top, right, bottom) in screen points.
+Box = tuple[int, int, int, int]
 
 
-def capture(path=DEFAULT, box=None, scale=0.5, quality=60):
+def capture(path: str = DEFAULT, box: Box | None = None, scale: float = 0.5,
+            quality: int = 60) -> tuple[str, tuple[int, int]]:
     """box is (left, top, right, bottom) in screen points, or None for the whole screen."""
     screenshot = ImageGrab.grab(bbox=box)
     if scale != 1.0:
@@ -30,13 +33,13 @@ def capture(path=DEFAULT, box=None, scale=0.5, quality=60):
 
 if __name__ == '__main__':
     target = sys.argv[1] if len(sys.argv) > 1 else DEFAULT
-    crop_box = tuple(int(w) for w in sys.argv[2:6]) if len(sys.argv) >= 6 else None
+    crop_box = ((int(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4]), int(sys.argv[5]))
+                if len(sys.argv) >= 6 else None)
     path, extent = capture(target, crop_box)
-    import os
     print(f'{path}  {int(extent[0])}x{int(extent[1])}  {os.path.getsize(path) / 1024:.0f} kB')
 
 
-def diff(box=None, pause=0.4):
+def diff(box: Box | None = None, pause: float = 0.4) -> tuple[int, int]:
     """Captures the same crop twice and counts how many pixels changed.
 
     Counting is more useful than looking: it answers 'did anything happen' without anyone having
