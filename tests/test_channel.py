@@ -11,10 +11,12 @@ arrive with its modifiers held.
 seconds, a restart takes minutes. Skipped without a built DLL or a compiler, and while the game
 runs, because both answer on the same pipe name.
 """
+import ctypes
 import os
 import pathlib
 import re
 import subprocess
+import threading
 import time
 
 import pytest
@@ -37,6 +39,17 @@ def missing(reason):
     if TOOLS_REQUIRED:
         pytest.fail(reason + ' (and .tools-required says this machine has it)')
     pytest.skip(reason)
+
+
+# Shift, ctrl and alt, either side. The target asks GetKeyState, and that includes the real keyboard:
+# a person reading along with NVDA holds ctrl, often without noticing. Measured 3 October 2026: in six
+# runs a real modifier was seen around a key five times, and the one failure fell exactly on it.
+PHYSICAL = {0x10: 'shift', 0x11: 'ctrl', 0x12: 'alt'}
+
+
+def physical_modifiers():
+    """The modifiers held on the real keyboard right now, by name."""
+    return {name for vk, name in PHYSICAL.items() if ctypes.windll.user32.GetAsyncKeyState(vk) & 0x8000}
 
 
 def vcvars():
@@ -123,14 +136,40 @@ def test_every_command(host):
         time.sleep(seconds)
         check(*args)
 
+    interfered = []
+    seen: list[tuple[float, set[str]]] = []     # a real modifier down: when, and which; all test long
+    done = threading.Event()
+
+    def watch():
+        while not done.is_set():
+            names = physical_modifiers()
+            if names:
+                seen.append((time.monotonic(), names))
+            time.sleep(0.005)
+    watcher = threading.Thread(target=watch, daemon=True)
+    watcher.start()
+
     def arrives(command, answer, keys):
         """The answer - a list, or a test on it - and the key messages the window logged: kind, key,
         context bit, then shift, ctrl and alt as GetKeyState gave them while the message was
-        handled. ? is either."""
-        before = len(pathlib.Path(log).read_text().splitlines())
-        lines = lines_of(command)
-        time.sleep(0.4)
-        got = pathlib.Path(log).read_text().splitlines()[before:]
+        handled. ? is either. A real modifier down at any moment from the send to the reading makes
+        the reading worthless - also while the channel is still sending, which a combination takes a
+        fifth of a second to do: wait until none is held, at most thirty seconds, send, and send again
+        if one came down meanwhile, at most ten times. Every disturbed send is listed with its key."""
+        for _ in range(10):
+            wait_until = time.monotonic() + 30
+            while physical_modifiers() and time.monotonic() < wait_until:
+                time.sleep(0.05)
+            start = time.monotonic()
+            before = len(pathlib.Path(log).read_text().splitlines())
+            lines = lines_of(command)
+            time.sleep(0.4)
+            got = pathlib.Path(log).read_text().splitlines()[before:]
+            end = time.monotonic()
+            held = {name for moment, names in list(seen) if start <= moment <= end for name in names}
+            if not held:
+                break
+            interfered.append(f"{command} ({'+'.join(sorted(held))})")
         fits = len(got) == len(keys) and all(
             len(g.split()) == len(k.split()) and all(b in ('?', a) for a, b in zip(g.split(), k.split(), strict=True))
             for g, k in zip(got, keys, strict=True))
@@ -224,7 +263,12 @@ def test_every_command(host):
     check('combo 50 160 4294967408', 'too big for 32 bits', error('not a key code'))
     check('find  ?? 4b', 'blanks before the pattern', error('first byte cannot be a wildcard'))
 
-    assert not failed, '\n'.join(failed)
+    done.set()
+    watcher.join()
+    if interfered:
+        print('a real modifier was held around: ' + ', '.join(interfered))
+    assert not failed, '\n'.join(failed + ['a real modifier was held around: ' + ', '.join(interfered)]
+                                 if interfered else failed)
 
 
 def clang_tidy():
