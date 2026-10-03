@@ -9,6 +9,19 @@ and an entry a later measurement overturns is taken out rather than left standin
 beside it: git keeps the text, `ARCHITECTURE.md` keeps the reasoning, and `reports/claims.json`
 keeps the numbers with the rule they were counted by. A changelog that may never forget only grows.
 
+## 2026-10-03
+
+- **Alt+A opens the activity window, so all nine combinations the HUD declares open one.** Measured
+  on the ruler of Ghur in 867 with a hunt running, and now in the map. There is no effect that starts
+  an activity, so it was planned the way a player does: F9, a row in the activity list, Plan, the
+  kind of hunt and a place on the map, Enter on Start. A hunt at one's own capital starts at once,
+  without the clock running.
+- **"A window flag other than zero means not drawn" does not hold.** While the hunt was being
+  planned, the planner stood on the screen with 0x20 in that byte - the text recogniser read it -
+  and the tooling, which asks for zero, counted no drawn window and refused every button in it. The
+  root and every layer carried 0x20 too, and still did once the hunt ran. What the bit means is
+  open; the places to hunt were found by asking only for the hiding bit, 0x08.
+
 ## 2026-10-02
 
 - **Alt+G opens the College of Cardinals on a ruler whose faith elects them**, measured on a

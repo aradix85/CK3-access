@@ -67,7 +67,9 @@ Every window is built up front and kept in the tree, so "it is in the tree" says
 whether a player can see it. Four mechanisms decide that, and all four are needed:
 
 - **A window flag** says whether a window is drawn at all. Alpha does not: windows sit at alpha 1
-  without being drawn. **The same byte says a second thing on a button:** its low bits mean the
+  without being drawn. Zero means drawn, but not every other value means hidden: on 1.20 an activity
+  planner was on the screen with 0x20 in that byte, so which bits hide a window is being measured
+  again. **The same byte says a second thing on a button:** its low bits mean the
   game has switched that button off. Measured by emptying the save dialog's name field, with the
   cancel button beside it as the counter-example, and crossed against the gui files over three
   windows and 6906 widgets - no widget carries those bits without an `enabled` condition on itself
