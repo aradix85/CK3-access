@@ -11,17 +11,19 @@ Usage: python -m tools.toolindex
 import ast
 import os
 import pathlib
+from collections.abc import Iterator
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SOURCE = os.path.join(ROOT, 'tools')
-OUT = os.path.join(ROOT, 'reports', 'toolindex.md')
+from tools import paths
+
+SOURCE = os.path.join(paths.PROJECT, 'tools')
+OUT = os.path.join(paths.REPORTS, 'toolindex.md')
 SKIP = ('test_', 'overzicht.py',
         # Reads the maintainer's working notes only, and .gitignore keeps it out of the repository.
         # Listing it here would describe a tool a reader of this index does not have.
         'docsearch.py')
 
 
-def first_line(text):
+def first_line(text: str | None) -> str:
     if not text:
         return ''
     for line in text.strip().splitlines():
@@ -30,7 +32,7 @@ def first_line(text):
     return ''
 
 
-def signature(node):
+def signature(node: ast.FunctionDef) -> str:
     parts = []
     args = node.args
     required = len(args.args) - len(args.defaults)
@@ -41,18 +43,30 @@ def signature(node):
             parts.append(f'{name}={ast.unparse(args.defaults[i - required])}')
     if args.vararg:
         parts.append('*' + args.vararg.arg)
+    elif args.kwonlyargs:
+        parts.append('*')
+    for keyword, default in zip(args.kwonlyargs, args.kw_defaults, strict=True):
+        parts.append(keyword.arg if default is None else f'{keyword.arg}={ast.unparse(default)}')
     if args.kwarg:
         parts.append('**' + args.kwarg.arg)
     return '{}({})'.format(node.name, ', '.join(parts))
 
 
-def return_shape(node):
-    """The shape of what comes out, because that is what the mistakes were about."""
-    shapes = []
-    for k in ast.walk(node):
-        if isinstance(k, ast.FunctionDef) and k is not node:
+def _returns(node: ast.AST) -> Iterator[ast.Return]:
+    """The return statements of this function itself, not of a function or class defined in it."""
+    for child in ast.iter_child_nodes(node):
+        if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
             continue
-        if isinstance(k, ast.Return) and k.value is not None:
+        if isinstance(child, ast.Return):
+            yield child
+        yield from _returns(child)
+
+
+def return_shape(node: ast.FunctionDef) -> str:
+    """The shape of what comes out, because that is what the mistakes were about."""
+    shapes: list[str] = []
+    for k in _returns(node):
+        if k.value is not None:
             if isinstance(k.value, ast.Tuple):
                 shapes.append(f'{len(k.value.elts)}-tuple')
             elif isinstance(k.value, (ast.Dict, ast.DictComp)):
@@ -67,14 +81,14 @@ def return_shape(node):
                 shapes.append('value')
     if not shapes:
         return 'nothing'
-    unique = []
+    unique: list[str] = []
     for v in shapes:
         if v not in unique:
             unique.append(v)
     return ' of '.join(unique)
 
 
-def files():
+def files() -> Iterator[str]:
     for map_, _, names in os.walk(SOURCE):
         for name in sorted(names):
             if not name.endswith('.py'):

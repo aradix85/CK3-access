@@ -44,7 +44,7 @@ returns a pair, passed on as one thing, costs a run.
 | `harvest_total(part, field)` | value | A number summed over the harvest records: how big the round was, and how good. |
 | `map_layer(what)` | value | A count of the static map layer, recomputed from the game files. |
 | `shortcuts(what)` | value | How many key bindings the game defines, counted by kind. |
-| `shortcut_words(what)` | NoneType of value | How far a shortcut can be given a meaning from disk alone. |
+| `shortcut_words(what)` | value | How far a shortcut can be given a meaning from disk alone. |
 | `quoted_numbers(claims)` | 3-tuple | Claims that a document repeats, checked against the file that repeats them. |
 | `script_runs()` | 2-tuple | How the documents and the scripts themselves say to start a script, checked against the package. |
 | `main(all_of_them)` | value | - |
@@ -64,8 +64,8 @@ returns a pair, passed on as one thing, costs a run.
 | call | returns | does |
 |---|---|---|
 | `warm_up()` | nothing | Pay the startup cost at a moment when nobody is waiting. |
-| `read_image(screenshot)` | value of list | Returns a list of (x, y, width, height, text) in the points of this image. |
-| `read_box(screenshot, x, y, width, height, margin=2)` | value of str | Reads one box whose position is already known from the widget tree. |
+| `read_image(screenshot)` | list of value | Returns a list of (x, y, width, height, text) in the points of this image. |
+| `read_box(screenshot, x, y, width, height, margin=2)` | str of value | Reads one box whose position is already known from the widget tree. |
 | `read_screen(box=None)` | list | Returns a list of (x, y, width, height, text) in screen points. |
 
 ## paths.py
@@ -73,7 +73,7 @@ returns a pair, passed on as one thing, costs a run.
 
 | call | returns | does |
 |---|---|---|
-| `mod_folders()` | value of list | The folders of the mods that are switched on, in load order. |
+| `mod_folders()` | list of value | The folders of the mods that are switched on, in load order. |
 | `require(name)` | value | Return a path, or stop with a sentence saying what needs to happen. |
 
 ## restore_launcher.py
@@ -105,7 +105,7 @@ returns a pair, passed on as one thing, costs a run.
 |---|---|---|
 | `first_line(text)` | str of value | - |
 | `signature(node)` | value | - |
-| `return_shape(node)` | value of str | The shape of what comes out, because that is what the mistakes were about. |
+| `return_shape(node)` | str of value | The shape of what comes out, because that is what the mistakes were about. |
 | `files()` | nothing | - |
 
 ## windowgrab.py
@@ -113,7 +113,7 @@ returns a pair, passed on as one thing, costs a run.
 
 | call | returns | does |
 |---|---|---|
-| `window_of(pid)` | 3-tuple of bool | The largest visible window of that process, with its outer size. |
+| `window_of(pid)` | 3-tuple | The largest visible window of that process, with its outer size. |
 | `client_size(hwnd)` | 2-tuple | The drawing area inside the window, without title bar and border. |
 | `borders(hwnd)` | 2-tuple | Where the drawing area starts inside the window: title bar and border. |
 | `grab(pid)` | 3-tuple | Returns (image, width, height) of the game window's drawing area. |
@@ -124,7 +124,7 @@ returns a pair, passed on as one thing, costs a run.
 | call | returns | does |
 |---|---|---|
 | `vtables(pid, name=CLASS)` | list | Every vtable address of the class carrying exactly this RTTI name. |
-| `is_ref_database(address)` | value of bool | Does this address carry a believable TPdxRefDatabase? A table, and counts that are not |
+| `is_ref_database(address)` | bool of value | Does this address carry a believable TPdxRefDatabase? A table, and counts that are not |
 | `find_objects(pid, name=CLASS, valid=is_ref_database)` | value | Every believable object of this class, in the order memory gives them. |
 | `derive_global(pid, name=CLASS, valid=is_ref_database, tries=4)` | 2-tuple | The offset of the global variable pointing at one of those objects. |
 | `object_of(pid, name=CLASS, valid=is_ref_database)` | value | The object, from the stored offset or else derived again. |
@@ -139,7 +139,7 @@ returns a pair, passed on as one thing, costs a run.
 | `save_named(save=None)` | value | The path of the save that serves as the answer key. |
 | `text_boxes(nodes)` | list | The addresses of the text boxes, found through the vtable that touches the localization files. |
 | `test_ocr(pid, nodes, addresses)` | 4-tuple | Reads every text box actually on screen and puts it beside the widget text. |
-| `main(pid, count=400)` | nothing | - |
+| `main(pid, count=400, *, save=None)` | nothing | - |
 
 ## ck3\channel.py
 *Talks to the channel inside the DLL.*
@@ -183,7 +183,7 @@ returns a pair, passed on as one thing, costs a run.
 | `scale_anchors()` | value | Per window: does the centring correction apply in x, and in y? Read from the gui files. |
 | `screen_size(nodes, address, scales)` | 2-tuple | The size as it is drawn: the own size times the own scale times the scale from above. |
 | `is_visible(nodes, address)` | bool | Alpha is a property of the whole parent chain: if one ancestor sits at 0 you see nothing, |
-| `is_clipped(nodes, address, scales, classes)` | bool of value | Is this widget scrolled out of view inside a list? |
+| `is_clipped(nodes, address, scales, classes)` | value of bool | Is this widget scrolled out of view inside a list? |
 | `chunks_of(addresses)` | 2-tuple | Raw bytes per object. Unreadable ones are skipped and counted, not hidden. |
 | `children_from_parents(chunks, f_parent, addresses)` | value | - |
 | `gui_text()` | value | - |
@@ -191,10 +191,10 @@ returns a pair, passed on as one thing, costs a run.
 | `strip_markup(text)` | value | Strips the game's markup codes; those do not appear in the localization files. |
 | `class_map(pid, addresses)` | dict | Address -> class name, through the vtable. `addresses` is a dict {address: vtable}, not a list. |
 | `derive_all(pid)` | dict | Derive every field from a full scan. Expensive, so once per build. |
-| `visibility_fields(pid, fields, root, key=112, subject='character_window', control='council_window')` | value of dict | Derive the two visibility offsets by toggling a window and watching what moves. |
+| `visibility_fields(pid, fields, root, key=112, subject='character_window', control='council_window')` | value | Derive the two visibility offsets by toggling a window and watching what moves. |
 | `position_from_tree(pid, fields, nodes=1000)` | value | Derive the position field a second time, from the live tree instead of the scan. |
 | `store(fields)` | nothing | - |
-| `stored()` | value of NoneType | - |
+| `stored()` | NoneType of value | - |
 | `to_root(address, f_parent)` | 2-tuple | Up until the parent is no longer a widget. `tree` on a non-widget returns nothing, and that |
 | `quick_root(fields, pid, at_least=500, ample=1500, samples=40)` | 2-tuple | From seed widgets up to the roots, then return the largest tree. |
 | `verify(fields, root, nodes, pid)` | value | Recheck the stored derivation against the game running right now. Three predictions, all |
@@ -213,7 +213,7 @@ returns a pair, passed on as one thing, costs a run.
 | `files(with_mods=True)` | value | Every gui file the engine has loaded, **in load order**, as (layer, virtual path, disk path). |
 | `read(path)` | value | - |
 | `type_table(rows=None)` | 2-tuple | Every template the engine knows, as name -> definition. |
-| `build(key, body, templates, overrides=None, depth=0, in_tooltip=False)` | value of dict | One widget, fully expanded: inherited defaults, mixed-in templates, slots filled. |
+| `build(key, body, templates, overrides=None, depth=0, in_tooltip=False)` | dict of value | One widget, fully expanded: inherited defaults, mixed-in templates, slots filled. |
 | `windows(rows=None)` | value | Every window on disk, as name -> (virtual path, its entry). |
 | `window(name, table=None, local=None, known=None)` | 2-tuple | A window resolved into a widget tree, with a Templates carrying what went wrong. |
 | `decision_widget(name, table=None, local=None, rows=None)` | 2-tuple | The own gui of a decision, resolved into a widget tree like a window. |
@@ -227,7 +227,7 @@ returns a pair, passed on as one thing, costs a run.
 | call | returns | does |
 |---|---|---|
 | `free_memory()` | value | Free physical memory in gigabytes, straight from Windows. |
-| `game_date(nodes)` | NoneType of value | The date the game is showing, from the widget that carries it. |
+| `game_date(nodes)` | value of NoneType | The date the game is showing, from the widget that carries it. |
 | `paused(game, seconds=6.0)` | value | Is the clock standing still? Measured, not assumed - a running clock makes the round |
 | `subtree(nodes, root)` | value | Every widget below this window, breadth first, with the depth and the sibling index kept. |
 | `widget_record(nodes, address, depth, index, scales, classes, flags, alphas)` | dict | One widget, with every field this project can read - also the ones nothing uses yet. |
@@ -242,7 +242,7 @@ returns a pair, passed on as one thing, costs a run.
 | `harvest(game, name, row, baseline, header)` | 2-tuple | One window, from opening to the state coming back. Returns the record, or a reason. |
 | `stop_checks(pid, player, player_name, before)` | nothing | The three conditions asked before every window: memory, the channel, and the player. |
 | `chain_step(game, route, source_row, windows, baseline, header, tables)` | 2-tuple | One chain route: open the source along its own route, press what reaches the goal inside it, |
-| `chain_round(game, pid, windows, wanted, baseline, header, player, player_name)` | value of bool | Every chain route the files offer from a window this round can open by itself. |
+| `chain_round(game, pid, windows, wanted, baseline, header, player, player_name)` | nothing | Every chain route the files offer from a window this round can open by itself. |
 | `main()` | value | - |
 
 ## ck3\inject.py
@@ -271,8 +271,8 @@ returns a pair, passed on as one thing, costs a run.
 
 | call | returns | does |
 |---|---|---|
-| `widget_vtables()` | value of NoneType | Vtable RVAs of every class descending from CPdxGuiWidget, taken from the exe. |
-| `vtables_by_name(part)` | value of NoneType | Vtable RVAs of classes whose RTTI name contains `part` - NOTE: case sensitive. |
+| `widget_vtables()` | value | Vtable RVAs of every class descending from CPdxGuiWidget, taken from the exe. |
+| `vtables_by_name(part)` | value | Vtable RVAs of classes whose RTTI name contains `part` - NOTE: case sensitive. |
 | `screen_size()` | 2-tuple | - |
 | `type_name_count()` | value | How many RTTI type names the exe contains. |
 
@@ -288,13 +288,13 @@ returns a pair, passed on as one thing, costs a run.
 | `readmany(addresses, count)` | value | Raw bytes per address, in questions whose answer stays under 32 kB. |
 | `records_for(pid, handles)` | 2-tuple | The bytes of each character's record, keyed by handle, with the wrong ones left out. |
 | `answer_key(save_path, handles=None)` | value | What the save says about every landed character, as the text the save writes. |
-| `string_at(chunk, offset)` | value of NoneType | An MSVC string laid out in place: characters, then length, then capacity. |
-| `long_string_at(chunk, offset)` | 2-tuple of NoneType | (address, length) of a string too long to sit in the record, or None. |
+| `string_at(chunk, offset)` | NoneType of value | An MSVC string laid out in place: characters, then length, then capacity. |
+| `long_string_at(chunk, offset)` | NoneType of 2-tuple | (address, length) of a string too long to sit in the record, or None. |
 | `names_of(records, offset)` | value | The name of every record, following the pointer for the long ones in one bulk read. |
 | `derive_all(pid, rows, block_bytes=1024)` | 6-tuple | Every offset, found by laying the save beside the memory of the running game. |
 | `build(pid, rows, block_bytes=1024, against=None)` | value | Derive and fold the result into the model, keeping the offsets relative to the handle |
 | `sample_slots(pid, wanted=200)` | 2-tuple | Slots spread over the whole database, with what their record says about itself. |
-| `check(pid, wanted=400)` | value of list | Does the stored derivation still hold against the game running right now? |
+| `check(pid, wanted=400)` | list of value | Does the stored derivation still hold against the game running right now? |
 | `character(pid, handle, records=None)` | value | Every field of one character: the scalars from the record, the rest through the pointers. |
 | `derive_player(pid, number)` | value | Where the module keeps the handle of the character being played, derived against a save. |
 | `player(pid)` | 2-tuple | The handle of the character being played, and the name that goes with it. |
@@ -310,7 +310,7 @@ returns a pair, passed on as one thing, costs a run.
 | `held(vk)` | value | - |
 | `counted()` | value | What the game asked since the previous `count`, which also starts the next interval. |
 | `drawn_after(game, wanted, seconds=6.0)` | value | - |
-| `back_to(game, baseline, first_key)` | value of bool | Shut what opened with posted keys, and prove the state is back. |
+| `back_to(game, baseline, first_key)` | bool of value | Shut what opened with posted keys, and prove the state is back. |
 | `main(pid)` | nothing | - |
 
 ## ck3\numbering.py
@@ -318,7 +318,7 @@ returns a pair, passed on as one thing, costs a run.
 
 | call | returns | does |
 |---|---|---|
-| `on_disk(kind)` | set of value | Every key of this database as the files give it, mods merged in the engine's own order. |
+| `on_disk(kind)` | value of set | Every key of this database as the files give it, mods merged in the engine's own order. |
 | `keys(pid, kind)` | value | Number -> key, from the running game. Disk is used to prove the reading, never to make it. |
 | `derive_layout(pid, kind)` | value | Where the key sits in a record of this database, kept under the key of this exe. |
 | `main(pid)` | nothing | - |
@@ -331,22 +331,22 @@ returns a pair, passed on as one thing, costs a run.
 | `buttons_on_disk()` | value | Every widget that opens a window when pressed, with how it does it. |
 | `live_record(game, pid, window, address=None, nodes=None)` | 4-tuple | The window that is drawn right now, in the shape the harvest writes and the pairing reads. |
 | `goal_of(target, known=None)` | 3-tuple | What has to happen before `target` is drawn: a view opens, or a variable is set. |
-| `reaches(value, goal)` | bool of value | Does this onclick reach the goal? Setting a variable counts, clearing it does not. |
+| `reaches(value, goal)` | value of bool | Does this onclick reach the goal? Setting a variable counts, clearing it does not. |
 | `fires_for(source, goal)` | 2-tuple | The call this disk block really fires, split into the one that reaches `goal` and the rest. |
 | `chain_routes(start, tables=None)` | value | Which windows can be reached by acting inside a window a player can already open. Disk only. |
 | `draw_order(record)` | value | Address -> its path of sibling numbers from the window down, which is the drawing order. |
 | `clickable_map(record, acting=None)` | value | The buttons of a window that can handle a click, with their draw order. |
 | `lands_on(buttons, point)` | value | Which widget handles a click at this point. |
-| `reachable_point(buttons, widget_address, rect, step=6)` | NoneType of value | A point on this widget that a click really reaches, or None if it is covered everywhere. |
+| `reachable_point(buttons, widget_address, rect, step=6)` | value of NoneType | A point on this widget that a click really reaches, or None if it is covered everywhere. |
 | `gui_tables()` | 4-tuple | The expansion tables, read once. Building them walks some six hundred files, so a sweep that rebuilds |
 | `spots_for_goal(game, pid, window, goal, tables=None)` | 6-tuple | Every widget of an open window that the files say reaches `goal`, aligned rather than guessed. |
-| `trigger_spots(row, named, nodes)` | list of value | Where the click for this row could land: the widget itself, or its nameless children. |
-| `on_screen(address, nodes, scales, classes)` | NoneType of str of value | Why this widget cannot be clicked, or None when it can. |
-| `window_above(address, chain, nodes, scales)` | NoneType of value | A drawn window later in the tree whose rectangle holds this widget's middle, or None. |
-| `press(address, nodes, scales, classes, row)` | NoneType of value | Click the middle of a widget, but only if it is really on screen. |
-| `back_to(game, baseline, tries=4)` | value of bool | Shut whatever opened. Escape only when something is open, or it opens the pause menu. |
-| `subtree_of(nodes, window)` | value of NoneType | The addresses under the drawn window object of that name, or None. |
-| `try_button(game, row, address, nodes, scales, classes, floor, date, number, total, where, fallback=None)` | value of str | Press one button, record what opened, and put the state back. |
+| `trigger_spots(row, named, nodes)` | value of list | Where the click for this row could land: the widget itself, or its nameless children. |
+| `on_screen(address, nodes, scales, classes)` | str of value of NoneType | Why this widget cannot be clicked, or None when it can. |
+| `window_above(address, chain, nodes, scales)` | value of NoneType | A drawn window later in the tree whose rectangle holds this widget's middle, or None. |
+| `press(address, nodes, scales, classes, row)` | value of NoneType | Click the middle of a widget, but only if it is really on screen. |
+| `back_to(game, baseline, tries=4)` | bool of value | Shut whatever opened. Escape only when something is open, or it opens the pause menu. |
+| `subtree_of(nodes, window)` | NoneType of value | The addresses under the drawn window object of that name, or None. |
+| `try_button(game, row, address, nodes, scales, classes, floor, date, number, total, where, fallback=None)` | str of value | Press one button, record what opened, and put the state back. |
 | `main()` | nothing | - |
 | `chain(pid, window, target, press_it=True)` | value | One chain step: open `window`, find what brings `target` up inside it, press it, put it back. |
 
@@ -356,14 +356,14 @@ returns a pair, passed on as one thing, costs a run.
 | call | returns | does |
 |---|---|---|
 | `root_finder(table)` | value | Type name -> the end of its inheritance chain, remembered, because the walk repeats itself |
-| `attribute(node, key)` | NoneType of value | - |
+| `attribute(node, key)` | value of NoneType | - |
 | `widget_children(node, root)` | value | The children of a node that can reach the live tree, in file order. |
 | `align_row(disk, live, root)` | value | Two rows of children laid against each other on class and order alone. |
 | `live_tree(record)` | 2-tuple | The harvest is a flat list with an address and a parent address; this is it as a tree. |
 | `pairs(window, table, local, known, root, record=None, disk_tree=None)` | value | Every live widget of one window with its source on disk, and the data context it inherits. |
-| `text_source(source, localization)` | value of str | What fills this widget: a key, a data function, both, or a placeholder. |
+| `text_source(source, localization)` | str of value | What fills this widget: a key, a data function, both, or a placeholder. |
 | `developer_window(name, path)` | value | Is this window the developers' own tooling rather than something a player opens? |
-| `bare_number(text)` | value of bool | A text that is only a number. This is the case the origin question exists for: `150` |
+| `bare_number(text)` | bool of value | A text that is only a number. This is the case the origin question exists for: `150` |
 | `unexplained(count, kind, context, built, developer)` | nothing | The texts the gui files do not predict, split the way the decision needed them. |
 | `sweep()` | 3-tuple | Every harvested window paired, as one tally. Takes about three minutes. |
 | `main()` | nothing | - |
@@ -380,7 +380,7 @@ returns a pair, passed on as one thing, costs a run.
 
 | call | returns | does |
 |---|---|---|
-| `attribute(node, key)` | NoneType of value | - |
+| `attribute(node, key)` | value of NoneType | - |
 | `texts(node, context=(), inside=None, out=None)` | value | Every text a window holds, in file order, with its subject and the list it sits in. |
 | `says(value, localization)` | value | What this text will say: the sentence behind a key, or the function that fills it. |
 | `draft(window, table, local, known, localization)` | 2-tuple | One window as a screen file to correct. |
@@ -422,7 +422,7 @@ returns a pair, passed on as one thing, costs a run.
 | `on_screen(node, by_address, area)` | bool | Is this widget actually drawn, or only present in the tree? |
 | `expansion(window, table, local, known)` | value | The window as the gui files describe it, expanded once and then kept. |
 | `words_table()` | value | The localisation, read once. Over a thousand files, so not per keystroke. |
-| `explanation(address, by_address, source_of, localization)` | NoneType of value | What the game would show if you could hover here: the nearest tooltip up the chain. |
+| `explanation(address, by_address, source_of, localization)` | value of NoneType | What the game would show if you could hover here: the nearest tooltip up the chain. |
 | `rows_of(node, by_address, source_of)` | value | The row this unit stands in, per list around it, outermost first, as live addresses. |
 | `units(window, table, local, known, root, record)` | value | Every unit this window says, in order, each with the list it belongs to. |
 | `screen_rules()` | value | Per window, what a screen file adds on top of the reading rule. |
@@ -432,7 +432,7 @@ returns a pair, passed on as one thing, costs a run.
 | `joined(found)` | value | A bare number and the label beside it under the same parent are one unit, label first. |
 | `sentences(found, window=None)` | value | The units as the lines a player hears: each one what it says, and what explains it. |
 | `read(window, table=None, local=None, known=None, root=None)` | value | One harvested window as the lines it says. |
-| `live(pid, window=None, game=None, tables=None)` | 2-tuple of value | The window that is on top in the running game, as the lines it says. |
+| `live(pid, window=None, game=None, tables=None)` | 2-tuple | The window that is on top in the running game, as the lines it says. |
 | `main()` | nothing | - |
 
 ## ck3\savegame.py
@@ -444,7 +444,7 @@ returns a pair, passed on as one thing, costs a run.
 | `newest_readable_save()` | value | The newest save that was stored as text. |
 | `is_text(content)` | value | - |
 | `unpack(path=None)` | value | The game state as text. The header before the zip differs in length per save, so it is |
-| `block(text, build_key, start_at=0)` | value of NoneType | The content between the braces of `key={ ... }`, with braces counted so that nested |
+| `block(text, build_key, start_at=0)` | NoneType of value | The content between the braces of `key={ ... }`, with braces counted so that nested |
 | `character_index(text)` | dict | Character number -> where its block starts, in one pass. |
 | `numbers(content, prefix='', depth=0)` | value | Every whole number in a block, with its path as the name. Whole numbers only, because that |
 | `player(text)` | value | The character number of the player. |
@@ -475,7 +475,7 @@ returns a pair, passed on as one thing, costs a run.
 |---|---|---|
 | `wait(pid, timeout=900)` | str | 'game' once a game is on screen, 'menu' on the main menu; stops when the game is gone. |
 | `save(pid, suffix='')` | value | Save through the pause menu; the name of the new save comes back. |
-| `console(pid, command)` | 4-tuple | Type one command into the console and shut it again. What the console answers is not read. |
+| `console(pid, command)` | nothing | Type one command into the console and shut it again. What the console answers is not read. |
 | `holder(save_name, title)` | value | The running number of whoever holds the title, out of a save of that game. |
 | `new(pid, title)` | 2-tuple | From the setup screen: start at random, play the holder of the title, save. Both saves. |
 | `main()` | nothing | - |
@@ -497,7 +497,7 @@ returns a pair, passed on as one thing, costs a run.
 | `window_bindings()` | value | Window -> every shortcut its widgets declare, with what pressing it calls. Disk only. |
 | `window_keys_plan()` | nothing | Print what a key round inside the windows would press, and what it leaves to a person. |
 | `presses_for(rows, bound, numbers=3)` | value | (binding, keys) to press in one window: every view-only row, once. |
-| `shown_texts(game, name, text_classes)` | value of NoneType | The texts of window `name` that are on the screen now, in draw order; None if it is not drawn. |
+| `shown_texts(game, name, text_classes)` | NoneType of value | The texts of window `name` that are on the screen now, in draw order; None if it is not drawn. |
 | `window_keys_round(game, names)` | value | Open each window along its route, press every key in it that only changes the view, and say |
 | `modified_keys()` | value | Binding -> (spelling, modifier keys, key) for every name in `MODIFIED`, as the file binds it. |
 | `key_of(key)` | value | The virtual key for one key as the shortcut file or the map spells it: F1, c, 0, BACKSPACE. |

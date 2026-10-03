@@ -28,12 +28,11 @@ class _Header(ctypes.Structure):
                 ('biClrImportant', w.DWORD)]
 
 
-def window_of(pid):
+def window_of(pid: int) -> tuple[int, int, int]:
     """The largest visible window of that process, with its outer size."""
-    found = []
+    found: list[tuple[int, int, int]] = []
 
-    @ctypes.WINFUNCTYPE(w.BOOL, w.HWND, w.LPARAM)
-    def collect(hwnd, _lparam):
+    def collect(hwnd: int, _lparam: int) -> bool:
         owner = w.DWORD()
         _user32.GetWindowThreadProcessId(hwnd, ctypes.byref(owner))
         if owner.value == pid and _user32.IsWindowVisible(hwnd):
@@ -42,7 +41,7 @@ def window_of(pid):
             found.append((hwnd, r.right - r.left, r.bottom - r.top))
         return True
 
-    _user32.EnumWindows(collect, 0)
+    _user32.EnumWindows(ctypes.WINFUNCTYPE(w.BOOL, w.HWND, w.LPARAM)(collect), 0)
     if not found:
         raise LookupError(f'process {int(pid)} has no visible window')
     hwnd, width, height = max(found, key=lambda v: v[1] * v[2])
@@ -56,14 +55,14 @@ def window_of(pid):
     return hwnd, width, height
 
 
-def client_size(hwnd):
+def client_size(hwnd: int) -> tuple[int, int]:
     """The drawing area inside the window, without title bar and border."""
     r = w.RECT()
     _user32.GetClientRect(hwnd, ctypes.byref(r))
     return r.right - r.left, r.bottom - r.top
 
 
-def borders(hwnd):
+def borders(hwnd: int) -> tuple[int, int]:
     """Where the drawing area starts inside the window: title bar and border.
 
     `PrintWindow` draws the whole window, title bar included. Treating that as the drawing area
@@ -76,7 +75,7 @@ def borders(hwnd):
     return point.x - window.left, point.y - window.top
 
 
-def grab(pid):
+def grab(pid: int) -> tuple[Image.Image, int, int]:
     """Returns (image, width, height) of the game window's drawing area."""
     hwnd, outer_width, outer_height = window_of(pid)
     width, height = client_size(hwnd)
