@@ -101,7 +101,7 @@ def grab(pid):
     _gdi32.DeleteDC(hdc_memory)
     _user32.ReleaseDC(0, hdc_screen)
 
-    whole = Image.frombuffer('RGB', (outer_width, outer_height), buffer, 'raw', 'BGRX', 0, 1)
+    whole = Image.frombuffer('RGB', (outer_width, outer_height), buffer.raw, 'raw', 'BGRX', 0, 1)
     return whole.crop((dx, dy, dx + width, dy + height)), width, height
 
 

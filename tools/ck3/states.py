@@ -41,6 +41,7 @@ import paths
 import savegame
 import vtablemap
 import windowmap
+import terminal
 from quit_game import PAUSE_MENU, look, press
 
 IN_GAME = re.compile(r'\bPaused\b|Domain Holdings|Pinned Characters')
@@ -90,7 +91,7 @@ def wait(pid, timeout=900):
 
 def save(pid, suffix=''):
     """Save through the pause menu; the name of the new save comes back."""
-    before = set(os.listdir(paths.SAVES))
+    before = set(os.listdir(paths.require('SAVES')))
     root, classes_of_windows = _ready(pid)
     nodes, scales, drawn, classes = look(root, pid, classes_of_windows)
     for _ in range(5):
@@ -133,7 +134,7 @@ def save(pid, suffix=''):
         raise SystemExit('the save dialog is up, but its save button: %s' % why)
     for _ in range(60):
         time.sleep(1.0)
-        new = set(os.listdir(paths.SAVES)) - before
+        new = set(os.listdir(paths.require('SAVES'))) - before
         if new:
             time.sleep(3.0)
             channel.ask('sendkey 27')                 # the pause menu shuts again
@@ -182,7 +183,7 @@ def _click_text(pid, wanted, tries):
 
 def holder(save_name, title):
     """The running number of whoever holds the title, out of a save of that game."""
-    text = savegame.unpack(os.path.join(paths.SAVES, save_name))
+    text = savegame.unpack(os.path.join(paths.require('SAVES'), save_name))
     at = text.find('\tkey=%s\n' % title)
     if at < 0:
         raise SystemExit('%s is not in %s' % (title, save_name))
@@ -215,7 +216,7 @@ def main():
     if len(sys.argv) < 3:
         raise SystemExit(__doc__)
     pid, what = int(sys.argv[1]), sys.argv[2]
-    sys.stdout.reconfigure(encoding='utf-8', errors='replace', line_buffering=True)
+    terminal.utf8()
     if what == 'wait':
         print(wait(pid))
     elif what == 'save':

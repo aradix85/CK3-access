@@ -18,6 +18,8 @@ psutil>=7.2.2
 # Only for checking a rename round; not needed to run anything.
 pyflakes>=4.0.1
 
-# The three checks CONTRIBUTING.md asks to pass before a merge; check.py needs nothing extra.
+# The four checks CONTRIBUTING.md asks to pass before a merge; check.py needs nothing extra.
 pytest>=9.1.1
 ruff>=0.16.10
+mypy>=1.20.2
+types-psutil

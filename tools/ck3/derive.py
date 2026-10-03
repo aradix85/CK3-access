@@ -25,10 +25,10 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
 import vtablemap
 import memory
 import channel
+import paths
 import speech
 import windowgrab
 
-EXE = memory.EXE
 INSTALL = memory.INSTALL
 PROJECT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 STORED = os.path.join(PROJECT, 'reports', 'fields.json')
@@ -47,7 +47,7 @@ def window_size(pid):
 
 def build_key():
     """How you tell it is still the same build. If the exe changes, everything lapses."""
-    st = os.stat(EXE)
+    st = os.stat(paths.require('EXE'))
     return '%d-%d' % (st.st_size, int(st.st_mtime))
 
 
@@ -227,7 +227,7 @@ def widgets(root):
     return nodes
 
 
-_MISSING_SAID = set()
+_MISSING_SAID: set[int] = set()
 
 
 OWN_SCALE = 0x110
@@ -462,7 +462,7 @@ def _parent_field(chunks, addresses):
 
 
 def children_from_parents(chunks, f_parent, addresses):
-    from_address = {}
+    from_address: dict[int, set[int]] = {}
     for address, b in chunks.items():
         value = int.from_bytes(b[f_parent:f_parent + 8], 'little')
         if value in addresses:
@@ -504,7 +504,7 @@ def _child_field(chunks, children_of, samples=20):
     their parent. Equal, not overlapping."""
     probe = [o for o in sorted(children_of, key=lambda k: -len(children_of[k]))
              if o in chunks][:samples]
-    best = (None, 0)
+    best: tuple[int | None, int] = (None, 0)
     for offset in range(0, CHUNK - 8, 8):
         ok = 0
         for parent in probe:
@@ -571,7 +571,7 @@ def _siblings_spread(chunks, f_parent, offset, families=40):
     position field a family of four is not stacked in one spot. Measured 24 August 2026: +0x118
     spreads in nearly every family, +0x32C in none.
     """
-    children_of = {}
+    children_of: dict[int, list[int]] = {}
     for address, b in chunks.items():
         parent = int.from_bytes(b[f_parent:f_parent + 8], 'little')
         if parent in chunks:
@@ -672,7 +672,7 @@ def localization_text():
 def _name_field(chunks, gui):
     """Prediction: most names appear literally in the game's gui files. That is a primary source
     on disk and needs no eyesight."""
-    best = (None, 0)
+    best: tuple[int | None, int] = (None, 0)
     for offset in range(0, CHUNK - 32, 8):
         names = {t for t in (_cstring(b, offset) for b in chunks.values()) if t}
         if len(names) < 20:
@@ -711,7 +711,7 @@ def strip_markup(text):
 def _text_field(chunks, text_boxes, translation, f_name):
     """Prediction: most displayed texts appear in the localization files. Test on text boxes only -
     on another object you are reading the neighbour from the same pool here."""
-    best = (None, 0)
+    best: tuple[int | None, int] = (None, 0)
     for offset in range(0, CHUNK - 32, 8):
         if offset == f_name:
             continue
@@ -783,7 +783,7 @@ def visibility_fields(pid, fields, root, key=112, subject='character_window',
     module = vtablemap.module_base(pid)
     window_classes = {module + v for v in (memory.vtables_by_name('Window') or [])}
     nodes = widgets(root)
-    named = {}
+    named: dict[str, int] = {}
     for a, k in nodes.items():
         if k[0] in window_classes and k[6]:
             named.setdefault(k[6], a)

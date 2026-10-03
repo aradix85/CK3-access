@@ -55,6 +55,7 @@ import ocr
 import paths
 import windowgrab
 import windowmap
+import terminal
 
 OUT = os.path.join(paths.PROJECT, 'harvest')
 MAP = os.path.join(paths.REPORTS, 'windows.json')
@@ -122,7 +123,7 @@ def subtree(nodes, root):
     per cent where the truth is either near zero or near one hundred. Address order correlates with
     build order without being it, which is the worst kind of wrong - it looks like a result.
     """
-    children = {}
+    children: dict[int, list[int]] = {}
     for address, k in nodes.items():
         children.setdefault(k[5], []).append(address)
     out, todo = [], [(root, 0, 0)]
@@ -698,5 +699,5 @@ def main():
 
 
 if __name__ == '__main__':
-    sys.stdout.reconfigure(encoding='utf-8', errors='replace', line_buffering=True)
+    terminal.utf8()
     main()

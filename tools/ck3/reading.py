@@ -309,7 +309,7 @@ def units(window, table, local, known, root, record):
     return out
 
 
-SCREENS = None
+SCREENS: dict[str, dict] | None = None
 
 
 def screen_rules():
@@ -343,21 +343,22 @@ def screen_rules():
         SCREENS = {}
         for path in glob.glob(os.path.join(screens.SCREENS, '*.screen')):
             nodes = screens.read(path)
-            rules = {'order': [], 'keys': {}}
+            order: list[str] = []
+            keys: dict[str, str] = {}
             for entry in screens.entries(nodes):
                 if entry['key'] == 'order' and entry['body']:
-                    rules['order'] = [line['value'] and _function(line['value'])
-                                      for line in entry['body']
-                                      if line['key'] == 'read' and line['value']]
+                    order = [line['value'] and _function(line['value'])
+                             for line in entry['body']
+                             if line['key'] == 'read' and line['value']]
                 elif entry['key'] == 'list' and entry['body']:
                     model = next((_function(line['value']) for line in entry['body']
                                   if line['key'] == 'of' and line['value']), None)
                     said = next((line['value'] for line in screens.entries(entry['body'])
                                  if line['key'] == 'key' and line['value']), None)
                     if model and said:
-                        rules['keys'][model] = said.strip('"')
+                        keys[model] = said.strip('"')
             for window in screens.references(nodes)[0]:
-                SCREENS[window] = rules
+                SCREENS[window] = {'order': order, 'keys': keys}
     return SCREENS
 
 
@@ -526,10 +527,13 @@ def sentences(found, window=None):
             rows_up = unit.get('rows') or ()
             return rows_up[depth - 1] if len(rows_up) >= depth else unit['address']
 
-        rows = {}
+        rows: dict[int, tuple[list[dict], list[dict]]] = {}
         for unit in group:
             entry = rows.setdefault(row_at(unit, base), ([], []))
             entry[0 if len(chain_of(unit)) == base else 1].append(unit)
+        # The first unit of every row, taken before the loop below pops one off a row that has no
+        # unit of its own: after that pop a row with one inner unit is empty.
+        firsts = [own[0] if own else inner[0] for own, inner in rows.values()]
         lines = []
         for own, inner in rows.values():
             said_here = [spoken(unit) for unit in own] or [spoken(inner.pop(0))]
@@ -547,14 +551,13 @@ def sentences(found, window=None):
             for index, say in enumerate(said_here):
                 unit = own[index] if index < len(own) else first
                 lines.append({'say': say, 'explain': unit['explain'] if unit else None})
-        rows = [(own[0] if own else inner[0], inner) for own, inner in rows.values()]
-        model = chain_of(rows[0][0])[-1]
+        model = chain_of(firsts[0])[-1]
         word = name_of(model)
         said = keys.get(_function(model))
-        if len(rows) == 1 and not said:
+        if len(firsts) == 1 and not said:
             out += lines
             continue
-        out.append({'say': '%d %s:%s' % (len(rows), word, ', ' + said if said else ''),
+        out.append({'say': '%d %s:%s' % (len(firsts), word, ', ' + said if said else ''),
                     'explain': None})
         out += lines
         out.append({'say': 'end of the %s' % word, 'explain': None})
@@ -598,7 +601,8 @@ def live(pid, window=None, game=None, tables=None):
     windows = [a for a, k in nodes.items() if k[0] in game.window_classes]
     drawn = derive.shown(nodes, windows)
 
-    index, seen = {}, collections.Counter()
+    index: dict[int, int] = {}
+    seen: collections.Counter[int] = collections.Counter()
     children = collections.defaultdict(list)
     for address, node in nodes.items():
         index[address] = seen[node[5]]

@@ -247,10 +247,10 @@ class Templates:
         self.table, self.local, self.virtual = table, local, virtual
         self.truncated = 0
         self.nested_tooltips = 0
-        self.unknown_using = collections.Counter()
+        self.unknown_using: collections.Counter[str] = collections.Counter()
         self.slots_default = self.slots_filled = 0
-        self.used = collections.Counter()
-        self.declared = collections.Counter()
+        self.used: collections.Counter[str] = collections.Counter()
+        self.declared: collections.Counter[str] = collections.Counter()
 
     def look_up(self, name):
         return self.local.get((self.virtual, name)) or self.table.get(name)

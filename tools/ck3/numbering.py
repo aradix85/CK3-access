@@ -34,6 +34,7 @@ import database
 import derive
 import mapdata
 import model
+import terminal
 
 PROJECT = os.path.dirname(os.path.dirname(HERE))
 MODEL = os.path.join(PROJECT, 'reports', 'model.json')
@@ -213,13 +214,13 @@ def _key_at(chunk, at, shaped):
 
 def _step(spots):
     """The record length: the distance that turns up most often between two keys in a row."""
-    counts = {}
+    counts: dict[int, int] = {}
     for i, first in enumerate(spots):
         for second in spots[i + 1:i + 40]:
             counts[second - first] = counts.get(second - first, 0) + 1
     if not counts:
         raise SystemExit('no key at all in this block')
-    return max(counts, key=counts.get)
+    return max(counts, key=counts.__getitem__)
 
 
 def _winner(scores, what):
@@ -395,5 +396,5 @@ def main(pid):
 
 
 if __name__ == '__main__':
-    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    terminal.utf8()
     main(int(sys.argv[1]))

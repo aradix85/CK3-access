@@ -85,7 +85,9 @@ def check(folder=SCREENS):
         name = os.path.basename(path)
         windows, functions, widgets = references(read(path))
 
-        missing, text, present = [], [], set()
+        missing: list[str] = []
+        text: list[str] = []
+        present: set[str] = set()
         for window in windows:
             if window not in known:
                 missing.append('the window ' + window)

@@ -21,13 +21,15 @@ import glob
 import os
 import sys
 
+PROJECT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.join(PROJECT, 'tools'))  # terminal, boxreader, windowgrab: one up
+
 import derive
 import model
 import savegame
+import terminal
 
-PROJECT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 MODEL = os.path.join(PROJECT, 'reports', 'model.json')
-sys.path.insert(0, os.path.join(PROJECT, 'tools'))  # boxreader and windowgrab sit one folder up
 
 
 def save_named(save=None):
@@ -58,14 +60,14 @@ def text_boxes(nodes):
     is differs per build, so it is determined here and not written down.
     """
     translation = derive.localization_text()
-    hit = {}
+    hit: dict[int, int] = {}
     for vtable, x, y, width, height, parent, name, text in nodes.values():
         clean = derive.strip_markup(text)
         if len(clean) > 3 and clean in translation:
             hit[vtable] = hit.get(vtable, 0) + 1
     if not hit:
         raise SystemExit('not a single widget text appears in the localization files')
-    best = max(hit, key=hit.get)
+    best = max(hit, key=hit.__getitem__)
     return [a for a, w in nodes.items() if w[0] == best and w[7].strip()]
 
 
@@ -93,7 +95,8 @@ def test_ocr(pid, nodes, addresses):
     screenshot, box_width, high = windowgrab.grab(pid)
     lines = ocr.read_image(screenshot)
 
-    ok, total, covered, misses = 0, 0, 0, []
+    ok, total, covered = 0, 0, 0
+    misses: list[str] = []
     scales = derive.scales_for(list(nodes))
     for address in addresses:
         vtable, dx, dy, width, height, parent, name, text = nodes[address]
@@ -118,7 +121,7 @@ def test_ocr(pid, nodes, addresses):
     return ok, total, covered, misses
 
 
-def main(pid, count=400, save=None):
+def main(pid, count=400, *, save=None):
     path = save_named(save)
     print('answer key: %s' % os.path.basename(path))
 
@@ -164,7 +167,7 @@ def main(pid, count=400, save=None):
 
 
 if __name__ == '__main__':
-    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    terminal.utf8()
     given = sys.argv[1:]
     named = given.pop() if given and not given[-1].isdigit() else None
     main(int(given[0]), *[int(a) for a in given[1:]], save=named)

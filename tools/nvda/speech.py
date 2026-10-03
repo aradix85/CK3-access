@@ -42,7 +42,8 @@ import sys
 DLL = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'nvdaControllerClient.dll')
 REPLACE, QUEUE = 'replace', 'queue'
 
-_client = None
+# The NVDA controller client, or a `Recorder` that a test or the beta gate puts in its place.
+_client: 'ctypes.WinDLL | Recorder | None' = None
 
 
 def client():

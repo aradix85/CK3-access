@@ -31,11 +31,13 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
+sys.path.insert(0, os.path.dirname(HERE))   # terminal sits one folder up
 
 import derive
 import vtablemap
 import memory
 import channel
+import terminal
 
 PROJECT = os.path.dirname(os.path.dirname(HERE))
 MODEL = os.path.join(PROJECT, 'reports', 'model.json')
@@ -166,7 +168,7 @@ def size(pid, db=None):
 
 
 if __name__ == '__main__':
-    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    terminal.utf8()
     pid = int(sys.argv[1])
     db = database(pid)
     blocks, slots = size(pid, db)

@@ -111,7 +111,7 @@ _MAPPING = re.compile(r'([a-z_][a-z_0-9]*)=([^\s{}"]+|\{[^{}]*\})', re.I)
 def numbers(content, prefix='', depth=0):
     """Every whole number in a block, with its path as the name. Whole numbers only, because that
     is what can be found back in memory as a separate field; decimals and text cannot."""
-    out = {}
+    out: dict[str, int] = {}
     if content is None or depth > 4:
         return out
     for name, value in _MAPPING.findall(content):

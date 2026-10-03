@@ -24,8 +24,9 @@ import paths
 import speech
 import channel
 import derive
+import terminal
 
-sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+terminal.utf8()
 
 heard = speech.Recorder()
 speech._client = heard

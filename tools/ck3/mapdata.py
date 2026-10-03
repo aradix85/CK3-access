@@ -29,6 +29,7 @@ sys.path.insert(0, os.path.dirname(HERE))
 import database
 import guimap
 import paths
+import terminal
 
 Image.MAX_IMAGE_PIXELS = None
 
@@ -178,7 +179,7 @@ def titles():
     single line, and overwriting on every mention cost 1228 counties their provinces before this
     rule was here.
     """
-    out = {}
+    out: dict[str, dict] = {}
 
     def walk(blocks, chain):
         for block in blocks:
@@ -235,7 +236,8 @@ class Map:
             for province in row.get('provinces') or []:
                 self.county_of[province] = key
         self.neighbours = collections.defaultdict(set)
-        self.water = collections.defaultdict(collections.Counter)
+        self.water: collections.defaultdict[str, collections.Counter[str]] = (
+            collections.defaultdict(collections.Counter))
         pairs = touching(numbers) | {(a, b) for a, b, _ in special_links()}
         for one, two in pairs:
             for own, other, number in ((self.county_of.get(one), self.county_of.get(two), two),
@@ -347,7 +349,7 @@ class Map:
 
 
 def main():
-    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    terminal.utf8()
     world = Map()
     print('%d provinces on the map, %d counties with land, %d with neighbours, %d titles'
           % (len(world.centres), len(world.county_of and set(world.county_of.values())),

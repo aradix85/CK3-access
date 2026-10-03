@@ -42,6 +42,7 @@ import channel
 import speech
 import states
 import windowgrab
+import terminal
 
 user32 = ctypes.WinDLL('user32', use_last_error=True)
 kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
@@ -226,5 +227,5 @@ def main(pid):
 
 
 if __name__ == '__main__':
-    sys.stdout.reconfigure(encoding='utf-8', errors='replace', line_buffering=True)
+    terminal.utf8()
     main(int(sys.argv[1]))

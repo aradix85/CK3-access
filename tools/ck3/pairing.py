@@ -133,7 +133,7 @@ def align_row(disk, live, root):
     """
     n, m = len(disk), len(live)
     cost = [[0.0] * (m + 1) for _ in range(n + 1)]
-    came = [[None] * (m + 1) for _ in range(n + 1)]
+    came: list[list[str | None]] = [[None] * (m + 1) for _ in range(n + 1)]
     for i in range(1, n + 1):
         cost[i][0], came[i][0] = cost[i - 1][0] + DISK_ONLY, 'disk'
     for j in range(1, m + 1):
@@ -326,9 +326,9 @@ def sweep():
     root = root_finder(table)
     localization = guimap.localization()
 
-    count = collections.Counter()
-    functions = collections.Counter()
-    unplaced = collections.Counter()
+    count: collections.Counter[str] = collections.Counter()
+    functions: collections.Counter[str] = collections.Counter()
+    unplaced: collections.Counter[str] = collections.Counter()
     for record_path in sorted(glob.glob(os.path.join(HARVEST, '*.json'))):
         window = os.path.basename(record_path)[:-5]
         record = json.load(open(record_path, encoding='utf-8'))

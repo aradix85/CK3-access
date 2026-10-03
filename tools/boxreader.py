@@ -34,10 +34,10 @@ _IR = os.path.join(_OWN, 'v6_tiny_rec.xml')
 _CHARS = os.path.join(_OWN, 'v6_tiny_rec_chars.txt')
 _CACHE = os.path.join(_OWN, 'ov_cache')
 
-_core = None
+_core: openvino.Core | None = None
 _device = 'NPU'
 _requests = {}
-_list = None
+_list: list[str] = []
 
 
 def _source_model():
@@ -83,6 +83,7 @@ def _charset(output_width):
 def _request_for(width):
     """The compiled model for this width bucket; compiling happens once per bucket."""
     global _list
+    assert _core is not None, 'warm_up() compiles the first model and sets the core'
     if width not in _requests:
         model = _core.read_model(_IR)
         model.reshape({model.inputs[0]: openvino.PartialShape([1, 3, HEIGHT, width])})
@@ -113,7 +114,7 @@ def _preprocess(cut, width):
     """
     scale = HEIGHT / cut.height
     box_width = max(1, min(width, int(numpy.ceil(cut.width * scale))))
-    arr = numpy.asarray(cut.resize((box_width, HEIGHT), Image.BILINEAR), dtype=numpy.float32) / 255.0
+    arr = numpy.asarray(cut.resize((box_width, HEIGHT), Image.Resampling.BILINEAR), dtype=numpy.float32) / 255.0
     arr = ((arr - 0.5) / 0.5).transpose(2, 0, 1)
     canvas = numpy.zeros((3, HEIGHT, width), dtype=numpy.float32)
     canvas[:, :, :box_width] = arr

@@ -21,6 +21,7 @@ sys.path.insert(0, os.path.dirname(HERE))
 import mapdata
 import model
 import numbering
+import terminal
 
 
 class Seats:
@@ -89,5 +90,5 @@ def main(pid):
 
 
 if __name__ == '__main__':
-    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    terminal.utf8()
     main(int(sys.argv[1]))

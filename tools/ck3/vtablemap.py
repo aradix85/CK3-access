@@ -62,5 +62,5 @@ def configure(number):
 
 if __name__ == '__main__':
     base, found = configure(int(sys.argv[1]))
-    print('modulebasis 0x%x, %d vtables over %d klassen doorgegeven'
+    print('module base 0x%x, %d vtables of %d classes handed to the channel'
           % (base, len(found), len(set(found.values()))))

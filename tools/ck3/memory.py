@@ -14,8 +14,6 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import paths
 
 INSTALL = paths.GAME
-EXE = paths.EXE
-SETTINGS = paths.SETTINGS
 ROOT_CLASS = b'.?AVCPdxGuiWidget@@'
 
 _k32 = ctypes.WinDLL('kernel32', use_last_error=True)
@@ -69,7 +67,7 @@ def widget_vtables():
     global WIDGET_VTABLES
     if WIDGET_VTABLES is not None:
         return WIDGET_VTABLES
-    data = open(EXE, 'rb').read()
+    data = open(paths.require('EXE'), 'rb').read()
     base, sections = _sections(data)
     rdata = [s for s in sections if s[0] == '.rdata'][0]
 
@@ -120,7 +118,7 @@ def vtables_by_name(part):
     `TextBox`), `Window`, `PushButton`, `Icon`, `HBoxLayout`, `VBoxLayout`. So check a filter on
     its count before using it. Measured 30 July 2026: `TextBox` gives zero, `Textbox` gives four.
     """
-    data = open(EXE, 'rb').read()
+    data = open(paths.require('EXE'), 'rb').read()
     base, sections = _sections(data)
     rdata = [s for s in sections if s[0] == '.rdata'][0]
 
@@ -154,9 +152,12 @@ def vtables_by_name(part):
 
 
 def screen_size():
-    text = open(SETTINGS, encoding='utf-8', errors='ignore').read()
+    text = open(paths.require('SETTINGS'), encoding='utf-8', errors='ignore').read()
     pos = text.index('fullscreen_resolution')
-    width, height = re.search(r'value="(\d+)x(\d+)"', text[pos:pos + 200]).groups()
+    found = re.search(r'value="(\d+)x(\d+)"', text[pos:pos + 200])
+    if found is None:
+        raise SystemExit('pdx_settings.txt names fullscreen_resolution without a size after it')
+    width, height = found.groups()
     return float(width), float(height)
 
 
@@ -168,5 +169,5 @@ def type_name_count():
     names but no widget classes means the base class is called something else, and that is one
     constant to change. Without this distinction the two look alike.
     """
-    data = open(EXE, 'rb').read()
+    data = open(paths.require('EXE'), 'rb').read()
     return len(set(re.findall(rb'\.\?A[VU][A-Za-z0-9_@?$]{2,120}@@', data)))

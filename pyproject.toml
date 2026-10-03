@@ -1,7 +1,7 @@
 # Tooling configuration. Windows only; what to install is in requirements.txt.
 #
 # There is no package here to build: `tools\` is a set of scripts that are run in place, and the
-# imports rely on that. This file exists for ruff and pytest and nothing else.
+# imports rely on that. This file exists for ruff, mypy and pytest and nothing else.
 
 [tool.ruff]
 line-length = 100
@@ -36,6 +36,27 @@ extend-select = ["B905", "ARG"]
 [tool.ruff.lint.per-file-ignores]
 # A fixture parameter is how pytest switches a fixture on, and a stand-in takes what it replaces.
 "tests/*" = ["ARG"]
+
+[tool.mypy]
+# Every function body is checked, annotated or not (the maintainer's decision, 3 October 2026: no
+# check is switched off because that is easier). The scripts find each other through sys.path, so
+# mypy is given the same three folders.
+files = ["tools", "tests"]
+mypy_path = "tools,tools/nvda,tools/ck3"
+explicit_package_bases = true
+check_untyped_defs = true
+warn_unused_ignores = true
+warn_unused_configs = true
+
+[[tool.mypy.overrides]]
+# OpenVINO ships no type information, so there is nothing to check its calls against.
+module = ["openvino"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# NVDA's own module: it exists only inside NVDA, which loads the add-on.
+module = ["appModuleHandler"]
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 # Only `tests\` is collected. Anything under `tools\` that is run by hand speaks through NVDA and

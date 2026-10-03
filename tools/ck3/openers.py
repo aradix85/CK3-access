@@ -49,6 +49,7 @@ import guimap
 import paths
 import vtablemap
 import windowmap
+import terminal
 from harvest import free_memory, game_date, paused, drawn_one, FREE_MEMORY_FLOOR
 
 OUT = os.path.join(paths.PROJECT, 'reports', 'openers.json')
@@ -108,13 +109,14 @@ def buttons_on_disk():
     """
     windows = set(json.load(open(os.path.join(paths.PROJECT, 'reports', 'windows.json'),
                                  encoding='utf-8'))['windows'])
-    found = {}
-    beneath = {}
+    found: dict[str, dict] = {}
+    beneath: dict[str, dict] = {}
     for root, _, names in os.walk(paths.GAME):
         for name in sorted(names):
             if not name.endswith('.gui'):
                 continue
-            stack, last = [], ''
+            stack: list[dict] = []
+            last = ''
             for line in open(os.path.join(root, name), encoding='utf-8-sig', errors='replace'):
                 for piece in re.split(r'([{}])', line.split('#')[0]):
                     if piece == '{':
@@ -276,7 +278,8 @@ def fires_for(source, goal):
     """
     if source is None:
         return [], []
-    last, others = {}, []
+    last: dict[str, str] = {}
+    others: list[str] = []
     for key, value in source.get('attrs', ()):
         if key not in ('onclick', 'onrightclick') or not value:
             continue
@@ -308,7 +311,7 @@ def chain_routes(start, tables=None):
     """
     table, local, known, root = tables or gui_tables()
     goals = {w: goal_of(w, known) for w in known}
-    found = {}
+    found: dict[str, dict] = {}
     for source in sorted(start):
         tree, _ = guimap.window(source, table, local, known)
         stack = [tree]
@@ -345,7 +348,7 @@ def draw_order(record):
     cannot be lost by sorting.
     """
     by_address = {w['address']: w for w in record['tree']}
-    paths = {}
+    paths: dict[int, tuple[int, ...]] = {}
 
     def path_of(address):
         if address in paths:
@@ -535,7 +538,7 @@ def on_screen(address, nodes, scales, classes):
     return None
 
 
-_ABOVE = {}
+_ABOVE: dict = {}
 
 
 def window_above(address, chain, nodes, scales):
@@ -557,7 +560,8 @@ def window_above(address, chain, nodes, scales):
     """
     key = (id(nodes), len(nodes))
     if _ABOVE.get('key') != key:
-        index, counts = {}, {}
+        index: dict[int, int] = {}
+        counts: dict[int, int] = {}
         for a, node in nodes.items():
             index[a] = counts.get(node[5], 0)
             counts[node[5]] = index[a] + 1
@@ -629,7 +633,7 @@ def subtree_of(nodes, window):
     if not candidates:
         return None
     root = drawn_one(nodes, candidates, window)
-    children = {}
+    children: dict[int, list[int]] = {}
     for address, k in nodes.items():
         children.setdefault(k[5], []).append(address)
     seen, stack = set(), [root]
@@ -711,7 +715,7 @@ def main():
     print('%d buttons on disk open nothing but a view; fields %s, date %s, free memory %.1f GB'
           % (len(rows), why, date, free_memory()))
 
-    by_name = {}
+    by_name: dict[str, list[int]] = {}
     for address, k in nodes.items():
         if k[6]:
             by_name.setdefault(k[6], []).append(address)
@@ -745,7 +749,7 @@ def main():
             row['opens'] = None
         done[row['widget']] = row
 
-    doors = {}
+    doors: dict[str, str] = {}
     for row in rows:
         if row.get('opens') and len(row['opens']) == 1:
             doors.setdefault(row['opens'][0], row['widget'])
@@ -758,7 +762,7 @@ def main():
         here = [a for a in by_name.get(opener, []) if on_screen(a, nodes, scales, classes) is None]
         if len(here) != 1:
             continue
-        blank = {}
+        blank: dict = {}
         if press(here[0], nodes, scales, classes, blank) is not None:
             continue
         time.sleep(SETTLE)
@@ -874,7 +878,7 @@ def chain(pid, window, target, press_it=True):
 
 
 if __name__ == '__main__':
-    sys.stdout.reconfigure(encoding='utf-8', errors='replace', line_buffering=True)
+    terminal.utf8()
     if len(sys.argv) > 3 and sys.argv[2] == '--chain':
         chain(int(sys.argv[1]), sys.argv[3], sys.argv[4])
     else:

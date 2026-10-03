@@ -40,6 +40,7 @@ import derive
 import paths
 import savegame
 import vtablemap
+import terminal
 
 MODEL = os.path.join(paths.PROJECT, 'reports', 'model.json')
 FIXED = 100000
@@ -322,7 +323,8 @@ def derive_all(pid, rows, block_bytes=1024):
                          % (len(good), len(rows)))
     length = len(next(iter(good.values())))
 
-    name_counts, name_asked = {}, 0
+    name_counts: dict[tuple[int, str], int] = {}
+    name_asked = 0
     for handle, chunk in good.items():
         wanted = rows[handle]['name']
         if not wanted.isalpha():
@@ -335,9 +337,10 @@ def derive_all(pid, rows, block_bytes=1024):
     if not name:
         raise SystemExit('no offset carries the name of nineteen in twenty characters')
 
-    patterns, asked = {}, {}
+    patterns = {}
+    asked: dict[str, int] = {}
     for handle, chunk in good.items():
-        table = {}
+        table: dict[bytes, list[tuple[str, str]]] = {}
         for field, _, _ in WANTED:
             text = rows[handle].get(field)
             if text is None:
@@ -347,20 +350,19 @@ def derive_all(pid, rows, block_bytes=1024):
                 table.setdefault(pattern, []).append((field, form))
         patterns[handle] = table
 
-    scalar = {}
+    scalar: dict[tuple[str, int, str], int] = {}
     for handle, chunk in good.items():
         for offset in range(0, length - 8):
             for width in (4, 8):
                 for field, form in patterns[handle].get(chunk[offset:offset + width], ()):
                     scalar[(field, offset, form)] = scalar.get((field, offset, form), 0) + 1
 
-    pointers = None
-    for chunk in good.values():
-        here = {offset for offset in range(0, length - 8, 8)
-                if 0x10000000000 <= struct.unpack_from('<Q', chunk, offset)[0] < 0x800000000000}
-        pointers = here if pointers is None else (pointers & here)
+    # The offsets that hold a pointer in every record; there are at least twenty, checked above.
+    pointers = set.intersection(*({offset for offset in range(0, length - 8, 8)
+                                   if 0x10000000000 <= struct.unpack_from('<Q', chunk, offset)[0]
+                                   < 0x800000000000} for chunk in good.values()))
 
-    indirect = {}
+    indirect: dict[tuple[str, int, int, str], int] = {}
     for pointer_offset in sorted(pointers):
         targets = {h: struct.unpack_from('<Q', c, pointer_offset)[0] for h, c in good.items()}
         chunks = readmany(sorted(set(targets.values())), block_bytes)
@@ -464,7 +466,8 @@ def check(pid, wanted=400):
                            % (readable, len(records), model['name']['offset']))
 
     places = model.get('indirect', {})
-    targets, per_pointer = {}, {}
+    targets = {}
+    per_pointer: dict[int, list[str]] = {}
     for field, place in places.items():
         per_pointer.setdefault(place['pointer'], []).append(field)
     for pointer in per_pointer:
@@ -680,7 +683,7 @@ def main():
 
 
 if __name__ == '__main__':
-    sys.stdout.reconfigure(encoding='utf-8', errors='replace', line_buffering=True)
+    terminal.utf8()
     main()
 
 
@@ -710,7 +713,8 @@ def compare(pid, save_path, count=400):
         targets = {h: struct.unpack_from('<Q', c, pointer)[0] for h, c in good.items()}
         blocks_read[pointer] = (targets, readmany(sorted(set(targets.values())), 0x400))
 
-    counters, misses = {}, []
+    counters: dict[str, tuple[int, int]] = {}
+    misses: list[str] = []
     names = names_of(good, model['name']['offset']) if 'name' in model else {}
     for handle, chunk in good.items():
         live = {}

@@ -32,9 +32,9 @@ import vtablemap
 import memory
 import paths
 import channel
+import terminal
 
 GAME = paths.GAME
-ERROR_LOG = paths.ERROR_LOG
 OUT = os.path.join(paths.REPORTS, 'windows.json')
 # The keys a round presses on a bare screen. The F row, plus every binding in shortcuts.shortcuts
 # without a modifier whose name says it can bring something up there: situations 0, character
@@ -222,7 +222,7 @@ def window_keys_round(game, names):
     text_classes = {base + v for name in ('Textbox', 'Editbox')
                     for v in memory.vtables_by_name(name) or []}
     _, _, baseline = game.state()
-    out = {}
+    out: dict[str, str | list[tuple[str, str, str]]] = {}
     for name in names:
         row = windows[name]
         nodes, _ = harvest.open_window(game, name, row, baseline)
@@ -487,10 +487,11 @@ class Game(object):
             present = self.field_text(self.field)
             if text[-14:] not in present:
                 raise SystemExit('the console does not catch the input; field holds %r' % present[:60])
-        size = os.path.getsize(ERROR_LOG)
+        log = paths.require('ERROR_LOG')
+        size = os.path.getsize(log)
         channel.ask('sendkey 13')
         time.sleep(1.6)
-        with open(ERROR_LOG, 'rb') as file:
+        with open(log, 'rb') as file:
             file.seek(size)
             fresh = file.read().decode('utf-8', 'replace')
         return [r.strip() for r in fresh.splitlines() if r.strip()]
@@ -744,5 +745,5 @@ def main():
 
 
 if __name__ == '__main__':
-    sys.stdout.reconfigure(encoding='utf-8', errors='replace', line_buffering=True)
+    terminal.utf8()
     main()

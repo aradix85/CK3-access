@@ -61,14 +61,16 @@ def host(request, tmp_path_factory):
     assert built.returncode == 0, built.stdout + built.stderr
     with subprocess.Popen([str(work / 'host.exe'), dll, str(work / 'keys.log')], stdout=subprocess.PIPE,
                           stderr=subprocess.PIPE, text=True) as process:      # closes both pipes
-        objects = [int(value, 16) for value in process.stdout.readline().split()[1:]]
-        assert process.stdout.readline().strip() == 'loaded'
+        out, err = process.stdout, process.stderr
+        assert out is not None and err is not None    # both asked for as pipes, one line up
+        objects = [int(value, 16) for value in out.readline().split()[1:]]
+        assert out.readline().strip() == 'loaded'
         while not channel.alive():
             time.sleep(0.05)
         yield process.pid, objects, str(work / 'keys.log')
         channel.close()
         process.kill()
-        said = process.stderr.read()
+        said = err.read()
     assert 'AddressSanitizer' not in said, said
 
 

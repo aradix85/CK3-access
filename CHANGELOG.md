@@ -8,6 +8,7 @@ Outcomes, newest first. No release yet.
 - Tooling brought up to date: OpenVINO 2026.4 (recognition unchanged on the harvest captures), onnx 1.23, pytest 9.1, pyflakes 4; ruff 0.16 with its rule selection written out, since its default grew. Build Tools 18.10.2 and LLVM 23: `tests/test_channel.py` finds clang-tidy through LLVM's uninstall entry, and the 24 findings of its new signed-bitwise check are fixed rather than switched off.
 - No check is switched off for convenience: pytest fails on any warning and lists every skip, which exposed unclosed files in `tools/paths.py` and the channel test, now closed; clang-tidy's enum-size check is on again and satisfied.
 - The DLL reads numbers strictly - digits only, no sign, nothing too big for its field - and builds with no check of clang-tidy or MSVC switched off.
+- mypy checks every function body, annotated or not, and finds nothing; a missing game or save folder now stops with a sentence instead of failing further on.
 - The game model holds on a state begun and played on 1.20: 400 characters, all 19 fields agree with the save.
 - The game is found through the Steam libraries in the registry only; set `CK3_GAME` otherwise.
 - Removed two unused tools; the code no longer refers to the maintainer's private notes.

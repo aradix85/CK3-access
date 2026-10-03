@@ -18,11 +18,13 @@ import re
 import sys
 import zipfile
 import fnmatch
+from collections.abc import Callable
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'ck3'))
 
 import paths
+import terminal
 
 PROJ = paths.PROJECT
 GAME = paths.GAME
@@ -152,7 +154,7 @@ def gui_windows():
     return len(guimap.windows())
 
 
-_LEDGER = {}
+_LEDGER: dict[str, int] = {}
 
 
 def ledger_buildings(what):
@@ -265,7 +267,7 @@ def gamestate_mb(part):
         return round(package.infolist()[0].file_size / 1048576.0, 1)
 
 
-_ignore_lines = None
+_ignore_lines: list[str] | None = None
 
 
 def ignored(relative):
@@ -365,7 +367,7 @@ def document_paths():
     """
     tops = {name.lower() for name in os.listdir(PROJ)}
     ours = ('.py', '.bat', '.ps1', '.cpp', '.ahk')
-    on_disk = set()
+    on_disk: set[str] = set()
     for root, _, names in os.walk(PROJ):
         if '.git' in root or '__pycache__' in root:
             continue
@@ -437,7 +439,7 @@ def harvest_total(part, field):
     return total
 
 
-_MAP = {}
+_MAP: dict[str, int] = {}
 
 
 def map_layer(what):
@@ -528,7 +530,7 @@ def shortcut_words(what):
                 return child.get('value')
         return None
 
-    found = {}
+    found: dict[str, list[tuple[str | None, str | None]]] = {}
 
     def walk(nodes):
         for node in nodes:
@@ -564,7 +566,9 @@ def shortcut_words(what):
     raise KeyError('no such shortcut word count: %r' % what)
 
 
-MEASURES = {'bytes': bytes_of, 'lines': lines_of, 'files': files_in,
+# Each takes its own arguments, from the claim's `arguments`.
+MEASURES: dict[str, Callable[..., object]] = {
+            'bytes': bytes_of, 'lines': lines_of, 'files': files_in,
             'json_field': json_field, 'json_keys': json_keys,
             'type_names': type_names_in_exe, 'widget_vtables': widget_vtables,
             'gamestate_mb': gamestate_mb, 'repo_files': repo_files,
@@ -661,5 +665,5 @@ def main(all_of_them):
 
 
 if __name__ == '__main__':
-    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    terminal.utf8()
     sys.exit(main('--all' in sys.argv))

@@ -90,6 +90,13 @@ returns a pair, passed on as one thing, costs a run.
 | `capture(path=DEFAULT, box=None, scale=0.5, quality=60)` | 2-tuple | box is (left, top, right, bottom) in screen points, or None for the whole screen. |
 | `diff(box=None, pause=0.4)` | 2-tuple | Captures the same crop twice and counts how many pixels changed. |
 
+## terminal.py
+*What a script prints, readable whatever the game holds.*
+
+| call | returns | does |
+|---|---|---|
+| `utf8()` | nothing | UTF-8 out, an unprintable character replaced rather than fatal, and a line at a time. |
+
 ## toolindex.py
 *Writes reports\toolindex.md: every call a script needs, read from the source.*
 
@@ -131,7 +138,7 @@ returns a pair, passed on as one thing, costs a run.
 | `save_named(save=None)` | value | The path of the save that serves as the answer key. |
 | `text_boxes(nodes)` | list | The addresses of the text boxes, found through the vtable that touches the localization files. |
 | `test_ocr(pid, nodes, addresses)` | 4-tuple | Reads every text box actually on screen and puts it beside the widget text. |
-| `main(pid, count=400, save=None)` | nothing | - |
+| `main(pid, count=400)` | nothing | - |
 
 ## ck3\channel.py
 *Talks to the channel inside the DLL.*

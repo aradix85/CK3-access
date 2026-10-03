@@ -22,7 +22,7 @@ say why your check could have seen the effect.
 
 ## Checks that must pass
 
-`python tools/check.py`, `python -m pytest` and `python -m ruff check .`. `check.py` recomputes every
+`python tools/check.py`, `python -m pytest`, `python -m ruff check .` and `python -m mypy`. `check.py` recomputes every
 number in `reports/claims.json` and checks that every path the documents name exists. A number that
 carries a decision belongs in `claims.json` with its counting rule. After a rename, also run
 `python -m pyflakes tools`.

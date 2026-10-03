@@ -8,6 +8,7 @@ import ctypes
 import os
 import sys
 
+import numpy
 from PIL import ImageGrab
 
 ctypes.windll.user32.SetProcessDPIAware()
@@ -48,11 +49,7 @@ def diff(box=None, pause=0.4):
     second = ImageGrab.grab(bbox=box).convert('RGB')
     if first.size != second.size:
         raise ValueError('the two captures are not the same size')
-    a, b = first.load(), second.load()
-    changed = 0
-    for y in range(first.height):
-        for x in range(first.width):
-            if a[x, y] != b[x, y]:
-                changed += 1
+    # A pixel counts once, however many of its three channels moved.
+    changed = int(numpy.count_nonzero((numpy.asarray(first) != numpy.asarray(second)).any(axis=2)))
     total = first.width * first.height
     return changed, total
