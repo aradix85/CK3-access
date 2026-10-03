@@ -9,6 +9,7 @@ Reconnecting and waiting for a free instance is allowed here: this is the bounda
 process, and that is exactly where handling does belong.
 """
 import ctypes
+import io
 import msvcrt
 import sys
 import time
@@ -18,17 +19,17 @@ from tools.nvda import speech
 
 PIPE = r'\\.\pipe\ck3_access'
 _k32 = ctypes.WinDLL('kernel32', use_last_error=True)
-_connection = None
+_connection: io.FileIO | None = None
 
 
-def _queue(file):
+def _queue(file: io.FileIO) -> int:
     handle = msvcrt.get_osfhandle(file.fileno())
     ready = wintypes.DWORD()
     ok = _k32.PeekNamedPipe(handle, None, 0, None, ctypes.byref(ready), None)
     return ready.value if ok else 0
 
 
-def _drain(file):
+def _drain(file: io.FileIO) -> int:
     drained = 0
     while True:
         count = _queue(file)
@@ -37,7 +38,7 @@ def _drain(file):
         drained += len(file.read(count))
 
 
-def _connect(attempts=20):
+def _connect(attempts: int = 20) -> io.FileIO:
     """Open the pipe, and say out loud when it stays shut.
 
     This is the hardest of the four cases that have to speak: with the channel gone there is no
@@ -53,7 +54,7 @@ def _connect(attempts=20):
                                  'start the game again and try what you were doing once more'))
 
 
-def alive():
+def alive() -> bool:
     """Is the link there? Asked without speaking, for a caller that expects it to be gone.
 
     `ask` says it out loud when the pipe will not open, and that is right: for anything that needs
@@ -68,14 +69,14 @@ def alive():
         return False
 
 
-def close():
+def close() -> None:
     global _connection
     if _connection is not None:
         _connection.close()
         _connection = None
 
 
-def _wait_for_data(file, limit):
+def _wait_for_data(file: io.FileIO, limit: float) -> bool:
     """Wait until something is ready, with the clock running.
 
     Without this a read hangs forever if the other side sends nothing, and then the timeout is a
@@ -95,7 +96,7 @@ def _wait_for_data(file, limit):
     return False
 
 
-def _read_exact(file, count, limit):
+def _read_exact(file: io.FileIO, count: int, limit: float) -> bytes:
     data = b''
     while len(data) < count:
         if not _wait_for_data(file, limit):
@@ -109,7 +110,7 @@ def _read_exact(file, count, limit):
     return data
 
 
-def _read_header(file, limit):
+def _read_header(file: io.FileIO, limit: float) -> int:
     header = b''
     while not header.endswith(b'\n'):
         if not _wait_for_data(file, limit):
@@ -121,7 +122,7 @@ def _read_header(file, limit):
     return int(parts[1])
 
 
-def ask(command, timeout=60.0, errors_ok=False):
+def ask(command: str, timeout: float = 60.0, errors_ok: bool = False) -> str:
     """Asks the channel one question and returns the answer as text.
 
     **An error from the DLL breaks hard.** The DLL answers errors as ordinary text - for a command
@@ -134,7 +135,8 @@ def ask(command, timeout=60.0, errors_ok=False):
     `derive.read` on an unreadable address.
     """
     global _connection
-    for attempt in (1, 2):
+    retried = False
+    while True:
         if _connection is None:
             _connection = _connect()
         try:
@@ -150,8 +152,9 @@ def ask(command, timeout=60.0, errors_ok=False):
             return answer
         except OSError:
             close()
-            if attempt == 2:
+            if retried:
                 raise
+            retried = True
 
 
 if __name__ == '__main__':

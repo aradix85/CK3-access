@@ -12,6 +12,8 @@ from ctypes import wintypes
 from tools import paths
 
 ROOT_CLASS = b'.?AVCPdxGuiWidget@@'
+# One section header: name, virtual address, virtual size, file offset.
+Section = tuple[str, int, int, int]
 
 _k32 = ctypes.WinDLL('kernel32', use_last_error=True)
 _k32.OpenProcess.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]
@@ -34,12 +36,12 @@ _k32.VirtualQueryEx.argtypes = [wintypes.HANDLE, wintypes.LPCVOID,
 _k32.VirtualQueryEx.restype = ctypes.c_size_t
 
 
-def _sections(data):
+def _sections(data: bytes) -> tuple[int, list[Section]]:
     pe = struct.unpack_from('<I', data, 0x3C)[0]
     count = struct.unpack_from('<H', data, pe + 6)[0]
     optional = struct.unpack_from('<H', data, pe + 20)[0]
     base = struct.unpack_from('<Q', data, pe + 24 + 24)[0]
-    items = []
+    items: list[Section] = []
     for i in range(count):
         header = pe + 24 + optional + i * 40
         items.append((data[header:header + 8].rstrip(b'\x00').decode(),
@@ -49,10 +51,26 @@ def _sections(data):
     return base, items
 
 
-WIDGET_VTABLES = None
+def _to_offset(sections: list[Section], rva: int) -> int | None:
+    """Where an RVA sits in the file, or None when no section holds it."""
+    for _, va, size, raw in sections:
+        if va <= rva < va + size:
+            return raw + (rva - va)
+    return None
 
 
-def widget_vtables():
+def _offset(sections: list[Section], rva: int) -> int:
+    """The same for an RVA the exe's own type information points at, where no section is a misread."""
+    found = _to_offset(sections, rva)
+    if found is None:
+        raise ValueError(f'RVA 0x{rva:X} from the type information lies in no section of ck3.exe')
+    return found
+
+
+WIDGET_VTABLES: dict[int, str] | None = None
+
+
+def widget_vtables() -> dict[int, str]:
     """Vtable RVAs of every class descending from CPdxGuiWidget, taken from the exe.
 
     **Read once and kept.** The executable does not change while the game runs, and this walks
@@ -68,33 +86,27 @@ def widget_vtables():
     base, sections = _sections(data)
     rdata = next(s for s in sections if s[0] == '.rdata')
 
-    def to_offset(rva):
-        for _, va, size, raw in sections:
-            if va <= rva < va + size:
-                return raw + (rva - va)
-        return None
-
-    def type_name(td_rva):
-        o = to_offset(td_rva) + 16
+    def type_name(td_rva: int) -> bytes:
+        o = _offset(sections, td_rva) + 16
         return data[o:data.index(b'\x00', o)]
 
-    locators = {}
+    locators: dict[int, str] = {}
     for p in range(0, rdata[2] - 24, 4):
         if struct.unpack_from('<I', data, rdata[3] + p)[0] != 1:
             continue
         col = rdata[1] + p
         if struct.unpack_from('<I', data, rdata[3] + p + 20)[0] != col:
             continue
-        here = to_offset(struct.unpack_from('<I', data, rdata[3] + p + 16)[0])
-        array = to_offset(struct.unpack_from('<I', data, here + 12)[0])
+        here = _offset(sections, struct.unpack_from('<I', data, rdata[3] + p + 16)[0])
+        array = _offset(sections, struct.unpack_from('<I', data, here + 12)[0])
         for i in range(struct.unpack_from('<I', data, here + 8)[0]):
-            descriptor = to_offset(struct.unpack_from('<I', data, array + i * 4)[0])
+            descriptor = _offset(sections, struct.unpack_from('<I', data, array + i * 4)[0])
             if type_name(struct.unpack_from('<I', data, descriptor)[0]) == ROOT_CLASS:
                 own = struct.unpack_from('<I', data, rdata[3] + p + 12)[0]
                 locators[col] = type_name(own).decode()
                 break
 
-    vtables = {}
+    vtables: dict[int, str] = {}
     for p in range(0, rdata[2] - 8, 8):
         value = struct.unpack_from('<Q', data, rdata[3] + p)[0]
         if value > base and (value - base) in locators:
@@ -104,7 +116,7 @@ def widget_vtables():
     return vtables
 
 
-def vtables_by_name(part):
+def vtables_by_name(part: str) -> dict[int, str]:
     """Vtable RVAs of classes whose RTTI name contains `part` - NOTE: case sensitive.
 
     The counterpart of `widget_vtables`, which filters on base class. This one filters on name,
@@ -119,20 +131,14 @@ def vtables_by_name(part):
     base, sections = _sections(data)
     rdata = next(s for s in sections if s[0] == '.rdata')
 
-    def to_offset(rva):
-        for _, va, size, raw in sections:
-            if va <= rva < va + size:
-                return raw + (rva - va)
-        return None
-
-    locators = {}
+    locators: dict[int, str] = {}
     for p in range(0, rdata[2] - 24, 4):
         if struct.unpack_from('<I', data, rdata[3] + p)[0] != 1:
             continue
         col = rdata[1] + p
         if struct.unpack_from('<I', data, rdata[3] + p + 20)[0] != col:
             continue
-        descriptor = to_offset(struct.unpack_from('<I', data, rdata[3] + p + 12)[0])
+        descriptor = _to_offset(sections, struct.unpack_from('<I', data, rdata[3] + p + 12)[0])
         if descriptor is None:
             continue
         start = descriptor + 16
@@ -140,7 +146,7 @@ def vtables_by_name(part):
         if part in name:
             locators[col] = name
 
-    found = {}
+    found: dict[int, str] = {}
     for p in range(0, rdata[2] - 8, 8):
         value = struct.unpack_from('<Q', data, rdata[3] + p)[0]
         if value > base and (value - base) in locators:
@@ -148,7 +154,7 @@ def vtables_by_name(part):
     return found
 
 
-def screen_size():
+def screen_size() -> tuple[float, float]:
     text = pathlib.Path(paths.require('SETTINGS')).read_text(encoding='utf-8', errors='ignore')
     pos = text.index('fullscreen_resolution')
     found = re.search(r'value="(\d+)x(\d+)"', text[pos:pos + 200])
@@ -158,7 +164,7 @@ def screen_size():
     return float(width), float(height)
 
 
-def type_name_count():
+def type_name_count() -> int:
     """How many RTTI type names the exe contains.
 
     This tells two very different failures apart. Zero names means a build without type

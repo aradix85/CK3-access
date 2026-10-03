@@ -12,6 +12,7 @@ Outcomes, newest first. No release yet.
 - `tools` is a package: scripts start from the project folder as `python -m tools.ck3.start_game`, and `check.py` reports any start by file path or of a module that does not exist.
 - ruff runs its own default rules, which cover pyflakes, so pyflakes is no longer a requirement. Tests and files outside the repository included, it finds nothing: f-strings throughout, every file closed after use. The reader and the map layer say exactly what they said before.
 - On a machine marked with `.tools-required` the channel test fails, rather than skips, when MSVC or clang-tidy is missing.
+- The channel's one retry is tested without a game: a link that breaks is tried once more, a link that will not open is said once.
 - The channel test no longer fails when someone holds ctrl, shift or alt while it runs: it watches the real keyboard throughout and repeats a disturbed key.
 - The game model holds on a state begun and played on 1.20: 400 characters, all 19 fields agree with the save.
 - The game is found through the Steam libraries in the registry only; set `CK3_GAME` otherwise.

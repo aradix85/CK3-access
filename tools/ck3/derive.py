@@ -221,7 +221,8 @@ def widgets(root):
     return nodes
 
 
-_MISSING_SAID: set[int] = set()
+# The addresses as the DLL writes them on a `missing` line, in hex text.
+_MISSING_SAID: set[str] = set()
 
 
 OWN_SCALE = 0x110
