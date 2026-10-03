@@ -158,7 +158,7 @@ def database(pid):
 
 def size(pid, db=None):
     """How many blocks, and therefore how many character slots, this game state has."""
-    header = derive.read(db or database(pid), 24)
+    header = derive.read_known(db or database(pid), 24)
     blocks = struct.unpack_from('<I', header, 16)[0]
     return blocks, blocks * PER_BLOCK
 

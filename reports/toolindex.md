@@ -169,6 +169,7 @@ returns a pair, passed on as one thing, costs a run.
 | `window_size(pid)` | value | The drawing area of the game window, live from Windows. |
 | `build_key()` | value | How you tell it is still the same build. If the exe changes, everything lapses. |
 | `read(address, count)` | value | - |
+| `read_known(address, count)` | value | `read` for an address the caller knows the game holds: unreadable there is a fault, and it |
 | `scan(from_address, to_address)` | value | Address -> vtable. Both come from the vtable comparison and do not depend on the field |
 | `tree(root)` | value | - |
 | `use_screen(pid)` | value | Publish the drawing area of this run, because it is not a property of the build. |

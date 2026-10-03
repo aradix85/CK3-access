@@ -11,13 +11,13 @@ from tools.ck3 import derive, reading
 
 # address -> (vtable, x, y, width, height, parent, name, text), the shape `derive.widgets` returns
 NODES = {
-    1: (0, 0, 0, 1920, 1200, 0, 'root', ''),
-    2: (0, 0, 0, 1920, 1200, 1, 'middle', ''),
-    3: (0, 0, 0, 610, 1200, 2, 'character_window', ''),
-    4: (0, 0, 0, 610, 1200, 2, 'council_window', ''),
-    5: (0, 0, 0, 1920, 1200, 2, 'activity_planner', ''),
-    6: (0, 10, 10, 50, 20, 4, 'button_inside_shut_window', ''),
-    7: (0, 10, 10, 50, 20, 3, 'gone_between_walk_and_read', ''),
+    1: (0, 0.0, 0.0, 1920.0, 1200.0, 0, 'root', ''),
+    2: (0, 0.0, 0.0, 1920.0, 1200.0, 1, 'middle', ''),
+    3: (0, 0.0, 0.0, 610.0, 1200.0, 2, 'character_window', ''),
+    4: (0, 0.0, 0.0, 610.0, 1200.0, 2, 'council_window', ''),
+    5: (0, 0.0, 0.0, 1920.0, 1200.0, 2, 'activity_planner', ''),
+    6: (0, 10.0, 10.0, 50.0, 20.0, 4, 'button_inside_shut_window', ''),
+    7: (0, 10.0, 10.0, 50.0, 20.0, 3, 'gone_between_walk_and_read', ''),
 }
 FLAGS = {1: 0x20, 2: 0x20, 3: 0x00, 4: 0x18, 5: 0x20, 6: 0x00}
 

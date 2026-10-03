@@ -57,7 +57,8 @@ module = ["tools.paths", "tools.terminal", "tools.nvda.speech", "tools.ck3.injec
           "tools.ck3.channel", "tools.ck3.vtablemap", "tools.ck3.start_game", "tools.restore_launcher",
           "tools.screenshot", "tools.nvda.check_speech_by_ear", "tools.nvda.addon.appModules.ck3",
           "tools.windowgrab", "tools.toolindex", "tools.ocr", "tools.boxreader", "tools.ck3.savegame",
-          "tools.ck3.guimap", "tools.ck3.database", "tools.ck3.screens", "tools.ck3.propose"]
+          "tools.ck3.guimap", "tools.ck3.database", "tools.ck3.screens", "tools.ck3.propose",
+          "tools.ck3.derive"]
 disallow_untyped_defs = true
 disallow_untyped_calls = true
 disallow_any_generics = true

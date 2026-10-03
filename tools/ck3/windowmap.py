@@ -438,6 +438,8 @@ class Game:
     def _captures_input(self):
         """Does a character really land in the input field? Clicks into it and tries."""
         if self.pos is None:
+            if self.field is None:
+                raise SystemExit('the console input field is not in the tree; open the console first')
             nodes = self.tree()
             scales = derive.scales_for(list(nodes))
             x, y = derive.screen_pos(nodes, self.field, scales)
@@ -699,9 +701,7 @@ def main():
     created = create_round(game, with_console, limit)
 
     game.set_console(False)
-    result = {'measured': time.strftime('%Y-%m-%d %H:%M'),
-                'exe': derive.build_key(),
-                'windows': {}}
+    mapped: dict[str, dict[str, object]] = {}
     for name, row in windows.items():
         out = dict(row, shortcut=shortcuts.get(name))
         if name in created:
@@ -711,17 +711,17 @@ def main():
             out['created'] = None
             out['reason'] = ('declared as a {}, so GUI.CreateWidget cannot find it - '
                              'it looks only at the top level of a file'.format(row['shape']))
-        result['windows'][name] = out
-    target = os.path.abspath(OUT if not (chosen or limit)
-                             else os.path.join(os.environ['TEMP'], 'ck3', 'windows_trial.json'))
+        mapped[name] = out
+    result = {'measured': time.strftime('%Y-%m-%d %H:%M'), 'exe': derive.build_key(), 'windows': mapped}
+    target = os.path.abspath(OUT if not (chosen or limit) else os.path.join(paths.WORK, 'windows_trial.json'))
     if chosen or limit:
         print('a trial run does not overwrite the map; writing the trial beside it')
     with open(target, 'w', encoding='utf-8') as file:
         json.dump(result, file, ensure_ascii=False, indent=1, sort_keys=True)
 
-    ok = sum(1 for v in result['windows'].values() if v.get('created'))
-    drawn = sum(1 for v in result['windows'].values() if v.get('drawn'))
-    no_route = sum(1 for v in result['windows'].values() if not v['console'])
+    ok = sum(1 for v in mapped.values() if v.get('created'))
+    drawn = sum(1 for v in mapped.values() if v.get('drawn'))
+    no_route = sum(1 for v in mapped.values() if not v['console'])
     print(f'\ncreated {int(ok)}, of those drawn {int(drawn)}, with shortcut {len(shortcuts)}, no console route {int(no_route)}, out of {len(windows)}')
     print(f'written: {target}')
 

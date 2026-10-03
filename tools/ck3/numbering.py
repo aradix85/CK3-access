@@ -140,14 +140,14 @@ def _places(pid, kind, layout):
     """
     address, shape = _object(pid, kind)
     if shape == 'array':
-        head = derive.read(address, 256)
+        head = derive.read_known(address, 256)
         where, count = _array_at(head, layout['array'])
-        raw = derive.read(where, count * 8)
+        raw = derive.read_known(where, count * 8)
         return {n: struct.unpack_from('<Q', raw, n * 8)[0] + layout['key'] for n in range(count)}
-    head = derive.read(address, 64)
+    head = derive.read_known(address, 64)
     table, blocks = struct.unpack_from('<QI', head, HEAD['table'])
     count = struct.unpack_from('<I', head, HEAD['count'])[0]
-    starts = struct.unpack(f'<{int(blocks)}Q', derive.read(table, blocks * 8))
+    starts = struct.unpack(f'<{int(blocks)}Q', derive.read_known(table, blocks * 8))
     records = {n: starts[n // BLOCK] + (n % BLOCK) * layout['record'] for n in range(count)}
     if shape == 'blocks':
         return {n: at + layout['key'] for n, at in records.items()}
@@ -248,11 +248,11 @@ def _derive_blocks(address, known):
     272 bytes before its own, and on being well formed the two are indistinguishable. What tells
     them apart is the set of keys the files carry - one field matches it whole, the other partly.
     """
-    head = derive.read(address, 64)
+    head = derive.read_known(address, 64)
     table = struct.unpack_from('<Q', head, HEAD['table'])[0]
     filled = struct.unpack_from('<I', head, HEAD['count'])[0]
-    first = struct.unpack('<Q', derive.read(table, 8))[0]
-    block = derive.read(first, CHUNK)
+    first = struct.unpack('<Q', derive.read_known(table, 8))[0]
+    block = derive.read_known(first, CHUNK)
     shaped = _key_test(known)
     spots = [at for at in range(0, len(block) - STRING, 8) if _key_at(block, at, shaped)]
     record = _step(spots)
@@ -276,7 +276,7 @@ def _derive_array(address, known):
     not enough: the object carries more than one array over the same things, and the first is not
     the one whose order is the numbering.
     """
-    head = derive.read(address, 256)
+    head = derive.read_known(address, 256)
     shaped = _key_test(known)
     scores = {}
     for at in range(0, 224, 8):
@@ -327,11 +327,11 @@ def _derive_indirect(address, known):
     and the key sits at +0x20 in that object, so the number stored here is 24. Folding the eight
     in means nothing has to remember it, and nothing here has to know what the object is.
     """
-    head = derive.read(address, 64)
+    head = derive.read_known(address, 64)
     table = struct.unpack_from('<Q', head, HEAD['table'])[0]
     filled = struct.unpack_from('<I', head, HEAD['count'])[0]
-    first = struct.unpack('<Q', derive.read(table, 8))[0]
-    block = derive.read(first, CHUNK)
+    first = struct.unpack('<Q', derive.read_known(table, 8))[0]
+    block = derive.read_known(first, CHUNK)
     spots = [at for at in range(0, len(block) - 8, 8)
              if POINTER[0] <= struct.unpack_from('<Q', block, at)[0] < POINTER[1]]
     record = _step(spots)

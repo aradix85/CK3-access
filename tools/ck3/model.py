@@ -154,7 +154,7 @@ def _record_length(block_start, model):
     the old stride was somebody else's - so it is measured at each start instead.
     """
     at, mask = model['number_field_in_record'], model['number_mask']
-    data = derive.read(block_start, 40 * 1200)
+    data = derive.read_known(block_start, 40 * 1200)
     for stride in range(400, 1200, 8):
         hits = sum(1 for slot in range(1, 40)
                    if (struct.unpack_from('<I', data, slot * stride + at)[0] & mask) == slot)
@@ -167,10 +167,10 @@ def _layout(pid):
     """Where every record starts, from the block table in one read, and how long a record is."""
     model = json.loads(pathlib.Path(MODEL).read_text(encoding='utf-8'))
     db = anchor.database(pid)
-    header = derive.read(db, 24)
+    header = derive.read_known(db, 24)
     table = struct.unpack_from('<Q', header, 8)[0]
     blocks = struct.unpack_from('<I', header, 16)[0]
-    starts = struct.unpack(f'<{int(blocks)}Q', derive.read(table, blocks * 8))
+    starts = struct.unpack(f'<{int(blocks)}Q', derive.read_known(table, blocks * 8))
     model['record_length'] = _record_length(starts[0], model)
     return model, starts, blocks
 
@@ -619,7 +619,11 @@ def main():
         raise SystemExit(__doc__.strip().splitlines()[-2].strip())
     pid = int(sys.argv[1])
     vtablemap.configure(pid)
-    derive.configure_channel(derive.stored())
+    fields = derive.stored()
+    if fields is None:
+        raise SystemExit('no stored derivation for this build of the game: derive it first with '
+                         'python -m tools.ck3.derive <pid>')
+    derive.configure_channel(fields)
 
     if len(sys.argv) > 3 and sys.argv[2] == '--player':
         path = sys.argv[3]
