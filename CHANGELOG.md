@@ -5,6 +5,7 @@ Outcomes, newest first. No release yet.
 ## 2026-10-03
 - Alt+A opens the activity window, so all nine HUD key combinations open a window.
 - Only state bit 0x08 hides; 0x20 lets the mouse through, so the activity planner is now read and its buttons clicked. One rule, in `derive.shown`; 0x02 marks a switched-off widget and its contents.
+- Tooling brought up to date: OpenVINO 2026.4 (recognition unchanged on the harvest captures), onnx 1.23, pytest 9.1, pyflakes 4; ruff 0.16 with its rule selection written out, since its default grew.
 - The game model holds on a state begun and played on 1.20: 400 characters, all 19 fields agree with the save.
 - The game is found through the Steam libraries in the registry only; set `CK3_GAME` otherwise.
 - Removed two unused tools; the code no longer refers to the maintainer's private notes.
