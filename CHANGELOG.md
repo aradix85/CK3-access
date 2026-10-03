@@ -21,6 +21,11 @@ keeps the numbers with the rule they were counted by. A changelog that may never
   and the tooling, which asks for zero, counted no drawn window and refused every button in it. The
   root and every layer carried 0x20 too, and still did once the hunt ran. What the bit means is
   open; the places to hunt were found by asking only for the hiding bit, 0x08.
+- **The game model holds on a state begun and played on 1.20.** A year played on Ghur, saved from
+  the loaded state and used as the answer key: four hundred characters, every one of the nineteen
+  fields agrees, the seven recomputed around loading included. The clock was run with the space bar,
+  the opening event of the Iranian struggle that holds it was answered with shift+1, and the pause
+  is checked on the date rather than trusted to the key.
 
 ## 2026-10-02
 
