@@ -12,7 +12,7 @@ Outcomes, newest first. No release yet.
 ## 2026-10-02
 - `combo`: shift, ctrl and alt combinations are posted from inside, without taking focus; shift+1 answers an event.
 - `windowmap.py --modified-keys` and `--window-keys`: key rounds with modifiers and inside windows. Keys that act on the game are never pressed.
-- 192 shortcut bindings are declared by a widget, 41 of them only under a computed name.
+- Of the 241 named shortcuts, 192 are declared by a widget, 41 only under a computed name, and 8 nowhere.
 - The game starts without taking the foreground.
 - The tree walk reports everything it loses; the DLL has no default field offsets; the channel refuses malformed commands. `call` and `waitchange` removed.
 - The DLL is tested without the game (`tests/test_channel.py`), also under AddressSanitizer; the build stops on any warning; pytest runs clang-tidy.

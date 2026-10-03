@@ -334,7 +334,7 @@
   "name": "windows with a name in the merged gui set",
   "claimed": 282,
   "measure": "gui_windows",
-  "counting_rule": "three shapes, one entry per name: a `window = { name = ... }` block at any depth; a block whose type resolves through its inheritance chain to `window` and which carries a name, at any depth; and a type definition that inherits from `window` and carries the name itself. **Do not add shapes here; use `windowmap.unmapped`**, which asks the running game instead: the engine builds every window up front, so the live tree is the whole list. windows.json holds the 265 of 1.19.0.6, checked that way on 20 September 2026; 1.20.0.2 added 18 and removed faith_creation_window, and the map has not been rebuilt for it yet",
+  "counting_rule": "three shapes, one entry per name: a `window = { name = ... }` block at any depth; a block whose type resolves through its inheritance chain to `window` and which carries a name, at any depth; and a type definition that inherits from `window` and carries the name itself. **Do not add shapes here; use `windowmap.unmapped`**, which asks the running game instead: the engine builds every window up front, so the live tree is the whole list. windows.json holds the 282 of 1.20.0.3, measured on 1 October 2026 and checked that way, with none unmapped; 1.20 added 18 windows to the 265 of 1.19.0.6 and removed faith_creation_window",
   "quoted_in": ["brief\\patch.md", "brief\\vensters.md"]
  },
  {
@@ -582,7 +582,8 @@
   "arguments": [
    "bindings"
   ],
-  "counting_rule": "every name = \"keys\" line in game\\gui\\shortcuts.shortcuts, generic entries included; a name starting with an underscore is the engine generic entry for one key combination and not an action of the game; those are counted apart from the named actions"
+  "counting_rule": "every name = \"keys\" line in game\\gui\\shortcuts.shortcuts, generic entries included; a name starting with an underscore is the engine generic entry for one key combination and not an action of the game; those are counted apart from the named actions",
+  "quoted_in": ["brief\\invoer.md"]
  },
  {
   "name": "named game actions with a shortcut",
@@ -591,7 +592,8 @@
   "arguments": [
    "named"
   ],
-  "counting_rule": "bindings whose name does not start with an underscore; a name starting with an underscore is the engine generic entry for one key combination and not an action of the game; those are counted apart from the named actions"
+  "counting_rule": "bindings whose name does not start with an underscore; a name starting with an underscore is the engine generic entry for one key combination and not an action of the game; those are counted apart from the named actions",
+  "quoted_in": ["CHANGELOG.md", "brief\\invoer.md"]
  },
  {
   "name": "shortcuts without a modifier",
@@ -600,7 +602,8 @@
   "arguments": [
    "plain"
   ],
-  "counting_rule": "named actions whose keys carry no alt, ctrl or shift AND have a key at all. Four named actions are bound to an empty string and were counted here until 1 September 2026, when the round that presses them found 115 where the claim said 119. Those with a modifier go in through the channel's combo since 2 October 2026"
+  "counting_rule": "named actions whose keys carry no alt, ctrl or shift AND have a key at all. Four named actions are bound to an empty string and were counted here until 1 September 2026, when the round that presses them found 115 where the claim said 119. Those with a modifier go in through the channel's combo since 2 October 2026",
+  "quoted_in": ["brief\\invoer.md"]
  },
  {
   "name": "shortcuts that need a modifier",
@@ -609,7 +612,8 @@
   "arguments": [
    "modified"
   ],
-  "counting_rule": "named actions with a key that carries alt, ctrl or shift; counted from the same file in the same pass as the claim above, so the two plus the unbound four make up the named actions"
+  "counting_rule": "named actions with a key that carries alt, ctrl or shift; counted from the same file in the same pass as the claim above, so the two plus the unbound four make up the named actions",
+  "quoted_in": ["brief\\invoer.md"]
  },
  {
   "name": "shortcuts a widget declares",
