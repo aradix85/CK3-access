@@ -14,10 +14,8 @@ the first line, and a plain `utf-8` read swallows that line without a word.
 import collections
 import os
 import re
-import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-import paths
+from tools import paths
 
 
 class GuiError(Exception):

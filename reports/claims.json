@@ -238,7 +238,7 @@
  },
  {
   "name": "files that go into the repo",
-  "claimed": 72,
+  "claimed": 75,
   "measure": "repo_files",
   "counting_rule": "files under the project folder that .gitignore does not exclude, the same set git ls-files plus git ls-files --others --exclude-standard gives"
  },

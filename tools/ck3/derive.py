@@ -15,19 +15,17 @@ found, this file stops hard and names that field.
 import glob
 import json
 import os
+import re
 import struct
 import sys
 import time
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'nvda'))
-import vtablemap
-import memory
-import channel
-import paths
-import speech
-import windowgrab
+from tools.ck3 import vtablemap
+from tools.ck3 import memory
+from tools.ck3 import channel
+from tools import paths
+from tools.nvda import speech
+from tools import windowgrab
 
 INSTALL = memory.INSTALL
 PROJECT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -684,8 +682,6 @@ def _name_field(chunks, gui):
         raise SystemExit('deriving failed on field: name')
     return best[0]
 
-
-import re
 
 _MARKUP = re.compile('[\x15\x16][^ !]*[ !]?')
 

@@ -18,8 +18,8 @@ It runs on a harvested window, so it needs no running game: that is the point of
 first. `live` is the other half, on the tree of this moment, and `reader.py` is what turns either
 into one line per keystroke.
 
-Usage:  python tools\ck3\reading.py [<window> ...]
-        python tools\ck3\reading.py <pid> [<window>] --live [--speak]
+Usage:  python -m tools.ck3.reading [<window> ...]
+        python -m tools.ck3.reading <pid> [<window>] --live [--speak]
 
 Without `--live` it reads harvested windows, `ingame_resign_confirmation` when none is named. With
 `--live` it reads the tree of the running game, the window on top unless one is named, and
@@ -31,16 +31,11 @@ import re
 import sys
 import time
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, HERE)
-sys.path.insert(0, os.path.dirname(HERE))
-sys.path.insert(0, os.path.join(os.path.dirname(HERE), 'nvda'))
-
-import derive
-import guimap
-import pairing
-import paths
-import speech
+from tools.ck3 import derive
+from tools.ck3 import guimap
+from tools.ck3 import pairing
+from tools import paths
+from tools.nvda import speech
 
 HARVEST = os.path.join(paths.PROJECT, 'harvest')
 
@@ -339,7 +334,7 @@ def screen_rules():
     """
     global SCREENS
     if SCREENS is None:
-        import screens
+        from tools.ck3 import screens
         SCREENS = {}
         for path in glob.glob(os.path.join(screens.SCREENS, '*.screen')):
             nodes = screens.read(path)
@@ -591,8 +586,8 @@ def live(pid, window=None, game=None, tables=None):
     neither changes while the game runs.
     """
     import collections
-    import openers
-    import windowmap
+    from tools.ck3 import openers
+    from tools.ck3 import windowmap
 
     if game is None:
         game = windowmap.Game(pid)

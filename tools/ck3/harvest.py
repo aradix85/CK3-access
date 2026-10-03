@@ -32,7 +32,7 @@ phase 0 map and clicks each button where the live tree puts it now. Neither the 
 click route needs the console, and neither does the chain below, so a round along any of them runs
 without `-debug_mode`.
 
-Usage:  python tools\ck3\harvest.py <pid> [--click | --chain] [<window or view> ...]
+Usage:  python -m tools.ck3.harvest <pid> [--click | --chain] [<window or view> ...]
 
 With `--chain` the round takes its routes from `openers.chain_routes`: a window, or a view whose
 window is not on disk, reached by pressing a button inside a window this round can open itself.
@@ -44,18 +44,14 @@ import re
 import sys
 import time
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, HERE)
-sys.path.insert(0, os.path.dirname(HERE))
-
-import channel
-import derive
-import model
-import ocr
-import paths
-import windowgrab
-import windowmap
-import terminal
+from tools.ck3 import channel
+from tools.ck3 import derive
+from tools.ck3 import model
+from tools import ocr
+from tools import paths
+from tools import windowgrab
+from tools.ck3 import windowmap
+from tools import terminal
 
 OUT = os.path.join(paths.PROJECT, 'harvest')
 MAP = os.path.join(paths.REPORTS, 'windows.json')
@@ -336,7 +332,7 @@ def open_window(game, name, row, baseline):
             # openers file: that point belongs to the resolution it was measured at (1600x900 until
             # 1 September 2026), and a posted click lands on whatever lies there today.
             # Imported here because openers imports this module, and quit_game imports openers.
-            import quit_game
+            from tools.ck3 import quit_game
             nodes = game.tree()
             classes = derive.class_map(game.pid, {a: k[0] for a, k in nodes.items()})
             refused = quit_game.press(nodes, derive.scales_for(list(nodes)), classes, row['button'])
@@ -490,7 +486,7 @@ def chain_step(game, route, source_row, windows, baseline, header, tables):
     For a view whose name is no window name the press is the measurement: whichever single window
     comes up is the window the engine puts behind that view, and the record says so under `view`.
     """
-    import openers                      # openers imports this module
+    from tools.ck3 import openers                      # openers imports this module
     openers.game_classes = game.window_classes
     started = time.time()
     source = route['source']
@@ -516,7 +512,7 @@ def chain_step(game, route, source_row, windows, baseline, header, tables):
         # A named widget is pressed the way quit_game presses: the copy that is on screen, at its
         # middle, with scale and class asked for the whole tree. Measured 21 September 2026 on
         # `filters` in the ledger: the aligned point opened nothing, this opened the filter window.
-        import quit_game
+        from tools.ck3 import quit_game
         full = game.tree()
         refused = quit_game.press(full, derive.scales_for(list(full)),
                                   derive.class_map(game.pid, {a: k[0] for a, k in full.items()}),
@@ -565,7 +561,7 @@ def chain_round(game, pid, windows, wanted, baseline, header, player, player_nam
     console record gets a new one, and the console record goes aside into a dated folder rather
     than being written over, so the difference between the routes stays checkable.
     """
-    import openers
+    from tools.ck3 import openers
     # A shortcut goes before a click: it needs no widget the game may hide. On 21 September 2026
     # the click route of the situation list had become a hidden button while its new key 0 opened it.
     direct = click_routes(windows)

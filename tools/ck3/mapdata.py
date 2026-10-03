@@ -18,18 +18,14 @@ import collections
 import math
 import os
 import re
-import sys
 
 import numpy
 from PIL import Image
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.dirname(HERE))
-
-import database
-import guimap
-import paths
-import terminal
+from tools.ck3 import database
+from tools.ck3 import guimap
+from tools import paths
+from tools import terminal
 
 Image.MAX_IMAGE_PIXELS = None
 

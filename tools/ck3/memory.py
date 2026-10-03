@@ -6,12 +6,9 @@ shifts the layout gives a clear failure instead of nonsense.
 import ctypes
 import struct
 import re
-import os
-import sys
 from ctypes import wintypes
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-import paths
+from tools import paths
 
 INSTALL = paths.GAME
 ROOT_CLASS = b'.?AVCPdxGuiWidget@@'

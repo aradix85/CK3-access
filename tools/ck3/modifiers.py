@@ -1,6 +1,6 @@
 """Do system-level keys reach the game when it is in front? The first step of the modifier round.
 
-    python tools\\ck3\\modifiers.py <pid>
+    python -m tools.ck3.modifiers <pid>
 
 Start the game first, without -debug_mode: `start_game.py -loadsave=<save>`. This waits until a
 game is on screen, says through NVDA that it is about to take the foreground, takes it for a few
@@ -29,20 +29,14 @@ source), so a shift Windows never held would make the game look deaf when the fa
 """
 import ctypes
 import ctypes.wintypes as wt
-import os
 import sys
 import time
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, HERE)
-sys.path.insert(0, os.path.dirname(HERE))
-sys.path.insert(0, os.path.join(os.path.dirname(HERE), 'nvda'))
-
-import channel
-import speech
-import states
-import windowgrab
-import terminal
+from tools.ck3 import channel
+from tools.nvda import speech
+from tools.ck3 import states
+from tools import windowgrab
+from tools import terminal
 
 user32 = ctypes.WinDLL('user32', use_last_error=True)
 kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
@@ -174,8 +168,8 @@ def back_to(game, baseline, first_key):
 
 
 def main(pid):
-    import windowmap
-    from harvest import paused
+    from tools.ck3 import windowmap
+    from tools.ck3.harvest import paused
     print('state:', states.wait(pid), flush=True)
     game = windowmap.Game(pid)
     _, _, baseline = game.state()

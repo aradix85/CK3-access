@@ -6,14 +6,9 @@ found no window and every click into it was refused. 0x20 is the game letting th
 and only 0x08, on the widget or an ancestor, hides. The fixtures below are the values measured on
 1.20.0.3: a drawn panel at 0x00 under a root at 0x20, a shut one at 0x18, the planner at 0x20.
 """
-import os
-import sys
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, os.path.join(ROOT, 'tools', 'nvda'))
-sys.path.insert(0, os.path.join(ROOT, 'tools', 'ck3'))
-import derive
-import reading
+from tools.ck3 import derive
+from tools.ck3 import reading
 
 # address -> (vtable, x, y, width, height, parent, name, text), the shape `derive.widgets` returns
 NODES = {

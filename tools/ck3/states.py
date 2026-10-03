@@ -1,10 +1,10 @@
 r"""Play states: wait until a game is up, save it, type into the console, play someone else.
 
 Usage:
-    python tools\ck3\states.py <pid> wait               until a game is on screen, asked of the recogniser
-    python tools\ck3\states.py <pid> save [suffix]      save through the pause menu, never over a save
-    python tools\ck3\states.py <pid> console <command>  type one console command; needs -debug_mode
-    python tools\ck3\states.py <pid> new <title key>    on the setup screen of a bookmark: start at
+    python -m tools.ck3.states <pid> wait               until a game is on screen, asked of the recogniser
+    python -m tools.ck3.states <pid> save [suffix]      save through the pause menu, never over a save
+    python -m tools.ck3.states <pid> console <command>  type one console command; needs -debug_mode
+    python -m tools.ck3.states <pid> new <title key>    on the setup screen of a bookmark: start at
                                                         random, play the holder of the title, save
 
 Five play states were made this way on 1.20.0.3, on 1 October 2026, and these are what it took:
@@ -29,20 +29,16 @@ import re
 import sys
 import time
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, HERE)
-sys.path.insert(0, os.path.dirname(HERE))
-
-import channel
-import derive
-import model
-import openers
-import paths
-import savegame
-import vtablemap
-import windowmap
-import terminal
-from quit_game import PAUSE_MENU, look, press
+from tools.ck3 import channel
+from tools.ck3 import derive
+from tools.ck3 import model
+from tools.ck3 import openers
+from tools import paths
+from tools.ck3 import savegame
+from tools.ck3 import vtablemap
+from tools.ck3 import windowmap
+from tools import terminal
+from tools.ck3.quit_game import PAUSE_MENU, look, press
 
 IN_GAME = re.compile(r'\bPaused\b|Domain Holdings|Pinned Characters')
 MAIN_MENU = ('New Game', 'Load')
@@ -62,8 +58,8 @@ def _ready(pid):
 
 
 def _screen(pid):
-    import ocr
-    import windowgrab
+    from tools import ocr
+    from tools import windowgrab
     image, _, _ = windowgrab.grab(pid)
     return ocr.read_image(image)
 

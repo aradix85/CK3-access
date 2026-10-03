@@ -10,13 +10,11 @@ process, and that is exactly where handling does belong.
 """
 import ctypes
 import msvcrt
-import os
 import sys
 import time
 from ctypes import wintypes
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'nvda'))
-import speech
+from tools.nvda import speech
 
 PIPE = r'\\.\pipe\ck3_access'
 _k32 = ctypes.WinDLL('kernel32', use_last_error=True)

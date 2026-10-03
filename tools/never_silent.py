@@ -1,6 +1,6 @@
 """The proof behind the beta gate: a failure speaks instead of falling silent.
 
-Run it before every beta with `python tools/never_silent.py`. It takes the link with the game
+Run it before every beta with `python -m tools.never_silent`. It takes the link with the game
 away and it moves a field offset, and both have to produce a sentence. Two steps, both of them a
 real failure path in the product - there is nothing here that exercises the seam against handlers
 written to make it fire.
@@ -14,17 +14,12 @@ speaks. So this proves what the failure exit does, and nothing about how much th
 """
 import json
 import os
-import sys
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, HERE)
-sys.path.insert(0, os.path.join(HERE, 'nvda'))
-sys.path.insert(0, os.path.join(HERE, 'ck3'))
-import paths
-import speech
-import channel
-import derive
-import terminal
+from tools import paths
+from tools.nvda import speech
+from tools.ck3 import channel
+from tools.ck3 import derive
+from tools import terminal
 
 terminal.utf8()
 

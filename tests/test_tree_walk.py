@@ -8,16 +8,11 @@ hears - once per address, because the reader walks the toast container every rou
 The channel is replaced by a fixed answer and NVDA by a recorder, so what runs is the real walk
 and the real seam.
 """
-import os
-import sys
 
 import pytest
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, os.path.join(ROOT, 'tools', 'nvda'))
-sys.path.insert(0, os.path.join(ROOT, 'tools', 'ck3'))
-import speech
-import derive
+from tools.nvda import speech
+from tools.ck3 import derive
 
 WIDGET = 'w\t1000\t5\t0\t0\t10\t10\t0\troot\t'
 

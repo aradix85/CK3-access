@@ -11,15 +11,10 @@ for what that measurement showed, including where the file order does hold and w
 """
 import os
 import re
-import sys
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, HERE)
-sys.path.insert(0, os.path.dirname(HERE))
-
-import guimap
-import paths
-import savegame
+from tools.ck3 import guimap
+from tools import paths
+from tools.ck3 import savegame
 
 # Where each database lives, and how deep its entries sit. Since 1.20.0.2 a faith is a top-level key
 # in `religion/faith_types`; before that it hung inside a religion under `faiths`, and mods written for

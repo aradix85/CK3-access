@@ -11,10 +11,9 @@ import sys
 import numpy
 from PIL import ImageGrab
 
-ctypes.windll.user32.SetProcessDPIAware()
+from tools import paths
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import paths
+ctypes.windll.user32.SetProcessDPIAware()
 os.makedirs(paths.WORK, exist_ok=True)
 DEFAULT = os.path.join(paths.WORK, 'beeld.jpg')
 

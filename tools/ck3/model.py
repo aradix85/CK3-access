@@ -20,9 +20,9 @@ have to stand in the relations that hold by definition - a current strength cann
 maximum. Each of those can fail on a shifted offset, which is what makes them worth running.
 
 Usage:
-    python tools\ck3\model.py <pid>                 check the stored derivation
-    python tools\ck3\model.py <pid> <save>          derive again against that save
-    python tools\ck3\model.py <pid> --player <save> derive where the player is kept
+    python -m tools.ck3.model <pid>                 check the stored derivation
+    python -m tools.ck3.model <pid> <save>          derive again against that save
+    python -m tools.ck3.model <pid> --player <save> derive where the player is kept
 """
 import json
 import os
@@ -30,17 +30,13 @@ import struct
 import sys
 import time
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, HERE)
-sys.path.insert(0, os.path.dirname(HERE))
-
-import anchor
-import channel
-import derive
-import paths
-import savegame
-import vtablemap
-import terminal
+from tools.ck3 import anchor
+from tools.ck3 import channel
+from tools.ck3 import derive
+from tools import paths
+from tools.ck3 import savegame
+from tools.ck3 import vtablemap
+from tools import terminal
 
 MODEL = os.path.join(paths.PROJECT, 'reports', 'model.json')
 FIXED = 100000
@@ -607,7 +603,7 @@ def player(pid):
     model = stored()
     if model is None or not model.get('player_spots'):
         raise SystemExit('there is no derivation of where the player is kept for this build; '
-                         'run `python tools\\ck3\\model.py <pid> --player <save>` on the state '
+                         'run `python -m tools.ck3.model <pid> --player <save>` on the state '
                          'that save belongs to')
     base = vtablemap.module_base(pid)
     spots = [base + int(spot, 16) for spot in model['player_spots']]

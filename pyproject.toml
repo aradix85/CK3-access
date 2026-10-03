@@ -1,7 +1,7 @@
 # Tooling configuration. Windows only; what to install is in requirements.txt.
 #
-# There is no package here to build: `tools\` is a set of scripts that are run in place, and the
-# imports rely on that. This file exists for ruff, mypy and pytest and nothing else.
+# There is no package here to build or install: `tools` is a package of scripts run in place from the
+# project folder, as `python -m tools.<name>`. This file exists for ruff, mypy and pytest and nothing else.
 
 [tool.ruff]
 line-length = 100
@@ -18,13 +18,6 @@ line-length = 100
 # does not exist yet, is the kind of check people learn to ignore. Add one when a contributor asks.
 select = ["E4", "E7", "E9", "F"]
 
-# **E402 is ignored, and this is the reason rather than a shrug.** Almost every script here puts
-# `tools`, `tools\nvda` and `tools\ck3` on the path before importing from them, because they are
-# run in place and are not a package. That places imports after code by design, 55 times measured
-# on 16 September 2026. Leaving the rule on would mean 55 deliberate hits beside any real one,
-# and that is how a check gets ignored.
-ignore = ["E402"]
-
 # **Two sets on top of the default, measured 2 October 2026 against every set ruff has.** Of 801
 # findings across them nearly all were style or a deliberate choice; these two pointed at real
 # faults. B905: `zip` without `strict=` cuts the longer list off without a word, and silence is
@@ -39,10 +32,9 @@ extend-select = ["B905", "ARG"]
 
 [tool.mypy]
 # Every function body is checked, annotated or not (the maintainer's decision, 3 October 2026: no
-# check is switched off because that is easier). The scripts find each other through sys.path, so
-# mypy is given the same three folders.
+# check is switched off because that is easier). `tools` is a package; the tests are found from the
+# project folder.
 files = ["tools", "tests"]
-mypy_path = "tools,tools/nvda,tools/ck3"
 explicit_package_bases = true
 check_untyped_defs = true
 warn_unused_ignores = true
@@ -62,6 +54,8 @@ ignore_missing_imports = true
 # Only `tests\` is collected. Anything under `tools\` that is run by hand speaks through NVDA and
 # sleeps, so collecting it would make a test run talk - see tools\nvda\check_speech_by_ear.py.
 testpaths = ["tests"]
+# The tests import the tools as the package they are, from the project folder.
+pythonpath = ["."]
 # A warning is a failure, and every skip is listed with its reason: a run that is green because
 # something was not looked at must not read like one that looked (the maintainer's decision, 3 October
 # 2026: no check is switched off because that is easier).

@@ -7,14 +7,10 @@ runs here is the real `output` and the real `failure` rather than a stand-in for
 so the beta gate called a function that no longer existed and nobody noticed until the next
 session read the file.
 """
-import os
-import sys
 
 import pytest
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, os.path.join(ROOT, 'tools', 'nvda'))
-import speech
+from tools.nvda import speech
 
 
 @pytest.fixture

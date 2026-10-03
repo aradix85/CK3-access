@@ -25,16 +25,14 @@ import re
 import struct
 import sys
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, HERE)
-sys.path.insert(0, os.path.dirname(HERE))
+from tools.ck3 import anchor
+from tools.ck3 import database
+from tools.ck3 import derive
+from tools.ck3 import mapdata
+from tools.ck3 import model
+from tools import terminal
 
-import anchor
-import database
-import derive
-import mapdata
-import model
-import terminal
+HERE = os.path.dirname(os.path.abspath(__file__))
 
 PROJECT = os.path.dirname(os.path.dirname(HERE))
 MODEL = os.path.join(PROJECT, 'reports', 'model.json')

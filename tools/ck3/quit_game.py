@@ -12,20 +12,14 @@ button there. If a step does not land it says what it saw and leaves the game ru
 no fallback that kills it - that would be the very thing this exists to stop, and a fallback that
 quietly does the dangerous thing is worse than no tool at all.
 """
-import os
 import sys
 import time
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, HERE)
-sys.path.insert(0, os.path.dirname(HERE))
-sys.path.insert(0, os.path.join(os.path.dirname(HERE), 'nvda'))
-
-import channel
-import derive
-import openers
-import vtablemap
-import windowmap
+from tools.ck3 import channel
+from tools.ck3 import derive
+from tools.ck3 import openers
+from tools.ck3 import vtablemap
+from tools.ck3 import windowmap
 
 PAUSE_MENU, CONFIRMATION = 'ingame_pausemenu', 'ingame_resign_confirmation'
 

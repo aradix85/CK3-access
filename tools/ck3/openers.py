@@ -21,8 +21,8 @@ something; and a widget name can occur more than once in the tree. That second o
 the row was skipped. It no longer does: the copies are filtered down to the ones really drawn, and
 only what is left ambiguous after that is skipped, with both counts said out loud.
 
-Usage:  python tools\ck3\openers.py <pid> [--beside | <button> <button> ...]
-        python tools\ck3\openers.py <pid> --chain <window> <target>
+Usage:  python -m tools.ck3.openers <pid> [--beside | <button> <button> ...]
+        python -m tools.ck3.openers <pid> --chain <window> <target>
 
 The second form is one chain step by hand: in a window that is already open, find what brings the
 target up, press it, and say what opened.
@@ -39,18 +39,14 @@ import re
 import sys
 import time
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, HERE)
-sys.path.insert(0, os.path.dirname(HERE))
-
-import channel
-import derive
-import guimap
-import paths
-import vtablemap
-import windowmap
-import terminal
-from harvest import free_memory, game_date, paused, drawn_one, FREE_MEMORY_FLOOR
+from tools.ck3 import channel
+from tools.ck3 import derive
+from tools.ck3 import guimap
+from tools import paths
+from tools.ck3 import vtablemap
+from tools.ck3 import windowmap
+from tools import terminal
+from tools.ck3.harvest import free_memory, game_date, paused, drawn_one, FREE_MEMORY_FLOOR
 
 OUT = os.path.join(paths.PROJECT, 'reports', 'openers.json')
 ONLY_A_VIEW = re.compile(r"^\[\s*(?:Open|Toggle)GameView(?:Data)?\s*\(\s*'([^']+)'[^\[\]]*\)\s*\]$")
@@ -186,7 +182,7 @@ def live_record(game, pid, window, address=None, nodes=None):
     **Hand in the tree as well when you already have one.** A caller that picked the window out of
     the drawn set has just walked it; walking it again costs seconds and cannot see anything new.
     """
-    import harvest
+    from tools.ck3 import harvest
     nodes = nodes if nodes is not None else game.tree()
     windows = [a for a, k in nodes.items() if k[0] in game_classes]
     if address is None:
@@ -445,7 +441,7 @@ def reachable_point(buttons, widget_address, rect, step=6):
 def gui_tables():
     """The expansion tables, read once. Building them walks some six hundred files, so a sweep that rebuilds
     them per window spends its time there instead of in the game."""
-    import pairing
+    from tools.ck3 import pairing
     rows = guimap.files()
     table, local = guimap.type_table(rows)
     return table, local, guimap.windows(rows), pairing.root_finder(table)
@@ -460,7 +456,7 @@ def spots_for_goal(game, pid, window, goal, tables=None):
     call on disk gets an address and a rectangle from the game. Everything that is left after that
     is a question `on_screen` already answers.
     """
-    import pairing
+    from tools.ck3 import pairing
     record, nodes, scales, classes = live_record(game, pid, window)
     table, local, known, root = tables or gui_tables()
     out, acting = [], set()

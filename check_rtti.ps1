@@ -8,7 +8,7 @@ param([string]$Exe = '')
 $ErrorActionPreference = 'Stop'
 
 if (-not $Exe) {
-    $Exe = (python (Join-Path $PSScriptRoot 'tools\paths.py') | Select-String '^EXE\s+(.+)$').Matches[0].Groups[1].Value.Trim()
+    $Exe = (& { Push-Location $PSScriptRoot; python -m tools.paths; Pop-Location } | Select-String '^EXE\s+(.+)$').Matches[0].Groups[1].Value.Trim()
 }
 
 $fi = Get-Item $Exe

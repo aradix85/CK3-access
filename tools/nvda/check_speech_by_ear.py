@@ -7,12 +7,9 @@ and a test run would start talking. What it proves needs ears, which is exactly 
 automatic suite in tests\\ cannot do.
 
 Three rounds, each testing exactly one thing: 1 queue, 2 replace, 3 braille."""
-import os
-import sys
 import time
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import speech
+from tools.nvda import speech
 
 COUNT = 'one, two, three, four, five, six, seven, eight, nine, ten.'
 

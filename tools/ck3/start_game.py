@@ -8,13 +8,9 @@ import os
 import sys
 import time
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, HERE)
-sys.path.insert(0, os.path.dirname(HERE))
-
-import inject
-import channel
-import paths
+from tools.ck3 import inject
+from tools.ck3 import channel
+from tools import paths
 
 GAME = paths.require('EXE')
 WORK_DIR = os.path.dirname(GAME)         # CK3 looks for its files from here

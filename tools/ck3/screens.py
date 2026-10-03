@@ -19,12 +19,8 @@ import os
 import re
 import sys
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, HERE)
-sys.path.insert(0, os.path.dirname(HERE))
-
-import guimap
-import paths
+from tools.ck3 import guimap
+from tools import paths
 
 SCREENS = os.path.join(paths.PROJECT, 'screens')
 

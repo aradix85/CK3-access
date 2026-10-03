@@ -1,18 +1,15 @@
 """Restores launcher-settings.json to the original from before the injector.
 
 Meant for one case: the game no longer starts. Run it with
-`python tools/restore_launcher.py`; it says out loud whether it worked, and if you hear nothing at
+`python -m tools.restore_launcher`; it says out loud whether it worked, and if you hear nothing at
 all it did not run. Steam's own "verify integrity of game files" is the second net behind this one.
 """
 import hashlib
 import os
 import shutil
-import sys
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'nvda'))
-import paths
-import speech
+from tools import paths
+from tools.nvda import speech
 
 ORIGINAL = os.path.join(paths.PROJECT, 'launcher-settings.original.json')
 TARGET = os.path.join(paths.GAME, 'launcher', 'launcher-settings.json')

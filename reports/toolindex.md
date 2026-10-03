@@ -46,6 +46,7 @@ returns a pair, passed on as one thing, costs a run.
 | `shortcuts(what)` | value | How many key bindings the game defines, counted by kind. |
 | `shortcut_words(what)` | NoneType of value | How far a shortcut can be given a meaning from disk alone. |
 | `quoted_numbers(claims)` | 3-tuple | Claims that a document repeats, checked against the file that repeats them. |
+| `script_runs()` | 2-tuple | How the documents and the scripts themselves say to start a script, checked against the package. |
 | `main(all_of_them)` | value | - |
 
 ## never_silent.py

@@ -6,7 +6,7 @@ and a filter that is case sensitive. Each cost a run of tens of seconds plus a g
 index is meant to be read before writing, and it keeps itself current: it reads the signature and
 the shape of the return value from the source, so it cannot go stale unless the source changes.
 
-Usage: python tools\\toolindex.py
+Usage: python -m tools.toolindex
 """
 import ast
 import os

@@ -34,10 +34,12 @@ Developed on 1.19.0.6, checked on 1.20.0.3. Every number that carries a decision
 
 ## Running it
 
+From the project folder; the tools are a package and start as modules.
+
     pip install -r requirements.txt
     dll\build_channel.bat                       compiles dll\channel.dll
-    python tools\paths.py                       prints where it found the game and your saves
-    python tools\ck3\start_game.py              starts CK3 with the channel inside it
+    python -m tools.paths                       prints where it found the game and your saves
+    python -m tools.ck3.start_game              starts CK3 with the channel inside it
 
 The channel answers within seconds; the game needs minutes more to load. `-loadsave=<save>` loads a
 save directly. Paths come from the registry; override with `CK3_GAME`, `CK3_DOCS` or `CK3_WORK`.

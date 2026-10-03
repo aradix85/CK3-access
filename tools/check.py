@@ -8,7 +8,7 @@ memory, and that is exactly how this document drifted before.
 
 Besides the numbers it checks the names: every project path a document mentions has to exist.
 
-Usage:  python tools\\check.py [--all]
+Usage:  python -m tools.check [--all]
 """
 import glob
 import io
@@ -20,11 +20,9 @@ import zipfile
 import fnmatch
 from collections.abc import Callable
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'ck3'))
 
-import paths
-import terminal
+from tools import paths
+from tools import terminal
 
 PROJ = paths.PROJECT
 GAME = paths.GAME
@@ -69,12 +67,12 @@ def json_keys(part, *skip):
 
 
 def type_names_in_exe():
-    import memory
+    from tools.ck3 import memory
     return memory.type_name_count()
 
 
 def widget_vtables():
-    import memory
+    from tools.ck3 import memory
     return len(memory.widget_vtables())
 
 
@@ -138,19 +136,19 @@ def channel_names():
 
 def gui_merged(with_mods):
     """Gui files as the engine sees them: the three layers merged, mods on top."""
-    import guimap
+    from tools.ck3 import guimap
     return len(guimap.files(with_mods=with_mods))
 
 
 def gui_templates(scope):
     """Templates in the merged set. `type` and `template` are global, `local_type` is not."""
-    import guimap
+    from tools.ck3 import guimap
     table, local = guimap.type_table()
     return len(table if scope == 'global' else local)
 
 
 def gui_windows():
-    import guimap
+    from tools.ck3 import guimap
     return len(guimap.windows())
 
 
@@ -175,7 +173,7 @@ def ledger_buildings(what):
     swallow the click. `opens_holding_view` counts the ones that still reach the
     holding view, and it is the number that shuts the door.
     """
-    import guimap
+    from tools.ck3 import guimap
     doing = ('onclick', 'onrightclick', 'shortcut', 'ondoubleclick')
 
     def walk(node):
@@ -229,7 +227,7 @@ def gui_dlc(what):
 
 
 def guimap_files():
-    import guimap
+    from tools.ck3 import guimap
     return guimap.files()
 
 
@@ -246,13 +244,12 @@ def database_entries(kind, what, save=None):
     became the newest file in the folder. Reading whichever save is newest makes this claim say
     something other than what its counting rule says, and the failure looks like a broken reader.
     """
-    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'ck3'))
-    import database
+    from tools.ck3 import database
     if what == 'keys':
         return len(database.entries(kind))
     if what == 'named':
         return len(database.named(kind))
-    import savegame
+    from tools.ck3 import savegame
     keys = [k for k, _, _ in database.entries(kind)]
     text = savegame.unpack(_path(save)) if save else None
     return sum(1 for n, key in database.numbering(kind, text).items()
@@ -312,7 +309,7 @@ def unseen_texts(what):
     since 20 September 2026. `all` is the union, which is smaller than the sum because a text can
     fail two of them at once.
     """
-    import derive
+    from tools.ck3 import derive
     totals = {'texts': 0, 'clipped': 0, 'alpha': 0, 'outside': 0, 'hidden': 0, 'all': 0}
     for name in sorted(glob.glob(os.path.join(_path('harvest'), '*.json'))):
         with open(name, encoding='utf-8') as handle:
@@ -451,7 +448,7 @@ def map_layer(what):
     a title names resolves to a place at all. A mod that adds a county moves these numbers, and
     that is exactly what a claim is for.
     """
-    import mapdata
+    from tools.ck3 import mapdata
     if not _MAP:
         numbers = mapdata.province_image()
         _MAP['pairs'] = len(mapdata.touching(numbers))
@@ -518,7 +515,7 @@ def shortcut_words(what):
     gave 173 where 192 are declared. A name computed in the file itself, such as
     `[Concatenate('tab_', ...)]`, is no binding name and is not counted here.
     """
-    import guimap
+    from tools.ck3 import guimap
     text = open(os.path.join(paths.GAME, 'game', 'gui', 'shortcuts.shortcuts'),
                 encoding='utf-8-sig', errors='replace').read()
     rows = re.findall(r'^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"([^"]*)"', text, re.M)
@@ -618,6 +615,34 @@ def quoted_numbers(claims):
     return problems, seen, absent
 
 
+RUN_MODULE = re.compile(r'python(?: -u)? -m (tools(?:\.\w+)+)')
+RUN_FILE = re.compile(r'python(?: -u)? +\S*tools[\\/]\S+\.py')
+
+
+def script_runs():
+    """How the documents and the scripts themselves say to start a script, checked against the package.
+
+    Since 3 October 2026 `tools` is a package, and a script starts from the project folder as
+    `python -m tools.ck3.states`. Started by its file path it no longer finds its imports, so a start
+    by path is wrong wherever it stands, and a start by module has to name a module that exists.
+    """
+    texts = _documents() + sorted(glob.glob(os.path.join(PROJ, 'tools', '**', '*.py'), recursive=True))
+    wrong, seen = [], 0
+    for path in texts:
+        name = os.path.relpath(path, PROJ)
+        for number, line in enumerate(open(path, encoding='utf-8'), 1):
+            for found in RUN_MODULE.finditer(line):
+                if line[found.end():found.end() + 2] == '.<':
+                    continue                    # `tools.ck3.<name>` is a placeholder, not a start
+                module = found.group(1)
+                seen += 1
+                if not os.path.exists(os.path.join(PROJ, *module.split('.')) + '.py'):
+                    wrong.append('%s line %d starts %s, which does not exist' % (name, number, module))
+            for run in RUN_FILE.findall(line):
+                wrong.append('%s line %d starts %s by its path, which no longer works' % (name, number, run))
+    return wrong, seen
+
+
 def main(all_of_them):
     claims = json.load(open(os.path.join(PROJ, 'reports', 'claims.json'),
                                 encoding='utf-8'))
@@ -661,7 +686,13 @@ def main(all_of_them):
           % (counted - len(quotes), counted,
              '' if not absent else ' %d more are quoted only in documents that are not in this '
                                    'repository, so they cannot be checked here.' % absent))
-    return 1 if drifted or missing or wrong or quotes else 0
+
+    runs, started = script_runs()
+    for problem in runs:
+        print('RUN     %s' % problem)
+    print('%d of the %d script starts named in documents and code are modules that exist.'
+          % (started - len([r for r in runs if 'does not exist' in r]), started))
+    return 1 if drifted or missing or wrong or quotes or runs else 0
 
 
 if __name__ == '__main__':

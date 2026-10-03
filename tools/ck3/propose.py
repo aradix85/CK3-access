@@ -23,11 +23,7 @@ draft like any other.
 import os
 import sys
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, HERE)
-sys.path.insert(0, os.path.dirname(HERE))
-
-import guimap
+from tools.ck3 import guimap
 
 TEXT_KEYS = ('text', 'raw_text')
 

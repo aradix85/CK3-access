@@ -4,10 +4,10 @@ Writes reports\windows.json: per window, whether GUI.CreateWidget produces it, w
 opens it, and if not, what the engine says about it. Runs on a loaded, paused game started with
 -debug_mode.
 
-Usage:  python tools\ck3\windowmap.py <pid> [<count> | <window> <window> ...]
-        python tools\ck3\windowmap.py <pid> --keys
-        python tools\ck3\windowmap.py <pid> --modified-keys
-        python tools\ck3\windowmap.py --window-keys
+Usage:  python -m tools.ck3.windowmap <pid> [<count> | <window> <window> ...]
+        python -m tools.ck3.windowmap <pid> --keys
+        python -m tools.ck3.windowmap <pid> --modified-keys
+        python -m tools.ck3.windowmap --window-keys
 
 A count or a list of window names makes it a trial run, and a trial run writes its result beside
 the map instead of over it. `--keys` runs only the key round, needs no -debug_mode, and adds the
@@ -23,16 +23,12 @@ import re
 import sys
 import time
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, HERE)
-sys.path.insert(0, os.path.dirname(HERE))
-
-import derive
-import vtablemap
-import memory
-import paths
-import channel
-import terminal
+from tools.ck3 import derive
+from tools.ck3 import vtablemap
+from tools.ck3 import memory
+from tools import paths
+from tools.ck3 import channel
+from tools import terminal
 
 GAME = paths.GAME
 OUT = os.path.join(paths.REPORTS, 'windows.json')
@@ -94,7 +90,7 @@ def window_bindings():
     Every row says `view_only`: True when every onclick of the widget is a call `VIEW_ONLY` lets
     through, so a round can press it without changing the game.
     """
-    import guimap
+    from tools.ck3 import guimap
     text = open(os.path.join(GAME, 'game', 'gui', 'shortcuts.shortcuts'), encoding='utf-8-sig').read()
     bound = dict(re.findall(r'^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"([^"]*)"', text, re.M))
     rows = guimap.files()
@@ -181,7 +177,7 @@ def shown_texts(game, name, text_classes):
     what a `visible` condition hides - and a tab hides its neighbours that way. Text is read only on
     a text class, because the text field of anything else reads its neighbour in memory.
     """
-    import harvest
+    from tools.ck3 import harvest
     nodes = game.tree()
     candidates = [a for a, k in nodes.items() if k[6] == name and k[0] in game.window_classes]
     drawn = list(derive.shown(nodes, candidates))
@@ -211,7 +207,7 @@ def window_keys_round(game, names):
     the text unchanged may still act (a fold that hides no text, a map mode behind the window), so
     `nothing` here means no text moved, not that the key is unbound.
     """
-    import harvest
+    from tools.ck3 import harvest
     with open(OUT, encoding='utf-8') as file:
         windows = json.load(file)['windows']
     text = open(os.path.join(GAME, 'game', 'gui', 'shortcuts.shortcuts'), encoding='utf-8-sig').read()
@@ -275,7 +271,7 @@ def window_keys_round(game, names):
 
 def modified_keys():
     """Binding -> (spelling, modifier keys, key) for every name in `MODIFIED`, as the file binds it."""
-    import modifiers
+    from tools.ck3 import modifiers
     text = open(os.path.join(GAME, 'game', 'gui', 'shortcuts.shortcuts'), encoding='utf-8-sig').read()
     bound = dict(re.findall(r'^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"([^"]*)"', text, re.M))
     out = {}
@@ -311,7 +307,7 @@ def press(spelling):
     posted key alone carries no modifier state. Since 2 October 2026 the map carries six windows
     whose only key is a combination, and pressing those as a plain key was a lookup that failed.
     """
-    import modifiers
+    from tools.ck3 import modifiers
     *held, key = spelling.lower().split('+')
     code = key_of(key)
     if held:
@@ -343,7 +339,7 @@ def windows_on_disk():
     find description", without it the window comes up. `guimap` already hands over that virtual
     path, so nothing has to be stripped here.
     """
-    import guimap
+    from tools.ck3 import guimap
     rows = guimap.files()
     known = guimap.windows(rows)
     top_level = set()
@@ -526,7 +522,7 @@ def shortcut_round(game, presses=None):
     if baseline:
         print('  NOTE: did not start empty, still open: %s' % ', '.join(sorted(baseline)))
     # Imported here because harvest imports this module.
-    from harvest import paused
+    from tools.ck3.harvest import paused
     for name, press, twice in presses:
         press()
         time.sleep(1.8)
@@ -629,7 +625,7 @@ def unmapped(pid, game=None):
     Returns (missing, live names, names the map has that this state did not build). That third one
     is not a fault: a window for another government or another era simply is not there.
     """
-    import guimap
+    from tools.ck3 import guimap
     game = game or Game(pid)
     nodes = game.tree()
     live = collections.Counter(node[6] for node in nodes.values()

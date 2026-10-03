@@ -9,12 +9,10 @@ The list is derived from the exe at every start and never read from disk. That c
 longer a file with a build number in its name that can quietly go stale.
 """
 import ctypes
-import os
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import memory
-import channel
+from tools.ck3 import memory
+from tools.ck3 import channel
 
 _k32 = ctypes.WinDLL('kernel32', use_last_error=True)
 _psapi = ctypes.WinDLL('psapi', use_last_error=True)

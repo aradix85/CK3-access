@@ -5,7 +5,7 @@ against it separately and reported separately, because the value is in knowing w
 broken: if a field offset shifts after a patch, only the game model fails and the rest stands.
 
 Usage:
-    python tools\\ck3\\calibrate.py <pid> [<number of characters>] [<save>]
+    python -m tools.ck3.calibrate <pid> [<number of characters>] [<save>]
 
 The save argument is any part of a save file name, and it is what you reach for when the game has
 something other than the newest save loaded. Recognition is tested against the widget tree, the
@@ -21,13 +21,12 @@ import glob
 import os
 import sys
 
-PROJECT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, os.path.join(PROJECT, 'tools'))  # terminal, boxreader, windowgrab: one up
+from tools.ck3 import derive
+from tools.ck3 import model
+from tools.ck3 import savegame
+from tools import terminal
 
-import derive
-import model
-import savegame
-import terminal
+PROJECT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 MODEL = os.path.join(PROJECT, 'reports', 'model.json')
 
@@ -89,9 +88,9 @@ def test_ocr(pid, nodes, addresses):
     line overlaps it carrying the same text. That is a different engine with its own detection, and
     therefore an independent witness. Rejected boxes are reported, not hidden.
     """
-    import ocr
-    import boxreader
-    import windowgrab
+    from tools import ocr
+    from tools import boxreader
+    from tools import windowgrab
     screenshot, box_width, high = windowgrab.grab(pid)
     lines = ocr.read_image(screenshot)
 

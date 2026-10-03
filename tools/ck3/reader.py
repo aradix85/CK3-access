@@ -41,22 +41,16 @@ question a round. Its text is read from that small subtree only, and said betwee
 is not a window, so the place you stand on does not move. Decided with the player on 21 September
 2026, in place of first finding out whether the message log keeps toasts.
 """
-import os
 import sys
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, HERE)
-sys.path.insert(0, os.path.dirname(HERE))
-sys.path.insert(0, os.path.join(os.path.dirname(HERE), 'nvda'))
-
-import channel
-import derive
-import guimap
-import memory
-import pairing
-import reading
-import speech
-import windowmap
+from tools.ck3 import channel
+from tools.ck3 import derive
+from tools.ck3 import guimap
+from tools.ck3 import memory
+from tools.ck3 import pairing
+from tools.ck3 import reading
+from tools.nvda import speech
+from tools.ck3 import windowmap
 
 UP, DOWN, TOGGLE, EXPLAIN = 38, 40, 123, 46
 POLL = 400          # milliseconds the DLL waits for a key before answering with nothing

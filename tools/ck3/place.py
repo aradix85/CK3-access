@@ -11,17 +11,12 @@ lives: `model.check` against the save, `numbering.keys` against the title files,
 one `Seats` and asks it many times rather than calling a function per question. Building it reads
 18439 keys out of the game and walks the province image once: a few seconds, once.
 """
-import os
 import sys
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, HERE)
-sys.path.insert(0, os.path.dirname(HERE))
-
-import mapdata
-import model
-import numbering
-import terminal
+from tools.ck3 import mapdata
+from tools.ck3 import model
+from tools.ck3 import numbering
+from tools import terminal
 
 
 class Seats:

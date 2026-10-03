@@ -29,15 +29,13 @@ import os
 import struct
 import sys
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, HERE)
-sys.path.insert(0, os.path.dirname(HERE))   # terminal sits one folder up
+from tools.ck3 import derive
+from tools.ck3 import vtablemap
+from tools.ck3 import memory
+from tools.ck3 import channel
+from tools import terminal
 
-import derive
-import vtablemap
-import memory
-import channel
-import terminal
+HERE = os.path.dirname(os.path.abspath(__file__))
 
 PROJECT = os.path.dirname(os.path.dirname(HERE))
 MODEL = os.path.join(PROJECT, 'reports', 'model.json')
@@ -175,6 +173,6 @@ if __name__ == '__main__':
     print('database at %x, %d blocks, %d character slots' % (db, blocks, slots))
     # Reading a character is `model.py`: this module's job ends at the database. Imported here
     # rather than at the top, because model imports this one.
-    import model
+    from tools.ck3 import model
     for number in [int(a) for a in sys.argv[2:]] or [32769]:
         print('%d -> %s' % (number, model.character(pid, number)))

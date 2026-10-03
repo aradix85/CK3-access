@@ -14,11 +14,9 @@ import glob
 import io
 import os
 import re
-import sys
 import zipfile
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-import paths
+from tools import paths
 
 # Where the saves are is derived, never typed. The folder used to be spelled out here, which fails
 # for a Documents folder that has been redirected or that Windows shows under another name, and
