@@ -2,10 +2,10 @@
 
     python -m tools.ck3.modifiers <pid>
 
-Start the game first, without -debug_mode: `start_game.py -loadsave=<save>`. This waits until a
-game is on screen, says through NVDA that it is about to take the foreground, takes it for a few
-seconds, and gives it back. Predictions that can fail: F1 by SendInput draws character_window,
-and shift+F1 by SendInput draws ledger_window and not character_window.
+Start the game first, without -debug_mode: `python -m tools.ck3.start_game -loadsave=<save>`. This
+waits until a game is on screen, says through NVDA that it is about to take the foreground, takes it
+for a few seconds, and gives it back. Predictions that can fail: F1 by SendInput draws
+character_window, and shift+F1 by SendInput draws ledger_window and not character_window.
 
 Beside them the channel's `count` says what the game asked Windows about the keyboard: idle in
 front, during F1, and during shift+F1. With shift held through SendInput, GetKeyState moving is the

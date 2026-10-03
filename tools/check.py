@@ -614,6 +614,9 @@ def quoted_numbers(claims):
 
 RUN_MODULE = re.compile(r'python(?: -u)? -m (tools(?:\.\w+)+)')
 RUN_FILE = re.compile(r'python(?: -u)? +\S*tools[\\/]\S+\.py')
+# A script named by its file with arguments after it, between backticks as states.py <pid> wait once
+# stood in the notes: read as a start, and one that no longer works. A name alone is not a start.
+RUN_NAME = re.compile(r'`(?:\S*[\\/])?([a-z_]+)\.py [^`]+`')
 
 
 def script_runs():
@@ -638,6 +641,9 @@ def script_runs():
                         wrong.append(f'{name} line {int(number)} starts {module}, which does not exist')
                 for run in RUN_FILE.findall(line):
                     wrong.append(f'{name} line {int(number)} starts {run} by its path, which no longer works')
+                for script in RUN_NAME.findall(line):
+                    wrong.append(f'{name} line {int(number)} starts {script}.py by its file name; write it '
+                                 'as python -m tools.<package>.<module>')
     return wrong, seen
 
 

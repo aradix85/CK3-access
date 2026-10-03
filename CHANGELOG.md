@@ -9,7 +9,7 @@ Outcomes, newest first. No release yet.
 - No check is switched off for convenience: pytest fails on any warning and lists every skip, which exposed unclosed files in `tools/paths.py` and the channel test, now closed; clang-tidy's enum-size check is on again and satisfied.
 - The DLL reads numbers strictly - digits only, no sign, nothing too big for its field - and builds with no check of clang-tidy or MSVC switched off.
 - mypy checks every function body and holds eleven of the fourteen strict flags across the project, all fourteen in each module with real types so far; a missing game or documents folder stops with a sentence wherever it is used, instead of failing further on.
-- `tools` is a package: scripts start from the project folder as `python -m tools.ck3.start_game`, and `check.py` reports any start by file path or of a module that does not exist.
+- `tools` is a package: scripts start from the project folder as `python -m tools.ck3.start_game`, and `check.py` reports any start by file path or by file name, or of a module that does not exist.
 - ruff runs its own default rules, which cover pyflakes, so pyflakes is no longer a requirement. Tests and files outside the repository included, it finds nothing: f-strings throughout, every file closed after use. The reader and the map layer say exactly what they said before.
 - On a machine marked with `.tools-required` the channel test fails, rather than skips, when MSVC or clang-tidy is missing.
 - The tool index shows keyword-only parameters, and no longer counts the returns of a function defined inside another: `states.console` and `harvest.chain_round` return nothing, `windowgrab.window_of` a 3-tuple, and a generator is an iterator.
@@ -26,7 +26,7 @@ Outcomes, newest first. No release yet.
 
 ## 2026-10-02
 - `combo`: shift, ctrl and alt combinations are posted from inside, without taking focus; shift+1 answers an event.
-- `windowmap.py --modified-keys` and `--window-keys`: key rounds with modifiers and inside windows. Keys that act on the game are never pressed.
+- windowmap's `--modified-keys` and `--window-keys`: key rounds with modifiers and inside windows. Keys that act on the game are never pressed.
 - Of the 241 named shortcuts, 192 are declared by a widget, 41 only under a computed name, and 8 nowhere.
 - The game starts without taking the foreground.
 - The tree walk reports everything it loses; the DLL has no default field offsets; the channel refuses malformed commands. `call` and `waitchange` removed.
@@ -44,7 +44,7 @@ Outcomes, newest first. No release yet.
 ## 2026-09-21
 - Widgets the game hides (state bit 0x08) are neither read nor clicked.
 - Seventeen windows open on a plain key.
-- Harvests along shortcut, click and chain need no debug mode; `harvest.py --chain` walks chain routes.
+- Harvests along shortcut, click and chain need no debug mode; harvest's `--chain` walks chain routes.
 - A button covered by another window is not clicked.
 - A toast is announced when it appears (no real toast heard yet).
 - A list is announced once with its row count; a list inside a row folds into the row.
@@ -71,7 +71,7 @@ Outcomes, newest first. No release yet.
 
 ## 2026-08-31
 - `speech.failure` and `tools/never_silent.py`, the gate in front of a beta.
-- `openers.py --chain` reaches windows that wait on a state.
+- `openers.chain` reaches windows that wait on a state.
 
 ## 2026-08-24 – 2026-08-30
 - 203 windows harvested; opening a window the way a player does gives values, the console only captions.
