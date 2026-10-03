@@ -20,6 +20,10 @@ static bool g_fields_set = false;
 static unsigned long long g_vtables[256];   // sorted, for binary search
 static int g_vtable_count = 0;
 
+// Page protections worth reading. Windows defines them as plain ints; these are the bit patterns.
+static const DWORD WRITABLE = DWORD{PAGE_READWRITE} | DWORD{PAGE_WRITECOPY};
+static const DWORD READABLE = WRITABLE | DWORD{PAGE_READONLY} | DWORD{PAGE_EXECUTE_READ};
+
 // --- reply buffer -----------------------------------------------------------
 // One buffer per thread. That way two connections cannot overwrite each other, and a command
 // that waits a long time (waitkey) need not hold a lock that freezes every other conversation.
@@ -71,8 +75,8 @@ static void buf_hex(const unsigned char* p, size_t count)
     char part[512];
     size_t out = 0;
     for (size_t i = 0; i < count; i++) {
-        part[out++] = digit[p[i] >> 4];
-        part[out++] = digit[p[i] & 15];
+        part[out++] = digit[p[i] >> 4U];
+        part[out++] = digit[p[i] & 15U];
         if (out >= sizeof(part) - 2) { buf_add(part, out); out = 0; }
     }
     if (out) buf_add(part, out);
@@ -187,7 +191,7 @@ static void cmd_scan(unsigned long long from_address, unsigned long long to_addr
 
         bool usable = info.State == MEM_COMMIT && info.Type == MEM_PRIVATE &&
                          !(info.Protect & PAGE_GUARD) &&
-                         (info.Protect & (PAGE_READWRITE | PAGE_WRITECOPY));
+                         (info.Protect & WRITABLE);
         if (usable) {
             // The game frees memory while we are reading. A violation here may abort the
             // region, but must never take the game or the channel with it; it is counted.
@@ -404,23 +408,25 @@ static void cmd_mouse(int x, int y, int button)
 
 // The game ignores a posted key whose lParam is zero, so lParam is built the way Windows builds it
 // for a real keyboard: repeat count, scancode, extended bit, and the release bits.
-static LPARAM key_lparam(unsigned code, bool key_up)
+// `system` sets the context bit an alt combination carries. Built unsigned, because these are bits.
+static LPARAM key_lparam(unsigned code, bool key_up, bool system = false)
 {
     UINT scancode = MapVirtualKeyW(code, MAPVK_VK_TO_VSC);
-    LPARAM l = 1;                                      // repeat count
-    l |= (LPARAM)(scancode & 0xFF) << 16;
+    ULONG_PTR l = 1U;                                  // repeat count
+    l |= ULONG_PTR{scancode & 0xFFU} << 16U;
     switch (code) {
         case VK_LEFT: case VK_RIGHT: case VK_UP: case VK_DOWN:
         case VK_HOME: case VK_END: case VK_PRIOR: case VK_NEXT:
         case VK_INSERT: case VK_DELETE: case VK_NUMLOCK:
         case VK_RCONTROL: case VK_RMENU:
-            l |= 1LL << 24;                            // extended bit
+            l |= ULONG_PTR{1U} << 24U;                 // extended bit
             break;
         default:
             break;
     }
-    if (key_up) l |= (1LL << 30) | (1LL << 31);        // previous state and transition
-    return l;
+    if (system) l |= ULONG_PTR{1U} << 29U;             // context: alt is down
+    if (key_up) l |= (ULONG_PTR{1U} << 30U) | (ULONG_PTR{1U} << 31U);   // previous state, transition
+    return static_cast<LPARAM>(l);
 }
 
 // A posted key carries no modifier state; a combination with shift, ctrl or alt goes through
@@ -466,12 +472,14 @@ static volatile LONG g_held[256];                // keys `combo` holds down righ
 static void count_key(int which, int key)
 {
     InterlockedIncrement(&g_counts[which]);
-    InterlockedIncrement(&g_count_keys[which][key & 0xFF]);
+    InterlockedIncrement(&g_count_keys[which][static_cast<unsigned>(key) & 0xFFU]);
 }
 
 static SHORT with_held(SHORT real, int key)
 {
-    return g_held[key & 0xFF] ? (SHORT)(real | SHRT_MIN) : real;
+    // The high bit of a key state means held; it is set on the unsigned pattern, not on the number.
+    return g_held[static_cast<unsigned>(key) & 0xFFU]
+               ? static_cast<SHORT>(static_cast<USHORT>(real) | 0x8000U) : real;
 }
 
 static SHORT WINAPI counted_key_state(int key)
@@ -492,7 +500,7 @@ static BOOL WINAPI counted_keyboard_state(PBYTE state)
     BOOL done = ((BOOL (WINAPI*)(PBYTE))g_count_real[C_KEYBOARD])(state);
     if (done)
         for (int key = 0; key < 256; key++)
-            if (g_held[key]) state[key] = (BYTE)(state[key] | 0x80);
+            if (g_held[key]) state[key] = static_cast<BYTE>(state[key] | 0x80U);
     return done;
 }
 
@@ -620,17 +628,16 @@ static void cmd_combo(const char* rest)
         UINT generic = generic_of(codes[i]);
         hold(codes[i], 1);
         bool system = generic == VK_MENU && !ctrl;
-        LPARAM l = key_lparam(codes[i], false) | (system ? (1LL << 29) : 0);
-        posted = PostMessageW(g_window, system ? WM_SYSKEYDOWN : WM_KEYDOWN, generic, l) && posted;
+        posted = PostMessageW(g_window, system ? WM_SYSKEYDOWN : WM_KEYDOWN, generic,
+                              key_lparam(codes[i], false, system)) && posted;
         ctrl = ctrl || generic == VK_CONTROL;
         alt = alt || generic == VK_MENU;
         Sleep(pause);
     }
     bool system = alt && !ctrl;
-    LPARAM context = system ? (1LL << 29) : 0;
-    posted = PostMessageW(g_window, system ? WM_SYSKEYDOWN : WM_KEYDOWN, key, key_lparam(key, false) | context) && posted;
+    posted = PostMessageW(g_window, system ? WM_SYSKEYDOWN : WM_KEYDOWN, key, key_lparam(key, false, system)) && posted;
     Sleep(pause);
-    posted = PostMessageW(g_window, system ? WM_SYSKEYUP : WM_KEYUP, key, key_lparam(key, true) | context) && posted;
+    posted = PostMessageW(g_window, system ? WM_SYSKEYUP : WM_KEYUP, key, key_lparam(key, true, system)) && posted;
     Sleep(pause);
     for (int i = count - 2; i >= 0; i--) {
         posted = PostMessageW(g_window, WM_KEYUP, generic_of(codes[i]), key_lparam(codes[i], true)) && posted;
@@ -693,8 +700,7 @@ static void cmd_find(const char* rest, unsigned long long from_address, unsigned
 
         bool usable = info.State == MEM_COMMIT &&
                          !(info.Protect & PAGE_GUARD) &&
-                         (info.Protect & (PAGE_READWRITE | PAGE_WRITECOPY |
-                                          PAGE_READONLY | PAGE_EXECUTE_READ));
+                         (info.Protect & READABLE);
         if (usable) {
             const unsigned char* begin = (const unsigned char*)info.BaseAddress;
             const unsigned char* stop = next_item - length;
@@ -916,7 +922,7 @@ static DWORD WINAPI serve_pipe(LPVOID)
     for (;;) {
         HANDLE pipe = CreateNamedPipeW(PIPE_NAME, PIPE_ACCESS_DUPLEX,
                                        PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT,
-                                       PIPE_UNLIMITED_INSTANCES, 1 << 20, 1 << 16, 0, NULL);
+                                       PIPE_UNLIMITED_INSTANCES, 1U << 20U, 1U << 16U, 0, NULL);
         if (pipe == INVALID_HANDLE_VALUE) { Sleep(500); continue; }
         if (!ConnectNamedPipe(pipe, NULL) && GetLastError() != ERROR_PIPE_CONNECTED) {
             CloseHandle(pipe);
