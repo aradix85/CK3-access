@@ -28,7 +28,6 @@ keeps the numbers with the rule they were counted by. A changelog that may never
   front twenty seconds in while the player was reading in another window; the injector now asks
   Windows to show it without activating it, and through a start, a bookmark loading and a new game
   being set up the player's window stayed in front while the game's window stood visible.
-
 - **Which keys live in which window, and which of them only change the view, comes off disk:
   `windowmap.py --window-keys`.** Every window is expanded and every shortcut its widgets declare is
   filed with what pressing it calls. A key round presses only calls on a list of view changes - a
@@ -80,10 +79,7 @@ keeps the numbers with the rule they were counted by. A changelog that may never
   does not hold. `tools/ck3/modifiers.py` is that measurement.
 - **`windowmap.py --modified-keys`, the key round with a modifier, through `combo`.** It presses the
   nine combinations the HUD declares that bring something up, reading the keys from the shortcut
-  file, each twice so that alt+T, which is also a toggle no widget declares, goes back with it. Six
-  open a window and are in the map now. The three that opened nothing on a feudal count and an
-  administrative ruler need a war, an activity or a college of cardinals, and are untested, not
-  refuted.
+  file, each twice so that alt+T, which is also a toggle no widget declares, goes back with it.
 - **`states.wait` waits for a game window that does not exist yet** instead of falling over:
   `windowgrab.window_of` says "no visible window" with a `LookupError` of its own now, where it
   raised an empty-sequence error. requirements.txt names psutil, which `states.py` needs.
@@ -100,10 +96,10 @@ keeps the numbers with the rule they were counted by. A changelog that may never
   on 1.20.0.3 and says a toast is announced once one comes, not that one has been heard; and
   `ARCHITECTURE.md` no longer says a modifier key is never needed - trying every shortcut needs it.
 - **The numbering out of the running game does not read on 1.20 yet.** Religions, faiths and rites
-  changed their record length, and counting between keys the files carry finds it again; a culture
-  record no longer carries its key as text at all. A state begun on 1.19 also inherits 62 faiths that
-  1.20 turned into rites, so the numbering is measured on a state begun on 1.20, where 103 of 103
-  faiths come out.
+  changed their record length; counting by hand between keys the files carry found it again, and the
+  derivation does not do that yet. A culture record no longer carries its key as text at all. A
+  state begun on 1.19 also inherits 62 faiths that 1.20 turned into rites, so the numbering is
+  measured on a state begun on 1.20, where 103 of 103 faiths come out.
 
 ## 2026-10-01
 

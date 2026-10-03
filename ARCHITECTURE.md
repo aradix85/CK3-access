@@ -141,7 +141,8 @@ Five independent sources, and their disagreement is the test.
   `tools/ck3/model.py` derives what sits where inside a character record. No offset is written
   down. `tools/ck3/calibrate.py` holds four hundred characters against a save and names the field
   that disagrees. `tools/ck3/numbering.py` does the same walk for the culture, faith, religion,
-  rite and trait databases; on 1.20 their record layouts moved and are being derived again.
+  rite, trait and title databases; on 1.20 the culture, faith and religion records changed their
+  layout and are being derived again, and traits and titles have not been tried there yet.
 - **The `.gui` files** — meaning: which data function fills a widget, which localisation key it
   carries. `tools/ck3/guimap.py` parses the format properly rather than matching lines, merging the
   three engine layers and the active mods in load order. Needs no game running.
