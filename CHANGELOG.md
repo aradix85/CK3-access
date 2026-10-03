@@ -2,6 +2,9 @@
 
 Outcomes, newest first. No release yet.
 
+## 2026-10-04
+- A start finds the widget tree in 2 to 10 seconds instead of 80: `scan` and `find` skip the DLL's own thread stacks, where `vtables` left a copy of its list that came back as false widgets, and write-combined memory shared with the graphics card, which held no widget and was slow to read. Both are reported, and the channel test fails on either.
+
 ## 2026-10-03
 - Alt+A opens the activity window, so all nine HUD key combinations open a window.
 - Only state bit 0x08 hides; 0x20 lets the mouse through, so the activity planner is now read and its buttons clicked. One rule, in `derive.shown`; 0x02 marks a switched-off widget and its contents.

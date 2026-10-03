@@ -4,12 +4,13 @@ Why this exists: without derivation the offsets are fixed numbers from one build
 breaks at the next patch.
 
 How it works, at two speeds:
-  - deriving costs a full memory scan, measured at 132 seconds. The result belongs to the exe, not
-    to the session, so it goes to disk under a key made from that exe.
+  - deriving starts with a full memory scan, 21 seconds on a loaded game of 1.20 (measured 4 October
+    2026). The result belongs to the exe, not to the session, so it goes to disk under a key made
+    from that exe.
   - rechecking costs three to four seconds once a root of the tree is found, and finding one from
-    seed widgets took 100 to 108 seconds on a loaded game of 1.20 (measured 3 October 2026). Both
-    happen at every start. If the check fails, the stored derivation has expired and everything is
-    derived again.
+    seed widgets took 2.4 to 9.6 seconds on the same game (measured 4 October 2026, two starts).
+    Both happen at every start. If the check fails, the stored derivation has expired and everything
+    is derived again.
 
 Every prediction below is one that can only come true for the right field. If a field cannot be
 found, this file stops hard and names that field.

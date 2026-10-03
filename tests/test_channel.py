@@ -46,6 +46,10 @@ def missing(reason):
 # runs a real modifier was seen around a key five times, and the one failure fell exactly on it.
 PHYSICAL = {0x10: 'shift', 0x11: 'ctrl', 0x12: 'alt'}
 
+# Two values nothing in the target holds: one handed over as a vtable, one searched for with `find`.
+LISTED = 0x5EEDC0DE0BADF00D
+SOUGHT = 0x7E57F00D5EEDBEEF
+
 
 def physical_modifiers():
     """The modifiers held on the real keyboard right now, by name."""
@@ -91,7 +95,7 @@ def host(request, tmp_path_factory):
         assert out.readline().strip() == 'loaded'
         while not channel.alive():
             time.sleep(0.05)
-        yield process.pid, objects, str(work / 'keys.log')
+        yield process.pid, objects, str(work / 'keys.log'), request.param
         channel.close()
         process.kill()
         said = err.read()
@@ -123,7 +127,7 @@ def counts(lines):
 
 
 def test_every_command(host):
-    pid, (A, B, _C, D, E, F, G, PAGE, MANY), log = host
+    pid, (A, B, _C, D, E, F, G, PAGE, MANY, COMBINED), log, variant = host
     h = '%x'.__mod__
     failed = []
 
@@ -197,6 +201,31 @@ def test_every_command(host):
     check(f'scan {h(PAGE)} {h(PAGE + 4096)}', 'up to the last eight bytes of a region',
           lambda ls: addresses(ls, 'w') == {A, B, E, F, G, PAGE + 4088} and ls[-1] == 'done\t6\tskipped\t0')
     check('scan 1', 'refused', refused)
+
+    # A search of the game's memory must not find the DLL itself: a session leaves what it handled on
+    # its own stack. Measured 4 October 2026 in the game: the sorted copy of the vtable list that
+    # `vtables` left there came back from the scan as twenty widgets costing seconds each. LISTED and
+    # SOUGHT are in no memory of the target, so wherever a search finds one, it found the DLL.
+    # Plain only: a search over the whole target reads the stacks of its other threads, and under
+    # AddressSanitizer their redzones abort it - a report on reading foreign memory, which is what a
+    # search is for. The ranged scans above run the own-stack test under AddressSanitizer as well.
+    check(f'vtables 1111 {h(LISTED)}', 'two set', lambda ls: ls == ['vtables set\t2'])
+    if variant == 'plain':
+        check('scan', 'not the list it was just given',
+              lambda ls: LISTED not in {int(row[2], 16) for row in kind(ls, 'w')})
+        check('scan', 'says it skipped its own stack', lambda ls: bool(kind(ls, 'own stack')))
+        pattern = SOUGHT.to_bytes(8, 'little').hex(' ')
+        check('find ' + pattern, 'not the pattern it searches for', lambda ls: not kind(ls, 't'))
+        check('find ' + pattern, 'says it skipped its own stack', lambda ls: bool(kind(ls, 'own stack')))
+    check('vtables 1111', 'one set again', lambda ls: ls == ['vtables set\t1'])
+
+    # Write-combined memory is what the processor hands the graphics card: no object of the game lives
+    # there, and reading it bypasses the cache. Measured 4 October 2026: the piece of the scan holding
+    # one such region of 128 MB, 144 MB in all, took five seconds; pieces of 70 MB without one, 0.13.
+    check(f'scan {h(COMBINED)} {h(COMBINED + 4096)}', 'write-combined memory skipped, and said',
+          lambda ls: not kind(ls, 'w') and kind(ls, 'uncached') == [['uncached', '1']])
+    check(f'findin {h(COMBINED)} {h(COMBINED + 4096)} 57 43 57 43', 'by find as well',
+          lambda ls: not kind(ls, 't') and kind(ls, 'uncached') == [['uncached', '1']])
 
     check('count', 'hung in, all four counted', lambda ls: [row[2] for row in counts(ls).values()] == ['counted'] * 4)
     wait_then(1.5, 'count', 'every counter moved', lambda ls: all(int(row[3]) >= 10 for row in counts(ls).values()))

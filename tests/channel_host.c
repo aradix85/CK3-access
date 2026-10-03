@@ -57,6 +57,11 @@ int main(int argc, char** argv)
     unsigned char* page = (unsigned char*)VirtualAlloc(NULL, 4096, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
     unsigned char* gap = (unsigned char*)VirtualAlloc(NULL, 65536, MEM_RESERVE, PAGE_NOACCESS);
     unsigned char* many = (unsigned char*)VirtualAlloc(NULL, 4096, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+    // Write-combined, as the graphics driver hands memory to the game: a search must skip it.
+    unsigned char* combined = (unsigned char*)VirtualAlloc(NULL, 4096, MEM_COMMIT | MEM_RESERVE,
+                                                           PAGE_READWRITE | PAGE_WRITECOMBINE);
+    *(u64*)combined = 0x1111;
+    memcpy(combined + 8, "WCWC", 4);
     for (int i = 0; i < 300; i++) memcpy(many + 4 * i, "CK3!", 4);
     memset(long_text, 'x', sizeof(long_text));
 
@@ -78,8 +83,8 @@ int main(int argc, char** argv)
     *(u64*)(F + 0x60) = (u64)list_a; *(unsigned*)(F + 0x68) = 200000;   // not believable
     *(u64*)(page + 4096 - 8) = 0x1111;                            // a vtable in the last eight bytes
 
-    printf("objects %llx %llx %llx %llx %llx %llx %llx %llx %llx\n", (u64)A, (u64)B, (u64)C, (u64)D,
-           (u64)E, (u64)F, (u64)G, (u64)page, (u64)many);
+    printf("objects %llx %llx %llx %llx %llx %llx %llx %llx %llx %llx\n", (u64)A, (u64)B, (u64)C, (u64)D,
+           (u64)E, (u64)F, (u64)G, (u64)page, (u64)many, (u64)combined);
     fflush(stdout);
     g_log = argc > 2 ? fopen(argv[2], "w") : NULL;
     if (!g_log) { printf("no log\n"); return 1; }

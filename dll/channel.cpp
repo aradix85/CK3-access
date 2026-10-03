@@ -25,6 +25,40 @@ static int g_vtable_count = 0;
 static const DWORD WRITABLE = DWORD{PAGE_READWRITE} | DWORD{PAGE_WRITECOPY};
 static const DWORD READABLE = WRITABLE | DWORD{PAGE_READONLY} | DWORD{PAGE_EXECUTE_READ};
 
+// --- the DLL's own stacks -----------------------------------------------------
+// A search through the game's memory must not find the DLL itself, and every session leaves what it
+// handled on its stack. Measured 4 October 2026: the sorted copy of the vtable list that `vtables`
+// left there came back from the scan as twenty widgets, and walking each cost seconds - 75 of the 80
+// seconds derive.quick_root took. So a session puts its stack on this list while it runs, and scan
+// and find skip what lies on it and say how much that was.
+struct OwnStack {
+    ULONG_PTR low, high;
+    OwnStack* next;
+};
+static OwnStack* g_own_stacks = NULL;
+static SRWLOCK g_own_lock = SRWLOCK_INIT;
+
+static bool own_stack(const MEMORY_BASIC_INFORMATION& info)
+{
+    const ULONG_PTR begin = (ULONG_PTR)info.BaseAddress;
+    const ULONG_PTR end = begin + info.RegionSize;
+    bool mine = false;
+    AcquireSRWLockShared(&g_own_lock);
+    for (const OwnStack* s = g_own_stacks; s != NULL && !mine; s = s->next)
+        mine = begin < s->high && s->low < end;
+    ReleaseSRWLockShared(&g_own_lock);
+    return mine;
+}
+
+// Write-combined and uncached memory is what the processor hands the graphics card. No object of the
+// game lives there - the game would read its own objects past the cache - and reading it is slow:
+// measured 4 October 2026, the piece of a scan holding one such region of 128 MB, 144 MB in all, took
+// five seconds, where pieces of 70 MB without one took 0.13. Skipped by scan and find, and counted.
+static bool uncached(const MEMORY_BASIC_INFORMATION& info)
+{
+    return (info.Protect & (DWORD{PAGE_WRITECOMBINE} | DWORD{PAGE_NOCACHE})) != 0;
+}
+
 // --- reply buffer -----------------------------------------------------------
 // One buffer per thread. That way two connections cannot overwrite each other, and a command
 // that waits a long time (waitkey) need not hold a lock that freezes every other conversation.
@@ -236,6 +270,8 @@ static void cmd_scan(Span span)
     const unsigned char* end_at = span.to ? span.to : (const unsigned char*)base.lpMaximumApplicationAddress;
     int found = 0;
     int skipped = 0;
+    int own = 0;
+    int slow = 0;
 
     while (pointer < end_at) {
         MEMORY_BASIC_INFORMATION info;
@@ -245,6 +281,8 @@ static void cmd_scan(Span span)
         bool usable = info.State == MEM_COMMIT && info.Type == MEM_PRIVATE &&
                          !(info.Protect & PAGE_GUARD) &&
                          (info.Protect & WRITABLE);
+        if (usable && own_stack(info)) { own++; usable = false; }
+        if (usable && uncached(info)) { slow++; usable = false; }
         if (usable) {
             // The game frees memory while we are reading. A violation here may abort the
             // region, but must never take the game or the channel with it; it is counted.
@@ -261,6 +299,8 @@ static void cmd_scan(Span span)
         }
         pointer = next_item;
     }
+    if (own) emit("own stack\t%d\n", own);
+    if (slow) emit("uncached\t%d\n", slow);
     emit("done\t%d\tskipped\t%d\n", found, skipped);
 }
 
@@ -744,7 +784,7 @@ static void cmd_find(const char* rest, Span span)
     if (span.from) pointer = span.from;
     if (span.to && span.to < end_at) end_at = span.to;
 
-    int found = 0, reported = 0, skipped = 0;
+    int found = 0, reported = 0, skipped = 0, own = 0, slow = 0;
     while (pointer < end_at) {
         MEMORY_BASIC_INFORMATION info;
         if (!VirtualQuery(pointer, &info, sizeof(info))) break;
@@ -753,6 +793,8 @@ static void cmd_find(const char* rest, Span span)
         bool usable = info.State == MEM_COMMIT &&
                          !(info.Protect & PAGE_GUARD) &&
                          (info.Protect & READABLE);
+        if (usable && own_stack(info)) { own++; usable = false; }
+        if (usable && uncached(info)) { slow++; usable = false; }
         if (usable) {
             const unsigned char* begin = (const unsigned char*)info.BaseAddress;
             const unsigned char* stop = next_item - length;
@@ -784,6 +826,8 @@ static void cmd_find(const char* rest, Span span)
         }
         pointer = next_item;
     }
+    if (own) emit("own stack\t%d\n", own);
+    if (slow) emit("uncached\t%d\n", slow);
     emit("done\t%d\treported\t%d\tskipped\t%d\n", found, reported, skipped);
     // The list stops at LIMIT; more hits than that is an error after the list, so nobody takes the
     // first two hundred for all of them.
@@ -930,6 +974,13 @@ static bool emit_all(HANDLE pipe, const char* data, size_t count)
 static DWORD WINAPI serve_session(LPVOID handle)
 {
     HANDLE pipe = (HANDLE)handle;
+    // On the list of own stacks for as long as this session runs, so no search finds it (own_stack).
+    OwnStack mine;
+    GetCurrentThreadStackLimits(&mine.low, &mine.high);
+    AcquireSRWLockExclusive(&g_own_lock);
+    mine.next = g_own_stacks;
+    g_own_stacks = &mine;
+    ReleaseSRWLockExclusive(&g_own_lock);
     char command[8192];
     char header[64];
     for (;;) {
@@ -960,6 +1011,10 @@ static DWORD WINAPI serve_session(LPVOID handle)
     FlushFileBuffers(pipe);
     DisconnectNamedPipe(pipe);
     CloseHandle(pipe);
+    AcquireSRWLockExclusive(&g_own_lock);
+    for (OwnStack** link = &g_own_stacks; *link != NULL; link = &(*link)->next)
+        if (*link == &mine) { *link = mine.next; break; }
+    ReleaseSRWLockExclusive(&g_own_lock);
     return 0;
 }
 
