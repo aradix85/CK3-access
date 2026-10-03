@@ -7,6 +7,9 @@
 line-length = 100
 # The oldest Python the README promises; ruff reports syntax that needs a newer one.
 target-version = "py311"
+# Files .gitignore keeps out of the repository are code all the same, and a check that skips them in
+# silence looks exactly like one that passed them.
+respect-gitignore = false
 
 [tool.ruff.lint]
 # **ruff's own default selection**, whatever the installed version holds: a version that widens it

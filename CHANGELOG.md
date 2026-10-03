@@ -10,7 +10,7 @@ Outcomes, newest first. No release yet.
 - The DLL reads numbers strictly - digits only, no sign, nothing too big for its field - and builds with no check of clang-tidy or MSVC switched off.
 - mypy checks every function body, annotated or not, and finds nothing; a missing game or save folder now stops with a sentence instead of failing further on.
 - `tools` is a package: scripts start from the project folder as `python -m tools.ck3.start_game`, and `check.py` reports any start by file path or of a module that does not exist.
-- ruff runs its own default rules, tests included, and finds nothing: f-strings throughout, every file closed after use. The reader and the map layer say exactly what they said before.
+- ruff runs its own default rules, tests and files outside the repository included, and finds nothing: f-strings throughout, every file closed after use. The reader and the map layer say exactly what they said before.
 - The game model holds on a state begun and played on 1.20: 400 characters, all 19 fields agree with the save.
 - The game is found through the Steam libraries in the registry only; set `CK3_GAME` otherwise.
 - Removed two unused tools; the code no longer refers to the maintainer's private notes.
