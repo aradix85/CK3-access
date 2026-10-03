@@ -21,7 +21,7 @@ import time
 
 import pytest
 
-from tools.ck3 import channel
+from tools.ck3 import channel, derive
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -222,10 +222,14 @@ def test_every_command(host):
     # Write-combined memory is what the processor hands the graphics card: no object of the game lives
     # there, and reading it bypasses the cache. Measured 4 October 2026: the piece of the scan holding
     # one such region of 128 MB, 144 MB in all, took five seconds; pieces of 70 MB without one, 0.13.
-    check(f'scan {h(COMBINED)} {h(COMBINED + 4096)}', 'write-combined memory skipped, and said',
-          lambda ls: not kind(ls, 'w') and kind(ls, 'uncached') == [['uncached', '1']])
+    check(f'scan {h(COMBINED)} {h(COMBINED + 4096)}', 'write-combined memory skipped, and said with its size',
+          lambda ls: not kind(ls, 'w') and kind(ls, 'uncached') == [['uncached', '1', '4096']])
     check(f'findin {h(COMBINED)} {h(COMBINED + 4096)} 57 43 57 43', 'by find as well',
-          lambda ls: not kind(ls, 't') and kind(ls, 'uncached') == [['uncached', '1']])
+          lambda ls: not kind(ls, 't') and kind(ls, 'uncached') == [['uncached', '1', '4096']])
+    check(f'scan {h(COMBINED + 1024)} {h(COMBINED + 3072)}', 'only the part inside the stretch counts',
+          lambda ls: kind(ls, 'uncached') == [['uncached', '1', '2048']])
+    check(f'scan {h(COMBINED)} {h(COMBINED + 4096)}', 'and Python reads it as the DLL says it',
+          lambda ls: derive.skipped(derive.skips('\n'.join(ls))) == 'skipped 1 region of memory without a cache, 4 kB')
 
     check('count', 'hung in, all four counted', lambda ls: [row[2] for row in counts(ls).values()] == ['counted'] * 4)
     wait_then(1.5, 'count', 'every counter moved', lambda ls: all(int(row[3]) >= 10 for row in counts(ls).values()))

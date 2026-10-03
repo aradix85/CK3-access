@@ -83,9 +83,11 @@ def find_objects(pid, name=CLASS, valid=is_ref_database):
     one therefore is not enough; the caller decides which of them it can use.
     """
     found = []
+    left_out = []
     for vt in vtables(pid, name):
         pattern = struct.pack('<Q', vt)[1:].hex()
         answer = channel.ask('find ' + pattern, timeout=600)
+        left_out.append(derive.skips(answer))
         for line in answer.split('\n'):
             if not line.startswith('t\t'):
                 continue
@@ -96,7 +98,8 @@ def find_objects(pid, name=CLASS, valid=is_ref_database):
             if valid(address) and address not in found:
                 found.append(address)
     if not found:
-        raise SystemExit(f'no object of {name} found in memory')
+        raise SystemExit(f'no object of {name} found in memory; the search '
+                         f'{derive.skipped(*left_out) or "skipped nothing"}')
     return found
 
 
@@ -113,8 +116,10 @@ def derive_global(pid, name=CLASS, valid=is_ref_database, tries=4):
     back to prove it really holds the address.
     """
     base = vtablemap.module_base(pid)
+    left_out = []
     for address in find_objects(pid, name, valid)[:tries]:
         answer = channel.ask('find ' + struct.pack('<Q', address)[1:].hex(), timeout=900)
+        left_out.append(derive.skips(answer))
         for line in answer.split('\n'):
             if not line.startswith('t\t'):
                 continue
@@ -124,7 +129,8 @@ def derive_global(pid, name=CLASS, valid=is_ref_database, tries=4):
             held = derive.read(where, 8)
             if held is not None and struct.unpack('<Q', held)[0] == address:
                 return where - base, address
-    raise SystemExit(f'no global pointing at {name}; only heap and stack copies')
+    raise SystemExit(f'no global pointing at {name}; only heap and stack copies, and the search '
+                     f'{derive.skipped(*left_out) or "skipped nothing"}')
 
 
 def object_of(pid, name=CLASS, valid=is_ref_database):

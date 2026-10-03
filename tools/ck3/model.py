@@ -562,7 +562,8 @@ def derive_player(pid, number):
              for line in answer.split('\n') if line.startswith('t\t')]
     if not spots:
         raise SystemExit(f'no place in the module holds {int(number)}; either this is not the player of the '
-                         'state that is loaded, or the game keeps him somewhere else now')
+                         'state that is loaded, or the game keeps him somewhere else now; the search '
+                         f'{derive.skipped(derive.skips(answer)) or "skipped nothing"}')
     model = json.loads(pathlib.Path(MODEL).read_text(encoding='utf-8'))
     # One state leaves coincidences in: on 1.20.0.3 the 1066 player, 32769, sat in 27 places and the
     # 867 player in 8, and only 6 held both. So a second derivation on the same build keeps the

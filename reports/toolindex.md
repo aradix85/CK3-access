@@ -82,6 +82,7 @@ returns a pair, passed on as one thing, costs a run.
 | call | returns | does |
 |---|---|---|
 | `sha256(path)` | value | - |
+| `main()` | nothing | - |
 
 ## screenshot.py
 *Captures the screen or a crop of it, small enough to read back.*
@@ -170,7 +171,9 @@ returns a pair, passed on as one thing, costs a run.
 | `build_key()` | value | How you tell it is still the same build. If the exe changes, everything lapses. |
 | `read(address, count)` | value | - |
 | `read_known(address, count)` | value | `read` for an address the caller knows the game holds: unreadable there is a fault, and it |
-| `scan(from_address, to_address)` | value | Address -> vtable. Both come from the vtable comparison and do not depend on the field |
+| `scan(from_address, to_address)` | 2-tuple | Address -> vtable, and what the scan left out. Both come from the vtable comparison and do |
+| `skips(answer)` | value | What a scan or find left out. The DLL skips the stacks of its own threads, where copies of |
+| `skipped(*searches)` | value | What one or more searches left out, summed, as a clause; empty when nothing was. |
 | `tree(root)` | value | - |
 | `use_screen(pid)` | value | Publish the drawing area of this run, because it is not a property of the build. |
 | `drawing_area()` | value | - |
@@ -202,7 +205,7 @@ returns a pair, passed on as one thing, costs a run.
 | `fields_for(pid)` | 2-tuple | The path walked at every start. |
 | `configure_channel(fields)` | nothing | Hands the derived offsets to the DLL. The DLL knows nothing about CK3; all knowledge about |
 | `regions(pid)` | value | The memory regions of the game, asked for from the outside. |
-| `seed_batches(pid, chunk=67108864)` | iterator | Per piece of memory the addresses found, until the caller finds a usable one. |
+| `seed_batches(pid, chunk=67108864)` | iterator | Per piece of memory the addresses found, and what the scan of that piece left out, until |
 
 ## ck3\guimap.py
 *Reads the meaning out of the gui files: which widget shows what.*

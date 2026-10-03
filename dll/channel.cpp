@@ -257,6 +257,25 @@ static bool is_widget(unsigned long long vtable)
 // of what the process can address. One parameter instead of two, so the ends cannot change places.
 struct Span { const unsigned char* from; const unsigned char* to; };
 
+// What a search left out, per kind: how many regions, and how many of their bytes lay inside the
+// stretch searched. Said on a line of its own, so the caller can tell "not there" from "not looked at".
+struct Skips { int regions; SIZE_T bytes; };
+
+static void skip(Skips& tally, const MEMORY_BASIC_INFORMATION& info, Span searched)
+{
+    const unsigned char* begin = (const unsigned char*)info.BaseAddress;
+    const unsigned char* end = begin + info.RegionSize;
+    if (begin < searched.from) begin = searched.from;
+    if (end > searched.to) end = searched.to;
+    tally.regions++;
+    if (end > begin) tally.bytes += (SIZE_T)(end - begin);
+}
+
+static void say_skipped(const char* what, const Skips& tally)
+{
+    if (tally.regions) emit("%s\t%d\t%zu\n", what, tally.regions, tally.bytes);
+}
+
 // scan: every address that holds a widget vtable, with that vtable, and nothing else - it runs
 // before the field offsets are known, because the derivation starts here. Every eight bytes up to
 // the end of a region are a candidate. Without bounds it walks all eleven gigabytes of the game.
@@ -268,10 +287,11 @@ static void cmd_scan(Span span)
     GetSystemInfo(&base);
     const unsigned char* pointer = span.from ? span.from : (const unsigned char*)base.lpMinimumApplicationAddress;
     const unsigned char* end_at = span.to ? span.to : (const unsigned char*)base.lpMaximumApplicationAddress;
+    const Span searched = {pointer, end_at};
     int found = 0;
     int skipped = 0;
-    int own = 0;
-    int slow = 0;
+    Skips own = {0, 0};
+    Skips slow = {0, 0};
 
     while (pointer < end_at) {
         MEMORY_BASIC_INFORMATION info;
@@ -281,8 +301,8 @@ static void cmd_scan(Span span)
         bool usable = info.State == MEM_COMMIT && info.Type == MEM_PRIVATE &&
                          !(info.Protect & PAGE_GUARD) &&
                          (info.Protect & WRITABLE);
-        if (usable && own_stack(info)) { own++; usable = false; }
-        if (usable && uncached(info)) { slow++; usable = false; }
+        if (usable && own_stack(info)) { skip(own, info, searched); usable = false; }
+        if (usable && uncached(info)) { skip(slow, info, searched); usable = false; }
         if (usable) {
             // The game frees memory while we are reading. A violation here may abort the
             // region, but must never take the game or the channel with it; it is counted.
@@ -299,8 +319,8 @@ static void cmd_scan(Span span)
         }
         pointer = next_item;
     }
-    if (own) emit("own stack\t%d\n", own);
-    if (slow) emit("uncached\t%d\n", slow);
+    say_skipped("own stack", own);
+    say_skipped("uncached", slow);
     emit("done\t%d\tskipped\t%d\n", found, skipped);
 }
 
@@ -784,7 +804,10 @@ static void cmd_find(const char* rest, Span span)
     if (span.from) pointer = span.from;
     if (span.to && span.to < end_at) end_at = span.to;
 
-    int found = 0, reported = 0, skipped = 0, own = 0, slow = 0;
+    const Span searched = {pointer, end_at};
+    int found = 0, reported = 0, skipped = 0;
+    Skips own = {0, 0};
+    Skips slow = {0, 0};
     while (pointer < end_at) {
         MEMORY_BASIC_INFORMATION info;
         if (!VirtualQuery(pointer, &info, sizeof(info))) break;
@@ -793,8 +816,8 @@ static void cmd_find(const char* rest, Span span)
         bool usable = info.State == MEM_COMMIT &&
                          !(info.Protect & PAGE_GUARD) &&
                          (info.Protect & READABLE);
-        if (usable && own_stack(info)) { own++; usable = false; }
-        if (usable && uncached(info)) { slow++; usable = false; }
+        if (usable && own_stack(info)) { skip(own, info, searched); usable = false; }
+        if (usable && uncached(info)) { skip(slow, info, searched); usable = false; }
         if (usable) {
             const unsigned char* begin = (const unsigned char*)info.BaseAddress;
             const unsigned char* stop = next_item - length;
@@ -826,8 +849,8 @@ static void cmd_find(const char* rest, Span span)
         }
         pointer = next_item;
     }
-    if (own) emit("own stack\t%d\n", own);
-    if (slow) emit("uncached\t%d\n", slow);
+    say_skipped("own stack", own);
+    say_skipped("uncached", slow);
     emit("done\t%d\treported\t%d\tskipped\t%d\n", found, reported, skipped);
     // The list stops at LIMIT; more hits than that is an error after the list, so nobody takes the
     // first two hundred for all of them.

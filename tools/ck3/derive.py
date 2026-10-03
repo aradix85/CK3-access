@@ -46,8 +46,8 @@ Anchors = dict[str, tuple[bool, bool]]
 
 class Fields(TypedDict):
     """A derivation, as `fields.json` keeps it: the build it holds for, the seven offsets the channel
-    walks with, three counts from the scan, and the two visibility offsets a state with a window to
-    open adds."""
+    walks with, three counts from the scan and what the scan skipped, and the two visibility offsets
+    a state with a window to open adds."""
     key: str
     parent: int
     children: int
@@ -61,6 +61,12 @@ class Fields(TypedDict):
     roots: int
     flag: NotRequired[int]
     alpha: NotRequired[int]
+    skipped: NotRequired[str]
+
+
+# What a search in the DLL left out, per kind: kind -> (regions, bytes).
+Skips = dict[str, tuple[int, int]]
+SKIP_WORDS = {'own stack': "the channel's own stack", 'uncached': 'memory without a cache'}
 
 
 def window_size(pid: int) -> tuple[int, int]:
@@ -94,16 +100,44 @@ def read_known(address: int, count: int) -> bytes:
     return found
 
 
-def scan(from_address: int, to_address: int) -> dict[int, int]:
-    """Address -> vtable. Both come from the vtable comparison and do not depend on the field
-    offsets we are looking for."""
+def scan(from_address: int, to_address: int) -> tuple[dict[int, int], Skips]:
+    """Address -> vtable, and what the scan left out. Both come from the vtable comparison and do
+    not depend on the field offsets we are looking for."""
     found: dict[int, int] = {}
     answer = channel.ask(f'scan {from_address:x} {to_address:x}' if to_address else 'scan', timeout=300)
     for line in answer.split('\n'):
         part = line.split('\t')
         if part[0] == 'w':
             found[int(part[1], 16)] = int(part[2], 16)
+    return found, skips(answer)
+
+
+def skips(answer: str) -> Skips:
+    """What a scan or find left out. The DLL skips the stacks of its own threads, where copies of
+    what it was handed sit, and write-combined or uncached memory, which the processor shares with
+    the graphics card; it says so on a line per kind, with regions and bytes."""
+    found: Skips = {}
+    for line in answer.split('\n'):
+        part = line.split('\t')
+        if part[0] in SKIP_WORDS:
+            found[part[0]] = (int(part[1]), int(part[2]))
     return found
+
+
+def skipped(*searches: Skips) -> str:
+    """What one or more searches left out, summed, as a clause; empty when nothing was.
+
+    Every search that comes back empty carries this, or "not found" reads as "not there".
+    """
+    total: dict[str, list[int]] = {}
+    for one in searches:
+        for kind, (regions, size) in one.items():
+            tally = total.setdefault(kind, [0, 0])
+            tally[0] += regions
+            tally[1] += size
+    return '; '.join(f"skipped {regions} region{'' if regions == 1 else 's'} of {SKIP_WORDS[kind]}, "
+                     + (f'{size >> 10} kB' if size < 2**20 else f'{size >> 20} MB')
+                     for kind, (regions, size) in total.items())
 
 
 def tree(root: int) -> dict[int, int]:
@@ -785,9 +819,11 @@ def class_map(pid: int, addresses: dict[int, int]) -> dict[int, str | None]:
 
 def derive_all(pid: int) -> Fields:
     """Derive every field from a full scan. Expensive, so once per build."""
-    addresses = scan(0, 0)
+    addresses, skips_of_scan = scan(0, 0)
+    left_out = skipped(skips_of_scan)
     if not addresses:
-        raise SystemExit('the scan found no widget at all; is the game already showing a screen?')
+        raise SystemExit('the scan found no widget at all; is the game already showing a screen? '
+                         f'It {left_out or "skipped nothing"}')
     chunks, failed = chunks_of(addresses)
     width, height = window_size(pid)
 
@@ -806,7 +842,7 @@ def derive_all(pid: int) -> Fields:
 
     return {'key': build_key(), 'parent': f_parent, 'children': f_children, 'count': f_count,
             'position': f_position, 'size': f_size, 'name': f_name, 'text': f_text,
-            'objects': len(addresses), 'unreadable': failed, 'roots': len(roots)}
+            'objects': len(addresses), 'unreadable': failed, 'roots': len(roots), 'skipped': left_out}
 
 
 def visibility_fields(pid: int, fields: Fields, root: int, key: int = 112,
@@ -972,7 +1008,9 @@ def quick_root(fields: Fields, pid: int, at_least: int = 500, ample: int = 1500,
     Repeat that measurement if the engine ever grows a second large root.
     """
     found: dict[int, dict[int, int]] = {}
-    for group in seed_batches(pid):
+    left_out: list[Skips] = []
+    for group, skips_of_piece in seed_batches(pid):
+        left_out.append(skips_of_piece)
         for address in group[:samples]:
             if address in found:
                 continue
@@ -983,7 +1021,8 @@ def quick_root(fields: Fields, pid: int, at_least: int = 500, ample: int = 1500,
         if found and max(len(k) for k in found.values()) >= at_least:
             root = max(found, key=lambda w: len(found[w]))
             return root, found[root]
-    raise SystemExit('no widget tree of any significance found; is the game still running?')
+    raise SystemExit('no widget tree of any significance found; is the game still running? '
+                     f'The scan {skipped(*left_out) or "skipped nothing"}')
 
 
 def _sample(nodes: Iterable[int], root: int, how_many: int = 200) -> list[int]:
@@ -1151,7 +1190,8 @@ def fields_for(pid: int) -> tuple[Fields, str]:
     fields, note = _with_visibility(pid, fields, root)
     store(fields)
     use_fields(fields)
-    return fields, reason + ' - derived again' + note
+    left_out = f"; the scan {fields['skipped']}" if fields.get('skipped') else ''
+    return fields, reason + ' - derived again' + note + left_out
 
 
 def _with_visibility(pid: int, fields: Fields, root: int) -> tuple[Fields, str]:
@@ -1214,8 +1254,9 @@ def regions(pid: int) -> list[tuple[int, int]]:
     return items
 
 
-def seed_batches(pid: int, chunk: int = 0x4000000) -> Iterator[list[int]]:
-    """Per piece of memory the addresses found, until the caller finds a usable one.
+def seed_batches(pid: int, chunk: int = 0x4000000) -> Iterator[tuple[list[int], Skips]]:
+    """Per piece of memory the addresses found, and what the scan of that piece left out, until
+    the caller finds a usable one.
 
     Scanning happens in chunks because `scan` walks a window to the end before answering: a roomy
     window costs the full scan time even when the first hit lands immediately.
@@ -1227,14 +1268,12 @@ def seed_batches(pid: int, chunk: int = 0x4000000) -> Iterator[list[int]]:
         total += size
         if total < chunk:
             continue
-        found = scan(stack[0][0], stack[-1][0] + stack[-1][1])
-        if found:
-            yield sorted(found)
+        found, left_out = scan(stack[0][0], stack[-1][0] + stack[-1][1])
+        yield sorted(found), left_out
         stack, total = [], 0
     if stack:
-        found = scan(stack[0][0], stack[-1][0] + stack[-1][1])
-        if found:
-            yield sorted(found)
+        found, left_out = scan(stack[0][0], stack[-1][0] + stack[-1][1])
+        yield sorted(found), left_out
 
 
 if __name__ == '__main__':
