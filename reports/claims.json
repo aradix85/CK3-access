@@ -335,7 +335,7 @@
   "claimed": 282,
   "measure": "gui_windows",
   "counting_rule": "three shapes, one entry per name: a `window = { name = ... }` block at any depth; a block whose type resolves through its inheritance chain to `window` and which carries a name, at any depth; and a type definition that inherits from `window` and carries the name itself. **Do not add shapes here; use `windowmap.unmapped`**, which asks the running game instead: the engine builds every window up front, so the live tree is the whole list. windows.json holds the 282 of 1.20.0.3, measured on 1 October 2026 and checked that way, with none unmapped; 1.20 added 18 windows to the 265 of 1.19.0.6 and removed faith_creation_window",
-  "quoted_in": ["brief\\patch.md", "brief\\vensters.md"]
+  "quoted_in": ["brief\\vensters.md"]
  },
  {
   "name": "harvested widgets that carry text",

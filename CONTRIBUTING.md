@@ -22,10 +22,9 @@ say why your check could have seen the effect.
 
 ## Checks that must pass
 
-`python -m tools.check`, `python -m pytest`, `python -m ruff check .` and `python -m mypy`. `check.py` recomputes every
-number in `reports/claims.json` and checks that every path the documents name exists. A number that
-carries a decision belongs in `claims.json` with its counting rule. After a rename, also run
-`python -m pyflakes tools`.
+`python -m tools.check`, `python -m pytest`, `python -m ruff check .` and `python -m mypy`. `check.py`
+recomputes every number in `reports/claims.json` and checks that every path the documents name exists.
+A number that carries a decision belongs in `claims.json` with its counting rule.
 
 Don't name a script `test_*.py` unless pytest should collect it: scripts under `tools/` that are run by
 hand may speak through NVDA.

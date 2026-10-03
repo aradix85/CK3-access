@@ -5,12 +5,12 @@ Outcomes, newest first. No release yet.
 ## 2026-10-03
 - Alt+A opens the activity window, so all nine HUD key combinations open a window.
 - Only state bit 0x08 hides; 0x20 lets the mouse through, so the activity planner is now read and its buttons clicked. One rule, in `derive.shown`; 0x02 marks a switched-off widget and its contents.
-- Tooling brought up to date: OpenVINO 2026.4 (recognition unchanged on the harvest captures), onnx 1.23, pytest 9.1, pyflakes 4; ruff 0.16 with its rule selection written out, since its default grew. Build Tools 18.10.2 and LLVM 23: `tests/test_channel.py` finds clang-tidy through LLVM's uninstall entry, and the 24 findings of its new signed-bitwise check are fixed rather than switched off.
+- Tooling brought up to date: OpenVINO 2026.4 (recognition unchanged on the harvest captures), onnx 1.23, pytest 9.1, ruff 0.16. Build Tools 18.10.2 and LLVM 23: `tests/test_channel.py` finds clang-tidy through LLVM's uninstall entry, and the 24 findings of its new signed-bitwise check are fixed rather than switched off.
 - No check is switched off for convenience: pytest fails on any warning and lists every skip, which exposed unclosed files in `tools/paths.py` and the channel test, now closed; clang-tidy's enum-size check is on again and satisfied.
 - The DLL reads numbers strictly - digits only, no sign, nothing too big for its field - and builds with no check of clang-tidy or MSVC switched off.
 - mypy checks every function body, annotated or not, and finds nothing; a missing game or save folder now stops with a sentence instead of failing further on.
 - `tools` is a package: scripts start from the project folder as `python -m tools.ck3.start_game`, and `check.py` reports any start by file path or of a module that does not exist.
-- ruff runs its own default rules, tests and files outside the repository included, and finds nothing: f-strings throughout, every file closed after use. The reader and the map layer say exactly what they said before.
+- ruff runs its own default rules, which cover pyflakes, so pyflakes is no longer a requirement. Tests and files outside the repository included, it finds nothing: f-strings throughout, every file closed after use. The reader and the map layer say exactly what they said before.
 - On a machine marked with `.tools-required` the channel test fails, rather than skips, when MSVC or clang-tidy is missing.
 - The channel test no longer fails when someone holds ctrl, shift or alt while it runs: it watches the real keyboard throughout and repeats a disturbed key.
 - The game model holds on a state begun and played on 1.20: 400 characters, all 19 fields agree with the save.
