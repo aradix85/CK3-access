@@ -18,6 +18,7 @@ __pycache__/
 # between them they left 21 files in the project folder, and nothing excluded them yet.
 .pytest_cache/
 .ruff_cache/
+.mypy_cache/
 
 # the built DLL belongs to a release, not to the history
 dll/channel.dll
