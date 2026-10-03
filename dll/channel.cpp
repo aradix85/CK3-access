@@ -458,7 +458,7 @@ static void cmd_sendchar(unsigned ch)
 // GetKeyState about left shift and about nothing else - SDL inside the exe checking a shift it
 // believes is down, and letting go of one Windows does not hold. Outside a combination every
 // answer is the real one.
-enum { C_KEYSTATE, C_ASYNC, C_KEYBOARD, C_RAWDATA, C_TOTAL };
+enum : unsigned char { C_KEYSTATE, C_ASYNC, C_KEYBOARD, C_RAWDATA, C_TOTAL };
 static const char* const g_count_names[C_TOTAL] = {
     "GetKeyState", "GetAsyncKeyState", "GetKeyboardState", "GetRawInputData"
 };

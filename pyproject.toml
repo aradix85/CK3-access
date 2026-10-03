@@ -41,3 +41,8 @@ extend-select = ["B905", "ARG"]
 # Only `tests\` is collected. Anything under `tools\` that is run by hand speaks through NVDA and
 # sleeps, so collecting it would make a test run talk - see tools\nvda\check_speech_by_ear.py.
 testpaths = ["tests"]
+# A warning is a failure, and every skip is listed with its reason: a run that is green because
+# something was not looked at must not read like one that looked (the maintainer's decision, 3 October
+# 2026: no check is switched off because that is easier).
+filterwarnings = ["error"]
+addopts = "-rs"

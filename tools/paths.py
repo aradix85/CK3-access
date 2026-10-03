@@ -41,11 +41,12 @@ def _steam_libraries():
         out.append(base)
         vdf = os.path.join(base, 'steamapps', 'libraryfolders.vdf')
         if os.path.exists(vdf):
-            for line in open(vdf, encoding='utf-8', errors='replace'):
-                if '"path"' in line:
-                    part = line.split('"')
-                    if len(part) > 3:
-                        out.append(part[3].replace('\\\\', '\\'))
+            with open(vdf, encoding='utf-8', errors='replace') as file:
+                for line in file:
+                    if '"path"' in line:
+                        part = line.split('"')
+                        if len(part) > 3:
+                            out.append(part[3].replace('\\\\', '\\'))
     return out
 
 
@@ -107,11 +108,15 @@ def mod_folders():
     if not os.path.exists(listing):
         return []
     out = []
-    for entry in json.load(open(listing, encoding='utf-8-sig'))['enabled_mods']:
+    with open(listing, encoding='utf-8-sig') as file:
+        enabled = json.load(file)['enabled_mods']
+    for entry in enabled:
         descriptor = os.path.join(DOCS, entry.replace('/', os.sep))
         if not os.path.exists(descriptor):
             continue
-        for line in open(descriptor, encoding='utf-8-sig', errors='replace'):
+        with open(descriptor, encoding='utf-8-sig', errors='replace') as file:
+            lines = file.readlines()
+        for line in lines:
             if line.strip().startswith('path='):
                 folder = line.split('=', 1)[1].strip().strip('"').replace('/', os.sep)
                 if os.path.isdir(folder):

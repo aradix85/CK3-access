@@ -12,6 +12,7 @@ seconds, a restart takes minutes. Skipped without a built DLL or a compiler, and
 runs, because both answer on the same pipe name.
 """
 import os
+import pathlib
 import re
 import subprocess
 import sys
@@ -29,7 +30,8 @@ SOURCE = os.path.join(ROOT, 'tests', 'channel_host.c')
 
 def vcvars():
     """The compiler setup that `dll\\build_channel.bat` uses, so its path lives in one place."""
-    found = re.search(r'call "([^"]+vcvars64\.bat)"', open(os.path.join(ROOT, 'dll', 'build_channel.bat')).read())
+    with open(os.path.join(ROOT, 'dll', 'build_channel.bat'), encoding='utf-8') as file:
+        found = re.search(r'call "([^"]+vcvars64\.bat)"', file.read())
     return found.group(1) if found and os.path.exists(found.group(1)) else None
 
 
@@ -57,17 +59,16 @@ def host(request, tmp_path_factory):
     (work / 'build.bat').write_text('\r\n'.join(lines) + '\r\n')
     built = subprocess.run(['cmd', '/c', 'build.bat'], capture_output=True, text=True, cwd=work)
     assert built.returncode == 0, built.stdout + built.stderr
-    process = subprocess.Popen([str(work / 'host.exe'), dll, str(work / 'keys.log')], stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE, text=True)
-    objects = [int(value, 16) for value in process.stdout.readline().split()[1:]]
-    assert process.stdout.readline().strip() == 'loaded'
-    while not channel.alive():
-        time.sleep(0.05)
-    yield process.pid, objects, str(work / 'keys.log')
-    channel.close()
-    process.kill()
-    process.wait()
-    said = process.stderr.read()
+    with subprocess.Popen([str(work / 'host.exe'), dll, str(work / 'keys.log')], stdout=subprocess.PIPE,
+                          stderr=subprocess.PIPE, text=True) as process:      # closes both pipes
+        objects = [int(value, 16) for value in process.stdout.readline().split()[1:]]
+        assert process.stdout.readline().strip() == 'loaded'
+        while not channel.alive():
+            time.sleep(0.05)
+        yield process.pid, objects, str(work / 'keys.log')
+        channel.close()
+        process.kill()
+        said = process.stderr.read()
     assert 'AddressSanitizer' not in said, said
 
 
@@ -113,10 +114,10 @@ def test_every_command(host):
         """The answer - a list, or a test on it - and the key messages the window logged: kind, key,
         context bit, then shift, ctrl and alt as GetKeyState gave them while the message was
         handled. ? is either."""
-        before = len(open(log).read().splitlines())
+        before = len(pathlib.Path(log).read_text().splitlines())
         lines = lines_of(command)
         time.sleep(0.4)
-        got = open(log).read().splitlines()[before:]
+        got = pathlib.Path(log).read_text().splitlines()[before:]
         fits = len(got) == len(keys) and all(
             len(g.split()) == len(k.split()) and all(b in ('?', a) for a, b in zip(g.split(), k.split(), strict=True))
             for g, k in zip(got, keys, strict=True))
