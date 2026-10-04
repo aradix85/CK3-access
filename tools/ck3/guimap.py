@@ -56,6 +56,8 @@ LocalTable = dict[tuple[str, str | None], Definition]
 Overrides = dict[str | None, list[Entry]]
 # Window name -> the file it is written in, and its entry.
 Known = dict[str, tuple[str, Entry]]
+# Type name -> the end of its inheritance chain, as `root_finder` builds it.
+Root = Callable[[str | None], str | None]
 
 
 class GuiError(Exception):
@@ -453,7 +455,7 @@ def windows(rows: list[Row] | None = None) -> Known:
     """
     rows = rows if rows is not None else files()
     table, _ = type_table(rows)
-    root = _root_finder(table)
+    root = root_finder(table)
     out: Known = {}
     for layer, virtual, full in rows:
         entries = read(full)
@@ -489,8 +491,9 @@ def windows(rows: list[Row] | None = None) -> Known:
     return out
 
 
-def _root_finder(table: Table) -> Callable[[str | None], str | None]:
-    """Type name -> the end of its inheritance chain, remembered, because the walk repeats."""
+def root_finder(table: Table) -> Root:
+    """Type name -> the end of its inheritance chain, remembered, because the walk repeats itself
+    tens of thousands of times over one window."""
     known: dict[str | None, str | None] = {}
 
     def root(name: str | None) -> str | None:

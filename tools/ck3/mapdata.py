@@ -19,8 +19,10 @@ import math
 import os
 import pathlib
 import re
+from typing import Required, TypedDict
 
 import numpy
+from numpy.typing import NDArray
 from PIL import Image
 
 from tools import paths, terminal
@@ -45,14 +47,14 @@ COMPASS = {(0, 1): 'north', (0, -1): 'south', (1, 0): 'east', (-1, 0): 'west',
            (-1, -1): 'southwest'}
 
 
-def _map_file(name):
+def _map_file(name: str) -> str:
     return os.path.join(paths.require('GAME'), 'game', 'map_data', name)
 
 
-def province_colours():
+def province_colours() -> dict[int, int]:
     """Colour -> province number, from `definition.csv`. The colour is the only link between the
     image and a number, so a province whose colour is missing here cannot exist on the map."""
-    out = {}
+    out: dict[int, int] = {}
     with open(_map_file('definition.csv'), encoding='utf-8', errors='replace') as file:
         for line in file:
             parts = line.strip().split(';')
@@ -62,7 +64,7 @@ def province_colours():
     return out
 
 
-def province_image():
+def province_image() -> NDArray[numpy.int32]:
     """The map as province numbers, one per pixel.
 
     The check that can fail is that every pixel resolves: measured 1 September 2026, zero of the
@@ -75,7 +77,7 @@ def province_image():
     image = numpy.asarray(Image.open(_map_file('provinces.png')), dtype=numpy.uint8)
     packed = ((image[:, :, 0].astype(numpy.int32) << 16)
               | (image[:, :, 1].astype(numpy.int32) << 8) | image[:, :, 2].astype(numpy.int32))
-    numbers = lookup[packed]
+    numbers: NDArray[numpy.int32] = lookup[packed]
     unknown = int((numbers == 0).sum())
     if unknown:
         raise AssertionError(f'{int(unknown)} pixels carry a colour definition.csv does not list; the image '
@@ -83,7 +85,7 @@ def province_image():
     return numbers
 
 
-def centres(numbers=None):
+def centres(numbers: NDArray[numpy.int32] | None = None) -> dict[int, tuple[float, float]]:
     """Province number -> (x, y), the mean of its pixels.
 
     The mean of a concave shape can fall outside it, and for a bearing and a rough distance that
@@ -104,7 +106,7 @@ def centres(numbers=None):
 SPREAD = 20000          # bigger than the highest province number, so a pair packs into one int
 
 
-def touching(numbers=None):
+def touching(numbers: NDArray[numpy.int32] | None = None) -> set[tuple[int, int]]:
     """Every pair of provinces whose pixels lie next to each other.
 
     Four-neighbour, because a diagonal touch is a corner and not a border. Packed into one integer
@@ -112,7 +114,7 @@ def touching(numbers=None):
     where this is seconds.
     """
     numbers = province_image() if numbers is None else numbers
-    out = set()
+    out: set[tuple[int, int]] = set()
     for left, right in ((numbers[:, :-1], numbers[:, 1:]), (numbers[:-1, :], numbers[1:, :])):
         differ = left != right
         low = numpy.minimum(left[differ], right[differ]).astype(numpy.int64)
@@ -122,9 +124,9 @@ def touching(numbers=None):
     return out
 
 
-def special_links():
+def special_links() -> list[tuple[int, int, str]]:
     """The connections the image cannot show: straits and ferries from `adjacencies.csv`."""
-    out = []
+    out: list[tuple[int, int, str]] = []
     with open(_map_file('adjacencies.csv'), encoding='utf-8', errors='replace') as file:
         for line in file:
             parts = line.strip().split(';')
@@ -133,13 +135,13 @@ def special_links():
     return out
 
 
-def province_kinds():
+def province_kinds() -> dict[int, str]:
     """Province number -> what it is, from `default.map`: sea, lake, river, impassable.
 
     Only the kinds `default.map` names are in here. A province it does not name is ordinary land,
     and that is an absence rather than a finding.
     """
-    out = {}
+    out: dict[int, str] = {}
     text = pathlib.Path(_map_file('default.map')).read_text(encoding='utf-8', errors='replace')
     for kind in ('sea_zones', 'river_provinces', 'lakes', 'impassable_mountains',
                  'impassable_seas', 'wasteland'):
@@ -155,14 +157,27 @@ def province_kinds():
 TIERS = {'e': 'empire', 'k': 'kingdom', 'd': 'duchy', 'c': 'county', 'b': 'barony'}
 
 
-def _value(block, key):
+class Title(TypedDict, total=False):
+    """One landed title. `tier`, `chain`, `name` and `chain_names` are on every title `titles`
+    returns; `capital` only where the files name one, `province` only on a barony that has one,
+    and `provinces` only on a county."""
+    tier: Required[str]
+    chain: list[str]
+    capital: str
+    province: int
+    provinces: list[int]
+    name: str
+    chain_names: list[str]
+
+
+def _value(block: guimap.Entry, key: str) -> str | None:
     for child in block.get('body') or []:
         if child['key'] == key:
             return child.get('value')
     return None
 
 
-def titles():
+def titles() -> dict[str, Title]:
     """Title key -> what it is, what land sits under it, which title it calls its capital, the de
     jure titles above it, and its name.
 
@@ -176,11 +191,12 @@ def titles():
     single line, and overwriting on every mention cost 1228 counties their provinces before this
     rule was here.
     """
-    out: dict[str, dict] = {}
+    out: dict[str, Title] = {}
 
-    def walk(blocks, chain):
+    def walk(blocks: list[guimap.Entry], chain: list[str]) -> None:
         for block in blocks:
             key = block.get('key') or ''
+            body = block['body'] or []
             tier = TIERS.get(key[:1]) if key[1:2] == '_' else None
             below = chain + [key] if tier else chain
             if tier:
@@ -195,15 +211,15 @@ def titles():
                         row['province'] = int(number)
                 if tier == 'county':
                     provinces = []
-                    for child in block.get('body') or []:
+                    for child in body:
                         if (child.get('key') or '').startswith('b_'):
                             number = _value(child, 'province')
                             if number and number.isdigit():
                                 provinces.append(int(number))
                     if provinces or 'provinces' not in row:
                         row['provinces'] = provinces
-            if block.get('body'):
-                walk(block['body'], below)
+            if body:
+                walk(body, below)
 
     for _, _, full in database.files('landed_titles'):
         walk(guimap.parse(pathlib.Path(full).read_text(encoding='utf-8-sig', errors='replace')), [])
@@ -221,18 +237,18 @@ class Map:
     to one of these rather than calling the functions above per question.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         numbers = province_image()
         self.centres = centres(numbers)
         self.kinds = province_kinds()
         self.titles = titles()
         self.counties = {key: row for key, row in self.titles.items()
                          if row['tier'] == 'county'}
-        self.county_of = {}
+        self.county_of: dict[int, str] = {}
         for key, row in self.counties.items():
             for province in row.get('provinces') or []:
                 self.county_of[province] = key
-        self.neighbours = collections.defaultdict(set)
+        self.neighbours: collections.defaultdict[str, set[str]] = collections.defaultdict(set)
         self.water: collections.defaultdict[str, collections.Counter[str]] = (
             collections.defaultdict(collections.Counter))
         pairs = touching(numbers) | {(a, b) for a, b, _ in special_links()}
@@ -246,10 +262,11 @@ class Map:
                 elif other is None:
                     self.water[own][self.kinds.get(number, 'unnamed')] += 1
 
-    def name(self, county):
-        return self.counties.get(county, {}).get('name') or county
+    def name(self, county: str) -> str:
+        row = self.counties.get(county)
+        return (row.get('name') if row else None) or county
 
-    def county_for(self, title):
+    def county_for(self, title: str) -> str | None:
         """The county a title stands on, which is what turns a title held in the game into a place.
 
         A barony sits in one, a county with land is one, and everything above names a capital on
@@ -268,15 +285,16 @@ class Map:
             return title
         return row.get('capital')
 
-    def where(self, county):
+    def where(self, county: str) -> tuple[float, float] | None:
         """The point of a county: the mean of its capital barony's province."""
-        provinces = self.counties.get(county, {}).get('provinces') or []
+        row = self.counties.get(county)
+        provinces = row.get('provinces') if row else None
         if not provinces or provinces[0] not in self.centres:
             return None
         x, y = self.centres[provinces[0]]
         return float(x), float(y)          # plain floats: numpy booleans do not subtract
 
-    def apart(self, one, two):
+    def apart(self, one: str, two: str) -> tuple[float, float, float] | None:
         """(pixels, kilometres, days) between two counties, all three approximate."""
         here, there = self.where(one), self.where(two)
         if here is None or there is None:
@@ -284,7 +302,7 @@ class Map:
         pixels = math.hypot(here[0] - there[0], here[1] - there[1])
         return pixels, pixels * KM_PER_PIXEL, pixels / PIXELS_PER_DAY
 
-    def bearing(self, one, two):
+    def bearing(self, one: str, two: str) -> str | None:
         """Eight points. North is up, so y runs the other way round."""
         here, there = self.where(one), self.where(two)
         if here is None or there is None:
@@ -297,11 +315,12 @@ class Map:
         sign = ((east > 0) - (east < 0), (north > 0) - (north < 0))
         return COMPASS.get(sign)
 
-    def rings(self, county, depth=3):
+    def rings(self, county: str, depth: int = 3) -> list[set[str]]:
         """Neighbours, neighbours of neighbours, and so on - each ring without the ones before."""
-        seen, edge, out = {county}, {county}, []
+        seen, edge = {county}, {county}
+        out: list[set[str]] = []
         for _ in range(depth):
-            further = set()
+            further: set[str] = set()
             for member in edge:
                 further |= self.neighbours.get(member, set())
             further -= seen
@@ -310,7 +329,7 @@ class Map:
             edge = further
         return out
 
-    def describe(self, county):
+    def describe(self, county: str) -> list[str]:
         """One county in sentences,: what it is, then
         where it sits, then what it touches. Not the reading order of the product - that is layer
         three - but enough for the user to judge the numbers against what she knows."""
@@ -331,7 +350,7 @@ class Map:
                                      for kind, count in self.water[county].most_common())))
         return lines
 
-    def between(self, one, two):
+    def between(self, one: str, two: str) -> str:
         """The three numbers a player asked for a place wants: how far, how long, which way."""
         far = self.apart(one, two)
         if far is None:
@@ -340,7 +359,7 @@ class Map:
         return (f'{self.name(two)} lies {self.bearing(one, two)} of {self.name(one)}, roughly {int(round(km, -1))} kilometres, about {round(days)} days of travel.')
 
 
-def main():
+def main() -> None:
     terminal.utf8()
     world = Map()
     print(f'{len(world.centres)} provinces on the map, {len(world.county_of and set(world.county_of.values()))} counties with land, {len(world.neighbours)} with neighbours, {len(world.titles)} titles')

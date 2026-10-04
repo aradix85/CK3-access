@@ -437,10 +437,9 @@ def reachable_point(buttons, widget_address, rect, step=6):
 def gui_tables():
     """The expansion tables, read once. Building them walks some six hundred files, so a sweep that rebuilds
     them per window spends its time there instead of in the game."""
-    from tools.ck3 import pairing
     rows = guimap.files()
     table, local = guimap.type_table(rows)
-    return table, local, guimap.windows(rows), pairing.root_finder(table)
+    return table, local, guimap.windows(rows), guimap.root_finder(table)
 
 
 def spots_for_goal(game, pid, window, goal, tables=None):

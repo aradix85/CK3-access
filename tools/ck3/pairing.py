@@ -17,12 +17,29 @@ import json
 import os
 import pathlib
 import re
-from typing import Any
+from typing import NotRequired, TypedDict
 
 from tools import paths
 from tools.ck3 import derive, guimap
 
 HARVEST = os.path.join(paths.PROJECT, 'harvest')
+
+# One widget as the harvest writes it (`harvest.widget_record`): addresses in hex, rectangles as
+# x, y, width, height. `state` is missing from every widget harvested before 20 September 2026,
+# when it was still called `window_flag` and read for window objects only.
+Harvested = TypedDict('Harvested', {
+    'address': str, 'parent': str, 'depth': int, 'index': int, 'class': str | None, 'name': str,
+    'text': str | None, 'own_rect': list[float], 'screen_rect': list[float], 'scale': list[float],
+    'alpha': float | None, 'state': NotRequired[int | None], 'clipped': bool})
+
+
+class Record(TypedDict):
+    """What this module reads of a harvested window: its widgets. The harvest writes much more."""
+    tree: list[Harvested]
+
+
+# A live widget with its source on disk, or None, and the data contexts it inherits.
+Paired = tuple[guimap.Node | None, Harvested, tuple[str, ...]]
 
 # The head of a data function call: `[Character.GetName]` names Character, `[GetPlayer]` names
 # GetPlayer. Only the head is taken, because that is the object the text is about and the rest is
@@ -37,38 +54,21 @@ ICON = re.compile(r'@\w+!')
 # 178 harvested windows, every name that occurs exactly once in the live tree and resolves to one
 # inheritance root on disk was tallied - 7299 such names, 24 roots, and each root pointed at
 # exactly one class with no exceptions. Everything absent from this table is a property block:
-# `size`, `state`, `fontcolor`, `modify_texture` and the like never reach the tree in memory.
-CLASS_OF = {'icon': 'Icon', 'game_button': 'PushButton', 'vbox': 'VBoxLayout',
-            'textbox': 'Textbox', 'widget': 'Widget', 'hbox': 'HBoxLayout', 'window': 'Window',
-            'scrollarea': 'ScrollArea', 'editbox': 'Editbox', 'fixedgridbox': 'FixedGridBox',
-            'flowcontainer': 'FlowContainer', 'container': 'Container', 'scrollbar': 'ScrollBar',
-            'button_group': 'ButtonGroup', 'checkbutton': 'CheckButton',
-            'progressbar': 'ProgressBar', 'dropDown': 'Dropdown', 'margin_widget': 'MarginWidget',
-            'dynamicgridbox': 'DynamicGridBox', 'cameracontrolwidget': 'CameraControl',
-            'overlappingitembox': 'OverlappingItemBox', 'zoomarea': 'ZoomArea',
-            'portrait_button': '.?AVCGuiPortraitButton'}
+# `size`, `state`, `fontcolor`, `modify_texture` and the like never reach the tree in memory. Keyed
+# by `str | None` because that is what `guimap.Root` gives back for a node without a type.
+CLASS_OF: dict[str | None, str] = {
+    'icon': 'Icon', 'game_button': 'PushButton', 'vbox': 'VBoxLayout',
+    'textbox': 'Textbox', 'widget': 'Widget', 'hbox': 'HBoxLayout', 'window': 'Window',
+    'scrollarea': 'ScrollArea', 'editbox': 'Editbox', 'fixedgridbox': 'FixedGridBox',
+    'flowcontainer': 'FlowContainer', 'container': 'Container', 'scrollbar': 'ScrollBar',
+    'button_group': 'ButtonGroup', 'checkbutton': 'CheckButton',
+    'progressbar': 'ProgressBar', 'dropDown': 'Dropdown', 'margin_widget': 'MarginWidget',
+    'dynamicgridbox': 'DynamicGridBox', 'cameracontrolwidget': 'CameraControl',
+    'overlappingitembox': 'OverlappingItemBox', 'zoomarea': 'ZoomArea',
+    'portrait_button': '.?AVCGuiPortraitButton'}
 
 
-def root_finder(table):
-    """Type name -> the end of its inheritance chain, remembered, because the walk repeats itself
-    tens of thousands of times over one window."""
-    known = {}
-
-    def root(name):
-        if name not in known:
-            seen, walk = set(), name
-            while walk and walk not in seen:
-                seen.add(walk)
-                found = table.get(walk)
-                if not found or found['parent'] == walk:
-                    break
-                walk = found['parent']
-            known[name] = walk
-        return known[name]
-    return root
-
-
-def widget_children(node, root):
+def widget_children(node: guimap.Node, root: guimap.Root) -> list[guimap.Node]:
     """The children of a node that can reach the live tree, in file order.
 
     A `tooltipwidget` is not followed: the engine builds a tooltip when the pointer arrives, so on
@@ -84,7 +84,7 @@ def widget_children(node, root):
     source - eleven category buttons of the ledger, the counties among them, and everything below
     them. Reordering here rather than in the alignment keeps the rule where the reason for it is.
     """
-    out = []
+    out: list[guimap.Node] = []
     for child in node['children']:
         if child['type'] == 'tooltipwidget':
             continue
@@ -107,7 +107,8 @@ PAIR, MISMATCH, REPEAT, LIVE_ONLY, DISK_ONLY = 0.0, 3.0, 0.3, 2.0, 1.0
 ORDER = {'pair': 0, 'repeat': 1, 'disk': 2, 'live': 3}
 
 
-def align_row(disk, live, root):
+def align_row(disk: list[guimap.Node], live: list[Harvested],
+              root: guimap.Root) -> list[tuple[guimap.Node | None, Harvested]]:
     """Two rows of children laid against each other on class and order alone.
 
     Four moves, because the difference runs both ways. A widget can sit on disk and never be
@@ -136,7 +137,8 @@ def align_row(disk, live, root):
                        (cost[i][j - 1] + (REPEAT if same else LIVE_ONLY),
                         ORDER['repeat' if same else 'live'], 'repeat' if same else 'live'))
             cost[i][j], came[i][j] = best[0], best[2]
-    out, i, j = [], n, m
+    out: list[tuple[guimap.Node | None, Harvested]] = []
+    i, j = n, m
     while i or j:
         step = came[i][j]
         if step == 'pair':
@@ -154,9 +156,9 @@ def align_row(disk, live, root):
     return list(reversed(out))
 
 
-def live_tree(record):
+def live_tree(record: Record) -> tuple[dict[str, list[Harvested]], Harvested]:
     """The harvest is a flat list with an address and a parent address; this is it as a tree."""
-    by_parent = collections.defaultdict(list)
+    by_parent: collections.defaultdict[str, list[Harvested]] = collections.defaultdict(list)
     for widget in record['tree']:
         by_parent[widget['parent']].append(widget)
     for address in by_parent:
@@ -164,7 +166,9 @@ def live_tree(record):
     return by_parent, min(record['tree'], key=lambda w: w['depth'])
 
 
-def pairs(window, table, local, known, root, record=None, disk_tree=None):
+def pairs(window: str, table: guimap.Table, local: guimap.LocalTable, known: guimap.Known,
+          root: guimap.Root, record: Record | None = None,
+          disk_tree: guimap.Node | None = None) -> list[Paired]:
     """Every live widget of one window with its source on disk, and the data context it inherits.
 
     The context rides along because a widget almost never names its own subject: the window says
@@ -192,9 +196,8 @@ def pairs(window, table, local, known, root, record=None, disk_tree=None):
     if disk_tree is None:
         disk_tree, _ = guimap.window(window, table, local, known)
 
-    # The record of a harvested widget is read from JSON and has no type of its own yet.
-    out: list[tuple[guimap.Node | None, Any, tuple[str, ...]]] = []
-    work: list[tuple[guimap.Node | None, Any, tuple[str, ...]]] = [(disk_tree, top, ())]
+    out: list[Paired] = []
+    work: list[Paired] = [(disk_tree, top, ())]
     while work:
         source, built, context = work.pop()
         if source is None:
@@ -220,7 +223,7 @@ CUSTOM_WIDGETS = 'custom_widgets_container'
 _decision_widgets: dict[str, guimap.Node | None] = {}
 
 
-def _decision_widget(name, table, local):
+def _decision_widget(name: str, table: guimap.Table, local: guimap.LocalTable) -> guimap.Node | None:
     """The own gui of a decision on disk, or None when no file carries that name - which the tally
     then reports as a live widget the files do not describe, the same as anywhere else. Kept per
     name, because expanding means walking the file list, and a reader reads this window often."""
@@ -232,7 +235,7 @@ def _decision_widget(name, table, local):
     return _decision_widgets[name]
 
 
-def text_source(source, localization):
+def text_source(source: str | None, localization: dict[str, str]) -> str:
     """What fills this widget: a key, a data function, both, or a placeholder.
 
     `DEFAULT_TEXT` is its own answer and not a failure. It is what the gui file carries where the
@@ -265,7 +268,7 @@ UNEXPLAINED = ('placeholder, code fills it', 'no key on disk', 'no source on dis
 NUMBER_NOISE = set('+-.,%()/:kKmM ')
 
 
-def developer_window(name, path):
+def developer_window(name: str, path: str) -> bool:
     """Is this window the developers' own tooling rather than something a player opens?
 
     Counting rule: its gui file sits under `gui/debug/`, or its name carries the word debug.
@@ -275,7 +278,7 @@ def developer_window(name, path):
     return path.startswith('gui/debug/') or 'debug' in name
 
 
-def bare_number(text):
+def bare_number(text: str) -> bool:
     """A text that is only a number. This is the case the origin question exists for: `150`
     with no word beside it, which cannot be read out as a sentence.
     """
@@ -285,7 +288,8 @@ def bare_number(text):
                        if not character.isdigit() and character not in NUMBER_NOISE)
 
 
-def unexplained(count, kind, context, built, developer):
+def unexplained(count: collections.Counter[str], kind: str, context: tuple[str, ...],
+                built: Harvested, developer: bool) -> None:
     """The texts the gui files do not predict, split the way the decision needed them.
 
     Three questions decide whether the missing origin costs anything: does the widget inherit a
@@ -309,12 +313,13 @@ def unexplained(count, kind, context, built, developer):
 REPORT = os.path.join(paths.PROJECT, 'reports', 'pairing.json')
 
 
-def sweep():
-    """Every harvested window paired, as one tally. Takes about three minutes."""
+def sweep() -> tuple[collections.Counter[str], collections.Counter[str], collections.Counter[str]]:
+    """Every harvested window paired, as one tally. About twenty seconds for 204 windows (measured
+    4 October 2026)."""
     rows = guimap.files()
     table, local = guimap.type_table(rows)
     known = guimap.windows(rows)
-    root = root_finder(table)
+    root = guimap.root_finder(table)
     localization = guimap.localization()
 
     count: collections.Counter[str] = collections.Counter()
@@ -372,9 +377,9 @@ def sweep():
     return count, functions, unplaced
 
 
-def main():
+def main() -> None:
     count, functions, unplaced = sweep()
-    report = dict(count)
+    report: dict[str, int | dict[str, int]] = dict(count)
     report['top functions'] = dict(functions.most_common(20))
     # Which windows the leftover texts sit in, per window. Without this the share that lands in
     # the developers' own windows - the reason for leaving the rest alone - is a number nobody can

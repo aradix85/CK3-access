@@ -43,7 +43,7 @@ is not a window, so the place you stand on does not move. Decided with the playe
 """
 import sys
 
-from tools.ck3 import channel, derive, guimap, memory, pairing, reading, windowmap
+from tools.ck3 import channel, derive, guimap, memory, reading, windowmap
 from tools.nvda import speech
 
 UP, DOWN, TOGGLE, EXPLAIN = 38, 40, 123, 46
@@ -63,7 +63,7 @@ def gui_tables():
     known = guimap.windows(rows)
     reading.words_table()
     memory.widget_vtables()
-    return table, local, known, pairing.root_finder(table)
+    return table, local, known, guimap.root_finder(table)
 
 
 class Reader:

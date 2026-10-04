@@ -563,7 +563,7 @@ def read(window, table=None, local=None, known=None, root=None):
         table, local = guimap.type_table(rows)
         known = guimap.windows(rows)
     if root is None:
-        root = pairing.root_finder(table)
+        root = guimap.root_finder(table)
     import json
     with open(os.path.join(HARVEST, window + '.json'), encoding='utf-8') as handle:
         record = json.load(handle)
@@ -635,7 +635,7 @@ def live(pid, window=None, game=None, tables=None):
         rows = guimap.files()
         table, local = guimap.type_table(rows)
         known = guimap.windows(rows)
-        tables = (table, local, known, pairing.root_finder(table))
+        tables = (table, local, known, guimap.root_finder(table))
     table, local, known, root = tables
     return window, sentences(units(window, table, local, known, root, record), window)
 
@@ -665,7 +665,7 @@ def main():
     rows = guimap.files()
     table, local = guimap.type_table(rows)
     known = guimap.windows(rows)
-    root = pairing.root_finder(table)
+    root = guimap.root_finder(table)
     print(f'the templates of {len(rows)} gui files, once: {time.time() - start:.1f} s')
 
     for window in windows:

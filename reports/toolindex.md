@@ -222,6 +222,7 @@ returns a pair, passed on as one thing, costs a run.
 | `build(key, body, templates, overrides=None, depth=0, in_tooltip=False)` | dict of value | One widget, fully expanded: inherited defaults, mixed-in templates, slots filled. |
 | `attribute(node, key)` | value of NoneType | The value of the first attribute with this key, or None when the widget has none. |
 | `windows(rows=None)` | value | Every window on disk, as name -> (virtual path, its entry). |
+| `root_finder(table)` | value | Type name -> the end of its inheritance chain, remembered, because the walk repeats itself |
 | `window(name, table=None, local=None, known=None)` | 2-tuple | A window resolved into a widget tree, with a Templates carrying what went wrong. |
 | `decision_widget(name, table=None, local=None, rows=None)` | 2-tuple | The own gui of a decision, resolved into a widget tree like a window. |
 | `localization(language='english')` | value | Key -> sentence, from the localization files of the game and of the active mods. |
@@ -361,7 +362,6 @@ returns a pair, passed on as one thing, costs a run.
 
 | call | returns | does |
 |---|---|---|
-| `root_finder(table)` | value | Type name -> the end of its inheritance chain, remembered, because the walk repeats itself |
 | `widget_children(node, root)` | value | The children of a node that can reach the live tree, in file order. |
 | `align_row(disk, live, root)` | value | Two rows of children laid against each other on class and order alone. |
 | `live_tree(record)` | 2-tuple | The harvest is a flat list with an address and a parent address; this is it as a tree. |
@@ -370,7 +370,7 @@ returns a pair, passed on as one thing, costs a run.
 | `developer_window(name, path)` | value | Is this window the developers' own tooling rather than something a player opens? |
 | `bare_number(text)` | bool of value | A text that is only a number. This is the case the origin question exists for: `150` |
 | `unexplained(count, kind, context, built, developer)` | nothing | The texts the gui files do not predict, split the way the decision needed them. |
-| `sweep()` | 3-tuple | Every harvested window paired, as one tally. Takes about three minutes. |
+| `sweep()` | 3-tuple | Every harvested window paired, as one tally. About twenty seconds for 204 windows (measured |
 | `main()` | nothing | - |
 
 ## ck3\place.py
