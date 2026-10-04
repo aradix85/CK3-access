@@ -19,14 +19,25 @@ import pathlib
 import re
 import sys
 import zipfile
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
+from typing import NotRequired, TypedDict
 
 from tools import paths, terminal
 
 PROJ = paths.PROJECT
 
 
-def _path(part):
+class Claim(TypedDict):
+    """One entry of `reports\\claims.json`: a number, and the measure that recomputes it."""
+    name: str
+    measure: str
+    arguments: NotRequired[list[str | bool]]
+    claimed: int
+    counting_rule: str
+    quoted_in: NotRequired[list[str]]
+
+
+def _path(part: str) -> str:
     """Placeholders instead of absolute paths, so a claim is not tied to one machine.
 
     `<workshop>` is derived from the game folder rather than written down: the Steam library that
@@ -38,38 +49,38 @@ def _path(part):
             .replace('<documents>', paths.require('DOCS')).replace('<workshop>', workshop))
 
 
-def bytes_of(part):
+def bytes_of(part: str) -> int:
     return os.path.getsize(_path(part))
 
 
-def lines_of(part):
+def lines_of(part: str) -> int:
     with open(_path(part), 'rb') as file:
         return sum(1 for _ in file)
 
 
-def files_in(part, pattern):
+def files_in(part: str, pattern: str) -> int:
     root = _path(part)
     return sum(len(glob.glob(os.path.join(map_, pattern))) for map_, _, _ in os.walk(root))
 
 
-def json_field(part, *keys):
+def json_field(part: str, *keys: str) -> object:
     value = json.loads(pathlib.Path(_path(part)).read_text(encoding='utf-8'))
     for build_key in keys:
         value = value[build_key]
     return value
 
 
-def json_keys(part, *skip):
+def json_keys(part: str, *skip: str) -> int:
     value = json.loads(pathlib.Path(_path(part)).read_text(encoding='utf-8'))
     return len([k for k in value if k not in skip])
 
 
-def type_names_in_exe():
+def type_names_in_exe() -> int:
     from tools.ck3 import memory
     return memory.type_name_count()
 
 
-def widget_vtables():
+def widget_vtables() -> int:
     from tools.ck3 import memory
     return len(memory.widget_vtables())
 
@@ -81,19 +92,19 @@ CHANNEL_PARSE = re.compile(r'(?:\bstrcmp\(command,\s*|\bis\()"([a-z_]+(?: [a-z_]
 NOT_OURS = {'git': 'a program', 'effect': "the game's own console"}
 
 
-def _documents():
+def _documents() -> list[str]:
     """The markdown in the project root and in `brief\\`. On a clone the second is not there."""
     return sorted(glob.glob(os.path.join(PROJ, '*.md'))
                   + glob.glob(os.path.join(PROJ, 'brief', '*.md')))
 
 
-def channel_commands():
+def channel_commands() -> set[str]:
     """Every command the DLL accepts, read out of its dispatch chain."""
     source = pathlib.Path(os.path.join(PROJ, 'dll', 'channel.cpp')).read_text(encoding='utf-8', errors='replace')
     return set(CHANNEL_PARSE.findall(source))
 
 
-def channel_names():
+def channel_names() -> tuple[list[str], int]:
     """Command names the documents claim, checked against the DLL - both directions.
 
     **Why this exists.** `toetsen aan` and `toetsen uit` survived a month in the documentation
@@ -112,7 +123,8 @@ def channel_names():
     """
     known = channel_commands()
     claim = re.compile(r'^([a-z_]+)(?: ([a-z_]+)|(?: <[^>]+>(?:\.\.\.)?)+(?: \.\.\.)?)$')
-    problems, checked = [], 0
+    problems: list[str] = []
+    checked = 0
     for path in _documents():
         with open(path, encoding='utf-8') as file:
             for number, line in enumerate(file, 1):
@@ -131,20 +143,20 @@ def channel_names():
     return problems, checked
 
 
-def gui_merged(with_mods):
+def gui_merged(with_mods: bool) -> int:
     """Gui files as the engine sees them: the three layers merged, mods on top."""
     from tools.ck3 import guimap
     return len(guimap.files(with_mods=with_mods))
 
 
-def gui_templates(scope):
+def gui_templates(scope: str) -> int:
     """Templates in the merged set. `type` and `template` are global, `local_type` is not."""
     from tools.ck3 import guimap
     table, local = guimap.type_table()
     return len(table if scope == 'global' else local)
 
 
-def gui_windows():
+def gui_windows() -> int:
     from tools.ck3 import guimap
     return len(guimap.windows())
 
@@ -152,7 +164,7 @@ def gui_windows():
 _LEDGER: dict[str, int] = {}
 
 
-def ledger_buildings(what):
+def ledger_buildings(what: str) -> int:
     """What a building box in the ledger can actually do when it is clicked.
 
     **This claim exists because a door was called open for a fortnight on a
@@ -173,20 +185,19 @@ def ledger_buildings(what):
     from tools.ck3 import guimap
     doing = ('onclick', 'onrightclick', 'shortcut', 'ondoubleclick')
 
-    def walk(node):
+    def walk(node: guimap.Node) -> Iterator[guimap.Node]:
         yield node
-        for child in node.get('children') or ():
-            if isinstance(child, dict):
-                yield from walk(child)
+        for child in node['children']:
+            yield from walk(child)
 
     if not _LEDGER:
         tree, _ = guimap.window('ledger_window')
-        boxes = [n for n in walk(tree) if n.get('type') == 'widget_building_item_ledger']
+        boxes = [n for n in walk(tree) if n['type'] == 'widget_building_item_ledger']
         acting = 0
         reaching = 0
         for box in boxes:
             for node in walk(box):
-                pairs = {k: v for k, v in (node.get('attrs') or ()) if k}
+                pairs = {k: v for k, v in node['attrs'] if k}
                 actions = [pairs[k] for k in doing if k in pairs]
                 if actions:
                     acting += 1
@@ -201,7 +212,7 @@ def ledger_buildings(what):
 DLC_CHECK = re.compile(r"HasDlcFeature\(\s*'([^']+)'\s*\)")
 
 
-def gui_dlc(what):
+def gui_dlc(what: str) -> int:
     """How the gui set gates content behind an expansion, counted over the merged files.
 
     Measured 27 August 2026 over the expansion of all 196 windows, and again on 1 October 2026 over
@@ -214,21 +225,17 @@ def gui_dlc(what):
     takes five minutes. If a patch changes how the game gates things, these two numbers move and
     the expensive question is worth asking again.
     """
+    from tools.ck3 import guimap
     found = set()
     total = 0
-    for _, _, full in guimap_files():
+    for _, _, full in guimap.files():
         for name in DLC_CHECK.findall(pathlib.Path(full).read_text(encoding='utf-8-sig', errors='replace')):
             found.add(name)
             total += 1
     return total if what == 'checks' else len(found)
 
 
-def guimap_files():
-    from tools.ck3 import guimap
-    return guimap.files()
-
-
-def database_entries(kind, what, save=None):
+def database_entries(kind: str, what: str, save: str | None = None) -> int:
     """Entries of one of the game's databases, merged the way the engine merges them.
 
     `named` is the check rather than a statistic: a key that also resolves to a sentence in the
@@ -253,7 +260,7 @@ def database_entries(kind, what, save=None):
                if n < len(keys) and keys[n] == key)
 
 
-def gamestate_mb(part):
+def gamestate_mb(part: str) -> float:
     with open(_path(part), 'rb') as file:
         raw = file.read()
     start = raw.find(b'PK\x03\x04')
@@ -264,7 +271,7 @@ def gamestate_mb(part):
 _ignore_lines: list[str] | None = None
 
 
-def ignored(relative):
+def ignored(relative: str) -> bool:
     """Does `.gitignore` exclude this path? The same question `git init` asks.
 
     Two callers need it for opposite reasons: counting what goes into the repo, and knowing that
@@ -284,7 +291,7 @@ def ignored(relative):
     return any(fnmatch.fnmatch(branch, line) for line in _ignore_lines for branch in branches)
 
 
-def repo_files():
+def repo_files() -> int:
     """Counts what a `git init` would take into the repo: everything .gitignore does not exclude."""
     count = 0
     for map_, _, files in os.walk(PROJ):
@@ -296,7 +303,7 @@ def repo_files():
     return count
 
 
-def unseen_texts(what):
+def unseen_texts(what: str) -> int:
     """Texts in the harvest that are in the tree but not on the screen, counted per reason.
 
     The reading rule skips these, so the number decides how much a window says to nobody. Counted
@@ -338,7 +345,7 @@ def unseen_texts(what):
     return totals[what]
 
 
-def document_paths():
+def document_paths() -> tuple[int, list[tuple[str, int, str]]]:
     """Every project path named in a document, checked against the disk.
 
     A number that drifts is caught by the claims above; a *name* that drifts was not caught by
@@ -367,8 +374,9 @@ def document_paths():
         if '.git' in root or '__pycache__' in root:
             continue
         on_disk.update(name.lower() for name in names)
-    docs = sorted(glob.glob(os.path.join(PROJ, '*.md')) + glob.glob(os.path.join(PROJ, 'brief', '*.md')))
-    missing, seen = [], 0
+    docs = _documents()
+    missing: list[tuple[str, int, str]] = []
+    seen = 0
     for doc in docs:
         fenced = False
         with open(doc, encoding='utf-8') as file:
@@ -398,7 +406,7 @@ def document_paths():
 
 
 
-def mod_windows(part):
+def mod_windows(part: str) -> int:
     """Windows in the map whose gui file is not part of the game itself.
 
     The window map is measured on one machine, with mods enabled, and it ships. Anything in it that
@@ -416,7 +424,7 @@ def mod_windows(part):
     return count
 
 
-def harvest_total(part, field):
+def harvest_total(part: str, field: str) -> int:
     """A number summed over the harvest records: how big the round was, and how good.
 
     `harvest\\` stays out of the repo, so on a clone this measures nothing and the claim will
@@ -438,7 +446,7 @@ def harvest_total(part, field):
 _MAP: dict[str, int] = {}
 
 
-def map_layer(what):
+def map_layer(what: str) -> int:
     """A count of the static map layer, recomputed from the game files.
 
     Every one of these is held on the first call, because building the layer walks a 9216x4608
@@ -461,7 +469,15 @@ def map_layer(what):
     return _MAP[what]
 
 
-def shortcuts(what):
+def _shortcut_rows() -> list[tuple[str, str]]:
+    """Every binding of `shortcuts.shortcuts` as (name, keys), read here rather than through
+    `windowmap`, because a check that uses the code it checks measures itself."""
+    path = os.path.join(paths.require('GAME'), 'game', 'gui', 'shortcuts.shortcuts')
+    text = pathlib.Path(path).read_text(encoding='utf-8-sig', errors='replace')
+    return re.findall(r'^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"([^"]*)"', text, re.MULTILINE)
+
+
+def shortcuts(what: str) -> int:
     """How many key bindings the game defines, counted by kind.
 
     **This claim exists because the number that stood here before was nine.** `windowmap` pressed
@@ -473,9 +489,7 @@ def shortcuts(what):
     action of the game. Those are counted apart. What is left are the named game actions, split
     by whether the binding needs shift, ctrl or alt.
     """
-    path = os.path.join(paths.require('GAME'), 'game', 'gui', 'shortcuts.shortcuts')
-    text = pathlib.Path(path).read_text(encoding='utf-8-sig', errors='replace')
-    rows = re.findall(r'^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"([^"]*)"', text, re.MULTILINE)
+    rows = _shortcut_rows()
     named = [(n, k) for n, k in rows if not n.startswith('_')]
     # A binding with an empty key string is declared and bound to nothing - `event_option_14`,
     # `menu_14`, `sub_tab_14`, `tab_14`. Counting those among the keys we could press was wrong
@@ -497,7 +511,7 @@ def shortcuts(what):
     raise KeyError(f'no such shortcut count: {what!r}')
 
 
-def shortcut_words(what):
+def shortcut_words(what: str) -> int:
     """How far a shortcut can be given a meaning from disk alone.
 
     A binding names itself and its keys and says nothing about what it does. The widget that
@@ -515,26 +529,25 @@ def shortcut_words(what):
     `[Concatenate('tab_', ...)]`, is no binding name and is not counted here.
     """
     from tools.ck3 import guimap
-    text = pathlib.Path(os.path.join(paths.require('GAME'), 'game', 'gui', 'shortcuts.shortcuts')).read_text(encoding='utf-8-sig', errors='replace')
-    rows = re.findall(r'^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"([^"]*)"', text, re.MULTILINE)
-    bindings = {n for n, _ in rows if not n.startswith('_')}
+    bindings = {n for n, _ in _shortcut_rows() if not n.startswith('_')}
 
-    def value_of(body, key):
-        for child in body or []:
-            if child.get('key') == key:
-                return child.get('value')
+    def value_of(body: list[guimap.Entry], key: str) -> str | None:
+        for child in body:
+            if child['key'] == key:
+                return child['value']
         return None
 
     found: dict[str, list[tuple[str | None, str | None]]] = {}
 
-    def walk(nodes):
+    def walk(nodes: list[guimap.Entry]) -> None:
         for node in nodes:
-            body = node.get('body')
+            body = node['body']
             if not body:
                 continue
             for child in body:
-                if child.get('key') == 'shortcut' and child.get('value'):
-                    found.setdefault(child['value'].strip('"'), []).append(
+                value = child['value']
+                if child['key'] == 'shortcut' and value:
+                    found.setdefault(value.strip('"'), []).append(
                         (value_of(body, 'text'), value_of(body, 'tooltip')))
             walk(body)
 
@@ -577,7 +590,7 @@ MEASURES: dict[str, Callable[..., object]] = {
 
 
 
-def quoted_numbers(claims):
+def quoted_numbers(claims: list[Claim]) -> tuple[list[str], int, int]:
     """Claims that a document repeats, checked against the file that repeats them.
 
     A number in `claims.json` is recomputed here, but a copy of it in `README.md` is not: it ages
@@ -593,7 +606,8 @@ def quoted_numbers(claims):
 
     Returns (problems, how many quotes were checked, how many were not on this disk).
     """
-    problems, seen, absent = [], 0, 0
+    problems: list[str] = []
+    seen, absent = 0, 0
     for claim in claims:
         for name in claim.get('quoted_in', ()):
             path = os.path.join(PROJ, name)
@@ -619,7 +633,7 @@ RUN_FILE = re.compile(r'python(?: -u)? +\S*tools[\\/]\S+\.py')
 RUN_NAME = re.compile(r'`(?:\S*[\\/])?([a-z_]+)\.py [^`]+`')
 
 
-def script_runs():
+def script_runs() -> tuple[list[str], int]:
     """How the documents and the scripts themselves say to start a script, checked against the package.
 
     Since 3 October 2026 `tools` is a package, and a script starts from the project folder as
@@ -627,7 +641,8 @@ def script_runs():
     by path is wrong wherever it stands, and a start by module has to name a module that exists.
     """
     texts = _documents() + sorted(glob.glob(os.path.join(PROJ, 'tools', '**', '*.py'), recursive=True))
-    wrong, seen = [], 0
+    wrong: list[str] = []
+    seen = 0
     for path in texts:
         name = os.path.relpath(path, PROJ)
         with open(path, encoding='utf-8') as file:
@@ -647,8 +662,8 @@ def script_runs():
     return wrong, seen
 
 
-def main(all_of_them):
-    claims = json.loads(pathlib.Path(os.path.join(PROJ, 'reports', 'claims.json')).read_text(encoding='utf-8'))
+def main(all_of_them: bool) -> int:
+    claims: list[Claim] = json.loads(pathlib.Path(os.path.join(PROJ, 'reports', 'claims.json')).read_text(encoding='utf-8'))
     drifted = []
     for claim in claims:
         measure = MEASURES[claim['measure']]

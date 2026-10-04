@@ -33,7 +33,6 @@ returns a pair, passed on as one thing, costs a run.
 | `gui_windows()` | value | - |
 | `ledger_buildings(what)` | value | What a building box in the ledger can actually do when it is clicked. |
 | `gui_dlc(what)` | value | How the gui set gates content behind an expansion, counted over the merged files. |
-| `guimap_files()` | value | - |
 | `database_entries(kind, what, save=None)` | value | Entries of one of the game's databases, merged the way the engine merges them. |
 | `gamestate_mb(part)` | value | - |
 | `ignored(relative)` | value | Does `.gitignore` exclude this path? The same question `git init` asks. |

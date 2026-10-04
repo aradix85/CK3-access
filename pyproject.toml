@@ -59,6 +59,7 @@ module = ["tools.paths", "tools.terminal", "tools.nvda.speech", "tools.ck3.injec
           "tools.windowgrab", "tools.toolindex", "tools.ocr", "tools.boxreader", "tools.ck3.savegame",
           "tools.ck3.guimap", "tools.ck3.database", "tools.ck3.screens", "tools.ck3.propose",
           "tools.ck3.derive", "tools.ck3.mapdata", "tools.ck3.pairing", "tools.never_silent",
+          "tools.check",
           # The tests: `tests` has no __init__.py, and mypy takes it as a namespace package.
           "tests.test_ask_retry", "tests.test_channel", "tests.test_scan_guard",
           "tests.test_speech_seam", "tests.test_tree_walk"]
