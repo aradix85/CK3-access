@@ -8,13 +8,16 @@ so the beta gate called a function that no longer existed and nobody noticed unt
 session read the file.
 """
 
+import ctypes
+from collections.abc import Iterator
+
 import pytest
 
 from tools.nvda import speech
 
 
 @pytest.fixture
-def heard():
+def heard() -> Iterator[speech.Recorder]:
     """A recorder in place of the NVDA client, put back afterwards."""
     recorder = speech.Recorder()
     previous = speech._client
@@ -23,19 +26,19 @@ def heard():
     speech._client = previous
 
 
-def test_speech_and_braille_carry_the_same_text(heard):
+def test_speech_and_braille_carry_the_same_text(heard: speech.Recorder) -> None:
     speech.output('the council has five seats')
     assert heard.spoken == ['the council has five seats']
     assert heard.brailled == ['the council has five seats']
 
 
-def test_a_different_braille_text_is_possible_because_it_is_the_exception(heard):
+def test_a_different_braille_text_is_possible_because_it_is_the_exception(heard: speech.Recorder) -> None:
     speech.output('the council has five seats', braille='council 5')
     assert heard.spoken == ['the council has five seats']
     assert heard.brailled == ['council 5']
 
 
-def test_replace_silences_first_and_queue_does_not(heard):
+def test_replace_silences_first_and_queue_does_not(heard: speech.Recorder) -> None:
     speech.output('first', speech.REPLACE)
     assert heard.cancels == 1
     speech.output('second', speech.QUEUE)
@@ -43,19 +46,19 @@ def test_replace_silences_first_and_queue_does_not(heard):
 
 
 @pytest.mark.usefixtures('heard')
-def test_an_unknown_mode_breaks_where_it_happens():
+def test_an_unknown_mode_breaks_where_it_happens() -> None:
     with pytest.raises(ValueError):
         speech.output('text', 'sideways')
 
 
-def test_a_failure_is_written_out_even_when_it_cannot_be_spoken(capsys):
+def test_a_failure_is_written_out_even_when_it_cannot_be_spoken(capsys: pytest.CaptureFixture[str]) -> None:
     """The one place in the seam allowed to swallow, and the reason it is allowed.
 
     An exit that raises while carrying a failure loses the failure it was carrying. So the
     sentence goes to stderr first, which cannot fall over, and only then to NVDA.
     """
     class Deaf(speech.Recorder):
-        def nvdaController_speakText(self, _text):
+        def nvdaController_speakText(self, _text: ctypes.c_wchar_p) -> int:
             raise OSError('NVDA is gone')
 
     previous = speech._client

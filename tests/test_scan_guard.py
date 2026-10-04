@@ -9,11 +9,11 @@ import pytest
 from tools.ck3 import derive
 
 
-def test_a_tree_inside_the_scan_passes():
+def test_a_tree_inside_the_scan_passes() -> None:
     derive.all_in_scan([1, 2, 3], {1, 2, 3, 4}, 'skipped 1 region of memory without a cache, 4 kB')
 
 
-def test_a_widget_outside_the_scan_stops_and_says_what_was_skipped():
+def test_a_widget_outside_the_scan_stops_and_says_what_was_skipped() -> None:
     with pytest.raises(SystemExit) as stop:
         derive.all_in_scan([1, 2, 5], {1, 2, 3}, 'skipped 1 region of memory without a cache, 4 kB')
     said = str(stop.value)
@@ -21,6 +21,6 @@ def test_a_widget_outside_the_scan_stops_and_says_what_was_skipped():
     assert 'skipped 1 region of memory without a cache, 4 kB' in said
 
 
-def test_nothing_skipped_is_said_too():
+def test_nothing_skipped_is_said_too() -> None:
     with pytest.raises(SystemExit, match='which skipped nothing'):
         derive.all_in_scan([9], set(), '')

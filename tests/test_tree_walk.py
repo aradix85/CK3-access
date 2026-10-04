@@ -18,7 +18,7 @@ WIDGET = 'w\t1000\t5\t0\t0\t10\t10\t0\troot\t'
 
 
 @pytest.fixture
-def heard(monkeypatch):
+def heard(monkeypatch: pytest.MonkeyPatch) -> speech.Recorder:
     """A recorder in place of the NVDA client, and nothing said before this test."""
     recorder = speech.Recorder()
     monkeypatch.setattr(speech, '_client', recorder)
@@ -26,25 +26,28 @@ def heard(monkeypatch):
     return recorder
 
 
-def answer(monkeypatch, *lines):
+def answer(monkeypatch: pytest.MonkeyPatch, *lines: str) -> None:
     monkeypatch.setattr(channel, 'ask', lambda _command, **_keywords: '\n'.join(lines))
 
 
-def test_a_whole_tree_says_nothing(heard, monkeypatch):
+def test_a_whole_tree_says_nothing(heard: speech.Recorder, monkeypatch: pytest.MonkeyPatch) -> None:
     answer(monkeypatch, WIDGET)
     assert list(derive.widgets(0x1000)) == [0x1000]
     assert heard.spoken == []
 
 
-def test_an_unreadable_node_is_said_and_the_rest_still_comes_back(heard, monkeypatch):
+def test_an_unreadable_node_is_said_and_the_rest_still_comes_back(heard: speech.Recorder,
+                                                                  monkeypatch: pytest.MonkeyPatch) -> None:
     answer(monkeypatch, WIDGET, 'missing\t2000\tunreadable')
     assert list(derive.widgets(0x1000)) == [0x1000]
     assert len(heard.spoken) == 1
-    assert 'could not be read' in heard.spoken[0]
+    said = heard.spoken[0]
+    assert said is not None and 'could not be read' in said
     assert heard.brailled == heard.spoken
 
 
-def test_the_same_node_is_said_once_and_a_new_one_again(heard, monkeypatch):
+def test_the_same_node_is_said_once_and_a_new_one_again(heard: speech.Recorder,
+                                                        monkeypatch: pytest.MonkeyPatch) -> None:
     answer(monkeypatch, WIDGET, 'missing\t2000\tunreadable')
     derive.widgets(0x1000)
     derive.widgets(0x1000)

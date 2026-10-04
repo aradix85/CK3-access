@@ -18,10 +18,18 @@ import re
 import subprocess
 import threading
 import time
+from collections.abc import Callable, Iterator
+from typing import NoReturn
 
 import pytest
 
 from tools.ck3 import channel, derive
+
+# What the target hands the test: its process number, the addresses of its objects, the key log, and
+# which build of the DLL it runs.
+Host = tuple[int, list[int], str, str]
+# A prediction on the lines of one answer.
+Prediction = Callable[[list[str]], bool]
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -34,7 +42,7 @@ SOURCE = os.path.join(ROOT, 'tests', 'channel_host.c')
 TOOLS_REQUIRED = os.path.exists(os.path.join(ROOT, '.tools-required'))
 
 
-def missing(reason):
+def missing(reason: str) -> NoReturn:
     """A tool this test needs is not there: a failure where tools are required, a skip elsewhere."""
     if TOOLS_REQUIRED:
         pytest.fail(reason + ' (and .tools-required says this machine has it)')
@@ -51,12 +59,12 @@ LISTED = 0x5EEDC0DE0BADF00D
 SOUGHT = 0x7E57F00D5EEDBEEF
 
 
-def physical_modifiers():
+def physical_modifiers() -> set[str]:
     """The modifiers held on the real keyboard right now, by name."""
     return {name for vk, name in PHYSICAL.items() if ctypes.windll.user32.GetAsyncKeyState(vk) & 0x8000}
 
 
-def vcvars():
+def vcvars() -> str | None:
     """The compiler setup that `dll\\build_channel.bat` uses, so its path lives in one place."""
     with open(os.path.join(ROOT, 'dll', 'build_channel.bat'), encoding='utf-8') as file:
         found = re.search(r'call "([^"]+vcvars64\.bat)"', file.read())
@@ -64,7 +72,7 @@ def vcvars():
 
 
 @pytest.fixture(scope='module', params=['plain', 'asan'])
-def host(request, tmp_path_factory):
+def host(request: pytest.FixtureRequest, tmp_path_factory: pytest.TempPathFactory) -> Iterator[Host]:
     """The target running a DLL: `plain` the one the build made, `asan` one built here with
     AddressSanitizer around both, which aborts the target and says so on the first bad access."""
     if not os.path.exists(DLL):
@@ -102,49 +110,49 @@ def host(request, tmp_path_factory):
     assert 'AddressSanitizer' not in said, said
 
 
-def lines_of(command):
+def lines_of(command: str) -> list[str]:
     return [line for line in channel.ask(command, errors_ok=True).split('\n') if line and line != 'end']
 
 
-def kind(lines, prefix):
+def kind(lines: list[str], prefix: str) -> list[list[str]]:
     return [line.split('\t') for line in lines if line.startswith(prefix + '\t')]
 
 
-def refused(lines):
+def refused(lines: list[str]) -> bool:
     return any(line.startswith('error: unknown command, or more than it reads') for line in lines)
 
 
-def error(text):
+def error(text: str) -> Prediction:
     return lambda lines: any(line.startswith('error: ' + text) for line in lines)
 
 
-def addresses(lines, prefix):
+def addresses(lines: list[str], prefix: str) -> set[int]:
     return {int(row[1], 16) for row in kind(lines, prefix)}
 
 
-def counts(lines):
+def counts(lines: list[str]) -> dict[str, list[str]]:
     return {row[1]: row for row in kind(lines, 'count')}
 
 
-def test_every_command(host):
+def test_every_command(host: Host) -> None:
     pid, (A, B, _C, D, E, F, G, PAGE, MANY, COMBINED), log, variant = host
     h = '%x'.__mod__
-    failed = []
+    failed: list[str] = []
 
-    def check(command, what, test):
+    def check(command: str, what: str, test: Prediction) -> None:
         lines = lines_of(command)
         if not test(lines):
             failed.append('{} - {}: {}'.format(command[:60], what, ' / '.join(lines)[:300]))
 
-    def wait_then(seconds, *args):
+    def wait_then(seconds: float, command: str, what: str, test: Prediction) -> None:
         time.sleep(seconds)
-        check(*args)
+        check(command, what, test)
 
-    interfered = []
+    interfered: list[str] = []
     seen: list[tuple[float, set[str]]] = []     # a real modifier down: when, and which; all test long
     done = threading.Event()
 
-    def watch():
+    def watch() -> None:
         while not done.is_set():
             names = physical_modifiers()
             if names:
@@ -153,7 +161,7 @@ def test_every_command(host):
     watcher = threading.Thread(target=watch, daemon=True)
     watcher.start()
 
-    def arrives(command, answer, keys):
+    def arrives(command: str, answer: list[str] | Prediction, keys: list[str]) -> None:
         """The answer - a list, or a test on it - and the key messages the window logged: kind, key,
         context bit, then shift, ctrl and alt as GetKeyState gave them while the message was
         handled. ? is either. A real modifier down at any moment from the send to the reading makes
@@ -304,7 +312,7 @@ def test_every_command(host):
                                  if interfered else failed)
 
 
-def clang_tidy():
+def clang_tidy() -> str | None:
     """Where Windows says LLVM's installer put itself: the InstallLocation of its uninstall entry.
 
     The NSIS installer of LLVM 22 also wrote `SOFTWARE\\LLVM\\LLVM`; the MSI of LLVM 23 does not,
@@ -328,7 +336,7 @@ def clang_tidy():
     return None
 
 
-def test_clang_tidy_finds_nothing():
+def test_clang_tidy_finds_nothing() -> None:
     """The checks in `dll\\.clang-tidy`, each finding an error; the MSVC analysis runs in the build."""
     if not clang_tidy() or not vcvars():
         missing('clang-tidy or MSVC is not installed')
