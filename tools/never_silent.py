@@ -14,18 +14,18 @@ speaks. So this proves what the failure exit does, and nothing about how much th
 """
 import json
 import os
+from collections.abc import Callable
+from typing import NoReturn
 
 from tools import paths, terminal
 from tools.ck3 import channel, derive
 from tools.nvda import speech
 
-terminal.utf8()
-
+# Takes the place of the NVDA client once `main` runs; importing this module changes nothing.
 heard = speech.Recorder()
-speech._client = heard
 
 
-def _sentences_from(step, work):
+def _sentences_from(step: str, work: Callable[[], object]) -> list[str | None]:
     """Run one step and return the sentences it produced, or stop if it produced none."""
     before = len(heard.spoken)
     work()
@@ -36,7 +36,7 @@ def _sentences_from(step, work):
     return said
 
 
-def _silence_expected(step, work):
+def _silence_expected(step: str, work: Callable[[], object]) -> None:
     """The counter-test, and the field step is worthless without it.
 
     A recheck turns a good derivation down on the main menu, so on that screen the moved-offset
@@ -51,7 +51,7 @@ def _silence_expected(step, work):
                          'that is perfectly good. Load a save and run this again.')
 
 
-def link_taken_away():
+def link_taken_away() -> None:
     """Ask the channel something over a pipe name that cannot exist.
 
     Pointing at a name nobody opened is the same failure at the same place as a game that is not
@@ -75,7 +75,7 @@ class _Enough(Exception):
     """Stops the run once the sentence is out."""
 
 
-def field_moved(pid, fields):
+def field_moved(pid: int, fields: derive.Fields) -> None:
     """Move an offset in a copy of the derivation and let the ordinary start path trip over it.
 
     The copy is what keeps this safe to run: `reports\\fields.json` is never touched, so a proof
@@ -90,8 +90,8 @@ def field_moved(pid, fields):
     with open(copy, 'w') as file:
         json.dump(moved, file)
 
-    def enough(*_):
-        raise _Enough()
+    def enough(pid: int) -> NoReturn:
+        raise _Enough(pid)
 
     stored_at, derive_all = derive.STORED, derive.derive_all
     derive.STORED = copy
@@ -108,14 +108,16 @@ def field_moved(pid, fields):
         os.remove(copy)
 
 
-def main():
+def main() -> None:
     """Ask for the game first, because that answer decides how honest the first step can be.
 
     With no game running the link really is gone, and asking it anything is the first step
     itself - no pretending needed. With a game running the pipe has to be pointed somewhere
     nobody opened to reach the same place.
     """
-    said = {}
+    terminal.utf8()
+    speech._client = heard
+    said: dict[str, list[str | None]] = {}
     try:
         pid = int(channel.ask('hello').split('\t')[1])
     except OSError:
