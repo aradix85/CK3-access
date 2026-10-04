@@ -24,12 +24,8 @@ import sys
 from tools import terminal
 from tools.ck3 import derive, model, savegame
 
-PROJECT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-MODEL = os.path.join(PROJECT, 'reports', 'model.json')
-
-
-def save_named(save=None):
+def save_named(save: str | None = None) -> str:
     """The path of the save that serves as the answer key.
 
     Defaults to the newest readable save. Name the save - any part of the file name will do - when
@@ -49,7 +45,7 @@ def save_named(save=None):
     return matches[0]
 
 
-def text_boxes(nodes):
+def text_boxes(nodes: derive.Nodes) -> list[int]:
     """The addresses of the text boxes, found through the vtable that touches the localization files.
 
     The text field exists on every object but only makes sense on a text box; on the rest you read
@@ -68,12 +64,12 @@ def text_boxes(nodes):
     return [a for a, w in nodes.items() if w[0] == best and w[7].strip()]
 
 
-def _flat(text):
+def _flat(text: str) -> str:
     """For comparison: widget text glues markup fragments together without a space."""
     return ''.join(text.split()).lower()
 
 
-def test_ocr(pid, nodes, addresses):
+def test_ocr(pid: int, nodes: derive.Nodes, addresses: list[int]) -> tuple[int, int, int, list[str]]:
     """Reads every text box actually on screen and puts it beside the widget text.
 
     Alpha is not enough to know whether a box is showing: the game builds all windows up front and
@@ -116,7 +112,7 @@ def test_ocr(pid, nodes, addresses):
     return ok, total, covered, misses
 
 
-def main(pid, count=400, *, save=None):
+def main(pid: int, count: int = 400, *, save: str | None = None) -> None:
     path = save_named(save)
     print(f'answer key: {os.path.basename(path)}')
 

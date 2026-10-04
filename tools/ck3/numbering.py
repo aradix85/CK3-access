@@ -19,20 +19,17 @@ the same on every state, so a save written before the mods simply has fewer of t
 culture, so the count grows while playing; never keep a numbering across a load, and take the
 count from the database rather than from anywhere else.
 """
-import json
-import os
-import pathlib
 import re
 import struct
 import sys
+from typing import TypeVar
 
 from tools import terminal
 from tools.ck3 import anchor, database, derive, mapdata, model
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-
-PROJECT = os.path.dirname(os.path.dirname(HERE))
-MODEL = os.path.join(PROJECT, 'reports', 'model.json')
+# Where the key sits in a record of one database: `record`, `key`, and `array` or `pointer`.
+Layout = dict[str, int]
+K = TypeVar('K')
 
 # The class of each database, and which of the three shapes it has.
 CLASSES = {
@@ -61,7 +58,7 @@ SAMPLE = 32
 POINTER = (0x10000000000, 0x800000000000)
 
 
-def _key_test(known):
+def _key_test(known: set[str]) -> re.Pattern[str]:
     """What a key of this database may look like, taken from the files rather than imagined.
 
     **Written by hand this was wrong four times, and every time it looked like a moved offset.**
@@ -79,7 +76,7 @@ def _key_test(known):
     return re.compile(f'^[A-Za-z][{re.escape(letters)}]+$')
 
 
-def on_disk(kind):
+def on_disk(kind: str) -> set[str]:
     """Every key of this database as the files give it, mods merged in the engine's own order.
 
     Titles come from `mapdata.titles` rather than `database.entries`, because `landed_titles`
@@ -92,7 +89,7 @@ def on_disk(kind):
     return {key for key, _, _ in database.entries(kind)}
 
 
-def _is_array_database(address):
+def _is_array_database(address: int) -> bool:
     """A CTraitDatabase holds an array of pointers with its length beside it.
 
     Demanding only a pointer and a plausible length is too little: a copy on the stack passes
@@ -106,7 +103,7 @@ def _is_array_database(address):
                (_array_at(head, at) for at in range(0, 224, 8)) if found)
 
 
-def _array_at(head, at):
+def _array_at(head: bytes, at: int) -> tuple[int, int] | None:
     """(address, count) of the pointer array sitting at this offset, or None."""
     where, count = struct.unpack_from('<QI', head, at)
     if not POINTER[0] <= where < POINTER[1] or not 0 < count < 10000:
@@ -114,7 +111,7 @@ def _array_at(head, at):
     return where, count
 
 
-def _members(found, how_many=8):
+def _members(found: tuple[int, int], how_many: int = 8) -> list[int] | None:
     """The first few entries of that array, or None when they are not pointers at all."""
     where, count = found
     raw = derive.read(where, min(count, how_many) * 8)
@@ -124,13 +121,13 @@ def _members(found, how_many=8):
     return entries if all(POINTER[0] <= one < POINTER[1] for one in entries) else None
 
 
-def _object(pid, kind):
+def _object(pid: int, kind: str) -> tuple[int, str]:
     name, shape = CLASSES[kind]
     valid = _is_array_database if shape == 'array' else anchor.is_ref_database
     return anchor.object_of(pid, name, valid), shape
 
 
-def _places(pid, kind, layout):
+def _places(pid: int, kind: str, layout: Layout) -> dict[int, int]:
     """Per number the address where its key sits. The count comes from the database itself.
 
     Three shapes end here. An array of definitions hands out its members directly. A block
@@ -141,7 +138,10 @@ def _places(pid, kind, layout):
     address, shape = _object(pid, kind)
     if shape == 'array':
         head = derive.read_known(address, 256)
-        where, count = _array_at(head, layout['array'])
+        found = _array_at(head, layout['array'])
+        if found is None:
+            raise SystemExit(f"the {kind} database no longer holds its array at +{layout['array']}")
+        where, count = found
         raw = derive.read_known(where, count * 8)
         return {n: struct.unpack_from('<Q', raw, n * 8)[0] + layout['key'] for n in range(count)}
     head = derive.read_known(address, 64)
@@ -152,10 +152,10 @@ def _places(pid, kind, layout):
     if shape == 'blocks':
         return {n: at + layout['key'] for n, at in records.items()}
     spots = {n: at + layout['pointer'] for n, at in records.items()}
-    raw = model.readmany(sorted(spots.values()), 8)
-    out = {}
+    held = model.readmany(sorted(spots.values()), 8)
+    out: dict[int, int] = {}
     for number, at in spots.items():
-        chunk = raw.get(at)
+        chunk = held.get(at)
         if chunk and len(chunk) == 8:
             target = struct.unpack('<Q', chunk)[0]
             if POINTER[0] <= target < POINTER[1]:
@@ -163,14 +163,14 @@ def _places(pid, kind, layout):
     return out
 
 
-def _read(pid, kind, layout):
+def _read(pid: int, kind: str, layout: Layout) -> tuple[int, dict[int, str]]:
     places = _places(pid, kind, layout)
     chunks = model.readmany(sorted(places.values()), STRING)
     found = model.names_of({n: chunks[a] for n, a in places.items() if a in chunks}, 0)
     return len(places), found
 
 
-def _holds(kind, count, found):
+def _holds(kind: str, count: int, found: dict[int, str]) -> bool:
     """Does this reading prove itself? Every number has a well-formed key, and the great
     majority are keys the files carry. Not all of them: a player can found a faith or a culture,
     and those carry a key no file has - which is exactly why the numbering is read here."""
@@ -181,7 +181,7 @@ def _holds(kind, count, found):
     return sum(1 for text in found.values() if text in known) >= 0.9 * count
 
 
-def keys(pid, kind):
+def keys(pid: int, kind: str) -> dict[int, str]:
     """Number -> key, from the running game. Disk is used to prove the reading, never to make it.
 
     The stored layout has to hold up every time; if it does not, it is derived again, which is
@@ -199,7 +199,7 @@ def keys(pid, kind):
     return found
 
 
-def _key_at(chunk, at, shaped):
+def _key_at(chunk: bytes, at: int, shaped: re.Pattern[str]) -> bool:
     """Is there a key here at all - short enough to sit in place, or behind a pointer?"""
     text = model.string_at(chunk, at)
     if text is not None:
@@ -207,7 +207,7 @@ def _key_at(chunk, at, shaped):
     return model.long_string_at(chunk, at) is not None
 
 
-def _step(spots):
+def _step(spots: list[int]) -> int:
     """The record length: the distance that turns up most often between two keys in a row."""
     counts: dict[int, int] = {}
     for i, first in enumerate(spots):
@@ -218,7 +218,7 @@ def _step(spots):
     return max(counts, key=counts.__getitem__)
 
 
-def _winner(scores, what):
+def _winner(scores: dict[K, int], what: str) -> K:
     """The one candidate the files agree with. A tie is a failure rather than a coin toss."""
     ranked = sorted(scores.items(), key=lambda pair: -pair[1])
     if not ranked:
@@ -228,7 +228,7 @@ def _winner(scores, what):
     return ranked[0][0]
 
 
-def _agrees(chunks, at, known):
+def _agrees(chunks: dict[int, bytes], at: int, known: set[str]) -> int | None:
     """How many of these records show a key the files carry at this offset, or None if too few do.
 
     Following the pointer matters here: most religion keys are longer than fifteen characters, so
@@ -241,7 +241,7 @@ def _agrees(chunks, at, known):
     return hits if hits >= 0.9 * len(texts) else None
 
 
-def _derive_blocks(address, known):
+def _derive_blocks(address: int, known: set[str]) -> Layout:
     """Record length from the spacing of the keys, and which field is the key from the files.
 
     Spacing alone does not decide the field: a culture record carries a second key-shaped string
@@ -261,7 +261,7 @@ def _derive_blocks(address, known):
     # taking the empty ones for misses rejected a reading that was perfectly good.
     rows = min(filled, len(block) // record)
     chunks = {n: block[n * record:(n + 1) * record] for n in range(rows)}
-    scores = {}
+    scores: dict[int, int] = {}
     for at in sorted({spot % record for spot in spots}):
         hits = _agrees(chunks, at, known)
         if hits:
@@ -269,7 +269,7 @@ def _derive_blocks(address, known):
     return {'record': record, 'key': _winner(scores, 'key field')}
 
 
-def _derive_array(address, known):
+def _derive_array(address: int, known: set[str]) -> Layout:
     """Which slot holds the array of definitions, and where the key sits inside one.
 
     Every slot is scored and the best one wins. Taking the first slot whose entries yield keys is
@@ -278,7 +278,7 @@ def _derive_array(address, known):
     """
     head = derive.read_known(address, 256)
     shaped = _key_test(known)
-    scores = {}
+    scores: dict[tuple[int, int], int] = {}
     for at in range(0, 224, 8):
         found = _array_at(head, at)
         entries = _members(found, SAMPLE) if found else None
@@ -298,13 +298,13 @@ def _derive_array(address, known):
     return {'array': at, 'key': inside}
 
 
-def _pointers_at(block, at, rows, record):
+def _pointers_at(block: bytes, at: int, rows: int, record: int) -> dict[int, int] | None:
     """The value at this offset in every one of the first `rows` records, if all are pointers.
 
     All of them, not most: an offset that is a pointer in nine records out of ten is a field that
     sometimes holds one, and following it would read whatever happens to sit at a stray address.
     """
-    out = {}
+    out: dict[int, int] = {}
     for n in range(rows):
         value = struct.unpack_from('<Q', block, n * record + at)[0]
         if not POINTER[0] <= value < POINTER[1]:
@@ -313,7 +313,7 @@ def _pointers_at(block, at, rows, record):
     return out
 
 
-def _derive_indirect(address, known):
+def _derive_indirect(address: int, known: set[str]) -> Layout:
     """A block database whose record holds no key but a pointer to the object that carries one.
 
     The record length comes from the spacing of the pointers, the same way the block shape takes
@@ -337,7 +337,7 @@ def _derive_indirect(address, known):
     record = _step(spots)
     rows = min(filled, len(block) // record, SAMPLE)
     shaped = _key_test(known)
-    scores = {}
+    scores: dict[tuple[int, int], int] = {}
     for at in sorted({spot % record for spot in spots}):
         targets = _pointers_at(block, at, rows, record)
         if not targets:
@@ -357,14 +357,14 @@ def _derive_indirect(address, known):
     return {'record': record, 'pointer': at, 'key': inside}
 
 
-def _stored(kind):
-    stored = json.loads(pathlib.Path(MODEL).read_text(encoding='utf-8'))
+def _stored(kind: str) -> Layout | None:
+    stored = anchor.load_model()
     if stored.get('key') != derive.build_key():
         return None
     return stored.get('databases', {}).get(kind)
 
 
-def derive_layout(pid, kind):
+def derive_layout(pid: int, kind: str) -> Layout:
     """Where the key sits in a record of this database, kept under the key of this exe."""
     address, shape = _object(pid, kind)
     known = on_disk(kind)
@@ -374,14 +374,14 @@ def derive_layout(pid, kind):
         layout = _derive_indirect(address, known)
     else:
         layout = _derive_array(address, known)
-    stored = json.loads(pathlib.Path(MODEL).read_text(encoding='utf-8'))
+    stored = anchor.load_model()
     stored['key'] = derive.build_key()
     stored.setdefault('databases', {})[kind] = layout
-    pathlib.Path(MODEL).write_text(json.dumps(stored, indent=1, ensure_ascii=False), encoding='utf-8')
+    anchor.store_model(stored)
     return layout
 
 
-def main(pid):
+def main(pid: int) -> None:
     for kind in CLASSES:
         found = keys(pid, kind)
         known = on_disk(kind)

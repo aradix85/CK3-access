@@ -123,6 +123,8 @@ returns a pair, passed on as one thing, costs a run.
 
 | call | returns | does |
 |---|---|---|
+| `load_model()` | value | - |
+| `store_model(model)` | nothing | - |
 | `vtables(pid, name=CLASS)` | list | Every vtable address of the class carrying exactly this RTTI name. |
 | `is_ref_database(address)` | bool of value | Does this address carry a believable TPdxRefDatabase? A table, and counts that are not |
 | `find_objects(pid, name=CLASS, valid=is_ref_database)` | value | Every believable object of this class, in the order memory gives them. |
@@ -304,8 +306,8 @@ returns a pair, passed on as one thing, costs a run.
 | `character(pid, handle, records=None)` | value | Every field of one character: the scalars from the record, the rest through the pointers. |
 | `derive_player(pid, number)` | value | Where the module keeps the handle of the character being played, derived against a save. |
 | `player(pid)` | 2-tuple | The handle of the character being played, and the name that goes with it. |
-| `main()` | nothing | - |
 | `compare(pid, save_path, count=400)` | 5-tuple | Every derived field of many characters, laid beside the save. The regression test. |
+| `main()` | nothing | - |
 
 ## ck3\modifiers.py
 *Do system-level keys reach the game when it is in front? The first step of the modifier round.*

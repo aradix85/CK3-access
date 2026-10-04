@@ -20,12 +20,12 @@ from tools.ck3 import mapdata, model, numbering
 class Seats:
     """Where the characters of this game sit, from the running game and the files together."""
 
-    def __init__(self, pid, world=None):
+    def __init__(self, pid: int, world: mapdata.Map | None = None) -> None:
         self.pid = pid
         self.titles = numbering.keys(pid, 'title')
         self.world = world if world is not None else mapdata.Map()
 
-    def title_of(self, number):
+    def title_of(self, number: int) -> str | None:
         """The key of a title number, as the running game numbers them right now.
 
         A number is only meaningful inside the state that is running: titles are created and
@@ -33,24 +33,23 @@ class Seats:
         """
         return self.titles.get(number)
 
-    def seat_of(self, handle, records=None):
+    def seat_of(self, handle: int, records: dict[int, bytes] | None = None) -> str | None:
         """The county a character sits on, or None when it holds no seat.
 
         None is an answer and not a gap. Three quarters of the characters in a state are dead or
         landless and carry no `realm_capital`, and a titular title names no capital, so it stands
         on no county.
         """
-        who = model.character(self.pid, handle, records)
-        return self.county_of(who.get('realm_capital'))
+        capital = model.character(self.pid, handle, records).get('realm_capital')
+        return None if capital is None else self.county_of(int(capital))
 
-    def county_of(self, number):
+    def county_of(self, number: int) -> str | None:
         """The county a title number stands on: the game names the title, the files place it."""
-        if number is None:
-            return None
         key = self.title_of(number)
         return self.world.county_for(key) if key else None
 
-    def where(self, handle, records=None):
+    def where(self, handle: int, records: dict[int, bytes] | None = None
+              ) -> tuple[str, str, tuple[float, float] | None] | None:
         """(county key, the name a player reads, the point on the map) of a character's seat."""
         county = self.seat_of(handle, records)
         if county is None:
@@ -58,13 +57,14 @@ class Seats:
         return county, self.world.name(county), self.world.where(county)
 
 
-def main(pid):
+def main(pid: int) -> None:
     """Walk the chain and let it fail: the player, the coverage, and what memory holds extra."""
     seats = Seats(pid)
     handle, name = model.player(pid)
-    number = model.character(pid, handle).get('realm_capital')
+    capital = model.character(pid, handle).get('realm_capital')
+    number = None if capital is None else int(capital)
     print(f'player            : {name}, handle {int(handle)}')
-    print(f'realm_capital     : {number} -> {seats.title_of(number)}')
+    print(f'realm_capital     : {number} -> {None if number is None else seats.title_of(number)}')
     print(f'sits on           : {seats.where(handle)}')
 
     numbers = sorted(seats.titles)
@@ -74,11 +74,12 @@ def main(pid):
     # The test that can fail: every title the files carry has to be reachable from some number.
     # A numbering off by one slot loses the lot, which is what the shifted read showed at 0 of 300.
     on_disk = numbering.on_disk('title')
-    reached = {seats.title_of(n) for n in numbers} & on_disk
+    held = set(seats.titles.values())
+    reached = held & on_disk
     print(f'titles on disk    : {len(on_disk)}, reached from a number: {len(reached)}')
     missed = sorted(on_disk - reached)
     print(f'not reached       : {len(missed)}  {missed[:8]}')
-    extra = sorted({seats.title_of(n) for n in numbers} - on_disk)
+    extra = sorted(held - on_disk)
     print(f'held beyond disk  : {len(extra)}  {extra[:4]}')
 
 

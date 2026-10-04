@@ -29,27 +29,58 @@ import os
 import pathlib
 import struct
 import sys
+from collections.abc import Callable
+from typing import TypedDict
 
-from tools import terminal
+from tools import paths, terminal
 from tools.ck3 import channel, derive, memory, vtablemap
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-
-PROJECT = os.path.dirname(os.path.dirname(HERE))
-MODEL = os.path.join(PROJECT, 'reports', 'model.json')
+MODEL = os.path.join(paths.REPORTS, 'model.json')
 CLASS = '.?AV?$TPdxRefDatabase@VCCharacter@@$07@@'
 PER_BLOCK = 1024
 
 
-def _model():
-    return json.load(open(MODEL, encoding='utf-8'))
+class Place(TypedDict):
+    """A field reached through a pointer in the record: the pointer, the offset behind it, the form."""
+    pointer: int
+    offset: int
+    form: str
 
 
-def _store(model):
+class Name(TypedDict):
+    offset: int
+    form: str
+
+
+class Model(TypedDict, total=False):
+    """`reports\\model.json`. This module writes the globals, `model` the character record and the
+    player, `numbering` the layouts of the other databases; each part is there once it is derived."""
+    key: str
+    globals: dict[str, int]
+    number_field_in_record: int
+    number_mask: int
+    block_size: int
+    record_length: int          # measured at every start by `model`, never stored
+    name: Name
+    fields: dict[str, int]
+    indirect: dict[str, Place]
+    evidence: dict[str, str]
+    derived_on: str
+    player_spots: list[str]
+    player_derived_on: str
+    databases: dict[str, dict[str, int]]
+
+
+def load_model() -> Model:
+    model: Model = json.loads(pathlib.Path(MODEL).read_text(encoding='utf-8'))
+    return model
+
+
+def store_model(model: Model) -> None:
     pathlib.Path(MODEL).write_text(json.dumps(model, indent=1, ensure_ascii=False), encoding='utf-8')
 
 
-def vtables(pid, name=CLASS):
+def vtables(pid: int, name: str = CLASS) -> list[int]:
     """Every vtable address of the class carrying exactly this RTTI name.
 
     More than one is normal - multiple inheritance gives a class a vtable per base, and
@@ -62,7 +93,7 @@ def vtables(pid, name=CLASS):
     return [vtablemap.module_base(pid) + rva for rva in sorted(found)]
 
 
-def is_ref_database(address):
+def is_ref_database(address: int) -> bool:
     """Does this address carry a believable TPdxRefDatabase? A table, and counts that are not
     absurd. The stack copies fall away here by themselves: they have an empty table."""
     b = derive.read(address, 24)
@@ -72,7 +103,8 @@ def is_ref_database(address):
     return bool(table) and 0 < count <= capacity <= 100000
 
 
-def find_objects(pid, name=CLASS, valid=is_ref_database):
+def find_objects(pid: int, name: str = CLASS,
+                 valid: Callable[[int], bool] = is_ref_database) -> list[int]:
     """Every believable object of this class, in the order memory gives them.
 
     Search on bytes 1 through 7 of the address: the first byte of an address in this range is
@@ -82,8 +114,8 @@ def find_objects(pid, name=CLASS, valid=is_ref_database):
     object a global points at - `CTraitDatabase` is such a class. Returning the first believable
     one therefore is not enough; the caller decides which of them it can use.
     """
-    found = []
-    left_out = []
+    found: list[int] = []
+    left_out: list[derive.Skips] = []
     for vt in vtables(pid, name):
         pattern = struct.pack('<Q', vt)[1:].hex()
         answer = channel.ask('find ' + pattern, timeout=600)
@@ -103,7 +135,8 @@ def find_objects(pid, name=CLASS, valid=is_ref_database):
     return found
 
 
-def derive_global(pid, name=CLASS, valid=is_ref_database, tries=4):
+def derive_global(pid: int, name: str = CLASS, valid: Callable[[int], bool] = is_ref_database,
+                  tries: int = 4) -> tuple[int, int]:
     """The offset of the global variable pointing at one of those objects.
 
     Search for pointers holding the value of the object and keep the hit that falls inside the
@@ -116,7 +149,7 @@ def derive_global(pid, name=CLASS, valid=is_ref_database, tries=4):
     back to prove it really holds the address.
     """
     base = vtablemap.module_base(pid)
-    left_out = []
+    left_out: list[derive.Skips] = []
     for address in find_objects(pid, name, valid)[:tries]:
         answer = channel.ask('find ' + struct.pack('<Q', address)[1:].hex(), timeout=900)
         left_out.append(derive.skips(answer))
@@ -133,39 +166,39 @@ def derive_global(pid, name=CLASS, valid=is_ref_database, tries=4):
                      f'{derive.skipped(*left_out) or "skipped nothing"}')
 
 
-def object_of(pid, name=CLASS, valid=is_ref_database):
+def object_of(pid: int, name: str = CLASS, valid: Callable[[int], bool] = is_ref_database) -> int:
     """The object, from the stored offset or else derived again.
 
     Every database of the game state is reached this way: the character store, but also the
     cultures, faiths and religions that `numbering.py` reads. They differ only in their class
     name and in what makes an address believable, so both are arguments.
     """
-    model = _model()
+    model = load_model()
     base = vtablemap.module_base(pid)
     known = model.get('globals', {}) if model.get('key') == derive.build_key() else {}
     rva = known.get(name)
     if rva:
         b = derive.read(base + rva, 8)
         if b is not None:
-            address = struct.unpack('<Q', b)[0]
+            address: int = struct.unpack('<Q', b)[0]
             if valid(address):
                 return address
     rva, address = derive_global(pid, name, valid)
     model['key'] = derive.build_key()
     model.setdefault('globals', {})[name] = rva
-    _store(model)
+    store_model(model)
     return address
 
 
-def database(pid):
+def database(pid: int) -> int:
     """The character database."""
     return object_of(pid)
 
 
-def size(pid, db=None):
+def size(pid: int, db: int | None = None) -> tuple[int, int]:
     """How many blocks, and therefore how many character slots, this game state has."""
     header = derive.read_known(db or database(pid), 24)
-    blocks = struct.unpack_from('<I', header, 16)[0]
+    blocks: int = struct.unpack_from('<I', header, 16)[0]
     return blocks, blocks * PER_BLOCK
 
 
