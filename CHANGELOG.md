@@ -3,6 +3,10 @@
 Outcomes, newest first. No release yet.
 
 ## 2026-10-04
+- The recheck at every start reads only the fields it tests. With the root of the widget tree just before unreadable memory it had turned a good derivation down, told the player a field had moved, and spent three minutes deriving the same offsets.
+- mapdata, pairing, never_silent, check, anchor, model, numbering, calibrate, place and five tests carry real types and hold all of mypy's strict flags; each says exactly what it said before, without the game and on a running one.
+- `reports/model.json` is read and written in one place, anchor, instead of four; never_silent no longer takes over the NVDA client when it is imported; check reads the shortcut file once; pairing uses `guimap.root_finder` instead of its own copy.
+- On 1.20 titles do not read from the running game, so placing a character on the map does not work there yet.
 - A start finds the widget tree in 2 to 10 seconds instead of 80: `scan` and `find` skip the DLL's own thread stacks, where `vtables` left a copy of its list that came back as false widgets, and write-combined memory shared with the graphics card, which held no widget and was slow to read. Both are reported, and the channel test fails on either.
 - What a search skipped is reported in regions and bytes, and every search that finds nothing says it, so "not found" never reads as "not there". Read from outside on two saves, the skipped memory held no vtable of any of the executable's classes, so no object a search looks for.
 - Every new derivation checks that each widget of the tree is in the full scan; should a patch ever put widgets in skipped memory, the derivation stops there and says what was skipped.
