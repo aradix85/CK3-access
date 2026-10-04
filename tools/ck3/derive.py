@@ -1057,12 +1057,18 @@ def _child_check(fields: Fields, root: int, how_many: int = 20) -> tuple[int, in
     """From the root downwards: a parent's child list must contain exactly the widgets naming that
     parent as their parent. This tests the child field, the count and the parent field in one
     movement, and it need not cover the whole tree.
+
+    **It reads only the two fields it tests, not a whole chunk.** Measured 4 October 2026 on the
+    loaded Ghur game of 1.20: the root sat 816 bytes before the end of readable memory, a read of
+    `CHUNK` from it failed, nothing was tested, and the start turned a good derivation down, said
+    so to the player and derived the same offsets again for three minutes.
     """
+    need = max(fields['children'] + 8, fields['count'] + 4)
     todo = [root]
     tested, misses = 0, 0
     while todo and tested < how_many:
         parent = todo.pop(0)
-        b = read(parent, CHUNK)
+        b = read(parent, need)
         if b is None:
             continue
         items = int.from_bytes(b[fields['children']:fields['children'] + 8], 'little')
@@ -1102,13 +1108,14 @@ def verify(fields: Fields, root: int, nodes: dict[int, int], pid: int) -> list[s
     elif misses:
         defects.append(f'child list and parent field contradict each other in {int(misses)} places')
 
-    if root in chunks:
-        b, h = _pair(chunks[root], fields['size'])
-        scale_x = window_width / b if b else 0.0
-        scale_y = window_height / h if h else 0.0
-        if not scale_x or abs(scale_x - scale_y) > 0.005:
-            defects.append('the root is out of proportion with the drawing area '
-                               f'({b:.0f}x{h:.0f} against window {int(window_width)}x{int(window_height)})')
+    # The root is read for itself, with only the bytes this needs: in the sample it can fall out
+    # unreadable, and this check then stood down without a word (4 October 2026, see _child_check).
+    b, h = _pair(read_known(root, fields['size'] + 8), fields['size'])
+    scale_x = window_width / b if b else 0.0
+    scale_y = window_height / h if h else 0.0
+    if not scale_x or abs(scale_x - scale_y) > 0.005:
+        defects.append('the root is out of proportion with the drawing area '
+                       f'({b:.0f}x{h:.0f} against window {int(window_width)}x{int(window_height)})')
 
     gui = gui_text()
     names = {t for t in (_cstring(b, fields['name']) for b in chunks.values()) if t}
