@@ -39,21 +39,85 @@ import pathlib
 import re
 import sys
 import time
+from typing import NotRequired, TypedDict
 
 from tools import paths, terminal
-from tools.ck3 import channel, derive, guimap, vtablemap, windowmap
+from tools.ck3 import channel, derive, guimap, harvest, pairing, vtablemap, windowmap
 from tools.ck3.harvest import FREE_MEMORY_FLOOR, drawn_one, free_memory, game_date, paused
 
 OUT = os.path.join(paths.PROJECT, 'reports', 'openers.json')
+USAGE = ('usage: python -m tools.ck3.openers <pid> [--beside | <button> <button> ...], '
+         'or <pid> --chain <window> <target>')
 ONLY_A_VIEW = re.compile(r"^\[\s*(?:Open|Toggle)GameView(?:Data)?\s*\(\s*'([^']+)'[^\[\]]*\)\s*\]$")
 NAME = re.compile(r'\bname\s*=\s*"([^"]+)"')
 SHORTCUT = re.compile(r'\bshortcut\s*=\s*"([^"]+)"')
 ONCLICK = re.compile(r'\bonclick\s*=\s*(.+)', re.IGNORECASE)
 SETTLE = 1.8
-game_classes = set()
+game_classes: set[int] = set()
 
 
-def buttons_on_disk():
+class Button(TypedDict):
+    """A widget that opens a window when pressed, as `buttons_on_disk` finds it, and what a round
+    adds once it pressed it: where, what opened, from where, whether the state came back - or why
+    it was not pressed. One row of `reports\\openers.json`."""
+    via: str
+    target: str
+    widget: str
+    file: str
+    under: NotRequired[bool]
+    point: NotRequired[list[int]]
+    box: NotRequired[list[int]]
+    reason: NotRequired[str | None]
+    opens: NotRequired[list[str] | None]
+    found_in: NotRequired[str]
+    state_returned: NotRequired[bool]
+
+
+class _Block(TypedDict):
+    """A brace block on its way through `buttons_on_disk`."""
+    name: str | None
+    views: list[str | None]
+    shortcut: str | None
+    opener: str
+
+
+# What has to happen before a window is drawn: ('view', name, None), or ('variable', name, value)
+# with None for a value when the variable only has to exist.
+Goal = tuple[str, str, str | None]
+
+
+class ChainRoute(TypedDict):
+    """A window, or a view without a window name, that pressing inside another window brings up."""
+    target: str | None
+    sources: list[str]
+    goal: Goal
+    view: str | None
+
+
+# A widget of an open window that the files say reaches a goal, with why it cannot be pressed.
+Spot = TypedDict('Spot', {
+    'address': int, 'rect': list[float], 'class': str | None, 'name': str, 'calls': list[str],
+    'also_does': list[str], 'why_not': str | None, 'point': NotRequired[tuple[int, int] | None]})
+
+# The expansion tables `gui_tables` reads once.
+Tables = tuple[guimap.Table, guimap.LocalTable, guimap.Known, guimap.Root]
+# A button that can take a click: its draw order, its rectangle on screen, and the widget.
+Clickable = tuple[tuple[int, ...], float, float, float, float, pairing.Harvested]
+
+
+def _opens(block: _Block, windows: set[str]) -> tuple[str, str] | None:
+    """(how, window) when pressing this block opens a window: its one onclick only opens a view,
+    or its shortcut is the name of a window. None when it does neither."""
+    view = block['views'][0] if len(block['views']) == 1 else None
+    if view:
+        return 'onclick', view
+    shortcut = block['shortcut']
+    if shortcut is not None and shortcut in windows:
+        return 'shortcut', shortcut
+    return None
+
+
+def buttons_on_disk() -> list[Button]:
     """Every widget that opens a window when pressed, with how it does it.
 
     **Two mechanisms, and looking at only one throws away the good half.** A button either carries
@@ -100,13 +164,13 @@ def buttons_on_disk():
     child closes before its parent, and without that rule it would shadow the parent's own row.
     """
     windows = set(json.loads(pathlib.Path(os.path.join(paths.PROJECT, 'reports', 'windows.json')).read_text(encoding='utf-8'))['windows'])
-    found: dict[str, dict] = {}
-    beneath: dict[str, dict] = {}
+    found: dict[str, Button] = {}
+    beneath: dict[str, Button] = {}
     for root, _, names in os.walk(paths.require('GAME')):
         for name in sorted(names):
             if not name.endswith('.gui'):
                 continue
-            stack: list[dict] = []
+            stack: list[_Block] = []
             last = ''
             with open(os.path.join(root, name), encoding='utf-8-sig', errors='replace') as file:
                 for line in file:
@@ -124,23 +188,17 @@ def buttons_on_disk():
                                 stack[-1]['views'] += block['views']
                                 stack[-1]['shortcut'] = stack[-1]['shortcut'] or block['shortcut']
                                 continue
-                            row = None
-                            if block['name'] and len(block['views']) == 1 and block['views'][0]:
-                                row = {'via': 'onclick', 'target': block['views'][0]}
-                            elif block['name'] and block['shortcut'] in windows:
-                                row = {'via': 'shortcut', 'target': block['shortcut']}
-                            if row:
-                                row.update({'widget': block['name'], 'file': name})
-                                found.setdefault(block['name'], row)
-                            elif not block['name'] and stack and stack[-1]['name']:
-                                if len(block['views']) == 1 and block['views'][0]:
-                                    row = {'via': 'onclick', 'target': block['views'][0]}
-                                elif block['shortcut'] in windows:
-                                    row = {'via': 'shortcut', 'target': block['shortcut']}
-                                if row:
-                                    row.update({'widget': stack[-1]['name'], 'file': name,
-                                                'under': True})
-                                    beneath.setdefault(stack[-1]['name'], row)
+                            opens = _opens(block, windows)
+                            parent = stack[-1]['name'] if stack else None
+                            if block['name']:
+                                if opens:
+                                    found.setdefault(block['name'], {
+                                        'via': opens[0], 'target': opens[1],
+                                        'widget': block['name'], 'file': name})
+                            elif parent and opens:
+                                beneath.setdefault(parent, {
+                                    'via': opens[0], 'target': opens[1], 'widget': parent,
+                                    'file': name, 'under': True})
                         elif stack:
                             if piece.strip():
                                 last = piece.strip().splitlines()[-1].strip()
@@ -161,11 +219,11 @@ def buttons_on_disk():
     return sorted(found.values(), key=lambda row: row['widget'])
 
 
-
-
-
-def live_record(game, pid, window, address=None, nodes=None):
-    """The window that is drawn right now, in the shape the harvest writes and the pairing reads.
+def live_record(game: windowmap.Game, pid: int, window: str, address: int | None = None,
+                nodes: derive.Nodes | None = None) -> tuple[pairing.Record, derive.Nodes, derive.Scales,
+                                                             dict[int, str | None]]:
+    """The widgets of the window that is drawn right now, in the shape the harvest writes them and
+    the pairing reads them.
 
     The chain cannot use a harvested record: the buttons inside a window sit at addresses of this
     moment, and half of them are rows built from data that was not there when the harvest ran.
@@ -178,7 +236,6 @@ def live_record(game, pid, window, address=None, nodes=None):
     **Hand in the tree as well when you already have one.** A caller that picked the window out of
     the drawn set has just walked it; walking it again costs seconds and cannot see anything new.
     """
-    from tools.ck3 import harvest
     nodes = nodes if nodes is not None else game.tree()
     windows = [a for a, k in nodes.items() if k[0] in game_classes]
     if address is None:
@@ -205,7 +262,7 @@ def live_record(game, pid, window, address=None, nodes=None):
     alphas = harvest.alphas_for(addresses)
     tree = [harvest.widget_record(nodes, a, d, i, scales, classes, flags, alphas)
             for a, d, i in family]
-    return {'window': window, 'tree': tree}, nodes, scales, classes
+    return {'tree': tree}, nodes, scales, classes
 
 
 CONDITION = re.compile(r"GetVariableSystem\.(HasValue|Exists)\(\s*'([^']+)'(?:\s*,\s*'([^']*)')?")
@@ -213,7 +270,7 @@ SETS = re.compile(r"GetVariableSystem\.(Set|Toggle|Clear)\(\s*'([^']+)'(?:\s*,\s
 VIEW_CALL = re.compile(r"(?:Open|Toggle)GameView(?:Data)?\s*\(\s*'([^']+)'")
 
 
-def goal_of(target, known=None):
+def goal_of(target: str, known: guimap.Known | None = None) -> Goal:
     """What has to happen before `target` is drawn: a view opens, or a variable is set.
 
     Read from the target's own `visible` line, because that is where the game states its own
@@ -223,14 +280,15 @@ def goal_of(target, known=None):
     """
     on_disk = (known if known is not None else guimap.windows()).get(target)
     for item in (on_disk[1]['body'] if on_disk else None) or []:
-        if item['key'] == 'visible' and item['value']:
-            found = CONDITION.search(item['value'])
+        value = item['value']
+        if item['key'] == 'visible' and value:
+            found = CONDITION.search(value)
             if found:
                 return ('variable', found.group(2), found.group(3) or None)
     return ('view', target, None)
 
 
-def reaches(value, goal):
+def reaches(value: str, goal: Goal) -> bool:
     """Does this onclick reach the goal? Setting a variable counts, clearing it does not.
 
     The trap this exists for is a twin: next to the button that sets `dynasty_view_expand` to
@@ -251,7 +309,7 @@ def reaches(value, goal):
     return False
 
 
-def fires_for(source, goal):
+def fires_for(source: guimap.Node | None, goal: Goal) -> tuple[list[str], list[str]]:
     """The call this disk block really fires, split into the one that reaches `goal` and the rest.
 
     **A block may write `onclick` twice, and only the last one counts.** That is not a detail: in
@@ -272,13 +330,13 @@ def fires_for(source, goal):
         return [], []
     last: dict[str, str] = {}
     others: list[str] = []
-    for key, value in source.get('attrs', ()):
+    for key, value in source['attrs']:
         if key not in ('onclick', 'onrightclick') or not value:
             continue
         if key in last:
             others.append(f'shadowed {key}: {last[key]}')
         last[key] = value
-    wanted = []
+    wanted: list[str] = []
     for key, value in last.items():
         if key == 'onclick' and reaches(value, goal):
             wanted.append(value)
@@ -287,7 +345,7 @@ def fires_for(source, goal):
     return wanted, others
 
 
-def chain_routes(start, tables=None):
+def chain_routes(start: set[str], tables: Tables | None = None) -> list[ChainRoute]:
     """Which windows can be reached by acting inside a window a player can already open. Disk only.
 
     Every window in `start` is expanded, and each block's last onclick - the only one that fires -
@@ -303,15 +361,15 @@ def chain_routes(start, tables=None):
     """
     table, local, known, _root = tables or gui_tables()
     goals = {w: goal_of(w, known) for w in known}
-    found: dict[str, dict] = {}
+    found: dict[str, ChainRoute] = {}
     for source in sorted(start):
         tree, _ = guimap.window(source, table, local, known)
         stack = [tree]
         while stack:
             node = stack.pop()
-            stack.extend(node.get('children', ()))
+            stack.extend(node['children'])
             last = None
-            for key, value in node.get('attrs', ()):
+            for key, value in node['attrs']:
                 if key == 'onclick' and value:
                     last = value
             if not last:
@@ -331,7 +389,7 @@ def chain_routes(start, tables=None):
     return sorted(found.values(), key=lambda row: (row['view'] or '', row['target'] or ''))
 
 
-def draw_order(record):
+def draw_order(record: pairing.Record) -> dict[str, tuple[int, ...]]:
     """Address -> its path of sibling numbers from the window down, which is the drawing order.
 
     The same rule that decides which of a stack of event windows lies on top decides which of two
@@ -340,24 +398,24 @@ def draw_order(record):
     cannot be lost by sorting.
     """
     by_address = {w['address']: w for w in record['tree']}
-    paths: dict[int, tuple[int, ...]] = {}
+    order: dict[str, tuple[int, ...]] = {}
 
-    def path_of(address):
-        if address in paths:
-            return paths[address]
+    def path_of(address: str) -> tuple[int, ...]:
+        if address in order:
+            return order[address]
         widget = by_address.get(address)
         if widget is None or widget['parent'] not in by_address:
-            paths[address] = (widget['index'],) if widget else ()
+            order[address] = (widget['index'],) if widget else ()
         else:
-            paths[address] = path_of(widget['parent']) + (widget['index'],)
-        return paths[address]
+            order[address] = path_of(widget['parent']) + (widget['index'],)
+        return order[address]
 
     for widget in record['tree']:
         path_of(widget['address'])
-    return paths
+    return order
 
 
-def clickable_map(record, acting=None):
+def clickable_map(record: pairing.Record, acting: set[str] | None = None) -> list[Clickable]:
     """The buttons of a window that can handle a click, with their draw order.
 
     **A button without an action of its own passes the click on**, so it does not belong here.
@@ -379,9 +437,9 @@ def clickable_map(record, acting=None):
     parent chain, so it is multiplied along it, exactly as the harvest does when it decides which
     text boxes the recogniser ought to find.
     """
-    paths = draw_order(record)
+    order = draw_order(record)
     by_address = {widget['address']: widget for widget in record['tree']}
-    out = []
+    out: list[Clickable] = []
     for widget in record['tree']:
         kind = widget['class'] or ''
         if 'Button' not in kind and 'Checkbox' not in kind:
@@ -391,19 +449,20 @@ def clickable_map(record, acting=None):
         x, y, width, height = widget['screen_rect']
         if width <= 0 or height <= 0 or widget['clipped']:
             continue
-        alpha, node, steps = 1.0, widget, 0
+        alpha, steps = 1.0, 0
+        node: pairing.Harvested | None = widget
         while node is not None and steps < 40:
             alpha *= node['alpha'] if node['alpha'] is not None else 1.0
             node = by_address.get(node['parent'])
             steps += 1
         if alpha <= 0.0:
             continue
-        out.append((paths[widget['address']], x, y, width, height, widget))
+        out.append((order[widget['address']], x, y, width, height, widget))
     out.sort(key=lambda row: row[0])
     return out
 
 
-def lands_on(buttons, point):
+def lands_on(buttons: list[Clickable], point: tuple[int, int]) -> pairing.Harvested | None:
     """Which widget handles a click at this point.
 
     Of two buttons that can act at the same place the later one is drawn on top and gets it; a
@@ -417,7 +476,8 @@ def lands_on(buttons, point):
     return best
 
 
-def reachable_point(buttons, widget_address, rect, step=6):
+def reachable_point(buttons: list[Clickable], widget_address: int, rect: list[float],
+                    step: int = 6) -> tuple[int, int] | None:
     """A point on this widget that a click really reaches, or None if it is covered everywhere.
 
     The middle of a widget is the obvious place to click and it is often the wrong one, so this
@@ -434,7 +494,7 @@ def reachable_point(buttons, widget_address, rect, step=6):
     return None
 
 
-def gui_tables():
+def gui_tables() -> Tables:
     """The expansion tables, read once. Building them walks some six hundred files, so a sweep that rebuilds
     them per window spends its time there instead of in the game."""
     rows = guimap.files()
@@ -442,7 +502,9 @@ def gui_tables():
     return table, local, guimap.windows(rows), guimap.root_finder(table)
 
 
-def spots_for_goal(game, pid, window, goal, tables=None):
+def spots_for_goal(game: windowmap.Game, pid: int, window: str, goal: Goal,
+                   tables: Tables | None = None) -> tuple[list[Spot], pairing.Record, set[str], derive.Nodes,
+                                                          derive.Scales, dict[int, str | None]]:
     """Every widget of an open window that the files say reaches `goal`, aligned rather than guessed.
 
     The trigger for a chain step is usually nameless and usually a row built from data, so it can
@@ -451,13 +513,13 @@ def spots_for_goal(game, pid, window, goal, tables=None):
     call on disk gets an address and a rectangle from the game. Everything that is left after that
     is a question `on_screen` already answers.
     """
-    from tools.ck3 import pairing
     record, nodes, scales, classes = live_record(game, pid, window)
     table, local, known, root = tables or gui_tables()
-    out, acting = [], set()
+    out: list[Spot] = []
+    acting: set[str] = set()
     for source, built, _ in pairing.pairs(window, table, local, known, root, record=record):
         if source is not None and any(key == 'onclick' and value
-                                      for key, value in source.get('attrs', ())):
+                                      for key, value in source['attrs']):
             acting.add(built['address'])
         wanted, others = fires_for(source, goal)
         if not wanted:
@@ -470,7 +532,7 @@ def spots_for_goal(game, pid, window, goal, tables=None):
     return out, record, acting, nodes, scales, classes
 
 
-def trigger_spots(row, named, nodes):
+def trigger_spots(row: Button, named: list[int], nodes: derive.Nodes) -> list[int]:
     """Where the click for this row could land: the widget itself, or its nameless children.
 
     A trigger whose name sits one level up cannot be addressed by name at all. The namebearer can
@@ -485,7 +547,8 @@ def trigger_spots(row, named, nodes):
     return [a for a in nodes if nodes[a][5] in named and not nodes[a][6]]
 
 
-def on_screen(address, nodes, scales, classes):
+def on_screen(address: int, nodes: derive.Nodes, scales: derive.Scales,
+              classes: dict[int, str | None]) -> str | None:
     """Why this widget cannot be clicked, or None when it can.
 
     **Alpha is not the same question as drawn, and that difference nearly cost a stray click.**
@@ -529,10 +592,12 @@ def on_screen(address, nodes, scales, classes):
     return None
 
 
-_ABOVE: dict = {}
+# The drawn windows of one tree that catch clicks, and every widget's place among its siblings,
+# worked out once per tree: (which tree, sibling index, windows).
+_above: tuple[tuple[int, int], dict[int, int], list[int]] | None = None
 
 
-def window_above(address, chain, nodes, scales):
+def window_above(address: int, chain: list[int], nodes: derive.Nodes, scales: derive.Scales) -> str | None:
     """A drawn window later in the tree whose rectangle holds this widget's middle, or None.
 
     **Later in the tree is drawn on top**: measured 21 September 2026 - of two event windows the
@@ -549,21 +614,21 @@ def window_above(address, chain, nodes, scales):
     `layer_window` cover the whole screen that way. The drawn windows and the order are worked out
     once per tree.
     """
+    global _above
     key = (id(nodes), len(nodes))
-    if _ABOVE.get('key') != key:
-        index: dict[int, int] = {}
+    if _above is None or _above[0] != key:
+        siblings: dict[int, int] = {}
         counts: dict[int, int] = {}
         for a, node in nodes.items():
-            index[a] = counts.get(node[5], 0)
-            counts[node[5]] = index[a] + 1
+            siblings[a] = counts.get(node[5], 0)
+            counts[node[5]] = siblings[a] + 1
         windows = [a for a, node in nodes.items() if node[0] in game_classes]
         catching = [a for a, flag in derive.shown(nodes, windows).items()
                     if not flag & derive.PASSES_CLICKS]
-        _ABOVE.clear()
-        _ABOVE.update(key=key, index=index, drawn=catching)
-    index = _ABOVE['index']
+        _above = (key, siblings, catching)
+    _, index, drawn = _above
 
-    def path(a):
+    def path(a: int) -> tuple[int, ...]:
         out = []
         while a in nodes:
             out.append(index[a])
@@ -574,7 +639,7 @@ def window_above(address, chain, nodes, scales):
     width, height = derive.screen_size(nodes, address, scales)
     px, py = x + width / 2, y + height / 2
     mine, own = path(address), set(chain)
-    for win in _ABOVE['drawn']:
+    for win in drawn:
         if win in own or path(win) <= mine:
             continue
         wx, wy = derive.screen_pos(nodes, win, scales)
@@ -584,26 +649,27 @@ def window_above(address, chain, nodes, scales):
     return None
 
 
-def press(address, nodes, scales, classes, row):
+def press(address: int, nodes: derive.Nodes, scales: derive.Scales, classes: dict[int, str | None],
+          row: Button | None = None) -> str | None:
     """Click the middle of a widget, but only if it is really on screen.
 
-    The point is written into the record: a click that lands somewhere else is then visible in the
-    result without deriving the whole tree again to find out where it went.
+    The point is written into `row` when there is one: a click that lands somewhere else is then
+    visible in the result without deriving the whole tree again to find out where it went.
     """
     reason = on_screen(address, nodes, scales, classes)
     if reason:
         return reason
     x, y = derive.screen_pos(nodes, address, scales)
     width, height = derive.screen_size(nodes, address, scales)
-    row['point'] = [int(x + width / 2), int(y + height / 2)]
-    row['box'] = [round(x), round(y), round(width), round(height)]
-    click_x, click_y = row['point']
+    click_x, click_y = int(x + width / 2), int(y + height / 2)
+    if row is not None:
+        row['point'] = [click_x, click_y]
+        row['box'] = [round(x), round(y), round(width), round(height)]
     channel.ask(f'mouse {int(click_x)} {int(click_y)} 1')
     return None
 
 
-
-def back_to(game, baseline, tries=4):
+def back_to(game: windowmap.Game, baseline: set[str], tries: int = 4) -> bool:
     """Shut whatever opened. Escape only when something is open, or it opens the pause menu."""
     for _ in range(tries):
         if game.state()[2] == baseline:
@@ -613,7 +679,7 @@ def back_to(game, baseline, tries=4):
     return game.state()[2] == baseline
 
 
-def subtree_of(nodes, window):
+def subtree_of(nodes: derive.Nodes, window: str) -> set[int] | None:
     """The addresses under the drawn window object of that name, or None.
 
     Looking inside a window instead of inside the whole tree is what makes phase two work at all.
@@ -628,7 +694,8 @@ def subtree_of(nodes, window):
     children: dict[int, list[int]] = {}
     for address, k in nodes.items():
         children.setdefault(k[5], []).append(address)
-    seen, stack = set(), [root]
+    seen: set[int] = set()
+    stack = [root]
     while stack:
         address = stack.pop()
         seen.add(address)
@@ -636,8 +703,10 @@ def subtree_of(nodes, window):
     return seen
 
 
-def try_button(game, row, address, nodes, scales, classes, floor, date, number, total, where,
-               fallback=None):
+def try_button(game: windowmap.Game, row: Button, address: int, nodes: derive.Nodes,
+               scales: derive.Scales, classes: dict[int, str | None], floor: set[str],
+               date: str | None, number: int, total: int, where: str,
+               fallback: set[str] | None = None) -> str:
     """Press one button, record what opened, and put the state back.
 
     Escape does not always shut only what the click opened: inside an open window it can close the
@@ -668,10 +737,9 @@ def try_button(game, row, address, nodes, scales, classes, floor, date, number, 
     return landed
 
 
-
-def main():
+def main() -> None:
     if len(sys.argv) < 2:
-        raise SystemExit(__doc__.strip().splitlines()[-1])
+        raise SystemExit(USAGE)
     pid = int(sys.argv[1])
     vtablemap.configure(pid)
     fields, why = derive.fields_for(pid)
@@ -709,7 +777,6 @@ def main():
     classes = derive.class_map(pid, {a: k[0] for a, k in nodes.items()})
 
     print('\nphase one: what is reachable without opening anything first')
-    done = {}
     for number, row in enumerate(rows, 1):
         here = trigger_spots(row, by_name.get(row['widget'], []), nodes)
         if not here:
@@ -732,12 +799,12 @@ def main():
                        number, len(rows), 'the screen')
         if row.get('opens') is None:
             row['opens'] = None
-        done[row['widget']] = row
 
     doors: dict[str, str] = {}
     for row in rows:
-        if row.get('opens') and len(row['opens']) == 1:
-            doors.setdefault(row['opens'][0], row['widget'])
+        opens = row.get('opens')
+        if opens and len(opens) == 1:
+            doors.setdefault(opens[0], row['widget'])
     print(f'\nphase two: {len(doors)} windows can be opened first, then looked inside')
 
     for window, opener in sorted(doors.items()):
@@ -747,8 +814,7 @@ def main():
         here = [a for a in by_name.get(opener, []) if on_screen(a, nodes, scales, classes) is None]
         if len(here) != 1:
             continue
-        blank: dict = {}
-        if press(here[0], nodes, scales, classes, blank) is not None:
+        if press(here[0], nodes, scales, classes) is not None:
             continue
         time.sleep(SETTLE)
         inside_nodes = game.tree()
@@ -776,7 +842,7 @@ def main():
                 continue
             # Escape took the parent with it, so open it again and read the tree afresh: the
             # addresses of a window are not the same after it has been closed and reopened.
-            if press(here[0], nodes, scales, classes, {}) is not None:
+            if press(here[0], nodes, scales, classes) is not None:
                 break
             time.sleep(SETTLE)
             inside_nodes = game.tree()
@@ -795,13 +861,12 @@ def main():
                    'buttons': rows}, file, ensure_ascii=False, indent=1)
     pressed = [r for r in rows if r.get('point')]
     opened = [r for r in pressed if r['opens']]
-    agreed = [r for r in opened if any(r['target'] in w or w in r['target'] for w in r['opens'])]
+    agreed = [r for r in opened if any(r['target'] in w or w in r['target'] for w in r['opens'] or ())]
     print(f'\npressed {len(pressed)} of {len(rows)}, of those {len(opened)} opened a window and {len(agreed)} matched the view name')
     print('written to {}{}'.format(target, ' (a trial, beside the map)' if trial else ''))
 
 
-
-def chain(pid, window, target, press_it=True):
+def chain(pid: int, window: str, target: str, press_it: bool = True) -> list[Spot]:
     """One chain step: open `window`, find what brings `target` up inside it, press it, put it back.
 
     Stops the moment it cannot say which widget it means, because a click on a wrong guess lands on
@@ -822,7 +887,7 @@ def chain(pid, window, target, press_it=True):
         print('{} is reached by setting {} to {}'.format(target, goal[1], goal[2] if goal[2] is not None else 'anything'))
     spots, record, acting, _nodes, _scales, _classes = spots_for_goal(game, pid, window, goal, tables)
     print(f'{len(spots)} widgets in {window} carry a call that does that')
-    usable = []
+    usable: list[tuple[Spot, tuple[int, int]]] = []
     buttons = clickable_map(record, acting)
     for spot in spots:
         if spot['why_not'] is not None:
@@ -831,7 +896,7 @@ def chain(pid, window, target, press_it=True):
         point = reachable_point(buttons, spot['address'], spot['rect'])
         spot['point'] = point
         if point is not None:
-            usable.append(spot)
+            usable.append((spot, point))
         else:
             top = lands_on(buttons, (int(x + w / 2), int(y + h / 2)))
             spot['why_not'] = 'covered everywhere, at its middle by %s' % (
@@ -843,8 +908,7 @@ def chain(pid, window, target, press_it=True):
     print(f'{len(usable)} of them can actually be reached by a click')
     if not press_it or not usable:
         return spots
-    spot = usable[0]
-    point = spot['point']
+    spot, point = usable[0]
     print(f"pressing {spot['address']:x} at {int(point[0])},{int(point[1])}")
     channel.ask(f'mouse {int(point[0])} {int(point[1])} 1')
     for _ in range(6):

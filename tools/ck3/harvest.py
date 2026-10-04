@@ -42,11 +42,18 @@ import json
 import os
 import pathlib
 import re
+import struct
 import sys
 import time
+from collections.abc import Iterable
+from typing import TYPE_CHECKING, Literal, TypedDict
 
 from tools import ocr, paths, terminal, windowgrab
-from tools.ck3 import channel, derive, model, windowmap
+from tools.ck3 import channel, derive, model, pairing, windowmap
+
+if TYPE_CHECKING:
+    # openers imports this module, so only the checker may see it.
+    from tools.ck3 import openers
 
 OUT = os.path.join(paths.PROJECT, 'harvest')
 MAP = os.path.join(paths.REPORTS, 'windows.json')
@@ -59,6 +66,61 @@ OPEN_TRIES = 3
 ALWAYS_DRAWN = {'toolbars_window'}
 
 
+class Header(TypedDict):
+    """What every record of one round shares: when, which build, which game, which derivation."""
+    measured: str
+    exe: str
+    game_date: str | None
+    baseline: list[str]
+    player: int
+    player_name: str | None
+    fields: dict[str, int]
+
+
+class Recognised(TypedDict):
+    """One line the recogniser read: its rectangle in the capture, and the text."""
+    rect: list[int]
+    text: str
+
+
+class Capture(TypedDict):
+    """The window as pixels, and what the recogniser read in it."""
+    capture: str
+    size: list[int]
+    recognised: list[Recognised]
+
+
+class Record(Header, Capture):
+    """One harvested window, as `harvest\\<window>.json` keeps it."""
+    window: str
+    opened: Literal[True]
+    attempts: int
+    file: str | None
+    route: str
+    address: str
+    widgets: int
+    tree_size: int
+    seconds: float
+    tree: list[pairing.Harvested]
+    boxes: int
+    confirmed: int
+    offscreen: int
+
+
+class ChainRecord(Record):
+    """A window a chain route reached: the view it went through, and what came up with it."""
+    view: str | None
+    opened_with: list[str]
+
+
+class Refused(TypedDict):
+    """A window that did not open, and whether the state came back after it."""
+    window: str
+    opened: Literal[False]
+    state_returned: bool
+    reason: str
+
+
 class _Memory(ctypes.Structure):
     _fields_ = [('length', ctypes.c_ulong), ('load', ctypes.c_ulong),
                 ('total', ctypes.c_ulonglong), ('free', ctypes.c_ulonglong),
@@ -67,15 +129,15 @@ class _Memory(ctypes.Structure):
                 ('extended', ctypes.c_ulonglong)]
 
 
-def free_memory():
+def free_memory() -> float:
     """Free physical memory in gigabytes, straight from Windows."""
     status = _Memory()
     status.length = ctypes.sizeof(_Memory)
     ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(status))
-    return status.free / (1024.0 ** 3)
+    return float(status.free / (1024.0 ** 3))
 
 
-def game_date(nodes):
+def game_date(nodes: derive.Nodes) -> str | None:
     """The date the game is showing, from the widget that carries it.
 
     The widget is called `date_text_sp`, measured 24 August 2026 by looking for the one text in the
@@ -88,7 +150,7 @@ def game_date(nodes):
     return None
 
 
-def paused(game, seconds=6.0):
+def paused(game: windowmap.Game, seconds: float = 6.0) -> bool:
     """Is the clock standing still? Measured, not assumed - a running clock makes the round
     unrepeatable and can kill the character halfway through."""
     first = game_date(game.tree())
@@ -99,7 +161,7 @@ def paused(game, seconds=6.0):
     return first == game_date(game.tree())
 
 
-def subtree(nodes, root):
+def subtree(nodes: derive.Nodes, root: int) -> list[tuple[int, int, int]]:
     """Every widget below this window, breadth first, with the depth and the sibling index kept.
 
     **Do not sort the children.** The order the engine keeps them in is the draw order, and it is
@@ -117,7 +179,8 @@ def subtree(nodes, root):
     children: dict[int, list[int]] = {}
     for address, k in nodes.items():
         children.setdefault(k[5], []).append(address)
-    out, todo = [], [(root, 0, 0)]
+    out: list[tuple[int, int, int]] = []
+    todo = [(root, 0, 0)]
     while todo:
         address, depth, index = todo.pop(0)
         out.append((address, depth, index))
@@ -130,7 +193,9 @@ def subtree(nodes, root):
 TEXT_CLASSES = ('Textbox', 'Editbox')
 
 
-def widget_record(nodes, address, depth, index, scales, classes, flags, alphas):
+def widget_record(nodes: derive.Nodes, address: int, depth: int, index: int, scales: derive.Scales,
+                  classes: dict[int, str | None], flags: dict[int, int],
+                  alphas: dict[int, float]) -> pairing.Harvested:
     """One widget, with every field this project can read - also the ones nothing uses yet.
 
     **Text from a text box or an input field.** The offset that holds the shown string belongs to
@@ -163,11 +228,11 @@ def widget_record(nodes, address, depth, index, scales, classes, flags, alphas):
             'clipped': derive.is_clipped(nodes, address, scales, classes)}
 
 
-def alphas_for(addresses):
+def alphas_for(addresses: Iterable[int]) -> dict[int, float]:
     """Alpha of many widgets in as few channel questions as possible, the way flags_for does it."""
-    out, items = {}, sorted(addresses)
+    out: dict[int, float] = {}
+    items = sorted(addresses)
     offset = derive._visibility_offset('alpha')
-    import struct
     for start in range(0, len(items), 400):
         part = items[start:start + 400]
         ask = 'readmany 4 ' + ' '.join('%x' % (a + offset) for a in part)
@@ -178,7 +243,7 @@ def alphas_for(addresses):
     return out
 
 
-def capture(pid, name):
+def capture(pid: int, name: str) -> Capture:
     """The window as pixels, plus everything the recogniser reads in it, with positions."""
     image, width, height = windowgrab.grab(pid)
     path = os.path.join(OUT, name + '.jpg')
@@ -189,11 +254,12 @@ def capture(pid, name):
                            for line in lines]}
 
 
-def _flat(text):
+def _flat(text: str) -> str:
     return re.sub(r'[^a-z0-9]', '', text.lower())
 
 
-def confirmed(tree, lines, size):
+def confirmed(tree: list[pairing.Harvested], lines: list[Recognised],
+              size: list[int]) -> tuple[int, int, int]:
     """(text boxes that should be on screen, how many the recogniser reads back, how many lie
     outside the drawing area).
 
@@ -228,7 +294,8 @@ def confirmed(tree, lines, size):
         # 0x08 in the state byte is the game hiding a widget while its alpha stays up, and a hidden
         # box is no more a miss than one at alpha zero. Records from before 20 September carry no
         # state, so for them this changes nothing.
-        alpha, hidden, node, steps = 1.0, False, w, 0
+        alpha, hidden, steps = 1.0, False, 0
+        node: pairing.Harvested | None = w
         while node is not None and steps < 40:
             alpha *= node['alpha'] if node['alpha'] is not None else 1.0
             hidden = hidden or bool((node.get('state') or 0) & 0x08)
@@ -250,7 +317,7 @@ def confirmed(tree, lines, size):
     return boxes, seen, offscreen
 
 
-def click_routes(windows):
+def click_routes(windows: dict[str, windowmap.Route]) -> dict[str, windowmap.Route]:
     """Window -> the button that opens it, from `reports\\openers.json`.
 
     The third route, and the only one that gives a window its data. `GUI.CreateWidget` builds the
@@ -262,21 +329,26 @@ def click_routes(windows):
     the button can be reached from: `found_in` says either the bare screen or the window it sits
     in, and that window is opened first, by its shortcut.
     """
-    out = {}
-    for row in json.loads(pathlib.Path(OPENERS).read_text(encoding='utf-8'))['buttons']:
+    out: dict[str, windowmap.Route] = {}
+    buttons: list[openers.Button] = json.loads(pathlib.Path(OPENERS).read_text(encoding='utf-8'))['buttons']
+    for row in buttons:
         for name in row.get('opens') or ():
             if name in out or 'point' not in row:
                 continue
-            inside = row['found_in'][3:] if row['found_in'].startswith('in ') else None
-            if inside and not (windows.get(inside) or {}).get('shortcut'):
-                continue
-            out[name] = {'click': row['point'], 'button': row['widget'], 'first': inside,
-                         'first_key': windows[inside]['shortcut'] if inside else None,
-                         'file': windows.get(name, {}).get('file'), 'drawn': True}
+            route: windowmap.Route = {'click': row['point'], 'button': row['widget'],
+                                      'file': windows.get(name, {}).get('file'), 'drawn': True}
+            if row['found_in'].startswith('in '):
+                inside = row['found_in'][3:]
+                key = (windows.get(inside) or {}).get('shortcut')
+                if not key:
+                    continue
+                route['first'] = (inside, key)
+            out[name] = route
     return out
 
 
-def open_window(game, name, row, baseline):
+def open_window(game: windowmap.Game, name: str, row: windowmap.Route,
+                baseline: set[str]) -> tuple[derive.Nodes | None, int]:
     """Open one window along the route phase 0 found for it, and prove it is drawn.
 
     Waits on the flag, never on the clock: a window fades in, so a fixed sleep either wastes time
@@ -296,8 +368,9 @@ def open_window(game, name, row, baseline):
     # Every window object carrying the name, because a parked copy of the same name never flips.
     # Measured 21 September 2026: C opens the character finder and its filter together, and
     # watching only the first object called `character_filter_window` saw nothing open.
-    candidates = []
-    if row.get('shortcut'):
+    candidates: list[int] = []
+    shortcut = row.get('shortcut')
+    if shortcut:
         nodes = game.tree()
         candidates = [a for a, k in nodes.items() if k[6] == name and k[0] in game.window_classes]
     # Phase 0 already tried every window once. Where it saw nothing drawn, three attempts buy
@@ -305,8 +378,8 @@ def open_window(game, name, row, baseline):
     # between ten minutes and half an hour of proving the same negative.
     tries = OPEN_TRIES if row.get('drawn') else 1
     for attempt in range(1, tries + 1):
-        if row.get('shortcut'):
-            windowmap.press(row['shortcut'])
+        if shortcut:
+            windowmap.press(shortcut)
             for _ in range(14):
                 time.sleep(0.6)
                 if derive.shown(nodes, candidates):
@@ -314,12 +387,14 @@ def open_window(game, name, row, baseline):
         elif row.get('click'):
             # The parent window first, and only if it is not already standing: its shortcut is a
             # toggle, so sending it a second time shuts the very window the button sits in.
-            if row['first']:
+            first = row.get('first')
+            if first:
+                parent, key = first
                 for _ in range(10):
                     _, _, drawn = game.state()
-                    if row['first'] in drawn:
+                    if parent in drawn:
                         break
-                    windowmap.press(row['first_key'])
+                    windowmap.press(key)
                     time.sleep(1.2)
                 else:
                     continue
@@ -349,15 +424,16 @@ def open_window(game, name, row, baseline):
     return None, tries
 
 
-def close_window(game, row, baseline, limit=12):
+def close_window(game: windowmap.Game, row: windowmap.Route, baseline: set[str], limit: int = 12) -> bool:
     """Shut it again and wait until the state before it is back. Anything left open contaminates
     every window after this one, which is why this is a stop condition and not a warning."""
+    shortcut = row.get('shortcut')
     for attempt in range(limit):
         # The shortcut once, and Escape after that. Pressing a toggle in every round reopens what
         # Escape just shut - with a key that opens two windows at once the loop never ends.
-        if row.get('shortcut'):
+        if shortcut:
             if attempt == 0:
-                windowmap.press(row['shortcut'])
+                windowmap.press(shortcut)
         elif not row.get('click'):
             game.command('GUI.ClearWidgets')
         # The click route closes on Escape alone, at the foot of this loop, and that key is only
@@ -371,7 +447,7 @@ def close_window(game, row, baseline, limit=12):
     return False
 
 
-def drawn_one(nodes, candidates, name):
+def drawn_one(nodes: derive.Nodes, candidates: list[int], name: str) -> int:
     """Of several window objects carrying the same name, the one that is actually drawn.
 
     `GUI.CreateWidget` builds a *new* object while the parked one keeps its name, so the tree holds
@@ -393,7 +469,8 @@ def drawn_one(nodes, candidates, name):
                      'the content cannot be decided here')
 
 
-def record_window(game, name, nodes, header, route, attempts, file, started):
+def record_window(game: windowmap.Game, name: str, nodes: derive.Nodes, header: Header, route: str,
+                  attempts: int, file: str | None, started: float) -> Record:
     """Everything this project can read of one drawn window, plus a capture. It stays open."""
     windows = [a for a, k in nodes.items() if k[0] in game.window_classes]
     named = [a for a in windows if nodes[a][6] == name]
@@ -409,13 +486,8 @@ def record_window(game, name, nodes, header, route, attempts, file, started):
     # putting an `enabled` condition on it or on an ancestor.
     flags = derive.flags_for(addresses)
     alphas = alphas_for(addresses)
-    record = dict(header)
-    record.update({
-        'window': name, 'opened': True, 'attempts': attempts, 'file': file, 'route': route,
-        'address': f'{address:x}', 'widgets': len(family),
-        'tree_size': len(nodes), 'seconds': round(time.time() - started, 1)})
-    record['tree'] = [widget_record(nodes, a, d, i, scales, classes, flags, alphas)
-                      for a, d, i in family]
+    seconds = round(time.time() - started, 1)
+    tree = [widget_record(nodes, a, d, i, scales, classes, flags, alphas) for a, d, i in family]
     # The console is how most of these windows were opened, and it is drawn over the left third
     # of the screen while it stands open. Leaving it there costs nothing in the tree and everything
     # in the capture, so it goes away for the length of the picture and comes back exactly as it
@@ -423,15 +495,18 @@ def record_window(game, name, nodes, header, route, attempts, file, started):
     console = game.console_open(nodes)
     if console:
         game.set_console(False, nodes)
-    record.update(capture(game.pid, name))
+    picture = capture(game.pid, name)
     if console:
         game.set_console(True)
-    record['boxes'], record['confirmed'], record['offscreen'] = confirmed(
-        record['tree'], record['recognised'], record['size'])
-    return record
+    boxes, seen, offscreen = confirmed(tree, picture['recognised'], picture['size'])
+    return {**header, 'window': name, 'opened': True, 'attempts': attempts, 'file': file,
+            'route': route, 'address': f'{address:x}', 'widgets': len(family),
+            'tree_size': len(nodes), 'seconds': seconds, 'tree': tree, **picture,
+            'boxes': boxes, 'confirmed': seen, 'offscreen': offscreen}
 
 
-def harvest(game, name, row, baseline, header):
+def harvest(game: windowmap.Game, name: str, row: windowmap.Route, baseline: set[str],
+            header: Header) -> tuple[Record | Refused, str | None]:
     """One window, from opening to the state coming back. Returns the record, or a reason."""
     started = time.time()
     nodes, attempts = open_window(game, name, row, baseline)
@@ -444,7 +519,7 @@ def harvest(game, name, row, baseline, header):
         return ({'window': name, 'opened': False, 'state_returned': came_back,
                  'reason': f"did not open in {int(attempts)} {'try' if attempts == 1 else 'tries'}"},
                 'not opened' if came_back else 'state did not come back')
-    route = ('shortcut ' + row['shortcut'] if row.get('shortcut')
+    route = ('shortcut ' + shortcut if (shortcut := row.get('shortcut'))
              else 'click ' + row['button'] if row.get('click') else 'GUI.CreateWidget')
     record = record_window(game, name, nodes, header, route, attempts, row.get('file'), started)
     if not close_window(game, row, baseline):
@@ -453,7 +528,7 @@ def harvest(game, name, row, baseline, header):
     return record, None
 
 
-def stop_checks(pid, player, player_name, before):
+def stop_checks(pid: int, player: int, player_name: str | None, before: str) -> None:
     """The three conditions asked before every window: memory, the channel, and the player."""
     if free_memory() < FREE_MEMORY_FLOOR:
         raise SystemExit(f'stopping: {free_memory():.1f} GB free, below the floor of {FREE_MEMORY_FLOOR:.1f}')
@@ -470,9 +545,12 @@ def stop_checks(pid, player, player_name, before):
                          'reload the state and start the round again.')
 
 
-def chain_step(game, route, source_row, windows, baseline, header, tables):
-    """One chain route: open the source along its own route, press what reaches the goal inside it,
-    record the window that comes up, and put the state back. Returns (record or None, reason).
+def chain_step(game: windowmap.Game, route: 'openers.ChainRoute', source: str,
+               source_row: windowmap.Route, windows: dict[str, windowmap.Route], baseline: set[str],
+               header: Header, tables: 'openers.Tables') -> tuple[list[ChainRecord] | None, str | None]:
+    """One chain route from one of its sources: open the source along its own route, press what
+    reaches the goal inside it, record the window that comes up, and put the state back. Returns
+    (records or None, reason).
 
     For a view whose name is no window name the press is the measurement: whichever single window
     comes up is the window the engine puts behind that view, and the record says so under `view`.
@@ -480,8 +558,7 @@ def chain_step(game, route, source_row, windows, baseline, header, tables):
     from tools.ck3 import openers  # openers imports this module
     openers.game_classes = game.window_classes
     started = time.time()
-    source = route['source']
-    back = {'click': True}              # close on Escape until the baseline is back
+    back: windowmap.Route = {'click': True}         # close on Escape until the baseline is back
     nodes, attempts = open_window(game, source, source_row, baseline)
     if nodes is None:
         return None, (f'source {source} did not open'
@@ -491,13 +568,13 @@ def chain_step(game, route, source_row, windows, baseline, header, tables):
     buttons = openers.clickable_map(live, acting)
     usable = [(s, openers.reachable_point(buttons, s['address'], s['rect']))
               for s in spots if s['why_not'] is None]
-    usable = [(s, p) for s, p in usable if p is not None]
-    if not usable:
+    reachable = [(s, p) for s, p in usable if p is not None]
+    if not reachable:
         why = sorted({s['why_not'] or 'covered everywhere' for s in spots})
         reason = 'nothing in {} can be pressed for it: {}'.format(
             source, ', '.join(why) or 'no live widget carries the call')
         return None, reason if close_window(game, back, baseline) else 'state did not come back'
-    spot, point = usable[0]
+    spot, point = reachable[0]
     _, _, before = game.state()
     if spot['name']:
         # A named widget is pressed the way quit_game presses: the copy that is on screen, at its
@@ -513,7 +590,7 @@ def chain_step(game, route, source_row, windows, baseline, header, tables):
                           else 'state did not come back')
     else:
         channel.ask(f'mouse {int(point[0])} {int(point[1])} 1')
-    opened = set()
+    opened: set[str] = set()
     for _ in range(6):
         time.sleep(1.0)
         nodes, _, drawn = game.state()
@@ -526,26 +603,28 @@ def chain_step(game, route, source_row, windows, baseline, header, tables):
     if route['view']:
         names = sorted(opened)
     else:
-        names = [route['target']] if route['target'] in opened else []
+        target = route['target']
+        names = [target] if target in opened else []
     if not names:
         reason = 'pressing {} in {} brought up {}'.format(
             spot['name'] or spot['class'], source, ', '.join(sorted(opened)) or 'nothing')
         return None, reason if close_window(game, back, baseline) else 'state did not come back'
     route_text = 'chain {} in {}'.format(spot['name'] or spot['class'], source)
-    records = []
+    records: list[ChainRecord] = []
     for name in names:
         record = record_window(game, name, nodes, header, route_text, attempts,
                                (windows.get(name) or {}).get('file'), started)
-        record['view'] = route['view']
-        record['opened_with'] = [n for n in names if n != name]
-        records.append(record)
+        records.append({**record, 'view': route['view'],
+                        'opened_with': [n for n in names if n != name]})
     if not close_window(game, back, baseline):
         return records, 'state did not come back'
     for record in records:
         record['seconds'] = round(time.time() - started, 1)
     return records, None
 
-def chain_round(game, pid, windows, wanted, baseline, header, player, player_name):
+
+def chain_round(game: windowmap.Game, pid: int, windows: dict[str, windowmap.Route], wanted: list[str],
+                baseline: set[str], header: Header, player: int, player_name: str | None) -> None:
     """Every chain route the files offer from a window this round can open by itself.
 
     A window that already has a record from a player route is left alone. One that has only a
@@ -563,21 +642,24 @@ def chain_round(game, pid, windows, wanted, baseline, header, player, player_nam
         routes = [r for r in routes if (r['target'] or r['view']) in wanted]
     aside = os.path.join(paths.PROJECT, 'harvest-{}-console-replaced'.format(time.strftime('%Y-%m-%d')))
 
-    def player_record(name):
+    def player_record(name: str) -> bool:
         path = os.path.join(OUT, name + '.json')
         if not os.path.exists(path):
             return False
-        return not json.load(open(path, encoding='utf-8')).get('route', 'GUI').startswith('GUI')
+        route: str = json.loads(pathlib.Path(path).read_text(encoding='utf-8')).get('route', 'GUI')
+        return not route.startswith('GUI')
 
     done = failed = confirmed_only = 0
     for number, route in enumerate(routes, 1):
-        label = route['target'] or 'view ' + route['view']
+        label = route['target'] or f"view {route['view']}"
         if route['target'] and player_record(route['target']):
             continue
-        records, reasons = None, []
+        records: list[ChainRecord] | None = None
+        reasons: list[str] = []
+        reason: str | None = None
         for source in route['sources']:
             stop_checks(pid, player, player_name, label)
-            records, reason = chain_step(game, dict(route, source=source), direct[source], windows,
+            records, reason = chain_step(game, route, source, direct[source], windows,
                                          baseline, header, tables)
             if reason == 'state did not come back' or records is not None:
                 break
@@ -605,7 +687,7 @@ def chain_round(game, pid, windows, wanted, baseline, header, player, player_nam
           f'not reached {int(failed)}')
 
 
-def main():
+def main() -> None:
     pid = int(sys.argv[1])
     arguments = sys.argv[2:]
     by_click = '--click' in arguments
@@ -614,7 +696,7 @@ def main():
         raise SystemExit('--click and --chain are two rounds; run them one after the other')
     wanted = [a for a in arguments if not a.startswith('--')]
     os.makedirs(OUT, exist_ok=True)
-    windows = json.loads(pathlib.Path(MAP).read_text(encoding='utf-8'))['windows']
+    windows: dict[str, windowmap.Route] = json.loads(pathlib.Path(MAP).read_text(encoding='utf-8'))['windows']
     if by_click:
         windows = click_routes(windows)
     names = [] if by_chain else (wanted or sorted(windows))
@@ -638,15 +720,16 @@ def main():
     time.sleep(1.0)
     nodes, _, baseline = game.state()
     player, player_name = model.player(pid)
-    header = {'measured': time.strftime('%Y-%m-%d %H:%M'), 'exe': derive.build_key(),
-              'game_date': game_date(nodes), 'baseline': sorted(baseline),
-              'player': player, 'player_name': player_name,
-              'fields': {k: v for k, v in game.fields.items() if isinstance(v, int)}}
+    header: Header = {'measured': time.strftime('%Y-%m-%d %H:%M'), 'exe': derive.build_key(),
+                      'game_date': game_date(nodes), 'baseline': sorted(baseline),
+                      'player': player, 'player_name': player_name,
+                      'fields': {k: v for k, v in game.fields.items() if isinstance(v, int)}}
     print(f"baseline {sorted(baseline) or 'nothing drawn'}, date {header['game_date']}, player {player_name} ({int(player)}), free memory {free_memory():.1f} GB")
     if by_chain:
         if set(baseline) - ALWAYS_DRAWN:
             raise SystemExit('these are already open before the round starts: {}. Close them first.'.format(', '.join(sorted(set(baseline) - ALWAYS_DRAWN))))
-        return chain_round(game, pid, windows, wanted, baseline, header, player, player_name)
+        chain_round(game, pid, windows, wanted, baseline, header, player, player_name)
+        return
 
     left_over = [n for n in names if n in baseline and n not in ALWAYS_DRAWN]
     if left_over:
@@ -668,9 +751,11 @@ def main():
             raise SystemExit(f'stopping after {name}: {reason}')
         done += reason is None
         failed += reason is not None
-        said = reason or (f"{int(record['widgets'])} widgets, {len(record['recognised'])} recognised lines, "
-                          f"{int(record['confirmed'])}/{int(record['boxes'])} text boxes confirmed, "
-                          f"{int(record['offscreen'])} off screen, {record['seconds']:.0f}s")
+        said = reason
+        if reason is None and record['opened']:
+            said = (f"{int(record['widgets'])} widgets, {len(record['recognised'])} recognised lines, "
+                    f"{int(record['confirmed'])}/{int(record['boxes'])} text boxes confirmed, "
+                    f"{int(record['offscreen'])} off screen, {record['seconds']:.0f}s")
         print(f'{int(number):3d}/{len(names)} {name!s:<34} {said}')
     print(f'harvested {int(done)}, failed to open {int(failed)}, written to {OUT}')
 

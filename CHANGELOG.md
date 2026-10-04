@@ -3,6 +3,10 @@
 Outcomes, newest first. No release yet.
 
 ## 2026-10-04
+- harvest, openers, windowmap, modifiers, quit_game and states carry real types and hold all of mypy's strict flags; each does what it did before, without the game and on a running one.
+- A harvested window record has a type of its own, a chain route takes its source as an argument, and a click route keeps the window it opens first together with the key for it; windowmap reads the shortcut file once.
+- `windowmap --window-keys` prints its plan in the same order every run: ties had come out of a set in an order Python changes per run.
+- The usage line `openers` prints is a usage line again; it had printed the last line of its docstring.
 - The recheck at every start reads only the fields it tests. With the root of the widget tree just before unreadable memory it had turned a good derivation down, told the player a field had moved, and spent three minutes deriving the same offsets.
 - mapdata, pairing, never_silent, check, anchor, model, numbering, calibrate, place and five tests carry real types and hold all of mypy's strict flags; each says exactly what it said before, without the game and on a running one.
 - `reports/model.json` is read and written in one place, anchor, instead of four; never_silent no longer takes over the NVDA client when it is imported; check reads the shortcut file once; pairing uses `guimap.root_finder` instead of its own copy.

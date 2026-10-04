@@ -29,7 +29,7 @@ import re
 import sys
 import time
 
-from tools import paths, terminal
+from tools import ocr, paths, terminal, windowgrab
 from tools.ck3 import channel, derive, model, openers, savegame, vtablemap, windowmap
 from tools.ck3.quit_game import PAUSE_MENU, look, press
 
@@ -37,7 +37,7 @@ IN_GAME = re.compile(r'\bPaused\b|Domain Holdings|Pinned Characters')
 MAIN_MENU = ('New Game', 'Load')
 
 
-def _ready(pid):
+def _ready(pid: int) -> tuple[int, set[int]]:
     """The tree of the running game with everything `look` and `press` ask for."""
     fields = derive.stored() or derive.fields_for(pid)[0]
     derive.configure_channel(fields)
@@ -50,13 +50,12 @@ def _ready(pid):
     return root, window_classes
 
 
-def _screen(pid):
-    from tools import ocr, windowgrab
+def _screen(pid: int) -> list[ocr.Line]:
     image, _, _ = windowgrab.grab(pid)
     return ocr.read_image(image)
 
 
-def wait(pid, timeout=900):
+def wait(pid: int, timeout: int = 900) -> str:
     """'game' once a game is on screen, 'menu' on the main menu; stops when the game is gone."""
     import psutil
     start = time.time()
@@ -77,7 +76,7 @@ def wait(pid, timeout=900):
     raise SystemExit(f'no game and no main menu on screen after {int(timeout)} seconds')
 
 
-def save(pid, suffix=''):
+def save(pid: int, suffix: str = '') -> str:
     """Save through the pause menu; the name of the new save comes back."""
     before = set(os.listdir(paths.require('SAVES')))
     root, classes_of_windows = _ready(pid)
@@ -130,11 +129,11 @@ def save(pid, suffix=''):
     raise SystemExit('no new save appeared within a minute')
 
 
-def console(pid, command):
+def console(pid: int, command: str) -> None:
     """Type one command into the console and shut it again. What the console answers is not read."""
     root, classes_of_windows = _ready(pid)
 
-    def is_open():
+    def is_open() -> tuple[bool, derive.Nodes, derive.Scales, dict[int, str | None]]:
         nodes, scales, _, classes = look(root, pid, classes_of_windows)
         found = [a for a, k in nodes.items() if k[6] == 'console_window']
         return bool(found) and bool(derive.shown(nodes, found[:1])), nodes, scales, classes
@@ -159,7 +158,7 @@ def console(pid, command):
     time.sleep(1.0)
 
 
-def _click_text(pid, wanted, tries):
+def _click_text(pid: int, wanted: str, tries: int) -> None:
     for _ in range(tries):
         for x, y, w, h, text in _screen(pid):
             if text.strip() == wanted:
@@ -169,7 +168,7 @@ def _click_text(pid, wanted, tries):
     raise SystemExit(f'never saw {wanted!r} on the screen')
 
 
-def holder(save_name, title):
+def holder(save_name: str, title: str) -> int:
     """The running number of whoever holds the title, out of a save of that game."""
     text = savegame.unpack(os.path.join(paths.require('SAVES'), save_name))
     at = text.find(f'\tkey={title}\n')
@@ -182,7 +181,7 @@ def holder(save_name, title):
     return int(found.group(1))
 
 
-def new(pid, title):
+def new(pid: int, title: str) -> tuple[str, str]:
     """From the setup screen: start at random, play the holder of the title, save. Both saves."""
     _click_text(pid, 'Random Character', tries=40)
     time.sleep(3.0)
@@ -200,7 +199,7 @@ def new(pid, title):
     return first, save(pid)
 
 
-def main():
+def main() -> None:
     if len(sys.argv) < 3:
         raise SystemExit(__doc__)
     pid, what = int(sys.argv[1]), sys.argv[2]

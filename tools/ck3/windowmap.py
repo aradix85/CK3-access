@@ -17,12 +17,15 @@ windows it opens to the map as shortcut routes without changing anything else in
 keys every window declares and which of them only change the view.
 """
 import collections
+import functools
 import json
 import os
 import pathlib
 import re
 import sys
 import time
+from collections.abc import Callable
+from typing import TypedDict
 
 from tools import paths, terminal
 from tools.ck3 import channel, derive, memory, vtablemap
@@ -73,7 +76,62 @@ VIEW_ONLY = re.compile(r'^(?:(?:Get)?VariableSystem\.(?:Set|Clear|Toggle|SetOrTo
                        r'|DiarchyWindow\.ToggleAvailableDiarchs)$')
 
 
-def window_bindings():
+class Binding(TypedDict):
+    """One shortcut a widget declares, filed under the window it sits in (`window_bindings`)."""
+    binding: str
+    keys: str | None
+    widget: str | None
+    calls: list[str]
+    view_only: bool
+
+
+class OnDisk(TypedDict):
+    """A window as the gui files declare it (`windows_on_disk`)."""
+    file: str
+    shape: str
+    console: bool
+
+
+class Route(TypedDict, total=False):
+    """One window of `reports\\windows.json`, or a click route that `harvest.click_routes` builds
+    from `reports\\openers.json`: what `harvest.open_window` and `close_window` go by. Phase 0 writes
+    the declaration, the shortcut and the console round; a click route carries the button, the
+    point it was found at, and the window to open first with the key that opens it."""
+    file: str | None
+    shape: str
+    console: bool
+    shortcut: str | None
+    created: bool | None
+    drawn: bool
+    message: str
+    cleaned_up: bool | None
+    nodes_added: int
+    seconds: float
+    reason: str
+    click: list[int] | bool
+    button: str
+    first: tuple[str, str]
+
+
+class WindowMap(TypedDict):
+    """`reports\\windows.json` as a whole."""
+    measured: str
+    exe: str
+    windows: dict[str, Route]
+
+
+# One press of `shortcut_round`: its name, the action, and whether it goes in a second time.
+Press = tuple[str, Callable[[], object], bool]
+
+
+def shortcut_file() -> dict[str, str]:
+    """Binding -> its keys as `game/gui/shortcuts.shortcuts` spells them, empty for a binding
+    without keys. Read at every call, so a patch that rebinds a key is followed."""
+    text = pathlib.Path(os.path.join(paths.require('GAME'), 'game', 'gui', 'shortcuts.shortcuts')).read_text(encoding='utf-8-sig')
+    return dict(re.findall(r'^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"([^"]*)"', text, re.MULTILINE))
+
+
+def window_bindings() -> dict[str, list[Binding]]:
     """Window -> every shortcut its widgets declare, with what pressing it calls. Disk only.
 
     Each window is expanded the way `guimap.window` expands it, and a binding is filed under the
@@ -87,23 +145,22 @@ def window_bindings():
     through, so a round can press it without changing the game.
     """
     from tools.ck3 import guimap
-    text = pathlib.Path(os.path.join(paths.require('GAME'), 'game', 'gui', 'shortcuts.shortcuts')).read_text(encoding='utf-8-sig')
-    bound = dict(re.findall(r'^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"([^"]*)"', text, re.MULTILINE))
+    bound = shortcut_file()
     rows = guimap.files()
     table, local = guimap.type_table(rows)
     known = guimap.windows(rows)
-    out = collections.defaultdict(list)
+    out: collections.defaultdict[str, list[Binding]] = collections.defaultdict(list)
 
-    def walk(node, window, top):
+    def walk(node: guimap.Node, window: str, top: bool) -> None:
         if node['type'] == 'tooltipwidget':
             return
-        names = [v.strip('"') for k, v in node['attrs'] if k == 'name']
+        names = [v.strip('"') for k, v in node['attrs'] if k == 'name' and v is not None]
         if names and names[0] in known and not top:
             window = names[0]
-        clicks = [v for k, v in node['attrs'] if k == 'onclick']
+        clicks = [v for k, v in node['attrs'] if k == 'onclick' and v is not None]
         calls = [m.group(1) for m in (re.match(r'\s*"?\[\s*([A-Za-z_][\w.]*)', c) for c in clicks) if m]
         for key, value in node['attrs']:
-            if key == 'shortcut':
+            if key == 'shortcut' and value is not None:
                 binding = value.strip('"')
                 out[window].append({'binding': binding, 'keys': bound.get(binding),
                                     'widget': names[0] if names else None, 'calls': calls,
@@ -117,7 +174,7 @@ def window_bindings():
     return dict(out)
 
 
-def window_keys_plan():
+def window_keys_plan() -> None:
     """Print what a key round inside the windows would press, and what it leaves to a person.
 
     Counted once per window, binding and calls: a row template repeated down a list declares the
@@ -129,13 +186,15 @@ def window_keys_plan():
     modified = [p for p in pairs if p[2] is None or re.search(r'alt|ctrl|shift', p[2], re.IGNORECASE)]
     print(f'{len(found)} windows, {len(pairs)} keys in them; view only {int(sum(p[4] for p in pairs))}, left to a person {int(sum(not p[4] for p in pairs))}; with a modifier or '
           f'computed {len(modified)}, of those view only {int(sum(p[4] for p in modified))}')
-    left = collections.Counter((binding, keys, ' '.join(calls) or 'no onclick')
+    left = collections.Counter((binding, keys or 'computed', ' '.join(calls) or 'no onclick')
                                for _, binding, keys, calls, view in pairs if not view)
-    for (binding, keys, calls), count in sorted(left.items(), key=lambda item: -item[1]):
-        print(f"  {int(count):3d} windows  {binding[:28]!s:<28} {keys or 'computed'!s:<12} {calls[:80]}")
+    # Most windows first, and a tie in alphabetical order: the counts come out of a set, whose
+    # order Python changes from run to run, so without it two runs print the same lines shuffled.
+    for (binding, keys, calls), count in sorted(left.items(), key=lambda item: (-item[1], item[0])):
+        print(f"  {int(count):3d} windows  {binding[:28]!s:<28} {keys!s:<12} {calls[:80]}")
 
 
-def presses_for(rows, bound, numbers=3):
+def presses_for(rows: list[Binding], bound: dict[str, str], numbers: int = 3) -> list[tuple[str, str]]:
     """(binding, keys) to press in one window: every view-only row, once.
 
     A computed name stands for a family - `[Concatenate('tab_', ...)]` reaches tab_1, tab_2 and on
@@ -143,7 +202,7 @@ def presses_for(rows, bound, numbers=3):
     A quoted piece that is a binding itself, as in `[Select_CString(..., 'tab_3', 'tab_2')]`, is
     taken as it is.
     """
-    out = []
+    out: list[tuple[str, str]] = []
     for row in rows:
         if not row['view_only']:
             continue
@@ -164,7 +223,7 @@ def presses_for(rows, bound, numbers=3):
     return out
 
 
-def shown_texts(game, name, text_classes):
+def shown_texts(game: 'Game', name: str, text_classes: set[int]) -> tuple[str, ...] | None:
     """The texts of window `name` that are on the screen now, in draw order; None if it is not drawn.
 
     A text counts when no widget from it up to the window carries 0x08, the bit the game sets on
@@ -181,7 +240,7 @@ def shown_texts(game, name, text_classes):
         raise SystemExit(f'{len(drawn)} drawn windows are called {name}; which one to read is not decided')
     below = [a for a, _, _ in harvest.subtree(nodes, drawn[0])]
     flags = derive.flags_for(below)
-    hidden = set()
+    hidden: set[int] = set()
     for address in below:
         parent = nodes[address][5]
         if flags.get(address, 0) & 0x08 or parent in hidden:
@@ -190,7 +249,7 @@ def shown_texts(game, name, text_classes):
                  if a not in hidden and nodes[a][0] in text_classes and nodes[a][7])
 
 
-def window_keys_round(game, names):
+def window_keys_round(game: 'Game', names: list[str]) -> dict[str, str | list[tuple[str, str, str]]]:
     """Open each window along its route, press every key in it that only changes the view, and say
     per key what happened: the texts on screen changed, another window opened, the window shut, or
     nothing. The state is put back after every key and must come back after every window.
@@ -202,14 +261,20 @@ def window_keys_round(game, names):
     """
     from tools.ck3 import harvest
     with open(OUT, encoding='utf-8') as file:
-        windows = json.load(file)['windows']
-    text = pathlib.Path(os.path.join(paths.require('GAME'), 'game', 'gui', 'shortcuts.shortcuts')).read_text(encoding='utf-8-sig')
-    bound = {n: k for n, k in re.findall(r'^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"([^"]*)"', text, re.MULTILINE)
-             if k.strip()}
+        windows: dict[str, Route] = json.load(file)['windows']
+    bound = {n: k for n, k in shortcut_file().items() if k.strip()}
     plan = window_bindings()
     base = vtablemap.module_base(game.pid)
     text_classes = {base + v for name in ('Textbox', 'Editbox')
                     for v in memory.vtables_by_name(name) or []}
+
+    def drawn_texts(name: str) -> tuple[str, ...]:
+        """The texts of a window that stands open: just opened, or still there after a key."""
+        texts = shown_texts(game, name, text_classes)
+        if texts is None:
+            raise SystemExit(f'{name} stands open and is not drawn')
+        return texts
+
     _, _, baseline = game.state()
     out: dict[str, str | list[tuple[str, str, str]]] = {}
     for name in names:
@@ -220,8 +285,8 @@ def window_keys_round(game, names):
             print(f'{name}: did not open')
             continue
         time.sleep(1.0)
-        before = shown_texts(game, name, text_classes)
-        results = []
+        before = drawn_texts(name)
+        results: list[tuple[str, str, str]] = []
         for binding, keys in presses_for(plan.get(name, []), bound):
             try:
                 press(keys)
@@ -253,7 +318,7 @@ def window_keys_round(game, names):
                 if nodes is None:
                     raise SystemExit(f'{name} did not open again after {keys}')
                 time.sleep(1.0)
-            before = shown_texts(game, name, text_classes)
+            before = drawn_texts(name)
         out[name] = results
         if not harvest.close_window(game, row, baseline):
             raise SystemExit(f'after {name} the state did not come back; shut it by hand')
@@ -262,11 +327,10 @@ def window_keys_round(game, names):
     return out
 
 
-def modified_keys():
+def modified_keys() -> dict[str, tuple[str, list[int], int]]:
     """Binding -> (spelling, modifier keys, key) for every name in `MODIFIED`, as the file binds it."""
     from tools.ck3 import modifiers
-    text = pathlib.Path(os.path.join(paths.require('GAME'), 'game', 'gui', 'shortcuts.shortcuts')).read_text(encoding='utf-8-sig')
-    bound = dict(re.findall(r'^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"([^"]*)"', text, re.MULTILINE))
+    bound = shortcut_file()
     out = {}
     for name in MODIFIED:
         *held, key = bound[name].lower().split('+')
@@ -282,7 +346,7 @@ NAMED_KEYS = {'TAB': 9, 'BACKSPACE': 8, 'RETURN': 13, 'ESCAPE': 27, 'SPACE': 32,
               'DOWN': 40, '-': 0xBD, '=': 0xBB}
 
 
-def key_of(key):
+def key_of(key: str) -> int:
     """The virtual key for one key as the shortcut file or the map spells it: F1, c, 0, BACKSPACE.
     A spelling it does not know raises KeyError, and the caller says which."""
     key = key.upper()
@@ -293,7 +357,7 @@ def key_of(key):
     return NAMED_KEYS[key]
 
 
-def press(spelling):
+def press(spelling: str) -> None:
     """Press a key as the map spells it - `F1`, or a combination such as `shift+F1` - from inside.
 
     A combination goes through the channel's `combo`, which holds the modifier for the game; a
@@ -309,7 +373,7 @@ def press(spelling):
         channel.ask(f'sendkey {int(code)}')
 
 
-def windows_on_disk():
+def windows_on_disk() -> dict[str, OnDisk]:
     """Every window the gui files declare, with the path the console wants and how it is declared.
 
     **The enumeration comes from `guimap.windows`, not from a second reader here.** This one used
@@ -334,7 +398,7 @@ def windows_on_disk():
     from tools.ck3 import guimap
     rows = guimap.files()
     known = guimap.windows(rows)
-    top_level = set()
+    top_level: set[str] = set()
     for _, _, full in rows:
         for entry in guimap.read(full):
             if entry['key'] != 'window' or not entry['body']:
@@ -343,7 +407,7 @@ def windows_on_disk():
                 if inner['key'] == 'name' and inner['value']:
                     top_level.add(inner['value'])
                     break
-    out = {}
+    out: dict[str, OnDisk] = {}
     for name, (virtual, entry) in known.items():
         shape = ('top level' if name in top_level else
                  'type definition' if entry['key'] != 'window' else
@@ -352,7 +416,7 @@ def windows_on_disk():
     return out
 
 
-def classes(pid):
+def classes(pid: int) -> set[int]:
     base = vtablemap.module_base(pid)
     return {base + v for v in (memory.vtables_by_name('Window') or [])}
 
@@ -360,22 +424,23 @@ def classes(pid):
 class Game:
     """The actions on the running game, each with the measurement that says whether it landed."""
 
-    def __init__(self, pid):
+    def __init__(self, pid: int) -> None:
         self.pid = pid
         self.fields, _ = derive.fields_for(pid)
         derive.configure_channel(self.fields)
         self.window_classes = classes(pid)
         self.root, _ = derive.quick_root(self.fields, pid)
-        self.field = None        # address of console_edit
-        self.pos = None        # click point of that field; does not change while the game runs
+        self.field: int | None = None        # address of console_edit
+        # The click point of that field; it does not change while the game runs.
+        self.pos: tuple[int, int] | None = None
 
-    def tree(self):
+    def tree(self) -> derive.Nodes:
         """The root is looked up once. Looking it up every round cost fifty seconds per window
         on 23 August 2026; with the root remembered it is a few."""
         return derive.widgets(self.root)
 
-    def state(self, nodes=None):
-        """(number of instances per widget name, names of what is drawn).
+    def state(self, nodes: derive.Nodes | None = None) -> tuple[derive.Nodes, collections.Counter[str], set[str]]:
+        """(the tree, number of instances per widget name, names of what is drawn).
 
         Count all widgets and not just the window class: a created widget of another class
         otherwise counted as a failure, which produced four false failures on 23 August 2026.
@@ -386,7 +451,7 @@ class Game:
         drawn = {nodes[a][6] for a in derive.shown(nodes, windows) if nodes[a][6]}
         return nodes, counts, drawn
 
-    def console_open(self, nodes=None):
+    def console_open(self, nodes: derive.Nodes | None = None) -> bool:
         """Is the console on screen? From the flag byte of `console_window`.
 
         Measured 25 August 2026 by pressing the key twice with the recogniser watching: open, the
@@ -402,7 +467,7 @@ class Game:
             return False
         return bool(derive.shown(nodes, [address]))
 
-    def field_text(self, address):
+    def field_text(self, address: int) -> str:
         """The text of one widget, without walking the tree - a single channel question.
 
         The writing test first did this with a full tree walk, and at 83,000 nodes that cost over
@@ -413,7 +478,7 @@ class Game:
             return ''
         return derive._cstring(chunk, self.fields['text']) or ''
 
-    def set_console(self, on, nodes=None):
+    def set_console(self, on: bool, nodes: derive.Nodes | None = None) -> derive.Nodes:
         """Open or close the console, and prove it with the flag byte before typing anything.
 
         The order matters and it cost a round to learn. This used to test by clicking into the
@@ -434,27 +499,31 @@ class Game:
             self.field = next((a for a, k in nodes.items() if k[6] == 'console_edit'), None)
         raise SystemExit('the console does not %s' % ('open' if on else 'close'))
 
+    def input_field(self) -> int:
+        """The address of `console_edit`, as `set_console` last found it."""
+        if self.field is None:
+            raise SystemExit('the console input field is not in the tree; open the console first')
+        return self.field
 
-    def _captures_input(self):
+    def _captures_input(self) -> bool:
         """Does a character really land in the input field? Clicks into it and tries."""
+        field = self.input_field()
         if self.pos is None:
-            if self.field is None:
-                raise SystemExit('the console input field is not in the tree; open the console first')
             nodes = self.tree()
             scales = derive.scales_for(list(nodes))
-            x, y = derive.screen_pos(nodes, self.field, scales)
-            b, h = derive.screen_size(nodes, self.field, scales)
+            x, y = derive.screen_pos(nodes, field, scales)
+            b, h = derive.screen_size(nodes, field, scales)
             self.pos = (int(x + b / 2), int(y + h / 2))
         click_x, click_y = self.pos
         channel.ask(f'mouse {int(click_x)} {int(click_y)} 1')
         time.sleep(0.4)
         channel.ask(f"sendchar {ord('#')}")
         time.sleep(0.4)
-        ok = '#' in self.field_text(self.field)
+        ok = '#' in self.field_text(field)
         channel.ask('sendkey 8')
         return ok
 
-    def command(self, text, nodes=None):
+    def command(self, text: str, nodes: derive.Nodes | None = None) -> list[str]:
         """Types a console command and returns whatever error.log added afterwards.
 
         **Check that the text really is in the input field before you send Enter.** Without that
@@ -462,20 +531,21 @@ class Game:
         console was shut, and reported "no message" eleven times - a command that never arrives
         looks like a command that does not work.
         """
-        nodes = self.set_console(True, nodes) if self.field is None else nodes
-        for _ in range(len(self.field_text(self.field)) + 4):
+        if self.field is None:
+            self.set_console(True, nodes)
+        for _ in range(len(self.field_text(self.input_field())) + 4):
             channel.ask('sendkey 8')
         for char in text:
             channel.ask(f'sendchar {ord(char)}')
         time.sleep(0.35)
-        present = self.field_text(self.field)
+        present = self.field_text(self.input_field())
         if text[-14:] not in present:
             # Focus lost: establish it once more, and otherwise stop hard.
             self.set_console(True)
             for char in text:
                 channel.ask(f'sendchar {ord(char)}')
             time.sleep(0.35)
-            present = self.field_text(self.field)
+            present = self.field_text(self.input_field())
             if text[-14:] not in present:
                 raise SystemExit(f'the console does not catch the input; field holds {present[:60]!r}')
         log = paths.require('ERROR_LOG')
@@ -488,7 +558,7 @@ class Game:
         return [r.strip() for r in fresh.splitlines() if r.strip()]
 
 
-def shortcut_round(game, presses=None):
+def shortcut_round(game: Game, presses: list[Press] | None = None) -> dict[str, str]:
     """Which shortcut opens which window? One key per test, and every window shut again.
 
     **Start from a verified empty state.** If something was still open it becomes the baseline and
@@ -499,9 +569,9 @@ def shortcut_round(game, presses=None):
     press with `twice` goes in a second time whether a window opened or not: alt+t is also
     toggle_event_shortcuts, which no widget declares, so a toggle nobody can see goes back with it.
     """
-    out = {}
+    out: dict[str, str] = {}
     if presses is None:
-        presses = [(name, lambda code=code: channel.ask(f'sendkey {int(code)}'), False)
+        presses = [(name, functools.partial(channel.ask, f'sendkey {int(code)}'), False)
                    for code, name in sorted(KEYS.items())]
     # Only with -debug_mode is there a console to shut; a round without it has nothing to do here.
     if game.console_open():
@@ -554,7 +624,7 @@ def shortcut_round(game, presses=None):
     return out
 
 
-def create_round(game, windows, limit=None):
+def create_round(game: Game, windows: dict[str, OnDisk], limit: int | None = None) -> dict[str, Route]:
     """Try every window with GUI.CreateWidget, and clean up immediately.
 
     Cleaning up is not tidiness: without it the tree worked itself up from 84,000 to 145,000 nodes
@@ -562,7 +632,7 @@ def create_round(game, windows, limit=None):
     window is on top" became meaningless. `GUI.ClearWidgets` puts it back completely and leaves the
     real interface intact - measured, F1 worked fine afterwards.
     """
-    out = {}
+    out: dict[str, Route] = {}
     names = sorted(windows)[:limit] if limit else sorted(windows)
     nodes, counts, drawn = game.state(game.set_console(True))
     previous = len(nodes)
@@ -572,7 +642,7 @@ def create_round(game, windows, limit=None):
         messages = game.command(f'GUI.CreateWidget {path} {window}', nodes)
         nodes, after_count, after_drawn = game.state()
         added = after_count.get(window, 0) - counts.get(window, 0)
-        row = {'file': path,
+        row: Route = {'file': path,
                'created': added > 0,
                'drawn': window in (after_drawn - drawn),
                # Keep whole messages and do not filter: an empty message on a failure is
@@ -600,7 +670,7 @@ def create_round(game, windows, limit=None):
     return out
 
 
-def unmapped(pid, game=None):
+def unmapped(pid: int, game: Game | None = None) -> tuple[list[str], collections.Counter[str], list[str]]:
     """Which windows the running game built that the map on disk does not know.
 
     **This is the closed test, and it exists because the open one failed twice.** Listing the
@@ -626,7 +696,7 @@ def unmapped(pid, game=None):
             sorted(n for n in known if n not in live))
 
 
-def keys_only(pid, modified=False):
+def keys_only(pid: int, modified: bool = False) -> None:
     """Only the key round, and add what it finds to the map without touching anything else in it.
 
     Runs without -debug_mode. A key that opens a window becomes that window's shortcut route in
@@ -641,14 +711,14 @@ def keys_only(pid, modified=False):
         found = shortcut_round(game)
     else:
         channel.ask('count')
-        presses = [(spelling, lambda held=held, code=code: channel.ask(
-                        f"combo {int(COMBO_PAUSE)} {' '.join(str(c) for c in held + [code])}"), True)
-                   for spelling, held, code in modified_keys().values()]
+        presses: list[Press] = [
+            (spelling, functools.partial(channel.ask, f"combo {int(COMBO_PAUSE)} {' '.join(str(c) for c in held + [code])}"), True)
+            for spelling, held, code in modified_keys().values()]
         found = shortcut_round(game, presses)
         print('the game asked meanwhile:', ' | '.join(
             line for line in channel.ask('count').split('\n') if line.startswith(('count', 'asked'))))
     with open(OUT, encoding='utf-8') as file:
-        result = json.load(file)
+        result: WindowMap = json.load(file)
     added = []
     for window, key in sorted(found.items()):
         if window not in result['windows']:
@@ -662,9 +732,10 @@ def keys_only(pid, modified=False):
     print(f"windows with a key: {len(found)}, new in the map: {len(added)}{(' - ' + ', '.join(added)) if added else ''}")
 
 
-def main():
+def main() -> None:
     if sys.argv[1:] == ['--window-keys']:
-        return window_keys_plan()
+        window_keys_plan()
+        return
     pid = int(sys.argv[1])
     rest = sys.argv[2:]
     if rest[:1] == ['--window-keys']:
@@ -673,11 +744,14 @@ def main():
         target = os.path.join(paths.WORK, 'window_keys_trial.json')
         with open(target, 'w', encoding='utf-8') as file:
             json.dump(found, file, ensure_ascii=False, indent=1)
-        return print(f'written: {target}')
+        print(f'written: {target}')
+        return
     if rest == ['--keys']:
-        return keys_only(pid)
+        keys_only(pid)
+        return
     if rest == ['--modified-keys']:
-        return keys_only(pid, modified=True)
+        keys_only(pid, modified=True)
+        return
     limit = int(rest[0]) if rest and rest[0].isdigit() else None
     chosen = [name for name in rest if not name.isdigit()]
     windows = windows_on_disk()
@@ -701,9 +775,10 @@ def main():
     created = create_round(game, with_console, limit)
 
     game.set_console(False)
-    mapped: dict[str, dict[str, object]] = {}
+    mapped: dict[str, Route] = {}
     for name, row in windows.items():
-        out = dict(row, shortcut=shortcuts.get(name))
+        out: Route = {'file': row['file'], 'shape': row['shape'], 'console': row['console'],
+                      'shortcut': shortcuts.get(name)}
         if name in created:
             out.update(created[name])
         elif not row['console']:
@@ -712,7 +787,7 @@ def main():
             out['reason'] = ('declared as a {}, so GUI.CreateWidget cannot find it - '
                              'it looks only at the top level of a file'.format(row['shape']))
         mapped[name] = out
-    result = {'measured': time.strftime('%Y-%m-%d %H:%M'), 'exe': derive.build_key(), 'windows': mapped}
+    result: WindowMap = {'measured': time.strftime('%Y-%m-%d %H:%M'), 'exe': derive.build_key(), 'windows': mapped}
     target = os.path.abspath(OUT if not (chosen or limit) else os.path.join(paths.WORK, 'windows_trial.json'))
     if chosen or limit:
         print('a trial run does not overwrite the map; writing the trial beside it')

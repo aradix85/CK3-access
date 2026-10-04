@@ -246,12 +246,12 @@ returns a pair, passed on as one thing, costs a run.
 | `open_window(game, name, row, baseline)` | 2-tuple | Open one window along the route phase 0 found for it, and prove it is drawn. |
 | `close_window(game, row, baseline, limit=12)` | bool | Shut it again and wait until the state before it is back. Anything left open contaminates |
 | `drawn_one(nodes, candidates, name)` | value | Of several window objects carrying the same name, the one that is actually drawn. |
-| `record_window(game, name, nodes, header, route, attempts, file, started)` | value | Everything this project can read of one drawn window, plus a capture. It stays open. |
+| `record_window(game, name, nodes, header, route, attempts, file, started)` | dict | Everything this project can read of one drawn window, plus a capture. It stays open. |
 | `harvest(game, name, row, baseline, header)` | 2-tuple | One window, from opening to the state coming back. Returns the record, or a reason. |
 | `stop_checks(pid, player, player_name, before)` | nothing | The three conditions asked before every window: memory, the channel, and the player. |
-| `chain_step(game, route, source_row, windows, baseline, header, tables)` | 2-tuple | One chain route: open the source along its own route, press what reaches the goal inside it, |
+| `chain_step(game, route, source, source_row, windows, baseline, header, tables)` | 2-tuple | One chain route from one of its sources: open the source along its own route, press what |
 | `chain_round(game, pid, windows, wanted, baseline, header, player, player_name)` | nothing | Every chain route the files offer from a window this round can open by itself. |
-| `main()` | value | - |
+| `main()` | nothing | - |
 
 ## ck3\inject.py
 *Starts a program suspended and loads our DLL into it before it runs its first line of code.*
@@ -337,7 +337,7 @@ returns a pair, passed on as one thing, costs a run.
 | call | returns | does |
 |---|---|---|
 | `buttons_on_disk()` | value | Every widget that opens a window when pressed, with how it does it. |
-| `live_record(game, pid, window, address=None, nodes=None)` | 4-tuple | The window that is drawn right now, in the shape the harvest writes and the pairing reads. |
+| `live_record(game, pid, window, address=None, nodes=None)` | 4-tuple | The widgets of the window that is drawn right now, in the shape the harvest writes them and |
 | `goal_of(target, known=None)` | 3-tuple | What has to happen before `target` is drawn: a view opens, or a variable is set. |
 | `reaches(value, goal)` | value of bool | Does this onclick reach the goal? Setting a variable counts, clearing it does not. |
 | `fires_for(source, goal)` | 2-tuple | The call this disk block really fires, split into the one that reaches `goal` and the rest. |
@@ -351,7 +351,7 @@ returns a pair, passed on as one thing, costs a run.
 | `trigger_spots(row, named, nodes)` | value of list | Where the click for this row could land: the widget itself, or its nameless children. |
 | `on_screen(address, nodes, scales, classes)` | str of value of NoneType | Why this widget cannot be clicked, or None when it can. |
 | `window_above(address, chain, nodes, scales)` | value of NoneType | A drawn window later in the tree whose rectangle holds this widget's middle, or None. |
-| `press(address, nodes, scales, classes, row)` | value of NoneType | Click the middle of a widget, but only if it is really on screen. |
+| `press(address, nodes, scales, classes, row=None)` | value of NoneType | Click the middle of a widget, but only if it is really on screen. |
 | `back_to(game, baseline, tries=4)` | bool of value | Shut whatever opened. Escape only when something is open, or it opens the pause menu. |
 | `subtree_of(nodes, window)` | NoneType of value | The addresses under the drawn window object of that name, or None. |
 | `try_button(game, row, address, nodes, scales, classes, floor, date, number, total, where, fallback=None)` | str of value | Press one button, record what opened, and put the state back. |
@@ -498,6 +498,7 @@ returns a pair, passed on as one thing, costs a run.
 
 | call | returns | does |
 |---|---|---|
+| `shortcut_file()` | value | Binding -> its keys as `game/gui/shortcuts.shortcuts` spells them, empty for a binding |
 | `window_bindings()` | value | Window -> every shortcut its widgets declare, with what pressing it calls. Disk only. |
 | `window_keys_plan()` | nothing | Print what a key round inside the windows would press, and what it leaves to a person. |
 | `presses_for(rows, bound, numbers=3)` | value | (binding, keys) to press in one window: every view-only row, once. |
@@ -512,7 +513,7 @@ returns a pair, passed on as one thing, costs a run.
 | `create_round(game, windows, limit=None)` | value | Try every window with GUI.CreateWidget, and clean up immediately. |
 | `unmapped(pid, game=None)` | 3-tuple | Which windows the running game built that the map on disk does not know. |
 | `keys_only(pid, modified=False)` | nothing | Only the key round, and add what it finds to the map without touching anything else in it. |
-| `main()` | value | - |
+| `main()` | nothing | - |
 
 ## nvda\speech.py
 *Thin seam to NVDA. Everything the user needs to hear passes through here.*

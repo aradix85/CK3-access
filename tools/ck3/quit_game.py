@@ -20,7 +20,8 @@ from tools.ck3 import channel, derive, openers, vtablemap, windowmap
 PAUSE_MENU, CONFIRMATION = 'ingame_pausemenu', 'ingame_resign_confirmation'
 
 
-def look(root, pid, window_classes):
+def look(root: int, pid: int, window_classes: set[int]) -> tuple[derive.Nodes, derive.Scales, set[str],
+                                                                dict[int, str | None]]:
     """The tree of this moment, with what is drawn, where it is, and what class each node is."""
     nodes = derive.widgets(root)
     windows = [a for a, k in nodes.items() if k[0] in window_classes]
@@ -29,7 +30,7 @@ def look(root, pid, window_classes):
     return nodes, derive.scales_for(list(nodes)), drawn, classes
 
 
-def press(nodes, scales, classes, name):
+def press(nodes: derive.Nodes, scales: derive.Scales, classes: dict[int, str | None], name: str) -> str | None:
     """Click the widget with this name that is really on screen. Returns None, or why not.
 
     **Taking the first widget with the right name is what broke this.** Measured 20 September
@@ -61,7 +62,7 @@ def press(nodes, scales, classes, name):
     return f"{name} is in the tree {len(found)} time(s) and none of them can be clicked: {', '.join(sorted(set(refused)))}"
 
 
-def gone(seconds=40):
+def gone(seconds: int = 40) -> bool:
     """Wait until the channel stops answering, which is the game being gone.
 
     It asks `alive` rather than `ask`, because here the link disappearing is what success looks
@@ -76,7 +77,7 @@ def gone(seconds=40):
     return False
 
 
-def quit_game(pid):
+def quit_game(pid: int) -> None:
     fields = derive.stored()
     if fields is None:
         fields, _ = derive.fields_for(pid)      # only a loaded game can derive them

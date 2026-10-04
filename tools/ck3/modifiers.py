@@ -33,7 +33,8 @@ import sys
 import time
 
 from tools import terminal, windowgrab
-from tools.ck3 import channel, states
+from tools.ck3 import channel, states, windowmap
+from tools.ck3.harvest import paused
 from tools.nvda import speech
 
 user32 = ctypes.WinDLL('user32', use_last_error=True)
@@ -72,7 +73,7 @@ class INPUT(ctypes.Structure):
     _fields_ = [('type', wt.DWORD), ('u', _UNION)]
 
 
-def bring(hwnd):
+def bring(hwnd: int) -> bool:
     """The foreground, from a process that does not have it: only with the input queues joined."""
     ours = kernel32.GetCurrentThreadId()
     front = user32.GetWindowThreadProcessId(user32.GetForegroundWindow(), None)
@@ -81,21 +82,21 @@ def bring(hwnd):
     user32.BringWindowToTop(hwnd)
     user32.AttachThreadInput(ours, front, False)
     time.sleep(0.3)
-    return user32.GetForegroundWindow() == hwnd
+    return bool(user32.GetForegroundWindow() == hwnd)
 
 
 class Keys:
-    def __init__(self, game_window):
+    def __init__(self, game_window: int) -> None:
         self.game = game_window
-        self.down = []
+        self.down: list[int] = []
 
-    def _send(self, vk, up):
+    def _send(self, vk: int, up: bool) -> None:
         event = INPUT(type=INPUT_KEYBOARD)
         event.u.ki = KEYBDINPUT(vk, user32.MapVirtualKeyW(vk, 0), KEYEVENTF_KEYUP if up else 0, 0, 0)
         if user32.SendInput(1, ctypes.byref(event), ctypes.sizeof(INPUT)) != 1:
             raise OSError(f'SendInput refused, error {int(ctypes.get_last_error())}')
 
-    def send(self, vk, up):
+    def send(self, vk: int, up: bool) -> None:
         if user32.GetForegroundWindow() != self.game:
             raise RuntimeError('the game lost the foreground; nothing more is sent')
         self._send(vk, up)
@@ -105,13 +106,13 @@ class Keys:
             else:
                 self.down.append(vk)
 
-    def release(self):
+    def release(self) -> None:
         """A modifier left down would follow the player into her own window. Up is harmless anywhere."""
         for vk in reversed(self.down):
             self._send(vk, True)
         self.down = []
 
-    def combo(self, modifiers, key):
+    def combo(self, modifiers: list[int], key: int) -> None:
         """Modifiers down, the key once, modifiers up; the key goes in only once Windows holds them."""
         for vk in modifiers:
             self.send(vk, False)
@@ -127,13 +128,13 @@ class Keys:
             self.send(vk, True)
 
 
-def held(vk):
+def held(vk: int) -> bool:
     return bool(user32.GetAsyncKeyState(vk) & 0x8000)
 
 
-def counted():
+def counted() -> dict[str, int]:
     """What the game asked since the previous `count`, which also starts the next interval."""
-    out = {}
+    out: dict[str, int] = {}
     for line in channel.ask('count').split('\n'):
         part = line.split('\t')
         if part[0] == 'count':
@@ -143,7 +144,7 @@ def counted():
     return out
 
 
-def drawn_after(game, wanted, seconds=6.0):
+def drawn_after(game: windowmap.Game, wanted: str, seconds: float = 6.0) -> set[str]:
     deadline = time.time() + seconds
     while True:
         _, _, now = game.state()
@@ -152,7 +153,7 @@ def drawn_after(game, wanted, seconds=6.0):
         time.sleep(0.3)
 
 
-def back_to(game, baseline, first_key):
+def back_to(game: windowmap.Game, baseline: set[str], first_key: int) -> bool:
     """Shut what opened with posted keys, and prove the state is back."""
     channel.ask(f'sendkey {int(first_key)}')
     for _ in range(4):
@@ -164,9 +165,7 @@ def back_to(game, baseline, first_key):
     return game.state()[2] == baseline
 
 
-def main(pid):
-    from tools.ck3 import windowmap
-    from tools.ck3.harvest import paused
+def main(pid: int) -> None:
     print('state:', states.wait(pid), flush=True)
     game = windowmap.Game(pid)
     _, _, baseline = game.state()
@@ -178,7 +177,7 @@ def main(pid):
     hwnd = windowgrab.window_of(pid)[0]
     hers = user32.GetForegroundWindow()
     keys = Keys(hwnd)
-    results = {}
+    results: dict[str, dict[str, int]] = {}
     speech.output('the key test takes the game to the front for about ten seconds; please do not type')
     time.sleep(4)
     try:
