@@ -15,7 +15,7 @@ Three keys, and deliberately no more until these have been listened to:
 
 A fourth came on 20 September 2026 once there was something for it to say:
 
-  delete     what the game would show if you could hover on the line you are standing on. Of the
+  delete     the tooltip of the line you are standing on, as the gui files predict it. Of the
              keys you can find without looking, only F12, Insert, Delete, End and K carry no
              named action in the game's own shortcuts, and F12 was taken.
 
@@ -178,7 +178,7 @@ class Reader:
         speech.output(self.lines[goal]['say'])
 
     def explain(self) -> None:
-        """What the game would show on hover here, when it is a sentence and not a sum.
+        """The tooltip the gui files predict here, when it is a sentence and not a sum.
 
         **A tooltip hangs on the button and not on the text inside it**, so this looks up the
         chain; measured over the harvest on 20 September 2026, one unit in five has one that way

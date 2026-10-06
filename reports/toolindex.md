@@ -428,7 +428,7 @@ returns a pair, passed on as one thing, costs a run.
 | `on_screen(node, by_address, area)` | bool | Is this widget actually drawn, or only present in the tree? |
 | `expansion(window, table, local, known)` | value | The window as the gui files describe it, expanded once and then kept. |
 | `words_table()` | value | The localisation, read once. Over a thousand files, so not per keystroke. |
-| `explanation(address, by_address, source_of, localization)` | value of NoneType | What the game would show if you could hover here: the nearest tooltip up the chain. |
+| `explanation(address, by_address, source_of, localization)` | value of NoneType | The tooltip the gui files predict here: the nearest one up the chain. |
 | `rows_of(node, by_address, source_of)` | value | The row this unit stands in, per list around it, outermost first, as live addresses. |
 | `units(window, tables, record, area)` | value | Every unit this window says, in order, each with the list it belongs to. |
 | `screen_rules()` | value | Per window, what a screen file adds on top of the reading rule. |

@@ -57,6 +57,12 @@ whatever lies underneath.
 - **Modifiers:** a posted key carries no modifier state, so `combo` holds the modifier for the game
   while the combination runs. `tools/ck3/modifiers.py` is the measurement with real keys it was
   checked against.
+- **Hovering:** the game shows the tooltip of whatever lies under its own hover point. That point
+  follows the real pointer only while the game is in front, and then moving the pointer is enough;
+  posted mouse messages never move it. The tooltip's text stands in roots outside the widget tree
+  (`_tooltip_root_` and others), which keep their last text, so `derive.shown` decides which text is
+  current. The product may move the pointer to read a tooltip; until it does, tooltip text comes from
+  the gui files.
 
 ## 5. Reading the game
 
@@ -103,5 +109,6 @@ Two functions: `output(text, mode, braille)` and `failure(where, what, remedy)`.
 ## Deliberately not done
 
 - No decompiling or rebuilding the engine; no redistribution of game files.
-- No synthetic input from outside the process.
+- No keys or clicks from outside the process. The one exception is moving the pointer to read a
+  tooltip.
 - No hard-coded addresses, offsets or click positions.

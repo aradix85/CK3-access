@@ -276,7 +276,10 @@ GAP = re.compile(r'\[[^\]]*\]|\$[^$]*\$')
 
 def explanation(address: str, by_address: dict[str, pairing.Harvested],
                 source_of: dict[int, guimap.Node | None], localization: dict[str, str]) -> str | None:
-    """What the game would show if you could hover here: the nearest tooltip up the chain.
+    """The tooltip the gui files predict here: the nearest one up the chain.
+
+    The game's own tooltip can be read while the game is in front, where its hover point follows the
+    pointer; until the reader does that, this prediction is what the explain key says.
 
     **A tooltip hangs on the button, not on the text inside it.** Counted over the harvest on
     20 September 2026: of 1581 units 49 carry a tooltip themselves and 301 more have one on an

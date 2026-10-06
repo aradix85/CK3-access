@@ -4,7 +4,8 @@ Outcomes, newest first. No release yet.
 
 ## 2026-10-06
 - mypy runs fully strict over every module and every test; reading and the reader were the last, and say exactly what they said before, without the game and on a running one.
-- A toast counts as showing only when `derive.shown` says so, up to the root, and only text boxes give it its words; the key round's `shown_texts` asks `derive.shown` too. Both had their own rule, which took a state byte that could not be read for not hiding. A real toast, called up through the console, is read the moment it appears.
+- A toast counts as showing only when `derive.shown` says so, up to the root, and only text boxes give it its words; the key round's `shown_texts` asks `derive.shown` too. Both had their own rule, which took a state byte that could not be read for not hiding. A real toast, called up through the console, is read the moment it appears, and the game's own message log keeps it.
+- The game's tooltips can be read: with the game in front, moving the pointer moves the game's hover point, and the tooltip's text stands in roots outside the widget tree, where `derive.shown` tells the current text from a stale one. Posted mouse messages, and a pointer moved while the game is behind, do not move it; the closing of this question in August had measured the tree, where no tooltip is. Not yet used by the reader.
 - The text classes are named once, in `derive`, and the gui tables are built in one place, `guimap.tables`, instead of in nine; the templates are read once there instead of twice.
 - Reading a harvested window that was never opened says so in a sentence instead of failing on a missing field.
 
