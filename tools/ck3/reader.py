@@ -39,7 +39,9 @@ always in the tree, `toast_container_widget` in `hud_notification_templates.gui`
 "the toast handler has a message" - so a toast arrives as 0x08 leaving that widget's state byte, one
 question a round. Its text is read from that small subtree only, and said between the lines: a toast
 is not a window, so the place you stand on does not move. Decided with the player on 21 September
-2026, in place of first finding out whether the message log keeps toasts.
+2026, in place of first finding out whether the message log keeps toasts. It does, with their date:
+two toasts called up through the console stood in its log tab afterwards (measured 6 October 2026),
+so a toast missed is not a toast lost.
 """
 import sys
 
@@ -50,7 +52,7 @@ UP, DOWN, TOGGLE, EXPLAIN = 38, 40, 123, 46
 POLL = 400          # milliseconds the DLL waits for a key before answering with nothing
 
 
-def gui_tables():
+def gui_tables() -> guimap.Tables:
     """The templates of every gui file, once. Three seconds, and they do not change while it runs.
 
     The localisation is warmed here for the same reason: it is over a thousand files, and paid at the first
@@ -58,31 +60,63 @@ def gui_tables():
     The widget classes come out of the executable and cost three seconds the first time, so they
     are warmed here too.
     """
-    rows = guimap.files()
-    table, local = guimap.type_table(rows)
-    known = guimap.windows(rows)
+    tables = guimap.tables()
     reading.words_table()
     memory.widget_vtables()
-    return table, local, known, guimap.root_finder(table)
+    return tables
+
+
+def toast_text(pid: int, containers: list[int], above: derive.Nodes) -> str | None:
+    """The text of the toast that is showing now, or None when none is.
+
+    **Drawn is what `derive.shown` says, here as everywhere:** no 0x08 on the widget or on any
+    ancestor up to the root, and a byte that cannot be read is an object that went away, so not
+    drawn. `above` holds the containers and every ancestor of theirs, taken from the tree at the
+    start; the subtree below a container is walked only while it shows. The same container holds a
+    default, a contest and a contract variant, and only one of them is visible at a time.
+
+    **A text counts only on a text class** (`derive.TEXT_CLASSES`): on any other widget the text
+    field is the neighbour's.
+    """
+    showing = derive.shown(above, containers)
+    texts: list[str] = []
+    for container in showing:
+        below = derive.widgets(container)
+        kinds = derive.class_map(pid, {a: n[0] for a, n in below.items()})
+        candidates = [a for a, n in below.items()
+                      if kinds[a] in derive.TEXT_CLASSES and derive.strip_markup(n[7]).strip()]
+        drawn = derive.shown({**above, **below}, candidates)
+        for address in candidates:
+            text = derive.strip_markup(below[address][7]).strip()
+            if address in drawn and text not in texts:
+                texts.append(text)
+    return ', '.join(texts) or None
 
 
 class Reader:
     """Where the reader stands: which window, which line, and whether it is listening at all."""
 
-    def __init__(self, pid):
+    def __init__(self, pid: int) -> None:
         self.pid = pid
         self.game = windowmap.Game(pid)
         self.tables = gui_tables()
         self.on = False
-        self.lines = []
+        self.lines: list[reading.Line] = []
         self.at = 0
         tree = derive.widgets(self.game.root)
         self.layers = {a: (n[6] or '-') for a, n in tree.items() if n[5] == self.game.root}
         self.counted = self.counts()
         self.toasts = [a for a, n in tree.items() if n[6] == 'toast_container_widget']
-        self.toast_said = None
+        # Every toast container with its chain up to the root, so `derive.shown` can walk it.
+        self.above: derive.Nodes = {}
+        for container in self.toasts:
+            walk = container
+            while walk in tree:
+                self.above[walk] = tree[walk]
+                walk = tree[walk][5]
+        self.toast_said: str | None = None
 
-    def counts(self):
+    def counts(self) -> dict[int, int]:
         """How many children each layer holds. One question, so it may be asked every round.
 
         This is what notices an event. An event does not flip a window that is already there, it
@@ -92,32 +126,11 @@ class Reader:
         """
         return derive.field_for(self.layers, self.game.fields['count'], 4)
 
-    def toast(self):
-        """The text of the toast that is showing now, or None when none is.
+    def toast(self) -> str | None:
+        """The text of the toast that is showing now, or None when none is."""
+        return toast_text(self.pid, self.toasts, self.above)
 
-        Shown means no 0x08 on the container, and only the texts with no hidden ancestor inside it
-        count: the same container holds a default, a contest and a contract variant, and only one
-        of them is visible at a time.
-        """
-        flags = derive.flags_for(self.toasts)
-        showing = [a for a in self.toasts if not flags.get(a, 0x08) & 0x08]
-        if not showing:
-            return None
-        texts = []
-        for container in showing:
-            nodes = derive.widgets(container)
-            hidden = derive.flags_for(list(nodes))
-            for address, node in nodes.items():
-                walk, gone = address, False
-                while walk in nodes:
-                    gone = gone or bool(hidden.get(walk, 0) & 0x08)
-                    walk = nodes[walk][5]
-                text = derive.strip_markup(node[7] or '').strip()
-                if text and not gone and text not in texts:
-                    texts.append(text)
-        return ', '.join(texts) or None
-
-    def claim(self):
+    def claim(self) -> None:
         """Tell the DLL which keys to keep from the game. The list is replaced, not added to.
 
         F12 is claimed even when the reader is off, because otherwise there is nothing left to
@@ -126,7 +139,7 @@ class Reader:
         codes = [TOGGLE] + ([UP, DOWN, EXPLAIN] if self.on else [])
         channel.ask('swallow ' + ' '.join(str(code) for code in codes))
 
-    def refresh(self):
+    def refresh(self) -> str | None:
         """Read whatever is on top, and stand at the top of it.
 
         Starting at the top rather than where you were is deliberate: a remembered place points
@@ -156,7 +169,7 @@ class Reader:
             speech.output(lines[0]['say'])
         return window
 
-    def move(self, step):
+    def move(self, step: int) -> None:
         """One unit further, or nothing at all at the ends."""
         goal = self.at + step
         if not self.lines or goal < 0 or goal >= len(self.lines):
@@ -164,7 +177,7 @@ class Reader:
         self.at = goal
         speech.output(self.lines[goal]['say'])
 
-    def explain(self):
+    def explain(self) -> None:
         """What the game would show on hover here, when it is a sentence and not a sum.
 
         **A tooltip hangs on the button and not on the text inside it**, so this looks up the
@@ -178,7 +191,7 @@ class Reader:
         found = self.lines[self.at]['explain']
         speech.output(found if found else 'no explanation here that is not a sum')
 
-    def toggle(self):
+    def toggle(self) -> None:
         self.on = not self.on
         self.claim()
         speech.output('on' if self.on else 'off')
@@ -186,11 +199,11 @@ class Reader:
             self.refresh()
 
 
-def keys_waiting(answer):
+def keys_waiting(answer: str) -> list[int]:
     return [int(line.split('\t')[1]) for line in answer.split('\n') if line.startswith('key\t')]
 
 
-def loop(reader):
+def loop(reader: Reader) -> None:
     """Every key the game receives comes past here, swallowed or not, because the hook sits in the
     game's own window procedure and reports before it decides.
 
@@ -233,13 +246,13 @@ def loop(reader):
             reader.refresh()
 
 
-def give_back():
+def give_back() -> None:
     """The game gets every key back. This runs before anything is said about why."""
     channel.ask('swallow')
     channel.ask('keys off')
 
 
-def main():
+def main() -> None:
     pid = int(sys.argv[1])
     reader = Reader(pid)
     channel.ask('keys on')

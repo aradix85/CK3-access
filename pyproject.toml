@@ -30,44 +30,14 @@ respect-gitignore = false
 extend-select = ["B905", "ARG"]
 
 [tool.mypy]
-# Every function body is checked, annotated or not (the maintainer's decision, 3 October 2026: no
+# All of --strict, for every module and every test (the maintainer's decision, 3 October 2026: no
 # check is switched off because that is easier). `tools` is a package; the tests are found from the
 # project folder.
 files = ["tools", "tests"]
 explicit_package_bases = true
-check_untyped_defs = true
-warn_unused_ignores = true
+strict = true
+# Not part of --strict, and without it a misspelt setting in this file is ignored in silence.
 warn_unused_configs = true
-# The flags of --strict that the whole project already meets, on for every module so none slips back.
-# The three it does not meet yet are switched on per module below, as each module gets real types.
-disallow_incomplete_defs = true
-disallow_untyped_decorators = true
-disallow_subclassing_any = true
-warn_redundant_casts = true
-warn_return_any = true
-no_implicit_reexport = true
-strict_equality = true
-strict_bytes = true
-extra_checks = true
-
-[[tool.mypy.overrides]]
-# Modules with real types throughout: the rest of --strict, so they cannot slip back. A module joins
-# once it is clean; when the last one has, these move up into [tool.mypy] as strict = true.
-module = ["tools.paths", "tools.terminal", "tools.nvda.speech", "tools.ck3.inject", "tools.ck3.memory",
-          "tools.ck3.channel", "tools.ck3.vtablemap", "tools.ck3.start_game", "tools.restore_launcher",
-          "tools.screenshot", "tools.nvda.check_speech_by_ear", "tools.nvda.addon.appModules.ck3",
-          "tools.windowgrab", "tools.toolindex", "tools.ocr", "tools.boxreader", "tools.ck3.savegame",
-          "tools.ck3.guimap", "tools.ck3.database", "tools.ck3.screens", "tools.ck3.propose",
-          "tools.ck3.derive", "tools.ck3.mapdata", "tools.ck3.pairing", "tools.never_silent",
-          "tools.check", "tools.ck3.anchor", "tools.ck3.model", "tools.ck3.numbering",
-          "tools.ck3.calibrate", "tools.ck3.place", "tools.ck3.harvest", "tools.ck3.openers",
-          "tools.ck3.windowmap", "tools.ck3.modifiers", "tools.ck3.quit_game", "tools.ck3.states",
-          # The tests: `tests` has no __init__.py, and mypy takes it as a namespace package.
-          "tests.test_ask_retry", "tests.test_channel", "tests.test_scan_guard",
-          "tests.test_speech_seam", "tests.test_tree_walk"]
-disallow_untyped_defs = true
-disallow_untyped_calls = true
-disallow_any_generics = true
 
 [[tool.mypy.overrides]]
 # OpenVINO ships no type information, so there is nothing to check its calls against.

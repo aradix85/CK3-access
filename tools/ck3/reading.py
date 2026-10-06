@@ -25,20 +25,60 @@ Without `--live` it reads harvested windows, `ingame_resign_confirmation` when n
 `--live` it reads the tree of the running game, the window on top unless one is named, and
 `--speak` also says the lines through NVDA.
 """
+import collections
 import glob
+import json
 import os
 import re
 import sys
 import time
+from typing import TYPE_CHECKING, TypedDict
 
 from tools import paths
 from tools.ck3 import derive, guimap, pairing
 from tools.nvda import speech
 
+if TYPE_CHECKING:
+    # `live` imports it where it runs, because it brings openers and the harvest along and the
+    # harvested half of this module runs without them. Only the checker sees it here.
+    from tools.ck3 import windowmap
+
 HARVEST = os.path.join(paths.PROJECT, 'harvest')
 
 
-def models(node, chain=(), out=None):
+class Unit(TypedDict):
+    """One text on screen, with what the gui files say about it and where it stands."""
+    text: str                   # what it says, the markup taken off
+    model: str | None           # the innermost list it belongs to, or None
+    models: tuple[str, ...]     # every list around it, outermost first
+    rows: tuple[str, ...]       # per list around it, the row it stands in, as a live address
+    fills: str | None           # the data function its gui file puts in it
+    name: str
+    state: str | None           # `unavailable`, or nothing
+    explain: str | None         # the tooltip up the chain, when it is a whole sentence
+    address: str
+    parent: str
+
+
+class Line(TypedDict):
+    """One line a player hears, and the tooltip that explains it."""
+    say: str
+    explain: str | None
+
+
+class ScreenRule(TypedDict):
+    """What a screen file adds to one window: which lines come first, and which key a list takes."""
+    order: list[str]
+    keys: dict[str, str]
+
+
+class Harvest(pairing.Record):
+    """A harvested window as this module reads it: its widgets and the drawing area it was taken on."""
+    size: list[int]
+
+
+def models(node: guimap.Node, chain: tuple[str, ...] = (),
+           out: dict[int, tuple[str, ...]] | None = None) -> dict[int, tuple[str, ...]]:
     """Per widget on disk, the data models of the repeated containers above it, outermost first.
 
     That is what makes a row of a list one unit instead of as many units as there are rows, and the
@@ -48,6 +88,8 @@ def models(node, chain=(), out=None):
     game builds a tooltip only when the pointer arrives, so on disk it is a subtree nobody is
     reading here. It is not a detail - with tooltips `council_window` expands to 120,109 nodes
     against 23,699 without.
+
+    A `datamodel` is a value; one without is a file this reader cannot read, and it says so.
     """
     if node['type'] == 'tooltipwidget':
         return out if out is not None else {}
@@ -55,6 +97,8 @@ def models(node, chain=(), out=None):
         out = {}
     for key, value in node['attrs']:
         if key == 'datamodel':
+            if value is None:
+                raise guimap.GuiError(f"a datamodel without a value, in a {node['type']}")
             chain = chain + (value,)
     out[id(node)] = chain
     for child in node['children']:
@@ -62,9 +106,11 @@ def models(node, chain=(), out=None):
     return out
 
 
-def live_order(by_parent, top):
+def live_order(by_parent: dict[str, list[pairing.Harvested]],
+               top: pairing.Harvested) -> list[pairing.Harvested]:
     """The live widgets depth first in child order - the order the game draws them in."""
-    out, work = [], [top]
+    out: list[pairing.Harvested] = []
+    work = [top]
     while work:
         node = work.pop()
         out.append(node)
@@ -82,12 +128,13 @@ PLUMBING = ('GetDataModelSize', 'Add_int32', 'Subtract_int32', 'Multiply_int32',
 GENERIC = ('value', 'text', 'name', 'size', 'count', 'string')
 
 
-def words_of(word):
+def words_of(word: str) -> str:
     """A name in the game's spelling as words: GetSoldierCount -> soldier count, MAACap -> MAA cap.
 
     A run of capitals stays a run: the military view says MAA, and m a a is not a word.
     """
-    out, piece = [], ''
+    out: list[str] = []
+    piece = ''
     for at, letter in enumerate(word):
         following = word[at + 1] if at + 1 < len(word) else ''
         starts = letter.isupper() and piece and (not piece[-1].isupper() or following.islower())
@@ -100,7 +147,7 @@ def words_of(word):
                     for part in out if part).strip()
 
 
-def name_of(model):
+def name_of(model: str) -> str:
     """A data function as a word for the player: GetOptions -> options, GetGold|0 -> gold.
 
     Three things have to come off, and each of them was a label that read as machinery. The tail
@@ -113,7 +160,8 @@ def name_of(model):
     the type takes over, so `SkillItem.GetValue` reads as skill.
     """
     call = model.strip('[]').split('|')[0].strip()
-    chains = [one for one in CHAIN.findall(call) if one.split('.')[-1] not in PLUMBING]
+    found: list[str] = CHAIN.findall(call)      # no groups in the pattern, so whole matches
+    chains = [one for one in found if one.split('.')[-1] not in PLUMBING]
     head = chains[0] if chains else call
     kind = head.split('.')[0]
     word = head.split('.')[-1]
@@ -126,7 +174,7 @@ def name_of(model):
     spelled = words_of(word)
     parts = spelled.lower().split()
     if any(part in GENERIC for part in parts):
-        quoted = QUOTED.findall(call)
+        quoted: list[str] = QUOTED.findall(call)    # one group, so its text per match
         if quoted:
             return quoted[-1].replace('_', ' ').strip()
     if spelled.lower() in GENERIC:
@@ -141,7 +189,7 @@ def name_of(model):
 NUMBER = re.compile(r'^[\d+\-.,%/ ]+$')
 
 
-def fills(source):
+def fills(source: guimap.Node | None) -> str | None:
     """The data function the gui file puts in this widget, if it puts one there."""
     if source is None:
         return None
@@ -151,7 +199,8 @@ def fills(source):
     return None
 
 
-def on_screen(node, by_address, area):
+def on_screen(node: pairing.Harvested, by_address: dict[str, pairing.Harvested],
+              area: tuple[int, int]) -> bool:
     """Is this widget actually drawn, or only present in the tree?
 
     Four ways it can fail to be, and each one is a measurement rather than a guess. A row scrolled
@@ -176,25 +225,27 @@ def on_screen(node, by_address, area):
         return False
     if node['clipped']:
         return False
-    seen = set()
-    while node is not None and node['address'] not in seen:
-        seen.add(node['address'])
-        if (node['alpha'] or 0) <= 0:
+    seen: set[str] = set()
+    walk: pairing.Harvested | None = node
+    while walk is not None and walk['address'] not in seen:
+        seen.add(walk['address'])
+        if (walk['alpha'] or 0) <= 0:
             return False
         # 0x08 in the state byte is the game hiding the widget - a `visible` condition that is false
         # - while alpha stays up. Measured 21 September 2026: 40 of 260 texts in seven windows sat
         # under it, all in the character finder, such as "No matching Characters for current filter"
         # while it listed characters. A record from before 20 September carries no state.
-        if (node.get('state') or 0) & 0x08:
+        if (walk.get('state') or 0) & derive.HIDDEN:
             return False
-        node = by_address.get(node['parent'])
+        walk = by_address.get(walk['parent'])
     return True
 
 
-EXPANDED = {}
+EXPANDED: dict[str, guimap.Node] = {}
 
 
-def expansion(window, table, local, known):
+def expansion(window: str, table: guimap.Table, local: guimap.LocalTable,
+              known: guimap.Known) -> guimap.Node:
     """The window as the gui files describe it, expanded once and then kept.
 
     **What this holds does not change while the game runs**: it comes from the gui files on disk,
@@ -209,10 +260,10 @@ def expansion(window, table, local, known):
     return EXPANDED[window]
 
 
-WORDS = None
+WORDS: dict[str, str] | None = None
 
 
-def words_table():
+def words_table() -> dict[str, str]:
     """The localisation, read once. Over a thousand files, so not per keystroke."""
     global WORDS
     if WORDS is None:
@@ -223,7 +274,8 @@ def words_table():
 GAP = re.compile(r'\[[^\]]*\]|\$[^$]*\$')
 
 
-def explanation(address, by_address, source_of, localization):
+def explanation(address: str, by_address: dict[str, pairing.Harvested],
+                source_of: dict[int, guimap.Node | None], localization: dict[str, str]) -> str | None:
     """What the game would show if you could hover here: the nearest tooltip up the chain.
 
     **A tooltip hangs on the button, not on the text inside it.** Counted over the harvest on
@@ -243,7 +295,7 @@ def explanation(address, by_address, source_of, localization):
     """
     while address in by_address:
         source = source_of.get(id(by_address[address]))
-        attrs = dict(source.get('attrs', ())) if source else {}
+        attrs: dict[str | None, str | None] = dict(source['attrs']) if source else {}
         key = attrs.get('tooltip') or attrs.get('tooltip_text')
         if key:
             sentence = localization.get(key.strip('"[] '))
@@ -254,7 +306,8 @@ def explanation(address, by_address, source_of, localization):
     return None
 
 
-def rows_of(node, by_address, source_of):
+def rows_of(node: pairing.Harvested, by_address: dict[str, pairing.Harvested],
+            source_of: dict[int, guimap.Node | None]) -> tuple[str, ...]:
     """The row this unit stands in, per list around it, outermost first, as live addresses.
 
     A list is the live widget whose source on disk carries a `datamodel`; its row is the child of it
@@ -263,28 +316,34 @@ def rows_of(node, by_address, source_of):
     A list whose widget the alignment did not pair is missing here, so the tuple can be shorter than
     the chain of models; the caller then treats the unit as a row of its own, as before.
     """
-    rows, below, walk = [], node, by_address.get(node['parent'])
+    rows: list[str] = []
+    below, walk = node, by_address.get(node['parent'])
     while walk is not None:
         source = source_of.get(id(walk))
-        if source is not None and any(key == 'datamodel' for key, _ in source.get('attrs', ())):
+        if source is not None and any(key == 'datamodel' for key, _ in source['attrs']):
             rows.append(below['address'])
         below, walk = walk, by_address.get(walk['parent'])
     return tuple(reversed(rows))
 
 
-def units(window, table, local, known, root, record):
-    """Every unit this window says, in order, each with the list it belongs to."""
+def units(window: str, tables: guimap.Tables, record: pairing.Record,
+          area: tuple[int, int]) -> list[Unit]:
+    """Every unit this window says, in order, each with the list it belongs to.
+
+    `area` is the drawing area the record was taken on: stored with a harvested window, asked of
+    Windows for a live one.
+    """
+    table, local, known, root = tables
     tree = expansion(window, table, local, known)
     model_of = models(tree)
     source_of = {id(built): source
                  for source, built, _ in pairing.pairs(window, table, local, known, root, record,
                                                        tree)}
 
-    area = record['size'] if 'size' in record else derive.drawing_area()
     words = words_table()
     by_address = {node['address']: node for node in record['tree']}
     by_parent, top = pairing.live_tree(record)
-    out = []
+    out: list[Unit] = []
     for node in live_order(by_parent, top):
         text = derive.strip_markup(node['text'] or '').strip()
         if not text or not on_screen(node, by_address, area):
@@ -295,16 +354,16 @@ def units(window, table, local, known, root, record):
                     'rows': rows_of(node, by_address, source_of),
                     'fills': fills(source),
                     'name': node['name'],
-                    'state': state_word(node),
+                    'state': state_word(node.get('state')),
                     'explain': explanation(node['address'], by_address, source_of, words),
                     'address': node['address'], 'parent': node['parent']})
     return out
 
 
-SCREENS: dict[str, dict] | None = None
+SCREENS: dict[str, ScreenRule] | None = None
 
 
-def screen_rules():
+def screen_rules() -> dict[str, ScreenRule]:
     """Per window, what a screen file adds on top of the reading rule.
 
     **A screen file is an exception on top of the reading rule, and this is where it is applied.**
@@ -339,8 +398,7 @@ def screen_rules():
             keys: dict[str, str] = {}
             for entry in guimap.walk(nodes):
                 if entry['key'] == 'order' and entry['body']:
-                    order = [line['value'] and _function(line['value'])
-                             for line in entry['body']
+                    order = [_function(line['value']) for line in entry['body']
                              if line['key'] == 'read' and line['value']]
                 elif entry['key'] == 'list' and entry['body']:
                     model = next((_function(line['value']) for line in entry['body']
@@ -354,12 +412,12 @@ def screen_rules():
     return SCREENS
 
 
-def _function(value):
+def _function(value: str | None) -> str:
     """A data function as a key to compare on: brackets and the format tail taken off."""
     return (value or '').strip().lstrip('[').rstrip(']').split('|')[0].strip()
 
 
-def in_order(window, found):
+def in_order(window: str, found: list[Unit]) -> list[Unit]:
     """The units with what a screen file names first, first. Stable, so the rest keeps its order.
 
     A unit that belongs to a list takes the rank of its list, so a group never gets torn apart by
@@ -371,12 +429,13 @@ def in_order(window, found):
     reports it as fine, because that function does exist elsewhere in the gui set. That check
     proves a name is not gone; it does not prove it points at the widget you meant.
     """
-    wanted = screen_rules().get(window, {}).get('order')
+    rule = screen_rules().get(window)
+    wanted = rule['order'] if rule else []
     if not wanted:
         return found
     rank = {name: place for place, name in enumerate(wanted)}
 
-    def place_of(unit):
+    def place_of(unit: Unit) -> int:
         for key in (_function(unit['model']) if unit['model'] else None,
                     _function(unit['fills']) if unit['fills'] else None,
                     unit['name']):
@@ -387,7 +446,7 @@ def in_order(window, found):
     return sorted(found, key=place_of)
 
 
-def state_word(node):
+def state_word(state: int | None) -> str | None:
     """`unavailable` in front of a line whose button the game has switched off, or nothing.
 
     **A field rather than a rule per screen.** 0x02 in the state byte is `enabled` false on the
@@ -399,10 +458,10 @@ def state_word(node):
     The word goes in front, because a state that arrives after the sentence arrives too late to
     act on.
     """
-    return 'unavailable' if (node.get('state') or 0) & derive.SWITCHED_OFF else None
+    return 'unavailable' if (state or 0) & derive.SWITCHED_OFF else None
 
 
-def spoken(unit):
+def spoken(unit: Unit) -> str:
     """One unit as it is said.
 
     A number says nothing on its own: 89 is gold or prestige or a count of men, and a player who
@@ -421,10 +480,10 @@ def spoken(unit):
         label = name_of(unit['fills'])
         if label:
             said = f'{label} {said}'
-    return '{}, {}'.format(unit['state'], said) if unit.get('state') else said
+    return '{}, {}'.format(unit['state'], said) if unit['state'] else said
 
 
-def joined(found):
+def joined(found: list[Unit]) -> list[Unit]:
     """A bare number and the label beside it under the same parent are one unit, label first.
 
     **The file order puts the value before the thing it is about**, so a reader that speaks one
@@ -448,14 +507,15 @@ def joined(found):
     ancestor it shares with `Spouse` and the label sits two, and the three portraits are each built
     differently. That is not a shape to write a rule on; it belongs in a screen file.
     """
-    out, taken = [], set()
+    out: list[Unit] = []
+    taken: set[int] = set()
     for index, unit in enumerate(found):
         if index in taken:
             continue
         if not NUMBER.match(unit['text']):
             out.append(unit)
             continue
-        partner = None
+        partner: int | None = None
         for other in (index - 1, index + 1):
             if other < 0 or other >= len(found) or other in taken:
                 continue
@@ -470,11 +530,13 @@ def joined(found):
         taken.add(partner)
         if partner < index and out and out[-1] is label:
             out.pop()
-        out.append(dict(label, text='{} {}'.format(label['text'], unit['text'])))
+        merged = label.copy()
+        merged['text'] = '{} {}'.format(label['text'], unit['text'])
+        out.append(merged)
     return out
 
 
-def sentences(found, window=None):
+def sentences(found: list[Unit], window: str | None = None) -> list[Line]:
     """The units as the lines a player hears: each one what it says, and what explains it.
 
     **A line is a pair and not a string, since 20 September 2026.** The explain key needs the
@@ -493,40 +555,40 @@ def sentences(found, window=None):
     row, unless the screen file puts a key on the list - then the announcement carries the key.
     """
     found = in_order(window, joined(found)) if window else joined(found)
-    keys = screen_rules().get(window, {}).get('keys', {}) if window else {}
+    rule = screen_rules().get(window) if window else None
+    keys = rule['keys'] if rule else {}
 
-    def chain_of(unit):
-        return unit.get('models') or ((unit['model'],) if unit['model'] else ())
+    def row_at(unit: Unit, depth: int) -> str:
+        """The live widget the unit stands in at this depth of lists, or the unit itself."""
+        rows_up = unit['rows']
+        return rows_up[depth - 1] if len(rows_up) >= depth else unit['address']
 
-    out, at = [], 0
+    out: list[Line] = []
+    at = 0
     while at < len(found):
-        chain = chain_of(found[at])
+        chain = found[at]['models']
         if not chain:
             out.append({'say': spoken(found[at]), 'explain': found[at]['explain']})
             at += 1
             continue
         outer = chain[0]
-        group = []
-        while at < len(found) and chain_of(found[at])[:1] == (outer,):
+        group: list[Unit] = []
+        while at < len(found) and found[at]['models'][:1] == (outer,):
             group.append(found[at])
             at += 1
         # The rows are counted at the shallowest depth of the group, which is not always the outer
         # list itself: in the message settings every text sits one list deeper. A row is the live
         # widget the unit stands in, so the name, value and icon text of one entry count once.
-        base = min(len(chain_of(unit)) for unit in group)
+        base = min(len(unit['models']) for unit in group)
 
-        def row_at(unit, depth):
-            rows_up = unit.get('rows') or ()
-            return rows_up[depth - 1] if len(rows_up) >= depth else unit['address']
-
-        rows: dict[int, tuple[list[dict], list[dict]]] = {}
+        rows: dict[str, tuple[list[Unit], list[Unit]]] = {}
         for unit in group:
             entry = rows.setdefault(row_at(unit, base), ([], []))
-            entry[0 if len(chain_of(unit)) == base else 1].append(unit)
+            entry[0 if len(unit['models']) == base else 1].append(unit)
         # The first unit of every row, taken before the loop below pops one off a row that has no
         # unit of its own: after that pop a row with one inner unit is empty.
         firsts = [own[0] if own else inner[0] for own, inner in rows.values()]
-        lines = []
+        lines: list[Line] = []
         for own, inner in rows.values():
             said_here = [spoken(unit) for unit in own] or [spoken(inner.pop(0))]
             if inner:
@@ -537,13 +599,13 @@ def sentences(found, window=None):
                     # what the row is about.
                     said_here[-1] += ', ' + ', '.join(spoken(one) for one in inner)
                 else:
-                    word_inner = name_of(chain_of(inner[0])[base])
+                    word_inner = name_of(inner[0]['models'][base])
                     said_here[-1] += f', {len(inner_rows)} {word_inner}'
             first = own[0] if own else None
             for index, say in enumerate(said_here):
-                unit = own[index] if index < len(own) else first
-                lines.append({'say': say, 'explain': unit['explain'] if unit else None})
-        model = chain_of(firsts[0])[-1]
+                owner = own[index] if index < len(own) else first
+                lines.append({'say': say, 'explain': owner['explain'] if owner else None})
+        model = firsts[0]['models'][-1]
         word = name_of(model)
         said = keys.get(_function(model))
         if len(firsts) == 1 and not said:
@@ -556,21 +618,23 @@ def sentences(found, window=None):
     return out
 
 
-def read(window, table=None, local=None, known=None, root=None):
-    """One harvested window as the lines it says."""
-    if table is None:
-        rows = guimap.files()
-        table, local = guimap.type_table(rows)
-        known = guimap.windows(rows)
-    if root is None:
-        root = guimap.root_finder(table)
-    import json
+def read(window: str, tables: guimap.Tables | None = None) -> list[Line]:
+    """One harvested window as the lines it says.
+
+    A window the harvest could not open has a record without widgets, and that is said rather than
+    read as an empty window.
+    """
     with open(os.path.join(HARVEST, window + '.json'), encoding='utf-8') as handle:
-        record = json.load(handle)
-    return sentences(units(window, table, local, known, root, record), window)
+        loaded = json.load(handle)
+    if not loaded.get('opened'):
+        raise SystemExit(f'{window} was not opened in the harvest, so there is nothing to read')
+    record: Harvest = loaded
+    width, height = record['size']
+    return sentences(units(window, tables or guimap.tables(), record, (width, height)), window)
 
 
-def live(pid, window=None, game=None, tables=None):
+def live(pid: int, window: str | None = None, game: 'windowmap.Game | None' = None,
+         tables: guimap.Tables | None = None) -> tuple[str | None, list[Line]]:
     """The window that is on top in the running game, as the lines it says.
 
     This is the other half of the same rule: the units come from the tree of this moment instead
@@ -582,8 +646,6 @@ def live(pid, window=None, game=None, tables=None):
     seconds - a field check and a walk to the root, and the templates of some six hundred gui files - and
     neither changes while the game runs.
     """
-    import collections
-
     from tools.ck3 import openers, windowmap
 
     if game is None:
@@ -595,30 +657,31 @@ def live(pid, window=None, game=None, tables=None):
 
     index: dict[int, int] = {}
     seen: collections.Counter[int] = collections.Counter()
-    children = collections.defaultdict(list)
+    children: collections.defaultdict[int, list[int]] = collections.defaultdict(list)
     for address, node in nodes.items():
         index[address] = seen[node[5]]
         seen[node[5]] += 1
         children[node[5]].append(address)
 
-    def path(address):
-        out = []
+    def path(address: int) -> tuple[int, ...]:
+        out: list[int] = []
         while address in nodes:
             out.append(index[address])
             address = nodes[address][5]
         return tuple(reversed(out))
 
-    def shows_text(top):
-        below, stack = [], [top]
+    def shows_text(top: int) -> bool:
+        below: list[int] = []
+        stack = [top]
         while stack:
             below.append(stack.pop())
             stack.extend(children[below[-1]])
         kinds = derive.class_map(pid, {a: nodes[a][0] for a in below})
         texts = [a for a in below
-                 if kinds.get(a) == 'Textbox' and derive.strip_markup(nodes[a][7] or '').strip()]
+                 if kinds[a] in derive.TEXT_CLASSES and derive.strip_markup(nodes[a][7]).strip()]
         return bool(derive.shown(nodes, texts))
 
-    here = None
+    here: int | None = None
     if window is None:
         # A window that lets the mouse through is drawn without being a panel: `layer_window` and
         # `achievement_popup_window` stand on every screen that way, and the activity planner is
@@ -631,16 +694,11 @@ def live(pid, window=None, game=None, tables=None):
         window = nodes[here][6]
 
     record, _, _, _ = openers.live_record(game, pid, window, here, nodes)
-    if tables is None:
-        rows = guimap.files()
-        table, local = guimap.type_table(rows)
-        known = guimap.windows(rows)
-        tables = (table, local, known, guimap.root_finder(table))
-    table, local, known, root = tables
-    return window, sentences(units(window, table, local, known, root, record), window)
+    return window, sentences(units(window, tables or guimap.tables(), record,
+                                   derive.drawing_area()), window)
 
 
-def main():
+def main() -> None:
     windows = [name for name in sys.argv[1:] if not name.startswith('--')]
     aloud = '--speak' in sys.argv
 
@@ -662,15 +720,12 @@ def main():
         windows = ['ingame_resign_confirmation']
 
     start = time.time()
-    rows = guimap.files()
-    table, local = guimap.type_table(rows)
-    known = guimap.windows(rows)
-    root = guimap.root_finder(table)
-    print(f'the templates of {len(rows)} gui files, once: {time.time() - start:.1f} s')
+    tables = guimap.tables()
+    print(f'the templates of the gui files, once: {time.time() - start:.1f} s')
 
     for window in windows:
         start = time.time()
-        lines = read(window, table, local, known, root)
+        lines = read(window, tables)
         print(f'\n{window}, {len(lines)} lines, {time.time() - start:.2f} s')
         for line in lines:
             print(f"    {line['say']!s:<60} {line['explain'] or ''}")

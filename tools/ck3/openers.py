@@ -99,8 +99,6 @@ Spot = TypedDict('Spot', {
     'address': int, 'rect': list[float], 'class': str | None, 'name': str, 'calls': list[str],
     'also_does': list[str], 'why_not': str | None, 'point': NotRequired[tuple[int, int] | None]})
 
-# The expansion tables `gui_tables` reads once.
-Tables = tuple[guimap.Table, guimap.LocalTable, guimap.Known, guimap.Root]
 # A button that can take a click: its draw order, its rectangle on screen, and the widget.
 Clickable = tuple[tuple[int, ...], float, float, float, float, pairing.Harvested]
 
@@ -345,7 +343,7 @@ def fires_for(source: guimap.Node | None, goal: Goal) -> tuple[list[str], list[s
     return wanted, others
 
 
-def chain_routes(start: set[str], tables: Tables | None = None) -> list[ChainRoute]:
+def chain_routes(start: set[str], tables: guimap.Tables | None = None) -> list[ChainRoute]:
     """Which windows can be reached by acting inside a window a player can already open. Disk only.
 
     Every window in `start` is expanded, and each block's last onclick - the only one that fires -
@@ -359,7 +357,7 @@ def chain_routes(start: set[str], tables: Tables | None = None) -> list[ChainRou
     on disk can sit in a row the live window does not build, so the first source is not always
     the one that works - `culture_window` from the character finder was the case.
     """
-    table, local, known, _root = tables or gui_tables()
+    table, local, known, _root = tables or guimap.tables()
     goals = {w: goal_of(w, known) for w in known}
     found: dict[str, ChainRoute] = {}
     for source in sorted(start):
@@ -494,16 +492,8 @@ def reachable_point(buttons: list[Clickable], widget_address: int, rect: list[fl
     return None
 
 
-def gui_tables() -> Tables:
-    """The expansion tables, read once. Building them walks some six hundred files, so a sweep that rebuilds
-    them per window spends its time there instead of in the game."""
-    rows = guimap.files()
-    table, local = guimap.type_table(rows)
-    return table, local, guimap.windows(rows), guimap.root_finder(table)
-
-
 def spots_for_goal(game: windowmap.Game, pid: int, window: str, goal: Goal,
-                   tables: Tables | None = None) -> tuple[list[Spot], pairing.Record, set[str], derive.Nodes,
+                   tables: guimap.Tables | None = None) -> tuple[list[Spot], pairing.Record, set[str], derive.Nodes,
                                                           derive.Scales, dict[int, str | None]]:
     """Every widget of an open window that the files say reaches `goal`, aligned rather than guessed.
 
@@ -514,7 +504,7 @@ def spots_for_goal(game: windowmap.Game, pid: int, window: str, goal: Goal,
     is a question `on_screen` already answers.
     """
     record, nodes, scales, classes = live_record(game, pid, window)
-    table, local, known, root = tables or gui_tables()
+    table, local, known, root = tables or guimap.tables()
     out: list[Spot] = []
     acting: set[str] = set()
     for source, built, _ in pairing.pairs(window, table, local, known, root, record=record):
@@ -879,7 +869,7 @@ def chain(pid: int, window: str, target: str, press_it: bool = True) -> list[Spo
     _, _, baseline = game.state()
     if window not in baseline:
         raise SystemExit(f'{window} is not open; open it first, this only does the step inside it')
-    tables = gui_tables()
+    tables = guimap.tables()
     goal = goal_of(target, tables[2])
     if goal[0] == 'view':
         print(f'{target} is reached by opening the view {goal[1]}')

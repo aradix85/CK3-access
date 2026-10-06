@@ -65,9 +65,7 @@ def window_contents(node: guimap.Node, text: list[str], names: set[str]) -> None
 
 def check(folder: str = SCREENS) -> int:
     """Every screen file against the gui files as they are on disk right now."""
-    rows = guimap.files()
-    table, local = guimap.type_table(rows)
-    known = guimap.windows(rows)
+    table, local, known, _root = guimap.tables()
 
     gone = 0
     for path in sorted(glob.glob(os.path.join(folder, '*.screen'))):

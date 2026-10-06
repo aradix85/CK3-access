@@ -38,6 +38,10 @@ CHUNK = 0x420          # roomier than the largest widget object
 # parent address, name, text. The tree maps the address of each widget to this.
 Widget = tuple[int, float, float, float, float, int, str, str]
 Nodes = dict[int, Widget]
+# The classes whose text field is their own. On any other widget the same offset reads the
+# neighbour, because text boxes come out of one pool back to back - so filter on class before
+# believing a text.
+TEXT_CLASSES = ('Textbox', 'Editbox')
 # Per widget: its own scale, and the scale that reaches it from above.
 Scales = dict[int, tuple[float, float]]
 # Per window name: does the centring correction apply in x, and in y.

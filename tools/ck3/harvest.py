@@ -49,7 +49,7 @@ from collections.abc import Iterable
 from typing import TYPE_CHECKING, Literal, TypedDict
 
 from tools import ocr, paths, terminal, windowgrab
-from tools.ck3 import channel, derive, model, pairing, windowmap
+from tools.ck3 import channel, derive, guimap, model, pairing, windowmap
 
 if TYPE_CHECKING:
     # openers imports this module, so only the checker may see it.
@@ -190,9 +190,6 @@ def subtree(nodes: derive.Nodes, root: int) -> list[tuple[int, int, int]]:
     return out
 
 
-TEXT_CLASSES = ('Textbox', 'Editbox')
-
-
 def widget_record(nodes: derive.Nodes, address: int, depth: int, index: int, scales: derive.Scales,
                   classes: dict[int, str | None], flags: dict[int, int],
                   alphas: dict[int, float]) -> pairing.Harvested:
@@ -220,7 +217,7 @@ def widget_record(nodes: derive.Nodes, address: int, depth: int, index: int, sca
     own, above = scales.get(address, (1.0, 1.0))
     kind = classes.get(address)
     return {'address': f'{address:x}', 'parent': f'{parent:x}', 'depth': depth, 'index': index,
-            'class': kind, 'name': name, 'text': text if kind in TEXT_CLASSES else None,
+            'class': kind, 'name': name, 'text': text if kind in derive.TEXT_CLASSES else None,
             'own_rect': [x, y, width, height],
             'screen_rect': [screen_x, screen_y, drawn_width, drawn_height],
             'scale': [own, above], 'alpha': alphas.get(address),
@@ -285,7 +282,7 @@ def confirmed(tree: list[pairing.Harvested], lines: list[Recognised],
     by_address = {w['address']: w for w in tree}
     boxes = seen = offscreen = 0
     for w in tree:
-        if w['class'] not in TEXT_CLASSES or not w['text'] or w['clipped']:
+        if w['class'] not in derive.TEXT_CLASSES or not w['text'] or w['clipped']:
             continue
         want = _flat(derive.strip_markup(w['text']))
         x, y, width, height = w['screen_rect']
@@ -547,7 +544,7 @@ def stop_checks(pid: int, player: int, player_name: str | None, before: str) -> 
 
 def chain_step(game: windowmap.Game, route: 'openers.ChainRoute', source: str,
                source_row: windowmap.Route, windows: dict[str, windowmap.Route], baseline: set[str],
-               header: Header, tables: 'openers.Tables') -> tuple[list[ChainRecord] | None, str | None]:
+               header: Header, tables: guimap.Tables) -> tuple[list[ChainRecord] | None, str | None]:
     """One chain route from one of its sources: open the source along its own route, press what
     reaches the goal inside it, record the window that comes up, and put the state back. Returns
     (records or None, reason).
@@ -636,7 +633,7 @@ def chain_round(game: windowmap.Game, pid: int, windows: dict[str, windowmap.Rou
     # the click route of the situation list had become a hidden button while its new key 0 opened it.
     direct = click_routes(windows)
     direct.update({n: r for n, r in windows.items() if r.get('shortcut')})
-    tables = openers.gui_tables()
+    tables = guimap.tables()
     routes = openers.chain_routes(set(direct), tables)
     if wanted:
         routes = [r for r in routes if (r['target'] or r['view']) in wanted]

@@ -316,10 +316,7 @@ REPORT = os.path.join(paths.PROJECT, 'reports', 'pairing.json')
 def sweep() -> tuple[collections.Counter[str], collections.Counter[str], collections.Counter[str]]:
     """Every harvested window paired, as one tally. About twenty seconds for 204 windows (measured
     4 October 2026)."""
-    rows = guimap.files()
-    table, local = guimap.type_table(rows)
-    known = guimap.windows(rows)
-    root = guimap.root_finder(table)
+    table, local, known, root = guimap.tables()
     localization = guimap.localization()
 
     count: collections.Counter[str] = collections.Counter()

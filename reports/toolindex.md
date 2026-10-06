@@ -222,8 +222,9 @@ returns a pair, passed on as one thing, costs a run.
 | `type_table(rows=None)` | 2-tuple | Every template the engine knows, as name -> definition. |
 | `build(key, body, templates, overrides=None, depth=0, in_tooltip=False)` | dict of value | One widget, fully expanded: inherited defaults, mixed-in templates, slots filled. |
 | `attribute(node, key)` | value of NoneType | The value of the first attribute with this key, or None when the widget has none. |
-| `windows(rows=None)` | value | Every window on disk, as name -> (virtual path, its entry). |
+| `windows(rows=None, table=None)` | value | Every window on disk, as name -> (virtual path, its entry). |
 | `root_finder(table)` | value | Type name -> the end of its inheritance chain, remembered, because the walk repeats itself |
+| `tables()` | 4-tuple | Everything a window is expanded with, built once. |
 | `window(name, table=None, local=None, known=None)` | 2-tuple | A window resolved into a widget tree, with a Templates carrying what went wrong. |
 | `decision_widget(name, table=None, local=None, rows=None)` | 2-tuple | The own gui of a decision, resolved into a widget tree like a window. |
 | `localization(language='english')` | value | Key -> sentence, from the localization files of the game and of the active mods. |
@@ -346,7 +347,6 @@ returns a pair, passed on as one thing, costs a run.
 | `clickable_map(record, acting=None)` | value | The buttons of a window that can handle a click, with their draw order. |
 | `lands_on(buttons, point)` | value | Which widget handles a click at this point. |
 | `reachable_point(buttons, widget_address, rect, step=6)` | value of NoneType | A point on this widget that a click really reaches, or None if it is covered everywhere. |
-| `gui_tables()` | 4-tuple | The expansion tables, read once. Building them walks some six hundred files, so a sweep that rebuilds |
 | `spots_for_goal(game, pid, window, goal, tables=None)` | 6-tuple | Every widget of an open window that the files say reaches `goal`, aligned rather than guessed. |
 | `trigger_spots(row, named, nodes)` | value of list | Where the click for this row could land: the widget itself, or its nameless children. |
 | `on_screen(address, nodes, scales, classes)` | str of value of NoneType | Why this widget cannot be clicked, or None when it can. |
@@ -408,7 +408,8 @@ returns a pair, passed on as one thing, costs a run.
 
 | call | returns | does |
 |---|---|---|
-| `gui_tables()` | 4-tuple | The templates of every gui file, once. Three seconds, and they do not change while it runs. |
+| `gui_tables()` | value | The templates of every gui file, once. Three seconds, and they do not change while it runs. |
+| `toast_text(pid, containers, above)` | value | The text of the toast that is showing now, or None when none is. |
 | `keys_waiting(answer)` | list | - |
 | `loop(reader)` | nothing | Every key the game receives comes past here, swallowed or not, because the hook sits in the |
 | `give_back()` | nothing | The game gets every key back. This runs before anything is said about why. |
@@ -429,14 +430,14 @@ returns a pair, passed on as one thing, costs a run.
 | `words_table()` | value | The localisation, read once. Over a thousand files, so not per keystroke. |
 | `explanation(address, by_address, source_of, localization)` | value of NoneType | What the game would show if you could hover here: the nearest tooltip up the chain. |
 | `rows_of(node, by_address, source_of)` | value | The row this unit stands in, per list around it, outermost first, as live addresses. |
-| `units(window, table, local, known, root, record)` | value | Every unit this window says, in order, each with the list it belongs to. |
+| `units(window, tables, record, area)` | value | Every unit this window says, in order, each with the list it belongs to. |
 | `screen_rules()` | value | Per window, what a screen file adds on top of the reading rule. |
 | `in_order(window, found)` | value | The units with what a screen file names first, first. Stable, so the rest keeps its order. |
-| `state_word(node)` | value | `unavailable` in front of a line whose button the game has switched off, or nothing. |
+| `state_word(state)` | value | `unavailable` in front of a line whose button the game has switched off, or nothing. |
 | `spoken(unit)` | value | One unit as it is said. |
 | `joined(found)` | value | A bare number and the label beside it under the same parent are one unit, label first. |
 | `sentences(found, window=None)` | value | The units as the lines a player hears: each one what it says, and what explains it. |
-| `read(window, table=None, local=None, known=None, root=None)` | value | One harvested window as the lines it says. |
+| `read(window, tables=None)` | value | One harvested window as the lines it says. |
 | `live(pid, window=None, game=None, tables=None)` | 2-tuple | The window that is on top in the running game, as the lines it says. |
 | `main()` | nothing | - |
 

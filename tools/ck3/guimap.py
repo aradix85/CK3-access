@@ -58,6 +58,8 @@ Overrides = dict[str | None, list[Entry]]
 Known = dict[str, tuple[str, Entry]]
 # Type name -> the end of its inheritance chain, as `root_finder` builds it.
 Root = Callable[[str | None], str | None]
+# Everything a window is expanded with, as `tables` builds it once.
+Tables = tuple[Table, LocalTable, Known, Root]
 
 
 class GuiError(Exception):
@@ -426,7 +428,7 @@ def attribute(node: Node, key: str) -> str | None:
     return None
 
 
-def windows(rows: list[Row] | None = None) -> Known:
+def windows(rows: list[Row] | None = None, table: Table | None = None) -> Known:
     """Every window on disk, as name -> (virtual path, its entry).
 
     The same list `reports\\windows.json` is built from, but with the body attached, so a caller
@@ -454,7 +456,8 @@ def windows(rows: list[Row] | None = None) -> Known:
     the engine builds every window up front, so the live tree is the whole list.
     """
     rows = rows if rows is not None else files()
-    table, _ = type_table(rows)
+    if table is None:
+        table, _ = type_table(rows)
     root = root_finder(table)
     out: Known = {}
     for layer, virtual, full in rows:
@@ -509,6 +512,18 @@ def root_finder(table: Table) -> Root:
             known[name] = walk
         return known[name]
     return root
+
+
+def tables() -> Tables:
+    """Everything a window is expanded with, built once.
+
+    Some six hundred files, a few seconds, and nothing in them changes while the game runs, so a
+    caller that expands more than one window builds this once and hands it on. The templates are
+    read once here and handed to `windows`, which would otherwise read them a second time.
+    """
+    rows = files()
+    table, local = type_table(rows)
+    return table, local, windows(rows, table), root_finder(table)
 
 
 def window(name: str, table: Table | None = None, local: LocalTable | None = None,

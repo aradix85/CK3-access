@@ -132,9 +132,7 @@ def ordered_models(found: list[Text]) -> list[str]:
 def main() -> None:
     folder = sys.argv[1] if len(sys.argv) > 1 else os.path.join(paths.WORK, 'proposals')
     os.makedirs(folder, exist_ok=True)
-    rows = guimap.files()
-    table, local = guimap.type_table(rows)
-    known = guimap.windows(rows)
+    table, local, known, _root = guimap.tables()
     localization = guimap.localization()
 
     total, listed = 0, 0

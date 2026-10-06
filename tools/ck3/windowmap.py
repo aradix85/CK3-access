@@ -146,9 +146,7 @@ def window_bindings() -> dict[str, list[Binding]]:
     """
     from tools.ck3 import guimap
     bound = shortcut_file()
-    rows = guimap.files()
-    table, local = guimap.type_table(rows)
-    known = guimap.windows(rows)
+    table, local, known, _root = guimap.tables()
     out: collections.defaultdict[str, list[Binding]] = collections.defaultdict(list)
 
     def walk(node: guimap.Node, window: str, top: bool) -> None:
@@ -226,9 +224,10 @@ def presses_for(rows: list[Binding], bound: dict[str, str], numbers: int = 3) ->
 def shown_texts(game: 'Game', name: str, text_classes: set[int]) -> tuple[str, ...] | None:
     """The texts of window `name` that are on the screen now, in draw order; None if it is not drawn.
 
-    A text counts when no widget from it up to the window carries 0x08, the bit the game sets on
-    what a `visible` condition hides - and a tab hides its neighbours that way. Text is read only on
-    a text class, because the text field of anything else reads its neighbour in memory.
+    A text counts when `derive.shown` says it is drawn: no 0x08 from it up to the root, the bit the
+    game sets on what a `visible` condition hides - and a tab hides its neighbours that way - and
+    no byte on the way that cannot be read. Text is read only on a text class, because the text
+    field of anything else reads its neighbour in memory.
     """
     from tools.ck3 import harvest
     nodes = game.tree()
@@ -238,15 +237,10 @@ def shown_texts(game: 'Game', name: str, text_classes: set[int]) -> tuple[str, .
         return None
     if len(drawn) > 1:
         raise SystemExit(f'{len(drawn)} drawn windows are called {name}; which one to read is not decided')
-    below = [a for a, _, _ in harvest.subtree(nodes, drawn[0])]
-    flags = derive.flags_for(below)
-    hidden: set[int] = set()
-    for address in below:
-        parent = nodes[address][5]
-        if flags.get(address, 0) & 0x08 or parent in hidden:
-            hidden.add(address)
-    return tuple(derive.strip_markup(nodes[a][7]) for a in below
-                 if a not in hidden and nodes[a][0] in text_classes and nodes[a][7])
+    texts = [a for a, _, _ in harvest.subtree(nodes, drawn[0])
+             if nodes[a][0] in text_classes and nodes[a][7]]
+    visible = derive.shown(nodes, texts)
+    return tuple(derive.strip_markup(nodes[a][7]) for a in texts if a in visible)
 
 
 def window_keys_round(game: 'Game', names: list[str]) -> dict[str, str | list[tuple[str, str, str]]]:
@@ -265,7 +259,7 @@ def window_keys_round(game: 'Game', names: list[str]) -> dict[str, str | list[tu
     bound = {n: k for n, k in shortcut_file().items() if k.strip()}
     plan = window_bindings()
     base = vtablemap.module_base(game.pid)
-    text_classes = {base + v for name in ('Textbox', 'Editbox')
+    text_classes = {base + v for name in derive.TEXT_CLASSES
                     for v in memory.vtables_by_name(name) or []}
 
     def drawn_texts(name: str) -> tuple[str, ...]:
