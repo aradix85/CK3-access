@@ -83,14 +83,6 @@ returns a pair, passed on as one thing, costs a run.
 | `sha256(path)` | value | - |
 | `main()` | nothing | - |
 
-## screenshot.py
-*Captures the screen or a crop of it, small enough to read back.*
-
-| call | returns | does |
-|---|---|---|
-| `capture(path=DEFAULT, box=None, scale=0.5, quality=60)` | 2-tuple | box is (left, top, right, bottom) in screen points, or None for the whole screen. |
-| `diff(box=None, pause=0.4)` | 2-tuple | Captures the same crop twice and counts how many pixels changed. |
-
 ## terminal.py
 *What a script prints, readable whatever the game holds.*
 

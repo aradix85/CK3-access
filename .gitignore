@@ -34,18 +34,12 @@ reports/rtti_typen.txt
 # The pattern also covers a parked round kept for comparison, such as harvest-2026-08-24-*.
 harvest*/
 
-# Not published: other people's work without a licence.
-# The key script is Agami's OCR mod script with a change of our own; her repo has no licence
-# file, so it cannot be shipped. See CREDITS.md.
-CK3 toetsen.ahk
-
 # Not published: it only reads the maintainer's working notes, which are not in this repository.
 # On a clone it would find nothing and report nothing, which is worse than absent - a tool that
 # always answers "clean" teaches you to trust it.
 tools/docsearch.py
 
 # third-party binaries that do not belong here
-tools/autohotkey/
 tools/ocr_models/
 tools/nvda/nvdaControllerClient.dll
 tools/nvda/*.exe
