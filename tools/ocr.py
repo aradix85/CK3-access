@@ -25,12 +25,11 @@ try:
     from rapidocr.ch_ppocr_rec.typings import TextRecOutput
     from rapidocr.utils.output import RapidOCROutput
 except ModuleNotFoundError as missing:
-    # The Python session of the radix-mcp server is its own venv, and the recogniser is left out of
-    # it on purpose: a second copy of the whole stack can drift from hers without a word. So say
-    # where to run instead of falling over three imports deep, where it reads as a broken project.
-    raise SystemExit(f'the text recogniser is not installed in this Python ({missing.name} is missing, {sys.executable}). That '
-                     'is the venv of the radix-mcp server; run this through pwsh, which starts her '
-                     'own Python where it is.') from None
+    # The recogniser lives only in her Python 3.12, which both pwsh and the radix-mcp Python session
+    # start; a second copy of the whole stack could drift from hers without a word. So say where to
+    # run instead of falling over three imports deep, where it reads as a broken project.
+    raise SystemExit(f'the text recogniser is not installed in this Python ({missing.name} is missing, {sys.executable}). '
+                     'Run this with her own Python 3.12, which python in pwsh starts.') from None
 
 ctypes.windll.user32.SetProcessDPIAware()
 
