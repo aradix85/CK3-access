@@ -685,12 +685,12 @@
   "counting_rule": "widgets inside those boxes carrying onclick, onrightclick, shortcut or ondoubleclick - exactly one per box, the building_button itself, so nothing drawn over it can swallow a click"
  },
  {
-  "name": "ledger building buttons that still reach the holding view",
-  "claimed": 0,
+  "name": "ledger building buttons that call the holding view",
+  "claimed": 18,
   "measure": "ledger_buildings",
   "arguments": [
    "opens_holding_view"
   ],
-  "counting_rule": "of those acting widgets, the ones whose surviving action names holding_view; the call on line 8338 is overwritten by the onclick on 8339, so this is zero and the last untried route to the holding view is shut"
+  "counting_rule": "of those acting widgets, the ones with an action that names holding_view. A click fires every onclick of a block (measured 21 October 2026), so each box calls the holding view first and GUIBuildingItem.OnClick after it"
  }
 ]

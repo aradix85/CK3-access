@@ -5,6 +5,7 @@ Outcomes, newest first. No release yet.
 ## 2026-10-21 — CK3 1.20.1.1
 - When the game ends while the reader runs, closed or crashed, the reader stops without a word: a link that breaks and stays shut is `channel.Gone`, and a broken pipe is noticed at once instead of after the timeout.
 - "No window to read" is said only in answer to a key: a game shutting down clears its windows seconds before it ends.
+- A click and a shortcut both fire every onclick of a block, in order, measured on the game; `openers` and the ledger claim in `check.py` counted only the last one, and the holding view opens with Alt+S after all.
 - `openers` reads the gui files through `guimap` instead of counting braces itself; it now also finds the legends button, whose name has no quotes.
 - What the tree walk loses is named in the terminal with the widgets above it, so a text cut short says where it is.
 - `quit_game` answers yes when Escape raises the game's own question (the activity planner asks whether its plan may go), and says whether the game wrote its exit save.

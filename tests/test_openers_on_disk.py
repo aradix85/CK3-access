@@ -46,3 +46,12 @@ def test_a_name_without_quotes_is_a_name() -> None:
 def test_a_nameless_button_is_answered_for_by_its_parent() -> None:
     found, beneath = rows(UNDER)
     assert not found and beneath['holder']['target'] == 'ledger' and beneath['holder']['under']
+
+
+def test_every_onclick_fires_not_only_the_last() -> None:
+    """Measured 21 October 2026: a click and a shortcut fire every onclick of a block, in order.
+    The ledger's own shortcut button opens the ledger first and folds the menu after it."""
+    first, second = "[ToggleGameView('ledger')]", "[GetVariableSystem.Clear( 'extra_buttons_expand' )]"
+    source: guimap.Node = {'type': 'button_normal', 'children': [], 'truncated': False,
+                           'attrs': [('name', 'ledger_shortcut'), ('onclick', first), ('onclick', second)]}
+    assert openers.fires_for(source, ('view', 'ledger', None)) == ([first], [f'onclick: {second}'])

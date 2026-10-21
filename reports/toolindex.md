@@ -334,7 +334,7 @@ returns a pair, passed on as one thing, costs a run.
 | `live_record(game, pid, window, address=None, nodes=None)` | 4-tuple | The widgets of the window that is drawn right now, in the shape the harvest writes them and |
 | `goal_of(target, known=None)` | 3-tuple | What has to happen before `target` is drawn: a view opens, or a variable is set. |
 | `reaches(value, goal)` | value of bool | Does this onclick reach the goal? Setting a variable counts, clearing it does not. |
-| `fires_for(source, goal)` | 2-tuple | The call this disk block really fires, split into the one that reaches `goal` and the rest. |
+| `fires_for(source, goal)` | 2-tuple | Every call this disk block fires, split into the ones that reach `goal` and the rest. |
 | `chain_routes(start, tables=None)` | value | Which windows can be reached by acting inside a window a player can already open. Disk only. |
 | `draw_order(record)` | value | Address -> its path of sibling numbers from the window down, which is the drawing order. |
 | `clickable_map(record, acting=None)` | value | The buttons of a window that can handle a click, with their draw order. |

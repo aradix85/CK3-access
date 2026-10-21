@@ -167,20 +167,20 @@ _LEDGER: dict[str, int] = {}
 def ledger_buildings(what: str) -> int:
     """What a building box in the ledger can actually do when it is clicked.
 
-    **This claim exists because a door was called open for a fortnight on a
-    reading of the file.** `window_ledger.gui` gives `building_button` two
-    onclicks: line 8338 opens `holding_view`, line 8339 calls
-    `GUIBuildingItem.OnClick`. Two keys in one block mean the later one wins, so
-    the expansion keeps only the second and the holding view is never opened -
-    the same shadowing that killed the camp window's move button. Measured
-    13 September 2026 and confirmed by three clicks on three different boxes in
-    the running game, none of which drew `holding_view`.
+    `window_ledger.gui` gives `building_button` two onclicks: the first opens
+    `holding_view`, the second calls `GUIBuildingItem.OnClick`. **A click fires
+    both, in order** (measured 21 October 2026, `openers.fires_for`), so every box
+    calls the holding view. This count said zero from 13 September until then: it
+    kept only the last action per key, on three clicks that drew no
+    `holding_view` - while a window counted as drawn only at state byte zero, and
+    the open holding view carries 0x20. Whether the second call undoes the first
+    is measured with `derive.shown`, not read off the file.
 
     `boxes` counts `widget_building_item_ledger` nodes in the expanded ledger.
     `acting` counts widgets inside those boxes carrying onclick, onrightclick,
     shortcut or ondoubleclick - one per box, so nothing lies on top that could
-    swallow the click. `opens_holding_view` counts the ones that still reach the
-    holding view, and it is the number that shuts the door.
+    swallow the click. `opens_holding_view` counts the ones that call the
+    holding view among their actions.
     """
     from tools.ck3 import guimap
     doing = ('onclick', 'onrightclick', 'shortcut', 'ondoubleclick')
@@ -197,8 +197,7 @@ def ledger_buildings(what: str) -> int:
         reaching = 0
         for box in boxes:
             for node in walk(box):
-                pairs = {k: v for k, v in node['attrs'] if k}
-                actions = [pairs[k] for k in doing if k in pairs]
+                actions = [value for key, value in node['attrs'] if key in doing and value]
                 if actions:
                     acting += 1
                 if any('holding_view' in str(value) for value in actions):

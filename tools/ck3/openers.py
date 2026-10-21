@@ -291,15 +291,16 @@ def reaches(value: str, goal: Goal) -> bool:
 
 
 def fires_for(source: guimap.Node | None, goal: Goal) -> tuple[list[str], list[str]]:
-    """The call this disk block really fires, split into the one that reaches `goal` and the rest.
+    """Every call this disk block fires, split into the ones that reach `goal` and the rest.
 
-    **A block may write `onclick` twice, and only the last one counts.** That is not a detail: in
-    `window_ledger.gui` both orders occur. One row lists the `holding_view` call first and a coat
-    of arms handler after it, another lists them the other way round, and the engine keeps the
-    later definition - the same last-wins rule that decides which mod redefines a template. Taking
-    any occurrence therefore points at rows that cannot open anything, and pressing one is a click
-    that lands somewhere and does something else. Measured 30 August 2026: of the 26 ledger rows
-    the files hang a `holding_view` call on, pressing one whose call is shadowed opened nothing.
+    **A click and a shortcut both fire every onclick of a block, in order.** Measured 21 October
+    2026 on 1.20.1.1 with `derive.shown` and the screen as witnesses: a click on "Go to Capital"
+    moved the camera and folded the menu it sits in, its two calls; the shortcuts L and Alt+S each
+    did both of theirs, while a shortcut with one call left the menu standing. The rule that only
+    the last one counts was read off clicks made while only a state byte of zero counted as drawn,
+    and the holding view it was about carries 0x20 when it is open. The rest is reported beside
+    the call that reaches the goal, because it can undo it: the domicile window's move button opens
+    the planner and then closes the domicile window.
 
     **The accept test of `buttons_on_disk` is deliberately not used here, and that is the point of
     this route.** That one takes a widget only when its onclick is a view-opening call and nothing
@@ -309,16 +310,11 @@ def fires_for(source: guimap.Node | None, goal: Goal) -> tuple[list[str], list[s
     """
     if source is None:
         return [], []
-    last: dict[str, str] = {}
+    wanted: list[str] = []
     others: list[str] = []
     for key, value in source['attrs']:
         if key not in ('onclick', 'onrightclick') or not value:
             continue
-        if key in last:
-            others.append(f'shadowed {key}: {last[key]}')
-        last[key] = value
-    wanted: list[str] = []
-    for key, value in last.items():
         if key == 'onclick' and reaches(value, goal):
             wanted.append(value)
         else:
@@ -329,16 +325,14 @@ def fires_for(source: guimap.Node | None, goal: Goal) -> tuple[list[str], list[s
 def chain_routes(start: set[str], tables: guimap.Tables | None = None) -> list[ChainRoute]:
     """Which windows can be reached by acting inside a window a player can already open. Disk only.
 
-    Every window in `start` is expanded, and each block's last onclick - the only one that fires -
-    is asked whether it reaches the goal of another window (`goal_of`, `reaches`). A call that opens
-    a view whose name is no window name comes back as well, without a target: which window the
-    engine puts behind such a view is not on disk, so pressing it is the measurement.
+    Every window in `start` is expanded, and every onclick of each block - a click fires them all
+    (`fires_for`) - is asked whether it reaches the goal of another window (`goal_of`, `reaches`). A
+    call that opens a view whose name is no window name comes back as well, without a target: which
+    window the engine puts behind such a view is not on disk, so pressing it is the measurement.
 
-    Counted 21 September 2026 from the twenty windows a player route had opened: nine windows by
-    name, one of them the holding view that is measured dead, and nineteen views without a window
-    name. One row per target or view, with every source that offers it, in sorted order: a call
-    on disk can sit in a row the live window does not build, so the first source is not always
-    the one that works - `culture_window` from the character finder was the case.
+    One row per target or view, with every source that offers it, in sorted order: a call on disk
+    can sit in a row the live window does not build, so the first source is not always the one
+    that works - `culture_window` from the character finder was the case.
     """
     table, local, known, _root = tables or guimap.tables()
     goals = {w: goal_of(w, known) for w in known}
@@ -349,25 +343,28 @@ def chain_routes(start: set[str], tables: guimap.Tables | None = None) -> list[C
         while stack:
             node = stack.pop()
             stack.extend(node['children'])
-            last = None
             for key, value in node['attrs']:
-                if key == 'onclick' and value:
-                    last = value
-            if not last:
-                continue
-            for target, goal in goals.items():
-                if target not in start and reaches(last, goal):
-                    row = found.setdefault(target, {'target': target, 'sources': [], 'goal': goal,
-                                                    'view': None})
-                    if source not in row['sources']:
-                        row['sources'].append(source)
-            for view in VIEW_CALL.findall(last):
-                if view not in known:
-                    row = found.setdefault(view, {'target': None, 'sources': [],
-                                                  'goal': ('view', view, None), 'view': view})
-                    if source not in row['sources']:
-                        row['sources'].append(source)
+                if key != 'onclick' or not value:
+                    continue
+                _offer(found, source, value, goals, start, known)
     return sorted(found.values(), key=lambda row: (row['view'] or '', row['target'] or ''))
+
+
+def _offer(found: dict[str, ChainRoute], source: str, call: str, goals: dict[str, Goal],
+           start: set[str], known: guimap.Known) -> None:
+    """Every target and every unnamed view this one call brings up from `source`."""
+    for target, goal in goals.items():
+        if target not in start and reaches(call, goal):
+            row = found.setdefault(target, {'target': target, 'sources': [], 'goal': goal,
+                                            'view': None})
+            if source not in row['sources']:
+                row['sources'].append(source)
+    for view in VIEW_CALL.findall(call):
+        if view not in known:
+            row = found.setdefault(view, {'target': None, 'sources': [],
+                                          'goal': ('view', view, None), 'view': view})
+            if source not in row['sources']:
+                row['sources'].append(source)
 
 
 def draw_order(record: pairing.Record) -> dict[str, tuple[int, ...]]:
