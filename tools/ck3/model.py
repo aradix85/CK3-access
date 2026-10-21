@@ -573,7 +573,10 @@ def derive_player(pid: int, number: int) -> list[int]:
     # One state leaves coincidences in: on 1.20.0.3 the 1066 player, 32769, sat in 27 places and the
     # 867 player in 8, and only 6 held both. So a second derivation on the same build keeps the
     # places both states agree on, and says which characters it rests on.
-    earlier = (model.get('player_spots') if model.get('key') == derive.build_key() else None) or []
+    # The spots carry their own build key. The file's `key` moves whenever `anchor` derives one
+    # global again, and on 21 October 2026 it had moved to 1.20.1.1 over the spots of 1.20.0.3,
+    # which this would have taken for an earlier derivation on the same build.
+    earlier = (model.get('player_spots') if model.get('player_key') == derive.build_key() else None) or []
     if earlier:
         both = sorted(set(spots) & {int(spot, 16) for spot in earlier})
         if not both:
@@ -581,6 +584,7 @@ def derive_player(pid: int, number: int) -> list[int]:
                              'the player is kept somewhere else, or one of the two was not loaded')
         spots = both
     model['key'] = derive.build_key()
+    model['player_key'] = derive.build_key()
     model['player_spots'] = [f'{spot:x}' for spot in sorted(spots)]
     model['player_derived_on'] = time.strftime('%Y-%m-%d %H:%M') + f' against character {int(number)}' \
         + (', keeping the places that also held the player before ({})'.format(model.get('player_derived_on', '?')) if earlier else '')
@@ -597,7 +601,7 @@ def player(pid: int) -> tuple[int, str | None]:
     the windows are there - and everything measured after it is about somebody else.
     """
     model = stored()
-    if model is None or not model.get('player_spots'):
+    if model is None or model.get('player_key') != derive.build_key() or not model.get('player_spots'):
         raise SystemExit('there is no derivation of where the player is kept for this build; '
                          'run `python -m tools.ck3.model <pid> --player <save>` on the state '
                          'that save belongs to')

@@ -67,6 +67,7 @@ class Model(TypedDict, total=False):
     evidence: dict[str, str]
     derived_on: str
     player_spots: list[str]
+    player_key: str             # the build the player spots hold for; `key` moves with any global
     player_derived_on: str
     databases: dict[str, dict[str, int]]
 

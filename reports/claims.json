@@ -241,7 +241,7 @@
  },
  {
   "name": "files that go into the repo",
-  "claimed": 78,
+  "claimed": 79,
   "measure": "repo_files",
   "counting_rule": "files under the project folder that .gitignore does not exclude, the same set git ls-files plus git ls-files --others --exclude-standard gives"
  },
@@ -552,16 +552,16 @@
  },
  {
   "name": "titles in landed_titles",
-  "claimed": 17675,
+  "claimed": 17681,
   "measure": "map_layer",
   "arguments": [
    "titles"
   ],
-  "counting_rule": "blocks in landed_titles whose key starts with a tier letter, at every level of the nesting, mods merged in load order"
+  "counting_rule": "blocks in landed_titles whose key starts with a tier letter, at every level of the nesting, mods merged in load order; the hegemony tier h_ counts since 21 October 2026, when the running game showed its first titles are hegemonies, and that adds 6"
  },
  {
   "name": "titles that name a capital",
-  "claimed": 2862,
+  "claimed": 2867,
   "measure": "map_layer",
   "arguments": [
    "capitals"
@@ -571,7 +571,7 @@
  },
  {
   "name": "titles that resolve to a county",
-  "claimed": 17635,
+  "claimed": 17640,
   "measure": "map_layer",
   "arguments": [
    "placed"

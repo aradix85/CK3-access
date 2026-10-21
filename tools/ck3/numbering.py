@@ -33,7 +33,9 @@ K = TypeVar('K')
 
 # The class of each database, and which of the three shapes it has.
 CLASSES = {
-    'culture': ('.?AV?$TPdxRefDatabase@VCCulture@@$07@@', 'blocks'),
+    # Since 1.20 a culture record holds no key, only the names a player sees, and a pointer to its
+    # template, which carries the key the save calls culture_template.
+    'culture': ('.?AV?$TPdxRefDatabase@VCCulture@@$07@@', 'indirect'),
     'faith': ('.?AV?$TPdxRefDatabase@VCFaith@@$07@@', 'blocks'),
     'religion': ('.?AV?$TPdxRefDatabase@VCReligion@@$07@@', 'blocks'),
     # Since 1.20 a character carries a rite and the faith follows from it.
@@ -71,8 +73,13 @@ def _key_test(known: set[str]) -> re.Pattern[str]:
     So the character set is the one the files use for this database, and a rejection now means
     the game holds a key no file could have written. It stays a real test: the offsets that lose
     here read struct padding and pointer halves, which carry bytes no key does.
+
+    **Plus digits and the underscore, because the game names what it founds itself.** On 1.20 a
+    faith founds rites while it grows, and the game calls them `dynamic_rite_151`: no rite key on
+    disk has a digit, so the fifth rejection threw away a perfect reading of the rites (measured
+    21 October 2026 on the played Ghur, 1.20.1.1).
     """
-    letters = ''.join(sorted(set(''.join(known))))
+    letters = ''.join(sorted(set(''.join(known)) | set('0123456789_')))
     return re.compile(f'^[A-Za-z][{re.escape(letters)}]+$')
 
 
@@ -207,15 +214,46 @@ def _key_at(chunk: bytes, at: int, shaped: re.Pattern[str]) -> bool:
     return model.long_string_at(chunk, at) is not None
 
 
-def _step(spots: list[int]) -> int:
-    """The record length: the distance that turns up most often between two keys in a row."""
+def _strides(spots: list[int], how_many: int) -> list[int]:
+    """The distances that turn up most often between two marks in a row, commonest first."""
     counts: dict[int, int] = {}
     for i, first in enumerate(spots):
         for second in spots[i + 1:i + 40]:
             counts[second - first] = counts.get(second - first, 0) + 1
     if not counts:
         raise SystemExit('no key at all in this block')
-    return max(counts, key=counts.__getitem__)
+    return sorted(counts, key=lambda distance: (-counts[distance], distance))[:how_many]
+
+
+def _step(spots: list[int]) -> int:
+    """The record length: the distance that turns up most often between two keys in a row."""
+    return _strides(spots, 1)[0]
+
+
+def _own_number_strides(block: bytes, rows: int) -> list[int]:
+    """Record lengths at which a record's own slot number comes back, shortest first.
+
+    A record of a ref database carries its own number - a character at +24 with a generation in the
+    high byte (`model.py`), a culture at +16. Spacing between pointers is no measure when a record
+    holds repeating inner structures: in a culture record the commonest pointer distance is 104,
+    and its 1848 bytes were not among the twenty commonest (measured 21 October 2026, 1.20.1.1).
+    Each length found here still has to read keys the files carry before it counts.
+    """
+    words = len(block) // 4
+    value = [v & 0xFFFFFF for v in struct.unpack_from(f'<{words}I', block)]
+    twos = {i for i, v in enumerate(value) if v == 2}
+    found: set[int] = set()
+    for one in (i for i, v in enumerate(value) if v == 1):
+        for stride in range(2, min(words - one, 4096), 2):         # whole words, records 8-aligned
+            start = one - stride
+            if one + stride not in twos or start < 0:
+                continue
+            seen = min(rows, (words - start) // stride)
+            if seen >= 4 and all(value[start + n * stride] == n for n in range(seen)):
+                found.add(stride * 4)
+    if not found:
+        raise SystemExit('no record in this block carries its own number')
+    return sorted(found)
 
 
 def _winner(scores: dict[K, int], what: str) -> K:
@@ -253,8 +291,11 @@ def _derive_blocks(address: int, known: set[str]) -> Layout:
     filled = struct.unpack_from('<I', head, HEAD['count'])[0]
     first = struct.unpack('<Q', derive.read_known(table, 8))[0]
     block = derive.read_known(first, CHUNK)
-    shaped = _key_test(known)
-    spots = [at for at in range(0, len(block) - STRING, 8) if _key_at(block, at, shaped)]
+    # The spacing of keys the files carry, not of anything shaped like a key: on 1.20 a religion,
+    # faith or rite record also holds strings that only look like one, and the commonest distance
+    # between all of them was not the record (measured 2 October 2026 on a state begun in 1.20).
+    texts = model.names_of({at: block[at:at + STRING] for at in range(0, len(block) - STRING, 8)}, 0)
+    spots = sorted(at for at, text in texts.items() if text in known)
     record = _step(spots)
     # A block holds a thousand slots and a state fills far fewer, so only the filled ones count.
     # Religion has 424 bytes to a record: 154 of them fit in the chunk and 49 are filled, and
@@ -316,11 +357,9 @@ def _pointers_at(block: bytes, at: int, rows: int, record: int) -> dict[int, int
 def _derive_indirect(address: int, known: set[str]) -> Layout:
     """A block database whose record holds no key but a pointer to the object that carries one.
 
-    The record length comes from the spacing of the pointers, the same way the block shape takes
-    it from the spacing of the keys: every record has the same layout, so the distance that turns
-    up most often between two pointer-shaped values is the record. Which of the pointers is the
-    one, and where the key sits behind it, is settled by the files on disk - exactly one pair
-    yields keys the files carry.
+    The record length comes from the record's own number, which comes back once per record
+    (`_own_number_strides`). Which length, which pointer, and where the key sits behind it, is
+    settled by the files on disk: the combination that reads the most keys they carry.
 
     **The offset is kept relative to the pointer's value and not to the object it belongs to.**
     Measured 1 September 2026: a title record points eight bytes past the start of its object,
@@ -334,27 +373,42 @@ def _derive_indirect(address: int, known: set[str]) -> Layout:
     block = derive.read_known(first, CHUNK)
     spots = [at for at in range(0, len(block) - 8, 8)
              if POINTER[0] <= struct.unpack_from('<Q', block, at)[0] < POINTER[1]]
-    record = _step(spots)
-    rows = min(filled, len(block) // record, SAMPLE)
     shaped = _key_test(known)
-    scores: dict[tuple[int, int], int] = {}
-    for at in sorted({spot % record for spot in spots}):
-        targets = _pointers_at(block, at, rows, record)
-        if not targets:
-            continue
-        chunks = model.readmany(sorted(set(targets.values())), 512)
-        by_slot = {n: chunks[where] for n, where in targets.items() if where in chunks}
-        if len(by_slot) < rows:
-            continue
-        for inside in sorted({spot for one in by_slot.values()
-                              for spot in range(0, 512 - STRING, 8) if _key_at(one, spot, shaped)}):
-            hits = _agrees(by_slot, inside, known)
-            if hits:
-                scores[(at, inside)] = hits
-    if not scores:
+    readings: dict[tuple[int, int, int], dict[int, str]] = {}
+    for record in _own_number_strides(block, min(filled, SAMPLE)):
+        rows = min(filled, len(block) // record, SAMPLE)
+        for at in sorted({spot % record for spot in spots}):
+            targets = _pointers_at(block, at, rows, record)
+            if not targets:
+                continue
+            chunks = model.readmany(sorted(set(targets.values())), 512)
+            by_slot = {n: chunks[where] for n, where in targets.items() if where in chunks}
+            if len(by_slot) < rows:
+                continue
+            for inside in sorted({spot for one in by_slot.values()
+                                  for spot in range(0, 512 - STRING, 8) if _key_at(one, spot, shaped)}):
+                texts = model.names_of(by_slot, inside)
+                if texts and _agrees(by_slot, inside, known):
+                    readings[(record, at, inside)] = texts
+    if not readings:
         raise SystemExit('no pointer in a record of this database leads to a key on disk')
-    at, inside = _winner(scores, 'pointer to the key')
-    return {'record': record, 'pointer': at, 'key': inside}
+    return dict(zip(('record', 'pointer', 'key'), _one_reading(readings), strict=True))
+
+
+def _one_reading(readings: dict[tuple[int, int, int], dict[int, str]]) -> tuple[int, int, int]:
+    """Of the (record, pointer, key) that read keys the files carry, the one that reads the most.
+
+    A longer record reads fewer rows, so a multiple of the true one loses on its own. Two pointers
+    can tie, and a tie is a failure unless both read exactly the same keys: a culture record holds
+    two ways to its template (measured 21 October 2026), and then the key nearest to where its
+    pointer points is read, so the choice is the same every time.
+    """
+    best = max(len(texts) for texts in readings.values())
+    tied = sorted((key for key, texts in readings.items() if len(texts) == best), key=lambda k: (k[2], k[1], k[0]))
+    first = readings[tied[0]]
+    if any(readings[other] != first for other in tied[1:]):
+        raise SystemExit(f'{len(tied)} pointers lead to keys equally well and read different ones')
+    return tied[0]
 
 
 def _stored(kind: str) -> Layout | None:

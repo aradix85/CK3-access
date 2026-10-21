@@ -154,7 +154,10 @@ def province_kinds() -> dict[int, str]:
     return out
 
 
-TIERS = {'e': 'empire', 'k': 'kingdom', 'd': 'duchy', 'c': 'county', 'b': 'barony'}
+# Hegemony sits above empire: `h_china` holds empires, `h_roman_empire` stands alone. Without it the
+# running game's first titles read as keys no file carries, and every Chinese chain lacked its top
+# (measured 21 October 2026, 1.20.1.1).
+TIERS = {'h': 'hegemony', 'e': 'empire', 'k': 'kingdom', 'd': 'duchy', 'c': 'county', 'b': 'barony'}
 
 
 class Title(TypedDict, total=False):
