@@ -74,6 +74,7 @@ returns a pair, passed on as one thing, costs a run.
 
 | call | returns | does |
 |---|---|---|
+| `registry_value(branch, key, field, view=0)` | value of NoneType | One value from the registry, or None when the key or the value is not there. |
 | `mod_folders()` | list of value | The folders of the mods that are switched on, in load order. |
 | `require(name)` | value | Return a path, or stop with a sentence saying what needs to happen. |
 

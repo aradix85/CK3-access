@@ -448,7 +448,7 @@ def lands_on(buttons: list[Clickable], point: tuple[int, int]) -> pairing.Harves
     is under it.
     """
     best = None
-    for path, x, y, width, height, widget in buttons:
+    for _, x, y, width, height, widget in buttons:
         if x <= point[0] < x + width and y <= point[1] < y + height:
             best = widget
     return best

@@ -21,21 +21,28 @@ def _from_env(name: str) -> str | None:
     return value if value and os.path.isdir(value) else None
 
 
+def registry_value(branch: int, key: str, field: str, view: int = 0) -> str | None:
+    """One value from the registry, or None when the key or the value is not there.
+
+    The registry is outside input, and there absence is an answer: Steam writes one of its two
+    keys, and an uninstall entry may lack a field. Any other refusal still breaks.
+    """
+    try:
+        with winreg.OpenKey(branch, key, 0, winreg.KEY_READ | view) as k:
+            value: str = winreg.QueryValueEx(k, field)[0]
+            return value
+    except FileNotFoundError:
+        return None
+
+
 def _steam_libraries() -> list[str]:
     """The Steam folders from the registry and from `libraryfolders.vdf`; a player may use
     more than one drive."""
-    folders: list[str] = []
-    for branch, build_key in ((winreg.HKEY_CURRENT_USER, r'Software\Valve\Steam'),
-                         (winreg.HKEY_LOCAL_MACHINE, r'SOFTWARE\WOW6432Node\Valve\Steam')):
-        try:
-            with winreg.OpenKey(branch, build_key) as k:
-                for field in ('SteamPath', 'InstallPath'):
-                    try:
-                        folders.append(winreg.QueryValueEx(k, field)[0])
-                    except OSError:
-                        pass
-        except OSError:
-            pass
+    folders = [folder
+               for branch, key in ((winreg.HKEY_CURRENT_USER, r'Software\Valve\Steam'),
+                                   (winreg.HKEY_LOCAL_MACHINE, r'SOFTWARE\WOW6432Node\Valve\Steam'))
+               for field in ('SteamPath', 'InstallPath')
+               if (folder := registry_value(branch, key, field))]
     out = []
     for base in folders:
         out.append(base)
@@ -62,13 +69,10 @@ def _find_game() -> str | None:
 def _find_docs() -> str | None:
     """The Documents folder comes from the registry, because it can be moved or redirected
     (OneDrive) and is named differently on a non-English Windows."""
-    base: str | None = None
-    try:
-        build_key = r'Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders'
-        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, build_key) as k:
-            base = os.path.expandvars(winreg.QueryValueEx(k, 'Personal')[0])
-    except OSError:
-        pass
+    personal = registry_value(winreg.HKEY_CURRENT_USER,
+                              r'Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders',
+                              'Personal')
+    base = os.path.expandvars(personal) if personal else None
     for candidate in (base, os.path.join(os.path.expanduser('~'), 'Documents'),
                       os.path.join(os.path.expanduser('~'), 'Documenten')):
         if candidate:

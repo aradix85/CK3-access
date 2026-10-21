@@ -3,6 +3,8 @@
 Outcomes, newest first. No release yet.
 
 ## 2026-10-21 — CK3 1.20.1.1 and 1.20.1.2
+- ruff and clang-tidy enforce the rules for code: sixteen ruff rules and twelve clang-tidy checks for silent or blind catches and dead code, each seen to fire on a planted fault; seven silent catches, two lost causes and nine unused names fixed, and the registry is read in one place (`paths.registry_value`).
+- On 1.20.1.2 all nineteen fields of the game model agree with a save written from the loaded state.
 - Checked against 1.20.1.2 on disk and in the game: ck3.exe is 2048 bytes larger and the gui carries one expansion check fewer; the nine field offsets, the game model, where the player is kept, the numbering and the window map hold, and the globals that moved were derived again by themselves.
 - The window map's drawn flags of sixteen windows are measured again with today's rule: eleven windows the console builds are drawn while carrying 0x20, among them the planners and the holding view, which the rule before 3 October had called not drawn.
 - `GUI.CreateWidget` finds a window at any depth of a file except inside a `types` block, so six nested windows have a console route too: 204 in all.

@@ -460,7 +460,7 @@ def windows(rows: list[Row] | None = None, table: Table | None = None) -> Known:
         table, _ = type_table(rows)
     root = root_finder(table)
     out: Known = {}
-    for layer, virtual, full in rows:
+    for _, virtual, full in rows:
         entries = read(full)
         for entry in walk(entries):
             if entry['key'] != 'window' or not entry['body']:

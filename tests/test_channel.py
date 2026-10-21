@@ -321,19 +321,23 @@ def clang_tidy() -> str | None:
     registry views are walked because a 32-bit and a 64-bit installer each write their own.
     """
     import winreg
+
+    from tools.paths import registry_value
     uninstall = r'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall'
     for view in (winreg.KEY_WOW64_64KEY, winreg.KEY_WOW64_32KEY):
         with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, uninstall, 0, winreg.KEY_READ | view) as root:
-            for i in range(winreg.QueryInfoKey(root)[0]):
-                with winreg.OpenKey(root, winreg.EnumKey(root, i)) as entry:
-                    try:
-                        name = winreg.QueryValueEx(entry, 'DisplayName')[0]
-                        where = winreg.QueryValueEx(entry, 'InstallLocation')[0]
-                    except OSError:         # most entries lack one of the two
-                        continue
-                found = os.path.join(where, 'bin', 'clang-tidy.exe')
-                if name == 'LLVM' and os.path.exists(found):
-                    return found
+            entries = [winreg.EnumKey(root, i) for i in range(winreg.QueryInfoKey(root)[0])]
+        for entry in entries:
+            # Most entries lack one of the two, and then there is nothing to find there.
+            key = rf'{uninstall}\{entry}'
+            if registry_value(winreg.HKEY_LOCAL_MACHINE, key, 'DisplayName', view) != 'LLVM':
+                continue
+            where = registry_value(winreg.HKEY_LOCAL_MACHINE, key, 'InstallLocation', view)
+            if where is None:
+                continue
+            found = os.path.join(where, 'bin', 'clang-tidy.exe')
+            if os.path.exists(found):
+                return found
     return None
 
 

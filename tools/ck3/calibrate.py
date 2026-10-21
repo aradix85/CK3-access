@@ -54,7 +54,7 @@ def text_boxes(nodes: derive.Nodes) -> list[int]:
     """
     translation = derive.localization_text()
     hit: dict[int, int] = {}
-    for vtable, x, y, width, height, parent, name, text in nodes.values():
+    for vtable, *_, text in nodes.values():
         clean = derive.strip_markup(text)
         if len(clean) > 3 and clean in translation:
             hit[vtable] = hit.get(vtable, 0) + 1

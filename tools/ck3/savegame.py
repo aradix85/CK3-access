@@ -43,11 +43,9 @@ def newest_readable_save() -> str:
     saves = sorted(glob.glob(os.path.join(SAVE_DIR, '*.ck3')),
                    key=os.path.getmtime, reverse=True)
     for path in saves:
-        try:
-            if is_text(unpack(path)):
-                return path
-        except SystemExit:
-            continue
+        state = _gamestate(pathlib.Path(path).read_bytes())
+        if state is not None and is_text(state):
+            return path
     raise SystemExit(f'not a single save in {SAVE_DIR} is stored as text')
 
 
@@ -59,10 +57,17 @@ def unpack(path: str | None = None) -> str:
     """The game state as text. The header before the zip differs in length per save, so it is
     searched for and not assumed."""
     path = path or newest_save()
-    raw = pathlib.Path(path).read_bytes()
+    state = _gamestate(pathlib.Path(path).read_bytes())
+    if state is None:
+        raise SystemExit(f'no zip in {os.path.basename(path)} - is this an ironman save?')
+    return state
+
+
+def _gamestate(raw: bytes) -> str | None:
+    """The game state inside the bytes of a save, or None when they hold no zip."""
     start = raw.find(b'PK\x03\x04')
     if start < 0:
-        raise SystemExit(f'no zip in {os.path.basename(path)} - is this an ironman save?')
+        return None
     with zipfile.ZipFile(io.BytesIO(raw[start:])) as zip:
         name = 'gamestate' if 'gamestate' in zip.namelist() else zip.namelist()[0]
         return zip.read(name).decode('utf-8', 'replace')

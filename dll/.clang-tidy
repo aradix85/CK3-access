@@ -1,8 +1,33 @@
 # The checks tests/test_channel.py runs on channel.cpp, and every finding fails it. Nothing is
 # switched off here: an exception is made on the line it concerns, with its reason beside it.
+#
+# Beyond the analyzer, bugprone and performance, the maintainer's rules for code (21 October
+# 2026): no silent catch and no dead code, guarded whether or not today's code trips them, each
+# seen to fire on a planted fault. A silent catch is bugprone-empty-catch, and cert-err33-c for a
+# C function whose failure is dropped unread. Dead code is the rest, with the compiler warnings
+# below; MSVC's /W4 already stops on an unused parameter, local or unreachable statement.
+# misc-include-cleaner is not here: it wants every type of windows.h included from its own
+# header, 141 findings on 21 October 2026, none of them dead code.
 Checks: >
   -*,
   clang-analyzer-*,
   bugprone-*,
-  performance-*
+  performance-*,
+  cert-err33-c,
+  misc-unused-parameters,
+  misc-unused-using-decls,
+  misc-unused-alias-decls,
+  readability-redundant-control-flow,
+  readability-redundant-declaration,
+  readability-redundant-preprocessor,
+  readability-avoid-unconditional-preprocessor-if,
+  clang-diagnostic-unreachable-code,
+  clang-diagnostic-unused-macros,
+  clang-diagnostic-unused-member-function,
+  clang-diagnostic-unused-template
+ExtraArgs:
+  - -Wunreachable-code-aggressive
+  - -Wunused-macros
+  - -Wunused-member-function
+  - -Wunused-template
 WarningsAsErrors: '*'

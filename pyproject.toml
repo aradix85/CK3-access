@@ -27,7 +27,25 @@ respect-gitignore = false
 # what this project worries about most - two cases in the text recogniser. ARG: a parameter nobody
 # uses is dead code a caller still has to fill - three of them. A name starting with an underscore
 # is a signature someone else fixed, such as a Windows callback.
-extend-select = ["B905", "ARG"]
+#
+# **The rest guards the maintainer's rules for code** (21 October 2026): no fallback, no broad or
+# silent catch, no dead code. Switched on whether or not today's code trips them, because a check
+# that is off for the code of today is off for the code of tomorrow; each was seen to fire on a
+# planted fault. Silent catch: S110 and S112 for any exception type (the setting below), BLE001 for
+# a blind one, B012 for a return in `finally`, and `contextlib.suppress` banned, which would hide
+# the same thing from S110. A cause kept: B904. Dead code: B007, B018, ERA001, PIE790, PLR1711,
+# PLW0120, TRY203, and RUF100 for a suppression that no longer suppresses anything; an unused name
+# from unpacking is F841's already.
+# Blanket suppressions, which would switch everything off at once: PGH003, PGH004.
+extend-select = ["B905", "ARG", "S110", "S112", "BLE001", "B012", "TID251", "B904", "B007",
+                 "B018", "ERA001", "PIE790", "PLR1711", "PLW0120", "TRY203", "RUF100",
+                 "PGH003", "PGH004"]
+
+[tool.ruff.lint.flake8-bandit]
+check-typed-exception = true
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"contextlib.suppress".msg = "a silent catch; let it break, or handle the case at the boundary"
 
 [tool.mypy]
 # All of --strict, for every module and every test (the maintainer's decision, 3 October 2026: no

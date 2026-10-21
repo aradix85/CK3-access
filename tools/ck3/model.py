@@ -332,7 +332,7 @@ def derive_all(pid: int, rows: dict[int, Row], block_bytes: int = 1024) -> tuple
 
     patterns: dict[int, dict[bytes, list[tuple[str, str]]]] = {}
     asked: dict[str, int] = {}
-    for handle, chunk in good.items():
+    for handle in good:
         table: dict[bytes, list[tuple[str, str]]] = {}
         for field, _, _ in WANTED:
             text = rows[handle].get(field)

@@ -62,10 +62,8 @@ def link_taken_away() -> None:
     channel.PIPE = real + '_taken_away'
     channel.close()
     try:
-        channel.ask('hello')
-        raise SystemExit('the channel answered on a pipe that nobody opened; this proof is broken')
-    except OSError:
-        pass
+        if not _raises(lambda: channel.ask('hello'), OSError):
+            raise SystemExit('the channel answered on a pipe that nobody opened; this proof is broken')
     finally:
         channel.PIPE = real
         channel.close()
@@ -73,6 +71,15 @@ def link_taken_away() -> None:
 
 class _Enough(Exception):
     """Stops the run once the sentence is out."""
+
+
+def _raises(call: Callable[[], object], expected: type[BaseException]) -> bool:
+    """Does `call` raise `expected`? Here that exception is the outcome the proof wants."""
+    try:
+        call()
+    except expected:
+        return True
+    return False
 
 
 def field_moved(pid: int, fields: derive.Fields) -> None:
@@ -97,10 +104,8 @@ def field_moved(pid: int, fields: derive.Fields) -> None:
     derive.STORED = copy
     derive.derive_all = enough
     try:
-        derive.fields_for(pid)
-        raise SystemExit('a moved offset passed the check; the check is broken, not the offset')
-    except _Enough:
-        pass
+        if not _raises(lambda: derive.fields_for(pid), _Enough):
+            raise SystemExit('a moved offset passed the check; the check is broken, not the offset')
     finally:
         derive.STORED, derive.derive_all = stored_at, derive_all
         derive.use_fields(fields)
@@ -120,14 +125,14 @@ def main() -> None:
     said: dict[str, list[str | None]] = {}
     try:
         pid = int(channel.ask('hello').split('\t')[1])
-    except OSError:
+    except OSError as gone:
         if not heard.spoken:
             raise SystemExit('SILENT: the link with the game is gone and nothing said so. That is '
                              'the whole point of this proof, so nothing else here matters until '
-                             'it speaks.')
+                             'it speaks.') from gone
         raise SystemExit('The link with the game is gone and it said so, which is the first step. '
                          'The second needs a game with the channel inside it, so this proof is '
-                         'not finished. Start the game and run it again.')
+                         'not finished. Start the game and run it again.') from gone
 
     said['the link with the game taken away'] = _sentences_from(
         'the link with the game taken away', link_taken_away)
