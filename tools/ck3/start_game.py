@@ -3,6 +3,11 @@
 Then waits until the channel answers, so you know the DLL is really in before you try anything.
 The game itself keeps loading for minutes after that; wait for it with
 `python -m tools.ck3.states <pid> wait`, which asks the text recogniser, not here.
+
+**Waiting for the pipe is silent.** Until 21 October 2026 the wait asked with `channel.ask`, which
+says out loud that the link is gone when the pipe stays shut for ten seconds; that start took longer,
+so a start that worked told the player it had failed. A pipe that is not there yet is what a start
+expects, so it is asked with `channel.alive`, and only the timeout below speaks.
 """
 import os
 import sys
@@ -10,26 +15,24 @@ import time
 
 from tools import paths
 from tools.ck3 import channel, inject
-
-GAME = paths.require('EXE')
-WORK_DIR = os.path.dirname(GAME)         # CK3 looks for its files from here
-CHANNEL = paths.DLL
+from tools.nvda import speech
 
 
 def start(timeout: float = 60.0, arguments: str = '') -> tuple[int, str]:
     """Arguments are passed on to the game; `-debug_mode` opens the console. That flag belongs to
     research and never to the product."""
-    os.chdir(WORK_DIR)
-    number = inject.start_with_dll(GAME, os.path.abspath(CHANNEL), arguments)
+    game = paths.require('EXE')
+    os.chdir(os.path.dirname(game))         # CK3 looks for its files from here
+    number = inject.start_with_dll(game, os.path.abspath(paths.DLL), arguments)
     deadline = time.time() + timeout
     while time.time() < deadline:
-        try:
+        if channel.alive():
             answer = channel.ask('hello', timeout=5.0)
             if 'channel' in answer:
                 return number, answer.strip().splitlines()[0]
-        except OSError:
-            time.sleep(0.5)
-    raise OSError(f'the channel did not answer within {timeout:.0f} seconds')
+        time.sleep(0.5)
+    raise OSError(speech.failure('the game', f'the channel did not answer within {timeout:.0f} seconds',
+                                 'close the game and start it again'))
 
 
 if __name__ == '__main__':
