@@ -100,30 +100,35 @@ def files() -> Iterator[str]:
             yield os.path.join(map_, name)
 
 
-lines = ['# Tool index - calls and the shape of what they return', '',
-          'Generated from the source by `tools\\toolindex.py`. **Read this before writing a',
-          'script**, and generate it again once you have changed the tools.',
-          'The *returns* column is here because that is where the mistakes were: a function that',
-          'returns a pair, passed on as one thing, costs a run.', '']
+def main() -> None:
+    lines = ['# Tool index - calls and the shape of what they return', '',
+             'Generated from the source by `tools\\toolindex.py`. **Read this before writing a',
+             'script**, and generate it again once you have changed the tools.',
+             'The *returns* column is here because that is where the mistakes were: a function that',
+             'returns a pair, passed on as one thing, costs a run.', '']
 
-for path in files():
-    tree = ast.parse(pathlib.Path(path).read_text(encoding='utf-8'))
-    public = [k for k in tree.body
-               if isinstance(k, ast.FunctionDef) and not k.name.startswith('_')]
-    if not public:
-        continue
-    lines.append('## {}'.format(os.path.relpath(path, SOURCE).replace('/', '\\')))
-    target = first_line(ast.get_docstring(tree))
-    if target:
-        lines.append(f'*{target}*')
-    lines.append('')
-    lines.append('| call | returns | does |')
-    lines.append('|---|---|---|')
-    for k in public:
-        lines.append('| `{}` | {} | {} |'.format(signature(k), return_shape(k),
-                         first_line(ast.get_docstring(k)) or '-'))
-    lines.append('')
+    for path in files():
+        tree = ast.parse(pathlib.Path(path).read_text(encoding='utf-8'))
+        public = [k for k in tree.body
+                  if isinstance(k, ast.FunctionDef) and not k.name.startswith('_')]
+        if not public:
+            continue
+        lines.append('## {}'.format(os.path.relpath(path, SOURCE).replace('/', '\\')))
+        target = first_line(ast.get_docstring(tree))
+        if target:
+            lines.append(f'*{target}*')
+        lines.append('')
+        lines.append('| call | returns | does |')
+        lines.append('|---|---|---|')
+        for k in public:
+            lines.append('| `{}` | {} | {} |'.format(signature(k), return_shape(k),
+                                                      first_line(ast.get_docstring(k)) or '-'))
+        lines.append('')
 
-os.makedirs(os.path.dirname(OUT), exist_ok=True)
-pathlib.Path(OUT).write_text('\n'.join(lines) + '\n', encoding='utf-8')
-print(f'{OUT} written, {int(len(lines) + 1)} lines')
+    os.makedirs(os.path.dirname(OUT), exist_ok=True)
+    pathlib.Path(OUT).write_text('\n'.join(lines) + '\n', encoding='utf-8')
+    print(f'{OUT} written, {int(len(lines) + 1)} lines')
+
+
+if __name__ == '__main__':
+    main()

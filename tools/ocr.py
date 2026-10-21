@@ -14,24 +14,13 @@ If you want it faster per box, recognition moves to the NPU: measured 29 July 20
 route needs a fixed input shape and deliberately does not live in this file.
 """
 import ctypes
-import sys
 from collections.abc import Sequence
 
 import numpy
 from PIL import Image, ImageGrab
-
-try:
-    from rapidocr import EngineType, LangDet, LangRec, ModelType, OCRVersion, RapidOCR
-    from rapidocr.ch_ppocr_rec.typings import TextRecOutput
-    from rapidocr.utils.output import RapidOCROutput
-except ModuleNotFoundError as missing:
-    # The recogniser lives only in her Python 3.12, which both pwsh and the radix-mcp Python session
-    # start; a second copy of the whole stack could drift from hers without a word. So say where to
-    # run instead of falling over three imports deep, where it reads as a broken project.
-    raise SystemExit(f'the text recogniser is not installed in this Python ({missing.name} is missing, {sys.executable}). '
-                     'Run this with her own Python 3.12, which python in pwsh starts.') from None
-
-ctypes.windll.user32.SetProcessDPIAware()
+from rapidocr import EngineType, LangDet, LangRec, ModelType, OCRVersion, RapidOCR
+from rapidocr.ch_ppocr_rec.typings import TextRecOutput
+from rapidocr.utils.output import RapidOCROutput
 
 # Why these two models, briefly: the recognition model decides which characters can come out
 # at all. PP-OCRv4 does not know the r-hacek of `Premyslid` and turns it into `premyslid`; v5
@@ -125,7 +114,9 @@ def read_screen(box: tuple[int, int, int, int] | None = None) -> list[Line]:
 
     This grabs the whole screen and therefore the foreground window. For the game,
     `tools\\windowgrab.py` plus `read_image` is the better route: it does not need the foreground.
+    DPI aware first, so the screen comes in physical pixels.
     """
+    ctypes.windll.user32.SetProcessDPIAware()
     screenshot = ImageGrab.grab(bbox=box)
     shift_x, shift_y = (box[0], box[1]) if box else (0, 0)
     return [(x + shift_x, y + shift_y, b, h, text)

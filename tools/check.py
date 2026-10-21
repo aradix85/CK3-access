@@ -10,6 +10,7 @@ Besides the numbers it checks the names: every project path a document mentions 
 
 Usage:  python -m tools.check [--all]
 """
+import ast
 import fnmatch
 import glob
 import io
@@ -662,6 +663,39 @@ def script_runs() -> tuple[list[str], int]:
     return wrong, seen
 
 
+DEFINES = (ast.Import, ast.ImportFrom, ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Assign,
+           ast.AnnAssign)
+
+
+def scripts() -> list[str]:
+    """Every Python file of the tools and the tests."""
+    return sorted(glob.glob(os.path.join(PROJ, 'tools', '**', '*.py'), recursive=True)
+                  + glob.glob(os.path.join(PROJ, 'tests', '*.py')))
+
+
+def loading_work(files: list[str]) -> list[str]:
+    """Every statement at the top level of these files that does work as the file is loaded.
+
+    **Loading is not starting.** On 3 October 2026 a check that only loaded each script to test its
+    imports put the launcher file of 1.19 back through `tools\\restore_launcher.py`. So the top level
+    only defines - imports, also those under `if TYPE_CHECKING:`, functions, classes, names and the
+    docstring - and the work starts under `if __name__ == '__main__':`. A call, a loop, a `try` or a
+    `with` up there is reported.
+    """
+    found: list[str] = []
+    for path in files:
+        tree = ast.parse(pathlib.Path(path).read_text(encoding='utf-8'))
+        for at, node in enumerate(tree.body):
+            docstring = (at == 0 and isinstance(node, ast.Expr) and isinstance(node.value, ast.Constant)
+                         and isinstance(node.value.value, str))
+            guard = isinstance(node, ast.If) and ast.unparse(node.test) in ("__name__ == '__main__'",
+                                                                             'TYPE_CHECKING')
+            if not (isinstance(node, DEFINES) or docstring or guard):
+                line = ast.unparse(node).splitlines()[0]
+                found.append(f'{os.path.relpath(path, PROJ)} line {node.lineno} works when loaded: {line[:70]}')
+    return found
+
+
 def main(all_of_them: bool) -> int:
     claims: list[Claim] = json.loads(pathlib.Path(os.path.join(PROJ, 'reports', 'claims.json')).read_text(encoding='utf-8'))
     drifted = []
@@ -702,7 +736,13 @@ def main(all_of_them: bool) -> int:
     for problem in runs:
         print(f'RUN     {problem}')
     print(f"{int(started - len([r for r in runs if 'does not exist' in r]))} of the {int(started)} script starts named in documents and code are modules that exist.")
-    return 1 if drifted or missing or wrong or quotes or runs else 0
+
+    files = scripts()
+    loads = loading_work(files)
+    for problem in loads:
+        print(f'LOADS   {problem}')
+    print(f'{len(files) - len({p.split(" line ")[0] for p in loads})} of the {len(files)} scripts only define when they are loaded.')
+    return 1 if drifted or missing or wrong or quotes or runs or loads else 0
 
 
 if __name__ == '__main__':

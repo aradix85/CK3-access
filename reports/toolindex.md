@@ -46,6 +46,8 @@ returns a pair, passed on as one thing, costs a run.
 | `shortcut_words(what)` | value | How far a shortcut can be given a meaning from disk alone. |
 | `quoted_numbers(claims)` | 3-tuple | Claims that a document repeats, checked against the file that repeats them. |
 | `script_runs()` | 2-tuple | How the documents and the scripts themselves say to start a script, checked against the package. |
+| `scripts()` | value | Every Python file of the tools and the tests. |
+| `loading_work(files)` | value | Every statement at the top level of these files that does work as the file is loaded. |
 | `main(all_of_them)` | value | - |
 
 ## never_silent.py
@@ -99,6 +101,7 @@ returns a pair, passed on as one thing, costs a run.
 | `signature(node)` | value | - |
 | `return_shape(node)` | str of value | The shape of what comes out, because that is what the mistakes were about. |
 | `files()` | iterator | - |
+| `main()` | nothing | - |
 
 ## windowgrab.py
 *Grabs an image of the game window without it having to be in the foreground.*
@@ -509,6 +512,13 @@ returns a pair, passed on as one thing, costs a run.
 | `create_round(game, windows, limit=None)` | value | Try every window with GUI.CreateWidget, and clean up immediately. |
 | `unmapped(pid, game=None)` | 3-tuple | Which windows the running game built that the map on disk does not know. |
 | `keys_only(pid, modified=False)` | nothing | Only the key round, and add what it finds to the map without touching anything else in it. |
+| `main()` | nothing | - |
+
+## nvda\check_speech_by_ear.py
+*Speech layer checked by ear. It announces itself; you need not read along.*
+
+| call | returns | does |
+|---|---|---|
 | `main()` | nothing | - |
 
 ## nvda\speech.py

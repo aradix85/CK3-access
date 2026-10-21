@@ -17,7 +17,6 @@ SW_SHOWNOACTIVATE = 4          # restore without taking the foreground; 9 would 
 
 _user32 = ctypes.windll.user32
 _gdi32 = ctypes.windll.gdi32
-_user32.SetProcessDPIAware()
 
 
 class _Header(ctypes.Structure):
@@ -29,7 +28,11 @@ class _Header(ctypes.Structure):
 
 
 def window_of(pid: int) -> tuple[int, int, int]:
-    """The largest visible window of that process, with its outer size."""
+    """The largest visible window of that process, with its outer size.
+
+    Every route through this file starts here, so here the process is made DPI aware: from then on
+    every rectangle is in physical pixels, those of the widget tree, not scaled by Windows."""
+    _user32.SetProcessDPIAware()
     found: list[tuple[int, int, int]] = []
 
     def collect(hwnd: int, _lparam: int) -> bool:

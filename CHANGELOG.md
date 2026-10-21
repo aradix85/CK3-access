@@ -5,6 +5,7 @@ Outcomes, newest first. No release yet.
 ## 2026-10-21 — CK3 1.20.1.1
 - When the game ends while the reader runs, closed or crashed, the reader stops without a word: a link that breaks and stays shut is `channel.Gone`, and a broken pipe is noticed at once instead of after the timeout.
 - "No window to read" is said only in answer to a key: a game shutting down clears its windows seconds before it ends.
+- Every script only defines when it is loaded, and `check.py` reports one that does more: `toolindex` and the speech check by ear work behind a main, DPI awareness is set where a capture needs it, and the text recogniser is imported without a wrapper.
 - Measured on the game: an activity's own events, shown in the activity window, hold the date until they are answered; that was the clock that stood still after starting a hunt, and Enter and a click start it alike.
 - The DLL build and the channel test find MSVC through vswhere in `dll\vcvars.bat` instead of a path of one machine.
 - `states.wait` recognises the setup screen of a bookmark and says `setup`, and `states.new` asks it first; `quit_game` also shuts the game from there, where Escape brings up the exit confirmation itself.
