@@ -1,17 +1,17 @@
 """Reads the text on screen, with positions attached.
 
-Runs on the `rapidocr` package (3.9.2), OpenVINO engine. Two routes: `read_image` for a whole
-screen and `read_box` for a box whose position the widget tree already knows.
+Runs on the `rapidocr` package (3.9.2), OpenVINO engine: `read_image` for a whole screen or a
+window. A box whose position the widget tree already knows is read on the NPU, `tools\\boxreader.py`.
 
 The setup is fixed and measured, 28 July 2026, and the alternatives are closed questions.
 Detection PP-OCRv5 `ch mobile`, recognition PP-OCRv6 `tiny`, line orientation classification off. A
-full screen of 1600x900 costs 0.98 s; a known box 6 ms. Heavier models were tested and lost:
+full screen of 1600x900 costs 0.98 s. Heavier models were tested and lost:
 `medium` is twelve times slower and does not read one letter better, and the server models are both
 worse and ten times slower.
 
-If you want it faster per box, recognition moves to the NPU: measured 29 July 2026 over 22 boxes,
-1.86 ms via `tools\\boxreader.py` against 6.02 ms here, with the same result on every box. That
-route needs a fixed input shape and deliberately does not live in this file.
+A known box is read with recognition alone: measured 29 July 2026 over 22 boxes, 1.86 ms on the NPU
+against 6.02 ms on the CPU, with the same result on every box. That route needs a fixed input shape
+and deliberately does not live in this file.
 """
 import ctypes
 from collections.abc import Sequence
@@ -19,7 +19,6 @@ from collections.abc import Sequence
 import numpy
 from PIL import Image, ImageGrab
 from rapidocr import EngineType, LangDet, LangRec, ModelType, OCRVersion, RapidOCR
-from rapidocr.ch_ppocr_rec.typings import TextRecOutput
 from rapidocr.utils.output import RapidOCROutput
 
 # Why these two models, briefly: the recognition model decides which characters can come out
@@ -50,19 +49,6 @@ def _engine() -> RapidOCR:
     return _instance
 
 
-def warm_up() -> None:
-    """Pay the startup cost at a moment when nobody is waiting.
-
-    Note: `use_det` and `use_rec` stick to the engine once you pass them in. A warm-up round
-    without the detection step therefore switched it off for everything that came after, and then
-    `read_image` returns zero lines with no error at all. That is why the flags are spelled out on
-    every call.
-    """
-    probe = numpy.array(Image.new('RGB', (96, 32), (255, 255, 255)))
-    _engine()(probe, use_det=False, use_cls=False, use_rec=True)
-    _engine()(probe, use_det=True, use_cls=False, use_rec=True)
-
-
 def _box(points: Sequence[Sequence[float]]) -> tuple[int, int, int, int]:
     xs = [p[0] for p in points]
     ys = [p[1] for p in points]
@@ -83,30 +69,6 @@ def read_image(screenshot: Image.Image) -> list[Line]:
               for crop, text in zip(result.boxes, result.txts, strict=True)]
     lines.sort(key=lambda r: (r[1], r[0]))
     return lines
-
-
-def read_box(screenshot: Image.Image, x: int, y: int, width: int, height: int,
-             margin: int = 2) -> str:
-    """Reads one box whose position is already known from the widget tree.
-
-    Detection goes off here: it exists to find text, and we already know where it is. On a small
-    crop it also gets confused - measured 28 July 2026, `Load Game` became `Game peo` when the full
-    pipeline was let loose on a scrap.
-
-    On the margin: over fifteen boxes with known ground truth, 0 through 6 points all gave fifteen
-    correct, and only at 10 did it collapse. So the margin is not critical - except where a
-    neighbouring element sits close. At `Settings` on the main menu a gear icon touches the word:
-    with margin 2 it reads `Settings`, with 6 `Sttins` and with 12 `stiting`. Hence small.
-    """
-    part = screenshot.convert('RGB').crop((max(0, x - margin), max(0, y - margin),
-                                      x + width + margin, y + height + margin))
-    result = _engine()(numpy.array(part), use_det=False, use_cls=False, use_rec=True)
-    # Recognition alone always answers in this form, an empty text when nothing is there.
-    if not isinstance(result, TextRecOutput):
-        raise TypeError(f'rapidocr answered recognition alone with {type(result).__name__}')
-    if not result.txts:
-        return ''
-    return result.txts[0].strip()
 
 
 def read_screen(box: tuple[int, int, int, int] | None = None) -> list[Line]:

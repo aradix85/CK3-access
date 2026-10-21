@@ -41,13 +41,10 @@ class SilentLink:
         self.closed = True
 
 
-@pytest.fixture
-def heard(monkeypatch: pytest.MonkeyPatch) -> speech.Recorder:
-    """NVDA replaced by a recorder, and the pipe pointed at a name nobody opened."""
-    recorder = speech.Recorder()
-    monkeypatch.setattr(speech, '_client', recorder)
+@pytest.fixture(autouse=True)
+def nobody_opened(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The pipe pointed at a name nobody opened, so a running game is never asked."""
     monkeypatch.setattr(channel, 'PIPE', channel.PIPE + '_nobody_opened')
-    return recorder
 
 
 def test_a_broken_link_is_tried_once_more(monkeypatch: pytest.MonkeyPatch) -> None:

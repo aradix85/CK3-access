@@ -1088,7 +1088,7 @@ def _tooltip_route(pid: int, root: int, base: int, f_name: int) -> tuple[int, in
 def _image_writable(pid: int, base: int) -> Iterator[tuple[int, bytes]]:
     """The writable pages of the exe as the running game holds them: where its globals live."""
     import ctypes
-    k32 = memory._k32
+    k32 = memory.kernel32
     handle = k32.OpenProcess(0x0410, False, pid)
     if not handle:
         raise SystemExit(f'cannot open the game process: {int(pid)}')
@@ -1380,7 +1380,7 @@ def regions(pid: int) -> list[tuple[int, int]]:
     can be aimed, up to the first hit.
     """
     import ctypes
-    k32 = memory._k32
+    k32 = memory.kernel32
     handle = k32.OpenProcess(0x0410, False, pid)
     if not handle:
         raise SystemExit(f'cannot open the game process: {int(pid)}')

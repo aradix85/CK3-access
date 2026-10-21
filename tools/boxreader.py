@@ -1,8 +1,8 @@
 """Reads one known box on the NPU. Two to three times faster than the same route on the CPU.
 
 When to use this: when the widget tree already knows where a box is and you read many of them in a
-row. `tools\\ocr.py` does the same in about 4 ms; this route does an ordinary box in 2.1 ms. For a
-single box that difference is nothing, for a whole window full of boxes it adds up.
+row. The same recognition on the CPU takes about 6 ms; this route does an ordinary box in 2.1 ms. For
+a single box that difference is nothing, for a whole window full of boxes it adds up.
 
 The same model as `ocr.py` - PP-OCRv6 `tiny` - so that the two routes cannot drift apart. The
 difference is in the execution: the NPU only accepts models with a fixed input shape. The model is
@@ -37,7 +37,6 @@ _CHARS = os.path.join(_OWN, 'v6_tiny_rec_chars.txt')
 _CACHE = os.path.join(_OWN, 'ov_cache')
 
 _core: openvino.Core | None = None
-_device = 'NPU'
 # OpenVINO ships no types, so to mypy these requests are unknown; the class is named for the reader.
 _requests: dict[int, openvino.InferRequest] = {}
 _list: list[str] = []
@@ -49,8 +48,8 @@ def _source_model() -> str:
     path = os.path.join(os.path.dirname(rapidocr.__file__), 'models', 'PP-OCRv6_rec_tiny.onnx')
     if not os.path.exists(path):
         raise FileNotFoundError(
-            'PP-OCRv6_rec_tiny.onnx is not there yet. Run ocr.warm_up() first; '
-            'rapidocr will fetch the model then.')
+            'PP-OCRv6_rec_tiny.onnx is not there yet. Run python -m tools.ocr once; '
+            'rapidocr fetches its models the first time it reads.')
     return path
 
 
@@ -89,21 +88,20 @@ def _request_for(width: int) -> openvino.InferRequest:
     if width not in _requests:
         model = _core.read_model(_IR)
         model.reshape({model.inputs[0]: openvino.PartialShape([1, 3, HEIGHT, width])})
-        compiled = _core.compile_model(model, _device)
+        compiled = _core.compile_model(model, 'NPU')
         _requests[width] = compiled.create_infer_request()
         _list = _charset(compiled.output(0).shape[-1])
     return _requests[width]
 
 
-def warm_up(device: str = 'NPU') -> None:
+def warm_up() -> None:
     """Compiling costs a few seconds; after that it sits in the model cache."""
-    global _core, _device, _requests
+    global _core, _requests
     if not (os.path.exists(_IR) and os.path.exists(_CHARS)):
         _decode()
     _core = openvino.Core()
     os.makedirs(_CACHE, exist_ok=True)
     _core.set_property({'CACHE_DIR': _CACHE})
-    _device = device
     _requests = {}
     _request_for(BOX)
 
@@ -156,9 +154,3 @@ def read_box_conf(screenshot: Image.Image, x: int, y: int, width: int, height: i
         previous = i
     confidence = sum(confidences) / len(confidences) if confidences else 0.0
     return ''.join(text).strip(), confidence
-
-
-def read_box(screenshot: Image.Image, x: int, y: int, width: int, height: int,
-             margin: int = 0) -> str:
-    """Text only. Same call as `ocr.read_box`."""
-    return read_box_conf(screenshot, x, y, width, height, margin)[0]

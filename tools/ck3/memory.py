@@ -1,7 +1,7 @@
-"""Reads the interface of a running CK3 out of process memory.
+"""What the executable says about the game's classes, and the Windows calls that read its memory.
 
-Finds the field offsets again at every start instead of writing them down, so that a patch which
-shifts the layout gives a clear failure instead of nonsense.
+The class tree comes from the exe's own type information (MSVC RTTI), read off disk, so that a patch
+which renames or adds a class is seen at the next start; the field offsets are derived in `derive`.
 """
 import ctypes
 import pathlib
@@ -11,16 +11,16 @@ from ctypes import wintypes
 
 from tools import paths
 
-ROOT_CLASS = b'.?AVCPdxGuiWidget@@'
+ROOT_CLASS = '.?AVCPdxGuiWidget@@'
 # One section header: name, virtual address, virtual size, file offset.
 Section = tuple[str, int, int, int]
 
-_k32 = ctypes.WinDLL('kernel32', use_last_error=True)
-_k32.OpenProcess.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]
-_k32.OpenProcess.restype = wintypes.HANDLE
-_k32.ReadProcessMemory.argtypes = [wintypes.HANDLE, wintypes.LPCVOID, wintypes.LPVOID,
+kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
+kernel32.OpenProcess.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]
+kernel32.OpenProcess.restype = wintypes.HANDLE
+kernel32.ReadProcessMemory.argtypes = [wintypes.HANDLE, wintypes.LPCVOID, wintypes.LPVOID,
                                    ctypes.c_size_t, ctypes.POINTER(ctypes.c_size_t)]
-_k32.ReadProcessMemory.restype = wintypes.BOOL
+kernel32.ReadProcessMemory.restype = wintypes.BOOL
 
 
 class Region(ctypes.Structure):
@@ -31,9 +31,9 @@ class Region(ctypes.Structure):
                 ('vul2', wintypes.DWORD)]
 
 
-_k32.VirtualQueryEx.argtypes = [wintypes.HANDLE, wintypes.LPCVOID,
+kernel32.VirtualQueryEx.argtypes = [wintypes.HANDLE, wintypes.LPCVOID,
                                 ctypes.POINTER(Region), ctypes.c_size_t]
-_k32.VirtualQueryEx.restype = ctypes.c_size_t
+kernel32.VirtualQueryEx.restype = ctypes.c_size_t
 
 
 def _sections(data: bytes) -> tuple[int, list[Section]]:
@@ -51,27 +51,21 @@ def _sections(data: bytes) -> tuple[int, list[Section]]:
     return base, items
 
 
-def _to_offset(sections: list[Section], rva: int) -> int | None:
-    """Where an RVA sits in the file, or None when no section holds it."""
+def _offset(sections: list[Section], rva: int) -> int:
+    """Where an RVA the exe's own type information points at sits in the file. No section holding it
+    is a misread, not an answer."""
     for _, va, size, raw in sections:
         if va <= rva < va + size:
             return raw + (rva - va)
-    return None
+    raise ValueError(f'RVA 0x{rva:X} from the type information lies in no section of ck3.exe')
 
 
-def _offset(sections: list[Section], rva: int) -> int:
-    """The same for an RVA the exe's own type information points at, where no section is a misread."""
-    found = _to_offset(sections, rva)
-    if found is None:
-        raise ValueError(f'RVA 0x{rva:X} from the type information lies in no section of ck3.exe')
-    return found
+CLASSES: dict[int, tuple[str, bool]] | None = None
 
 
-WIDGET_VTABLES: dict[int, str] | None = None
-
-
-def widget_vtables() -> dict[int, str]:
-    """Vtable RVAs of every class descending from CPdxGuiWidget, taken from the exe.
+def _classes() -> dict[int, tuple[str, bool]]:
+    """Every vtable RVA in the exe's `.rdata`: the RTTI name of its class, and whether that class
+    descends from CPdxGuiWidget.
 
     **Read once and kept.** The executable does not change while the game runs, and this walks
     the whole `.rdata` section: measured 20 September 2026 it cost 7,2 of the 11,3 seconds a live
@@ -79,89 +73,61 @@ def widget_vtables() -> dict[int, str]:
     every window it opens. Nothing here depends on the running game, so a second answer could
     only ever be the same one.
     """
-    global WIDGET_VTABLES
-    if WIDGET_VTABLES is not None:
-        return WIDGET_VTABLES
+    global CLASSES
+    if CLASSES is not None:
+        return CLASSES
     data = pathlib.Path(paths.require('EXE')).read_bytes()
     base, sections = _sections(data)
     rdata = next(s for s in sections if s[0] == '.rdata')
 
-    def type_name(td_rva: int) -> bytes:
+    def word(at: int) -> int:
+        value: int = struct.unpack_from('<I', data, at)[0]
+        return value
+
+    def type_name(td_rva: int) -> str:
         o = _offset(sections, td_rva) + 16
-        return data[o:data.index(b'\x00', o)]
+        return data[o:data.index(b'\x00', o)].decode('latin1')
 
-    locators: dict[int, str] = {}
+    # A complete object locator: signature 1, the type descriptor at +12, the class hierarchy at
+    # +16, and its own RVA at +20. The hierarchy lists every base, the class itself first.
+    locators: dict[int, tuple[str, bool]] = {}
     for p in range(0, rdata[2] - 24, 4):
-        if struct.unpack_from('<I', data, rdata[3] + p)[0] != 1:
-            continue
         col = rdata[1] + p
-        if struct.unpack_from('<I', data, rdata[3] + p + 20)[0] != col:
+        if word(rdata[3] + p) != 1 or word(rdata[3] + p + 20) != col:
             continue
-        here = _offset(sections, struct.unpack_from('<I', data, rdata[3] + p + 16)[0])
-        array = _offset(sections, struct.unpack_from('<I', data, here + 12)[0])
-        for i in range(struct.unpack_from('<I', data, here + 8)[0]):
-            descriptor = _offset(sections, struct.unpack_from('<I', data, array + i * 4)[0])
-            if type_name(struct.unpack_from('<I', data, descriptor)[0]) == ROOT_CLASS:
-                own = struct.unpack_from('<I', data, rdata[3] + p + 12)[0]
-                locators[col] = type_name(own).decode()
-                break
+        hierarchy = _offset(sections, word(rdata[3] + p + 16))
+        array = _offset(sections, word(hierarchy + 12))
+        bases = {type_name(word(_offset(sections, word(array + i * 4)))) for i in range(word(hierarchy + 8))}
+        locators[col] = (type_name(word(rdata[3] + p + 12)), ROOT_CLASS in bases)
 
-    vtables: dict[int, str] = {}
+    # A vtable is the eight bytes after a pointer to its locator.
+    CLASSES = {}
     for p in range(0, rdata[2] - 8, 8):
         value = struct.unpack_from('<Q', data, rdata[3] + p)[0]
         if value > base and (value - base) in locators:
-            name = locators[value - base]
-            vtables[rdata[1] + p + 8] = name.replace('.?AVCPdxGui', '').replace('@@', '')
-    WIDGET_VTABLES = vtables
-    return vtables
+            CLASSES[rdata[1] + p + 8] = locators[value - base]
+    return CLASSES
+
+
+def widget_vtables() -> dict[int, str]:
+    """Vtable RVAs of every class descending from CPdxGuiWidget, taken from the exe."""
+    return {rva: name.replace('.?AVCPdxGui', '').replace('@@', '')
+            for rva, (name, widget) in _classes().items() if widget}
 
 
 def vtables_by_name(part: str) -> dict[int, str]:
-    """Vtable RVAs of classes whose RTTI name contains `part` - NOTE: case sensitive.
+    """Vtable RVAs of classes whose RTTI name contains `part`, case sensitive.
 
-    The counterpart of `widget_vtables`, which filters on base class. This one filters on name,
-    which is what you need once you know a class by name - from an object dump, for instance.
-
-    Wrong casing gives an empty list, and further along an empty filter looks like "there is
-    nothing there" rather than "my filter is wrong". The classes are called `Textbox` (not
-    `TextBox`), `Window`, `PushButton`, `Icon`, `HBoxLayout`, `VBoxLayout`. So check a filter on
-    its count before using it. Measured 30 July 2026: `TextBox` gives zero, `Textbox` gives four.
+    The counterpart of `widget_vtables`, which filters on base class. A name that matches nothing
+    stops here, because further along an empty filter looks like "there is nothing there" rather
+    than "my filter is wrong": the classes are called `Textbox` (not `TextBox`), `Window`,
+    `PushButton`, `Icon`, `HBoxLayout`, `VBoxLayout`. Measured 30 July 2026: `TextBox` gives zero,
+    `Textbox` gives four.
     """
-    data = pathlib.Path(paths.require('EXE')).read_bytes()
-    base, sections = _sections(data)
-    rdata = next(s for s in sections if s[0] == '.rdata')
-
-    locators: dict[int, str] = {}
-    for p in range(0, rdata[2] - 24, 4):
-        if struct.unpack_from('<I', data, rdata[3] + p)[0] != 1:
-            continue
-        col = rdata[1] + p
-        if struct.unpack_from('<I', data, rdata[3] + p + 20)[0] != col:
-            continue
-        descriptor = _to_offset(sections, struct.unpack_from('<I', data, rdata[3] + p + 12)[0])
-        if descriptor is None:
-            continue
-        start = descriptor + 16
-        name = data[start:data.index(b'\x00', start)].decode('latin1')
-        if part in name:
-            locators[col] = name
-
-    found: dict[int, str] = {}
-    for p in range(0, rdata[2] - 8, 8):
-        value = struct.unpack_from('<Q', data, rdata[3] + p)[0]
-        if value > base and (value - base) in locators:
-            found[rdata[1] + p + 8] = locators[value - base]
+    found = {rva: name for rva, (name, _) in _classes().items() if part in name}
+    if not found:
+        raise SystemExit(f'no class name in ck3.exe contains {part!r}; the names are case sensitive')
     return found
-
-
-def screen_size() -> tuple[float, float]:
-    text = pathlib.Path(paths.require('SETTINGS')).read_text(encoding='utf-8', errors='ignore')
-    pos = text.index('fullscreen_resolution')
-    found = re.search(r'value="(\d+)x(\d+)"', text[pos:pos + 200])
-    if found is None:
-        raise SystemExit('pdx_settings.txt names fullscreen_resolution without a size after it')
-    width, height = found.groups()
-    return float(width), float(height)
 
 
 def type_name_count() -> int:

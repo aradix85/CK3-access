@@ -1,13 +1,12 @@
 """The start waits for the channel in silence, and speaks only when it never comes.
 
 **What this is guarding.** On 21 October 2026 a start that worked said "the link with it is gone":
-the wait asked through `channel.ask`, which speaks when the pipe stays shut for ten seconds, and the
-DLL took longer than that to open it. Checked without a game: the injector, the pipe and the path to
+the wait asked through `channel.ask`, which speaks the moment no pipe is there, and the DLL had not
+opened it yet. Checked without a game: the injector, the pipe and the path to
 the exe are stand-ins, and a recorder takes NVDA's place.
 """
 import pathlib
 import time
-from collections.abc import Iterator
 
 import pytest
 
@@ -17,17 +16,7 @@ from tools.nvda import speech
 
 
 @pytest.fixture
-def heard() -> Iterator[speech.Recorder]:
-    recorder = speech.Recorder()
-    previous = speech._client
-    speech._client = recorder
-    yield recorder
-    speech._client = previous
-
-
-@pytest.fixture
 def no_game(monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path) -> None:
-    monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(paths, 'require', lambda _name: str(tmp_path / 'ck3.exe'))
     monkeypatch.setattr(inject, 'start_with_dll', lambda _exe, _dll, _arguments: 4242)
 

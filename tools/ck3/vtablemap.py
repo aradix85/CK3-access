@@ -1,25 +1,21 @@
-"""Derives the vtables of the widget classes and hands them to the channel.
+"""Hands the vtables of the widget classes to the channel, where the game has loaded them.
 
-That is all this file does. Scanning, walking the tree and deriving the field offsets used to live
-here too, but that became `derive.py`; two files both claiming to know how to walk the tree is an
-invitation to pick the wrong answer later.
-
-The list is derived from the exe at every start and never read from disk. That costs 1.5 seconds
-(measured 27 July 2026) and takes the last version-bound assumption out of the chain: there is no
-longer a file with a build number in its name that can quietly go stale.
+That is all this file does: `memory` reads the classes from the exe, `derive` walks the tree. The
+list is taken from the exe at every start and never kept on disk, which takes the last
+version-bound assumption out of the chain: there is no file with a build number in its name that
+can quietly go stale.
 """
 import ctypes
 import sys
 
 from tools.ck3 import channel, memory
 
-_k32 = ctypes.WinDLL('kernel32', use_last_error=True)
 _psapi = ctypes.WinDLL('psapi', use_last_error=True)
 
 
 def module_base(number: int) -> int:
     """Where ck3.exe is loaded. The vtable addresses from the exe are relative to it."""
-    handle = _k32.OpenProcess(0x0410, False, number)
+    handle = memory.kernel32.OpenProcess(0x0410, False, number)
     if not handle:
         raise OSError(f'cannot open the game process: {int(number)}')
     run = (ctypes.c_void_p * 64)()
@@ -27,7 +23,7 @@ def module_base(number: int) -> int:
     listed = _psapi.EnumProcessModules(handle, ctypes.byref(run), ctypes.sizeof(run),
                                        ctypes.byref(needed))
     error = ctypes.get_last_error()
-    _k32.CloseHandle(handle)
+    memory.kernel32.CloseHandle(handle)
     # The first module listed is the exe itself.
     base = run[0]
     if not listed or base is None:
@@ -49,7 +45,7 @@ def vtables() -> dict[int, str]:
                 'this build ships no RTTI: zero type names in the exe. The whole approach '
                 'leans on that, so this is where it stops.')
         raise SystemExit(
-            f'{int(names)} type names in the exe, but not a single class descends from {memory.ROOT_CLASS.decode()}. '
+            f'{int(names)} type names in the exe, but not a single class descends from {memory.ROOT_CLASS}. '
             'The base class is probably named differently in this build; change ROOT_CLASS in '
             'memory.py.')
     return found

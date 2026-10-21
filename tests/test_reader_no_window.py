@@ -15,13 +15,10 @@ from tools.ck3 import guimap, reader, reading
 from tools.nvda import speech
 
 
-@pytest.fixture
-def heard(monkeypatch: pytest.MonkeyPatch) -> speech.Recorder:
-    recorder = speech.Recorder()
-    monkeypatch.setattr(speech, '_client', recorder)
+@pytest.fixture(autouse=True)
+def no_window(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(reading, 'live', lambda *_args, **_kwargs: (None, []))
     monkeypatch.setattr(reader.Reader, 'counts', lambda _self: {})
-    return recorder
 
 
 def bare() -> reader.Reader:

@@ -3,11 +3,12 @@
 Five steps: start suspended, reserve memory inside that process, write the DLL path into it, have
 the process call LoadLibraryW itself, and only then let it run.
 
-This runs beside the game, not inside it, so everything breaks hard here: any Windows call that
-returns zero is a fault that must be visible.
+This runs beside the game, not inside it, so everything breaks hard here: every Windows call is
+checked, and a failure is a fault that must be visible.
 """
 import ctypes
 import ctypes.wintypes as wt
+import os
 from typing import TypeVar
 
 T = TypeVar('T')
@@ -19,6 +20,7 @@ MEM_COMMIT_RESERVE = 0x00003000
 MEM_RELEASE = 0x00008000
 PAGE_READWRITE = 0x04
 INFINITE = 0xFFFFFFFF
+WAIT_FAILED = 0xFFFFFFFF
 
 k32 = ctypes.WinDLL('kernel32', use_last_error=True)
 
@@ -63,7 +65,7 @@ def _require(result: T, what: str) -> T:
     return result
 
 
-def start_with_dll(exe_path: str, dll_path: str, arguments: str = '') -> int:
+def start_with_dll(exe_path: str, dll_path: str, arguments: str) -> int:
     """Starts exe_path suspended, loads dll_path into it, resumes the process. Returns the pid.
 
     **The game is asked to show its window without taking the foreground**, because the player
@@ -80,9 +82,10 @@ def start_with_dll(exe_path: str, dll_path: str, arguments: str = '') -> int:
     pid = PROCESS_INFORMATION()
     command = ctypes.create_unicode_buffer(f'"{exe_path}" {arguments}')
 
+    # The game looks for its files from its own folder.
     _require(k32.CreateProcessW(exe_path, command, None, None, False, CREATE_SUSPENDED,
-                            None, None, ctypes.byref(startup), ctypes.byref(pid)),
-         'CreateProcessW')
+                                None, os.path.dirname(exe_path), ctypes.byref(startup),
+                                ctypes.byref(pid)), 'CreateProcessW')
 
     pad_bytes = (dll_path + '\0').encode('utf-16-le')
     address = _require(k32.VirtualAllocEx(pid.hProcess, None, len(pad_bytes),
@@ -96,17 +99,17 @@ def start_with_dll(exe_path: str, dll_path: str, arguments: str = '') -> int:
     thread = _require(k32.CreateRemoteThread(pid.hProcess, None, 0, load_function, address, 0, None),
                  'CreateRemoteThread')
 
-    k32.WaitForSingleObject(thread, INFINITE)
+    _require(k32.WaitForSingleObject(thread, INFINITE) != WAIT_FAILED, 'WaitForSingleObject')
     module = wt.DWORD()
     _require(k32.GetExitCodeThread(thread, ctypes.byref(module)), 'GetExitCodeThread')
     if module.value == 0:
         raise OSError('LoadLibraryW returned zero; the DLL was not loaded')
 
-    k32.VirtualFreeEx(pid.hProcess, address, 0, MEM_RELEASE)
-    k32.CloseHandle(thread)
+    _require(k32.VirtualFreeEx(pid.hProcess, address, 0, MEM_RELEASE), 'VirtualFreeEx')
+    _require(k32.CloseHandle(thread), 'CloseHandle')
     _require(k32.ResumeThread(pid.hThread) != -1, 'ResumeThread')
-    k32.CloseHandle(pid.hThread)
-    k32.CloseHandle(pid.hProcess)
+    _require(k32.CloseHandle(pid.hThread), 'CloseHandle')
+    _require(k32.CloseHandle(pid.hProcess), 'CloseHandle')
     return pid.dwProcessId
 
 

@@ -9,21 +9,10 @@ session read the file.
 """
 
 import ctypes
-from collections.abc import Iterator
 
 import pytest
 
 from tools.nvda import speech
-
-
-@pytest.fixture
-def heard() -> Iterator[speech.Recorder]:
-    """A recorder in place of the NVDA client, put back afterwards."""
-    recorder = speech.Recorder()
-    previous = speech._client
-    speech._client = recorder
-    yield recorder
-    speech._client = previous
 
 
 def test_speech_and_braille_carry_the_same_text(heard: speech.Recorder) -> None:
@@ -51,7 +40,8 @@ def test_an_unknown_mode_breaks_where_it_happens() -> None:
         speech.output('text', 'sideways')
 
 
-def test_a_failure_is_written_out_even_when_it_cannot_be_spoken(capsys: pytest.CaptureFixture[str]) -> None:
+def test_a_failure_is_written_out_even_when_it_cannot_be_spoken(monkeypatch: pytest.MonkeyPatch,
+                                                                capsys: pytest.CaptureFixture[str]) -> None:
     """The one place in the seam allowed to swallow, and the reason it is allowed.
 
     An exit that raises while carrying a failure loses the failure it was carrying. So the
@@ -61,12 +51,8 @@ def test_a_failure_is_written_out_even_when_it_cannot_be_spoken(capsys: pytest.C
         def nvdaController_speakText(self, _text: ctypes.c_wchar_p) -> int:
             raise OSError('NVDA is gone')
 
-    previous = speech._client
-    speech._client = Deaf()
-    try:
-        sentence = speech.failure('the game', 'the link with it is gone', 'start it again')
-    finally:
-        speech._client = previous
+    monkeypatch.setattr(speech, '_client', Deaf())
+    sentence = speech.failure('the game', 'the link with it is gone', 'start it again')
 
     assert sentence == 'the game: the link with it is gone, start it again'
     assert sentence in capsys.readouterr().err

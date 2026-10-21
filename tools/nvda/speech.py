@@ -107,7 +107,7 @@ def output(text: str, mode: str = REPLACE, braille: str | None = None) -> None:
         raise OSError(f'NVDA returned error code {int(error)} on braille')
 
 
-def failure(where: str, what: str, remedy: str, mode: str = REPLACE) -> str:
+def failure(where: str, what: str, remedy: str) -> str:
     """The exit for a failure: one sentence carrying where, what, and what to do now.
 
     No error code, no path, no exclamation mark without words. A player cannot act on an offset
@@ -122,7 +122,7 @@ def failure(where: str, what: str, remedy: str, mode: str = REPLACE) -> str:
     sentence = f'{where}: {what}, {remedy}'
     print(sentence, file=sys.stderr, flush=True)
     try:
-        output(sentence, mode)
+        output(sentence)
     except Exception as trouble:  # noqa: BLE001 - the failure exit must never fail; the sentence is on stderr already
         print(f'that sentence did not reach NVDA: {trouble}', file=sys.stderr, flush=True)
     return sentence

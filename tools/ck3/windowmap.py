@@ -263,7 +263,7 @@ def window_keys_round(game: 'Game', names: list[str]) -> dict[str, str | list[tu
     plan = window_bindings()
     base = vtablemap.module_base(game.pid)
     text_classes = {base + v for name in derive.TEXT_CLASSES
-                    for v in memory.vtables_by_name(name) or []}
+                    for v in memory.vtables_by_name(name)}
 
     def drawn_texts(name: str) -> tuple[str, ...]:
         """The texts of a window that stands open: just opened, or still there after a key."""
@@ -425,7 +425,7 @@ def windows_on_disk() -> dict[str, OnDisk]:
 
 def classes(pid: int) -> set[int]:
     base = vtablemap.module_base(pid)
-    return {base + v for v in (memory.vtables_by_name('Window') or [])}
+    return {base + v for v in memory.vtables_by_name('Window')}
 
 
 class Game:

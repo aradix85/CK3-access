@@ -17,13 +17,9 @@ from tools.nvda import speech
 WIDGET = 'w\t1000\t5\t0\t0\t10\t10\t0\troot\t'
 
 
-@pytest.fixture
-def heard(monkeypatch: pytest.MonkeyPatch) -> speech.Recorder:
-    """A recorder in place of the NVDA client, and nothing said before this test."""
-    recorder = speech.Recorder()
-    monkeypatch.setattr(speech, '_client', recorder)
+@pytest.fixture(autouse=True)
+def nothing_said_before(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(derive, '_MISSING_SAID', set())
-    return recorder
 
 
 def answer(monkeypatch: pytest.MonkeyPatch, *lines: str) -> None:
