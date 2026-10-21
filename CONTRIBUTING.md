@@ -8,6 +8,15 @@ Don't write "this is faster" or "this fixes the offsets". Write what you measure
 the number before and after — and the worst case beside the median. A negative result needs the same:
 say why your check could have seen the effect.
 
+## How the code is written
+
+The same for Python and C++:
+- **KISS, lean, DRY, YAGNI.** No boilerplate, no fallbacks, no backwards compatibility.
+- **No defensive programming:** let it break where the fault is. The exceptions are the boundaries
+  where outside input enters, and code that runs inside the game process.
+- **Modular:** what belongs together stays together, one file per group of functions.
+- **A script only defines when it is loaded;** its work starts under `if __name__ == '__main__':`.
+
 ## Before you open a pull request
 
 - **Test small first, on hard cases.** A run without errors is not a result; a prediction that came
@@ -23,7 +32,8 @@ say why your check could have seen the effect.
 ## Checks that must pass
 
 `python -m tools.check`, `python -m pytest`, `python -m ruff check .` and `python -m mypy`. `check.py`
-recomputes every number in `reports/claims.json` and checks that every path the documents name exists.
+recomputes every number in `reports/claims.json`, checks that every path the documents name exists,
+and reports a script that does work when it is loaded.
 A number that carries a decision belongs in `claims.json` with its counting rule.
 
 Don't name a script `test_*.py` unless pytest should collect it: scripts under `tools/` that are run by

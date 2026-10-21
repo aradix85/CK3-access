@@ -85,8 +85,9 @@ wait on a state: open one window, press what the files say reaches the target (`
 
 **The tree and the files are joined by structure, not by name** (`tools/ck3/pairing.py`), because most
 widgets that show text have no name. Things a line-based gui reader gets wrong: the last definition
-wins, also for a second `onclick` in the same block; `block "x"` and `block = "x"` both occur; tooltips
-nest without end; and a scroll area draws its scrollbar last whatever the file says.
+of a template wins, but every `onclick` of a block fires, in order, on a click and on a shortcut
+alike; `block "x"` and `block = "x"` both occur; tooltips nest without end; and a scroll area draws
+its scrollbar last whatever the file says.
 
 ## 6. Presentation
 
@@ -106,6 +107,8 @@ Two functions: `output(text, mode, braille)` and `failure(where, what, remedy)`.
 - Two modes, replace and queue.
 - **Nothing speaks when there is nothing to say.** Only a real fault speaks, as one sentence a player
   can act on. `tools/never_silent.py` is the proof and the gate in front of a beta.
+- **The game ending is not a fault.** A link that breaks and stays shut is `channel.Gone`, and the
+  reader stops on it without a word, whether the game was closed or crashed.
 
 ## Deliberately not done
 
