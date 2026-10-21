@@ -236,28 +236,30 @@ def gui_dlc(what: str) -> int:
     return total if what == 'checks' else len(found)
 
 
-def database_entries(kind: str, what: str, save: str | None = None) -> int:
+def database_entries(kind: str, what: str) -> int:
     """Entries of one of the game's databases, merged the way the engine merges them.
 
     `named` is the check rather than a statistic: a key that also resolves to a sentence in the
     localization files exists in two independent places, so a reader that walked into the wrong
     part of the file would show up here as a gap rather than as a plausible list.
-
-    **`numbered` needs the save named, not the newest one.** The engine's numbering belongs to the
-    state that wrote it, so a save made under a different set of mods gives a different answer:
-    measured 29 August 2026, the claim of 463 fell to 244 the moment a save from before the mods
-    became the newest file in the folder. Reading whichever save is newest makes this claim say
-    something other than what its counting rule says, and the failure looks like a broken reader.
     """
     from tools.ck3 import database
     if what == 'keys':
         return len(database.entries(kind))
-    if what == 'named':
-        return len(database.named(kind))
-    from tools.ck3 import savegame
-    keys = [k for k, _, _ in database.entries(kind)]
-    text = savegame.unpack(_path(save)) if save else None
-    return sum(1 for n, key in database.numbering(kind, text).items()
+    return len(database.named(kind))
+
+
+def cultures_numbered(save: str) -> int:
+    """Cultures whose number in this save is their place in the file order.
+
+    **The save is named, never the newest one.** The engine's numbering belongs to the state that
+    wrote it, so a save made under a different set of mods gives a different answer: measured 29
+    August 2026, the claim of 463 fell to 244 the moment a save from before the mods became the
+    newest file in the folder.
+    """
+    from tools.ck3 import database, savegame
+    keys = [k for k, _, _ in database.entries('culture')]
+    return sum(1 for n, key in database.culture_numbers(savegame.unpack(_path(save))).items()
                if n < len(keys) and keys[n] == key)
 
 
@@ -585,7 +587,7 @@ MEASURES: dict[str, Callable[..., object]] = {
             'gui_merged': gui_merged, 'gui_templates': gui_templates,
             'gui_windows': gui_windows, 'gui_dlc': gui_dlc,
             'ledger_buildings': ledger_buildings,
-            'database_entries': database_entries, 'map_layer': map_layer,
+            'database_entries': database_entries, 'cultures_numbered': cultures_numbered, 'map_layer': map_layer,
             'shortcuts': shortcuts, 'shortcut_words': shortcut_words,
             'unseen_texts': unseen_texts}
 

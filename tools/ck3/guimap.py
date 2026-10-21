@@ -237,6 +237,11 @@ def files(with_mods: bool = True) -> list[Row]:
                 full = os.path.join(root, name)
                 virtual = os.path.relpath(full, base).replace(os.sep, '/')
                 found.append((layer, virtual, full))
+    return last_wins(found)
+
+
+def last_wins(found: list[Row]) -> list[Row]:
+    """Of the files at one virtual path, the last in load order, which replaces the rest whole."""
     out: list[Row] = []
     seen: set[str] = set()
     for row in reversed(found):

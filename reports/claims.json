@@ -447,16 +447,14 @@
    "faith",
    "keys"
   ],
-  "counting_rule": "since 1.20.0.2 a faith is a top-level key in common/religion/faith_types; mods written for 1.19 still hang theirs inside a religion under `faiths`, in common/religion/religion_types, and both places are counted, so a tester's mods are read too. No mods are enabled since 1 October 2026",
+  "counting_rule": "top-level keys in common/religion/faith_types, where a faith lives since 1.20.0.2, game folder first and any enabled mods after it. No mods are enabled since 1 October 2026",
   "quoted_in": ["brief\\spelmodel.md"]
  },
  {
   "name": "cultures whose number the file order predicts",
   "claimed": 244,
-  "measure": "database_entries",
+  "measure": "cultures_numbered",
   "arguments": [
-   "culture",
-   "numbered",
    "<documents>\\save games\\Count_Dauid_of_Qasr_Ibrim_1066_09_15.ck3"
   ],
   "counting_rule": "cultures in a save begun on 1.20 whose number is their place in the file order. Faiths, religions and traits do not follow the file order, so the numbering is read from the running game and not derived from disk. The save is named here rather than left to whichever is newest"

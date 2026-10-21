@@ -17,10 +17,10 @@ same layout. The numbers are slot numbers without any shift: low numbers are fil
 and with historical characters, the living sit above 32768.
 
 Why this still works after a patch. None of it is written down. The vtable comes from the exe, the
-offset of the global is derived and stored under a key made from that same exe, and at every start
-it is recomputed: if the object's vtable checks out and the block counts are sane, it is still
-good; if that check fails, it is derived again. That is the same setup as `derive.py` uses for the
-widget fields, and for the same reason.
+offset of the global is derived and stored under a key made from that same exe, so a patch derives
+it again. Within a build it is read back at every start and has to point at something that still
+looks like a database - a table, and counts that are not absurd - or it is derived again. The
+class is not checked there: within one build the global does not move.
 
 Deriving costs about two and a half minutes, rechecking a fraction of a second.
 """
@@ -37,7 +37,6 @@ from tools.ck3 import channel, derive, memory, vtablemap
 
 MODEL = os.path.join(paths.REPORTS, 'model.json')
 CLASS = '.?AV?$TPdxRefDatabase@VCCharacter@@$07@@'
-PER_BLOCK = 1024
 
 
 class Place(TypedDict):
@@ -196,21 +195,14 @@ def database(pid: int) -> int:
     return object_of(pid)
 
 
-def size(pid: int, db: int | None = None) -> tuple[int, int]:
-    """How many blocks, and therefore how many character slots, this game state has."""
-    header = derive.read_known(db or database(pid), 24)
-    blocks: int = struct.unpack_from('<I', header, 16)[0]
-    return blocks, blocks * PER_BLOCK
-
-
 if __name__ == '__main__':
     terminal.utf8()
     pid = int(sys.argv[1])
     db = database(pid)
-    blocks, slots = size(pid, db)
-    print(f'database at {db:x}, {int(blocks)} blocks, {int(slots)} character slots')
-    # Reading a character is `model.py`: this module's job ends at the database. Imported here
-    # rather than at the top, because model imports this one.
+    # Reading the database and a character is `model.py`: this module's job ends at the database.
+    # Imported here rather than at the top, because model imports this one.
     from tools.ck3 import model
-    for number in [int(a) for a in sys.argv[2:]] or [32769]:
+    starts, filled = model.block_table(db)
+    print(f'database at {db:x}, {len(starts)} blocks, {int(filled)} of {len(starts) * model.BLOCK} slots filled')
+    for number in [int(a) for a in sys.argv[2:]] or [model.player(pid)[0]]:
         print(f'{int(number)} -> {model.character(pid, number)}')

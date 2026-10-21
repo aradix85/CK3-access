@@ -8,10 +8,6 @@
   "rite": 156,
   "dynasty_house": 320
  },
- "beacon": {
-  "skill": 164,
-  "note": "six times 32 bits; this is what the object was found by, not a separately tested field"
- },
  "evidence": {
   "culture": "78 of 78 in the record",
   "rite": "79 of 79 in the record",

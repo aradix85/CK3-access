@@ -109,12 +109,13 @@ def forms(text: str) -> dict[bytes, str]:
     return out
 
 
-# How each form is unpacked. A form not named here is float64.
-UNPACK = {'int32': '<i', 'fixed32': '<i', 'int64': '<q', 'fixed64': '<q', 'float32': '<f'}
+# How each form is unpacked.
+UNPACK = {'int32': '<i', 'fixed32': '<i', 'int64': '<q', 'fixed64': '<q', 'float32': '<f',
+          'float64': '<d'}
 
 
 def value_of(chunk: bytes, offset: int, form: str) -> int | float:
-    value: int | float = struct.unpack_from(UNPACK.get(form, '<d'), chunk, offset)[0]
+    value: int | float = struct.unpack_from(UNPACK[form], chunk, offset)[0]
     return value
 
 
@@ -162,20 +163,41 @@ def _record_length(block_start: int, model: anchor.Model) -> int:
     raise SystemExit('no record length fits block 0: the handle is not where the model says it is')
 
 
+# A TPdxRefDatabase, the shape of the character database and of most others: the table of block
+# starts at +8, how many blocks at +16, how many slots are filled at +60. These are not derived, so
+# every read proves them again: the records that come out have to carry their own number, and the
+# keys the keys the files on disk carry. A block holds BLOCK slots.
+HEAD = {'table': 8, 'blocks': 16, 'count': 60}
+# **The field at +40 is not the block size, measured 1 September 2026.** It reads 1024 for
+# cultures, faiths and religions - the size they really use - and it read as the block size here
+# until titles came along, where it says 32768 while the database works in blocks of 1024, and
+# characters, where it says 131072. Three databases where the two coincided is a coincidence and
+# not a counting rule. The character database has carried 1024 by hand all along and that turns out to be
+# right; taking it from the header would have indexed the character database at 131072 and read
+# every field behind it quietly wrong.
+BLOCK = 1024
+POINTER = (0x10000000000, 0x800000000000)       # where a heap pointer of the game can lie
+BEHIND = 0x400                                  # how much is read behind a pointer in a record
+
+
+def block_table(address: int) -> tuple[tuple[int, ...], int]:
+    """Where each block of a database starts, and how many of its slots are filled."""
+    head = derive.read_known(address, 64)
+    table, count = struct.unpack_from('<QI', head, HEAD['table'])
+    filled: int = struct.unpack_from('<I', head, HEAD['count'])[0]
+    return struct.unpack(f'<{int(count)}Q', derive.read_known(table, count * 8)), filled
+
+
 def _layout(pid: int) -> tuple[anchor.Model, tuple[int, ...], int]:
-    """Where every record starts, from the block table in one read, and how long a record is."""
+    """Where every record starts, from the block table, and how long a record is."""
     model = anchor.load_model()
-    db = anchor.database(pid)
-    header = derive.read_known(db, 24)
-    table: int = struct.unpack_from('<Q', header, 8)[0]
-    blocks: int = struct.unpack_from('<I', header, 16)[0]
-    starts = struct.unpack(f'<{int(blocks)}Q', derive.read_known(table, blocks * 8))
+    starts, _ = block_table(anchor.database(pid))
     model['record_length'] = _record_length(starts[0], model)
-    return model, starts, blocks
+    return model, starts, len(starts)
 
 
 def _record_address(starts: tuple[int, ...], model: anchor.Model, slot: int) -> int:
-    per = model['block_size']
+    per = BLOCK
     return starts[slot // per] + (slot % per) * model['record_length'] \
         + model['number_field_in_record']
 
@@ -191,7 +213,7 @@ def records_for(pid: int, handles: list[int]) -> tuple[dict[int, bytes], int]:
     mask = model['number_mask']
     length = model['record_length'] - model['number_field_in_record']
     where = {h: _record_address(starts, model, h & mask)
-             for h in handles if (h & mask) // model['block_size'] < blocks}
+             for h in handles if (h & mask) // BLOCK < blocks}
     raw = readmany(sorted(where.values()), length)
     good: dict[int, bytes] = {}
     for handle, address in where.items():
@@ -201,7 +223,7 @@ def records_for(pid: int, handles: list[int]) -> tuple[dict[int, bytes], int]:
     return good, len(where) - len(good)
 
 
-def answer_key(save_path: str, handles: list[int] | None = None) -> dict[int, Row]:
+def answer_key(save_path: str) -> dict[int, Row]:
     """What the save says about every landed character, as the text the save writes.
 
     Kept as text on purpose: `power` is a whole number for one character and 34891.956 for the
@@ -211,10 +233,7 @@ def answer_key(save_path: str, handles: list[int] | None = None) -> dict[int, Ro
     text = savegame.unpack(save_path)
     index = savegame.character_index(text)
     rows: dict[int, Row] = {}
-    for number in (handles if handles is not None else sorted(index)):
-        if number not in index:
-            continue
-        start = index[number]
+    for number, start in sorted(index.items()):
         body = text[start:text.find('\n}\n', start)]
         if 'current_strength=' not in body:
             continue
@@ -259,7 +278,7 @@ def long_string_at(chunk: bytes, offset: int) -> tuple[int, int] | None:
     if capacity <= STRING_IN_PLACE or not 0 < length <= capacity < 4096:
         return None
     address = struct.unpack_from('<Q', chunk, offset)[0]
-    if not 0x10000000000 <= address < 0x800000000000:
+    if not POINTER[0] <= address < POINTER[1]:
         return None
     return address, length
 
@@ -302,7 +321,7 @@ def _best(counts: dict[tuple[P, str], int], asked: int) -> tuple[P, str, int] | 
     return good[0]
 
 
-def derive_all(pid: int, rows: dict[int, Row], block_bytes: int = 1024) -> tuple[
+def derive_all(pid: int, rows: dict[int, Row]) -> tuple[
         dict[int, bytes], int, tuple[int, str, int], dict[str, int],
         dict[tuple[str, int, str], int], dict[tuple[str, int, int, str], int]]:
     """Every offset, found by laying the save beside the memory of the running game.
@@ -352,13 +371,13 @@ def derive_all(pid: int, rows: dict[int, Row], block_bytes: int = 1024) -> tuple
 
     # The offsets that hold a pointer in every record; there are at least twenty, checked above.
     pointers = set.intersection(*({offset for offset in range(0, length - 8, 8)
-                                   if 0x10000000000 <= struct.unpack_from('<Q', chunk, offset)[0]
-                                   < 0x800000000000} for chunk in good.values()))
+                                   if POINTER[0] <= struct.unpack_from('<Q', chunk, offset)[0]
+                                   < POINTER[1]} for chunk in good.values()))
 
     indirect: dict[tuple[str, int, int, str], int] = {}
     for pointer_offset in sorted(pointers):
         targets = {h: struct.unpack_from('<Q', c, pointer_offset)[0] for h, c in good.items()}
-        chunks = readmany(sorted(set(targets.values())), block_bytes)
+        chunks = readmany(sorted(set(targets.values())), BEHIND)
         for handle in good:
             block = chunks.get(targets[handle])
             if block is None:
@@ -371,11 +390,10 @@ def derive_all(pid: int, rows: dict[int, Row], block_bytes: int = 1024) -> tuple
     return good, wrong, name, asked, scalar, indirect
 
 
-def build(pid: int, rows: dict[int, Row], block_bytes: int = 1024,
-          against: str | None = None) -> anchor.Model:
+def build(pid: int, rows: dict[int, Row], against: str) -> anchor.Model:
     """Derive and fold the result into the model, keeping the offsets relative to the handle
     field - the base `reports\\claims.json` and `check.py` already count against."""
-    good, wrong, name, asked, scalar, indirect = derive_all(pid, rows, block_bytes)
+    good, wrong, name, asked, scalar, indirect = derive_all(pid, rows)
     model = anchor.load_model()
     fields: dict[str, int] = {}
     places: dict[str, anchor.Place] = {}
@@ -407,7 +425,7 @@ def build(pid: int, rows: dict[int, Row], block_bytes: int = 1024,
     model['evidence'] = evidence
     # Which save it was derived against belongs in the file. A save carries the state that wrote
     # it, so an offset table without its provenance is a number nobody can put back in context.
-    model['derived_on'] = f"{time.strftime('%Y-%m-%d')}, {len(good)} characters, {int(wrong)} records unreadable or reused, against {against or 'an unnamed save'}"
+    model['derived_on'] = f"{time.strftime('%Y-%m-%d')}, {len(good)} characters, {int(wrong)} records unreadable or reused, against {against}"
     anchor.store_model(model)
     return model
 
@@ -419,7 +437,7 @@ def sample_slots(pid: int, wanted: int = 200) -> tuple[anchor.Model, dict[int, b
     that only ever looks at those proves nothing about the ones a player meets.
     """
     model, starts, blocks = _layout(pid)
-    slots = blocks * model['block_size']
+    slots = blocks * BLOCK
     step = max(1, slots // wanted)
     picked = list(range(0, slots, step))[:wanted]
     length = model['record_length'] - model['number_field_in_record']
@@ -467,7 +485,7 @@ def check(pid: int, wanted: int = 400) -> list[str]:
         here: dict[int, int] = {}
         for slot, chunk in records.items():
             value = struct.unpack_from('<Q', chunk, pointer)[0]
-            if 0x10000000000 <= value < 0x800000000000:
+            if POINTER[0] <= value < POINTER[1]:
                 here[slot] = value
         # A missing pointer is not a defect. Measured 29 August 2026 over 200 slots spread across
         # the whole database: 51 carry no money block and 171 no landed block, because most
@@ -475,7 +493,7 @@ def check(pid: int, wanted: int = 400) -> list[str]:
         if len(here) < 20:
             defects.append(f'only {len(here)} of {len(records)} records carry the pointer at +0x{pointer:03x}, too few to '
                            'check it against')
-        targets[pointer] = (here, readmany(sorted(set(here.values())), 0x400))
+        targets[pointer] = (here, readmany(sorted(set(here.values())), BEHIND))
 
     live: dict[int, dict[str, int | float]] = {}
     for slot in records:
@@ -513,10 +531,10 @@ def check(pid: int, wanted: int = 400) -> list[str]:
     return defects
 
 
-def character(pid: int, handle: int, records: dict[int, bytes] | None = None) -> Character:
+def character(pid: int, handle: int) -> Character:
     """Every field of one character: the scalars from the record, the rest through the pointers."""
     model = anchor.load_model()
-    good = records or records_for(pid, [handle])[0]
+    good = records_for(pid, [handle])[0]
     if handle not in good:
         raise ValueError(f'character {int(handle)} is not in the database, or the slot was reused')
     chunk = good[handle]
@@ -528,7 +546,7 @@ def character(pid: int, handle: int, records: dict[int, bytes] | None = None) ->
         values[field] = struct.unpack_from('<i', chunk, offset)[0]
     for pointer in {p['pointer'] for p in model.get('indirect', {}).values()}:
         address = struct.unpack_from('<Q', chunk, pointer)[0]
-        block = derive.read(address, 0x400)
+        block = derive.read(address, BEHIND)
         for field, place in model.get('indirect', {}).items():
             if place['pointer'] == pointer and block is not None:
                 values[field] = value_of(block, place['offset'], place['form'])
@@ -641,15 +659,15 @@ def compare(pid: int, save_path: str, count: int = 400) -> tuple[
     the wrong file, and a disagreement in the first says a field has moved.
     """
     model, _starts, blocks = _layout(pid)
-    slots = blocks * model['block_size']
+    slots = blocks * BLOCK
     rows = answer_key(save_path)
-    handles = [h for h in sorted(rows)][::max(1, len(rows) // count)][:count] or list(rows)
+    handles = sorted(rows)[::max(1, len(rows) // count)][:count]
     good, wrong = records_for(pid, handles)
     pointers = {p['pointer'] for p in model.get('indirect', {}).values()}
     blocks_read: dict[int, tuple[dict[int, int], dict[int, bytes]]] = {}
     for pointer in pointers:
         targets = {h: struct.unpack_from('<Q', c, pointer)[0] for h, c in good.items()}
-        blocks_read[pointer] = (targets, readmany(sorted(set(targets.values())), 0x400))
+        blocks_read[pointer] = (targets, readmany(sorted(set(targets.values())), BEHIND))
 
     counters: dict[str, tuple[int, int]] = {}
     misses: list[str] = []
@@ -705,9 +723,7 @@ def main() -> None:
     derive.configure_channel(fields)
 
     if len(sys.argv) > 3 and sys.argv[2] == '--player':
-        path = sys.argv[3]
-        if not os.path.isabs(path):
-            path = os.path.join(savegame.SAVE_DIR, path)
+        path = savegame.named(sys.argv[3])
         number = savegame.player(savegame.unpack(path))
         spots = derive_player(pid, int(number))
         print(f"{os.path.basename(path)} says its player is {number}; {len(spots)} places in the module hold it: {', '.join(f'+{spot:x}' for spot in spots)}")
@@ -716,9 +732,7 @@ def main() -> None:
         return
 
     if len(sys.argv) > 2:
-        path = sys.argv[2]
-        if not os.path.isabs(path):
-            path = os.path.join(savegame.SAVE_DIR, path)
+        path = savegame.named(sys.argv[2])
         print(f'deriving against {os.path.basename(path)}')
         rows = answer_key(path)
         spread = sorted(rows)[::max(1, len(rows) // 80)][:80]

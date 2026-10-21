@@ -17,32 +17,11 @@ from: the game recomputes the levies around loading. They are reported apart, so
 disagreement there reads as a stale answer key rather than as a moved field.
 The field offsets live in `reports\\model.json` and are derived by `model.py`, not typed in.
 """
-import glob
 import os
 import sys
 
 from tools import terminal
 from tools.ck3 import derive, model, savegame
-
-
-def save_named(save: str | None = None) -> str:
-    """The path of the save that serves as the answer key.
-
-    Defaults to the newest readable save. Name the save - any part of the file name will do - when
-    the game has a different one loaded. Memory carries the state that was loaded, and held against
-    another save every field disagrees at once, which reads exactly like a shifted field offset.
-
-    **For the seven fields the game recomputes around loading this is not enough**, and that was
-    measured on two states on 29 August 2026: the file the state was loaded from disagrees with
-    memory for a third of all characters. Those need a save written from the state now loaded.
-    """
-    if save is None:
-        return savegame.newest_readable_save()
-    matches = [p for p in glob.glob(os.path.join(savegame.SAVE_DIR, '*.ck3'))
-               if save.lower() in os.path.basename(p).lower()]
-    if len(matches) != 1:
-        raise SystemExit(f'{len(matches)} saves carry {save!r} in their name, so it says nothing')
-    return matches[0]
 
 
 def text_boxes(nodes: derive.Nodes) -> list[int]:
@@ -113,7 +92,12 @@ def test_ocr(pid: int, nodes: derive.Nodes, addresses: list[int]) -> tuple[int, 
 
 
 def main(pid: int, count: int = 400, *, save: str | None = None) -> None:
-    path = save_named(save)
+    # The answer key is the newest readable save unless one is named, by any part of its name, for
+    # a game that has another one loaded. **For the seven fields the game recomputes around loading
+    # this is not enough**, measured on two states on 29 August 2026: the file the state was loaded
+    # from disagrees with memory for a third of all characters. Those need a save written from the
+    # state now loaded.
+    path = savegame.named(save) if save else savegame.newest_readable_save()
     print(f'answer key: {os.path.basename(path)}')
 
     fields = derive.fields_for(pid)[0]
@@ -129,7 +113,7 @@ def main(pid: int, count: int = 400, *, save: str | None = None) -> None:
         print(f'   {line}')
 
     counters, read, wrong, misses, places = model.compare(pid, path, count)
-    blocks = places // 1024
+    blocks = places // model.BLOCK
     print(f'game model: {int(read)} characters read across {int(blocks)} blocks, {int(wrong)} slots reused or unreadable')
     for field, (g, t) in sorted(counters.items()):
         print(f"   {field!s:<24} {int(g)} of {int(t)}{'   recomputed on load' if field in model.RECOMPUTED_ON_LOAD else ''}")

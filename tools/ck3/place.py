@@ -4,7 +4,7 @@ Three sources meet here and none of them can answer alone. The character record 
 which title a character calls its seat, as a number. The landed-title database in the running
 game turns that number into a key. The map files on disk say which county that key stands on.
 The chain is only as good as its weakest link, and each of the three proves itself where it
-lives: `model.check` against the save, `numbering.keys` against the title files, and
+lives: `model.compare` against a save, `numbering.keys` against the title files, and
 `mapdata.Map.county_for` against every `realm_capital` of three saves.
 
 **Both halves are expensive to build and neither changes while the game runs**, so a caller holds
@@ -20,10 +20,10 @@ from tools.ck3 import mapdata, model, numbering
 class Seats:
     """Where the characters of this game sit, from the running game and the files together."""
 
-    def __init__(self, pid: int, world: mapdata.Map | None = None) -> None:
+    def __init__(self, pid: int) -> None:
         self.pid = pid
         self.titles = numbering.keys(pid, 'title')
-        self.world = world if world is not None else mapdata.Map()
+        self.world = mapdata.Map()
 
     def title_of(self, number: int) -> str | None:
         """The key of a title number, as the running game numbers them right now.
@@ -33,14 +33,14 @@ class Seats:
         """
         return self.titles.get(number)
 
-    def seat_of(self, handle: int, records: dict[int, bytes] | None = None) -> str | None:
+    def seat_of(self, handle: int) -> str | None:
         """The county a character sits on, or None when it holds no seat.
 
         None is an answer and not a gap. Three quarters of the characters in a state are dead or
         landless and carry no `realm_capital`, and a titular title names no capital, so it stands
         on no county.
         """
-        capital = model.character(self.pid, handle, records).get('realm_capital')
+        capital = model.character(self.pid, handle).get('realm_capital')
         return None if capital is None else self.county_of(int(capital))
 
     def county_of(self, number: int) -> str | None:
@@ -48,10 +48,9 @@ class Seats:
         key = self.title_of(number)
         return self.world.county_for(key) if key else None
 
-    def where(self, handle: int, records: dict[int, bytes] | None = None
-              ) -> tuple[str, str, tuple[float, float] | None] | None:
+    def where(self, handle: int) -> tuple[str, str, tuple[float, float] | None] | None:
         """(county key, the name a player reads, the point on the map) of a character's seat."""
-        county = self.seat_of(handle, records)
+        county = self.seat_of(handle)
         if county is None:
             return None
         return county, self.world.name(county), self.world.where(county)

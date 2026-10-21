@@ -2,17 +2,16 @@
 
 Disk only. It never opens a save and never talks to the game, which is the whole point: this is
 the half of the answer that is the same for every player and can be worked out before anything is
-running. Everything it needs is read the way the engine merges it, mods included, so a tester with
-a different set of mods gets his own map rather than this one.
+running. The landed titles are read the way the engine merges them, mods included; the map files
+themselves come from the game folder, so a mod that redraws the map is not read.
 
 Nothing here is cached. The province centres and the adjacency come out of `provinces.png` in a
 few seconds, and a cached copy would be a file that quietly disagrees with the player's own map
 after a patch or a new mod. Derive rather than write down.
 
-The three constants below carry decisions and each was measured.
-Distance is deliberately approximate: for playing, the
-difference that matters is between the next county, the far side of your realm and the far side of
-the world.
+Two of the three constants below were measured, the third is a choice. Distance is deliberately
+approximate: for playing, the difference that matters is between the next county, the far side of
+your realm and the far side of the world.
 """
 import collections
 import math
@@ -28,8 +27,6 @@ from PIL import Image
 from tools import paths, terminal
 from tools.ck3 import database, guimap
 
-Image.MAX_IMAGE_PIXELS = None
-
 # 1.509 km per pixel, the median over seven pairs whose real distance is known. The spread is a
 # third, because the map stretches with latitude; a fitted projection was tried and is not better.
 KM_PER_PIXEL = 1.509
@@ -38,8 +35,9 @@ KM_PER_PIXEL = 1.509
 # factor two, from terrain, sea crossings and the fifteen days an embarkation costs.
 PIXELS_PER_DAY = 2.5
 
-# Within a fifth, a bearing counts as diagonal. It belongs in data
-# rather than in this line as soon as there is a settings file.
+# A bearing within a fifth of an axis counts as that axis - north rather than north-northeast - and
+# anything wider as diagonal. A choice, not a measurement; it belongs in data rather than in this
+# line as soon as there is a settings file.
 DIAGONAL_MARGIN = 0.20
 
 COMPASS = {(0, 1): 'north', (0, -1): 'south', (1, 0): 'east', (-1, 0): 'west',
@@ -74,6 +72,7 @@ def province_image() -> NDArray[numpy.int32]:
     lookup = numpy.zeros(1 << 24, dtype=numpy.int32)
     for colour, number in province_colours().items():
         lookup[colour] = number
+    Image.MAX_IMAGE_PIXELS = None       # the map is larger than PIL's guard against decompression bombs
     image = numpy.asarray(Image.open(_map_file('provinces.png')), dtype=numpy.uint8)
     packed = ((image[:, :, 0].astype(numpy.int32) << 16)
               | (image[:, :, 1].astype(numpy.int32) << 8) | image[:, :, 2].astype(numpy.int32))

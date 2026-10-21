@@ -10,10 +10,12 @@ therefore does not read a slightly wrong faith, it reads a random one, and nothi
 Reading it here removes the question, because these are the very objects the character records
 point at. It also removes the need for a manual save to exist at all.
 
-Two shapes, and the difference is real rather than cosmetic. Cultures, faiths and religions are
+Three shapes, and the difference is real rather than cosmetic. Faiths, religions and rites are
 game state: a `TPdxRefDatabase` whose slot number is the number, refilled from the save at every
-load. Traits are definitions of the installation: a `CTraitDatabase` holding an array of pointers,
-the same on every state, so a save written before the mods simply has fewer of them.
+load, with the key in the record. Cultures and titles are the same database, but their record
+holds a pointer to the object that carries the key. Traits are definitions of the installation: a
+`CTraitDatabase` holding an array of pointers, the same on every state, so a save written before
+the mods simply has fewer of them.
 
 **A number is only meaningful inside the state that is running.** A player can found a faith or a
 culture, so the count grows while playing; never keep a numbering across a load, and take the
@@ -43,21 +45,9 @@ CLASSES = {
     'trait': ('.?AVCTraitDatabase@@', 'array'),
     'title': ('.?AV?$TPdxRefDatabase@VCLandedTitle@@$07@@', 'indirect'),
 }
-# Inside the header of a TPdxRefDatabase. These three are not derived, so every read proves them
-# again: the keys that come out have to be the keys the files on disk carry.
-HEAD = {'table': 8, 'blocks': 16, 'count': 60}
-# **The field at +40 is not the block size, measured 1 September 2026.** It reads 1024 for
-# cultures, faiths and religions - the size they really use - and it read as the block size here
-# until titles came along, where it says 32768 while the database works in blocks of 1024, and
-# characters, where it says 131072. Three databases where the two coincided is a coincidence and
-# not a counting rule. `anchor.py` has carried 1024 by hand all along and that turns out to be
-# right; taking it from the header would have indexed the character database at 131072 and read
-# every field behind it quietly wrong.
-BLOCK = 1024
 CHUNK = 65536
 STRING = 32
 SAMPLE = 32
-POINTER = (0x10000000000, 0x800000000000)
 
 
 def _key_test(known: set[str]) -> re.Pattern[str]:
@@ -113,7 +103,7 @@ def _is_array_database(address: int) -> bool:
 def _array_at(head: bytes, at: int) -> tuple[int, int] | None:
     """(address, count) of the pointer array sitting at this offset, or None."""
     where, count = struct.unpack_from('<QI', head, at)
-    if not POINTER[0] <= where < POINTER[1] or not 0 < count < 10000:
+    if not model.POINTER[0] <= where < model.POINTER[1] or not 0 < count < 10000:
         return None
     return where, count
 
@@ -125,7 +115,7 @@ def _members(found: tuple[int, int], how_many: int = 8) -> list[int] | None:
     if not raw:
         return None
     entries = [struct.unpack_from('<Q', raw, i * 8)[0] for i in range(len(raw) // 8)]
-    return entries if all(POINTER[0] <= one < POINTER[1] for one in entries) else None
+    return entries if all(model.POINTER[0] <= one < model.POINTER[1] for one in entries) else None
 
 
 def _object(pid: int, kind: str) -> tuple[int, str]:
@@ -151,11 +141,8 @@ def _places(pid: int, kind: str, layout: Layout) -> dict[int, int]:
         where, count = found
         raw = derive.read_known(where, count * 8)
         return {n: struct.unpack_from('<Q', raw, n * 8)[0] + layout['key'] for n in range(count)}
-    head = derive.read_known(address, 64)
-    table, blocks = struct.unpack_from('<QI', head, HEAD['table'])
-    count = struct.unpack_from('<I', head, HEAD['count'])[0]
-    starts = struct.unpack(f'<{int(blocks)}Q', derive.read_known(table, blocks * 8))
-    records = {n: starts[n // BLOCK] + (n % BLOCK) * layout['record'] for n in range(count)}
+    starts, count = model.block_table(address)
+    records = {n: starts[n // model.BLOCK] + (n % model.BLOCK) * layout['record'] for n in range(count)}
     if shape == 'blocks':
         return {n: at + layout['key'] for n, at in records.items()}
     spots = {n: at + layout['pointer'] for n, at in records.items()}
@@ -165,7 +152,7 @@ def _places(pid: int, kind: str, layout: Layout) -> dict[int, int]:
         chunk = held.get(at)
         if chunk and len(chunk) == 8:
             target = struct.unpack('<Q', chunk)[0]
-            if POINTER[0] <= target < POINTER[1]:
+            if model.POINTER[0] <= target < model.POINTER[1]:
                 out[number] = target + layout['key']
     return out
 
@@ -286,11 +273,8 @@ def _derive_blocks(address: int, known: set[str]) -> Layout:
     272 bytes before its own, and on being well formed the two are indistinguishable. What tells
     them apart is the set of keys the files carry - one field matches it whole, the other partly.
     """
-    head = derive.read_known(address, 64)
-    table = struct.unpack_from('<Q', head, HEAD['table'])[0]
-    filled = struct.unpack_from('<I', head, HEAD['count'])[0]
-    first = struct.unpack('<Q', derive.read_known(table, 8))[0]
-    block = derive.read_known(first, CHUNK)
+    starts, filled = model.block_table(address)
+    block = derive.read_known(starts[0], CHUNK)
     # The spacing of keys the files carry, not of anything shaped like a key: on 1.20 a religion,
     # faith or rite record also holds strings that only look like one, and the commonest distance
     # between all of them was not the record (measured 2 October 2026 on a state begun in 1.20).
@@ -348,7 +332,7 @@ def _pointers_at(block: bytes, at: int, rows: int, record: int) -> dict[int, int
     out: dict[int, int] = {}
     for n in range(rows):
         value = struct.unpack_from('<Q', block, n * record + at)[0]
-        if not POINTER[0] <= value < POINTER[1]:
+        if not model.POINTER[0] <= value < model.POINTER[1]:
             return None
         out[n] = value
     return out
@@ -366,13 +350,10 @@ def _derive_indirect(address: int, known: set[str]) -> Layout:
     and the key sits at +0x20 in that object, so the number stored here is 24. Folding the eight
     in means nothing has to remember it, and nothing here has to know what the object is.
     """
-    head = derive.read_known(address, 64)
-    table = struct.unpack_from('<Q', head, HEAD['table'])[0]
-    filled = struct.unpack_from('<I', head, HEAD['count'])[0]
-    first = struct.unpack('<Q', derive.read_known(table, 8))[0]
-    block = derive.read_known(first, CHUNK)
+    starts, filled = model.block_table(address)
+    block = derive.read_known(starts[0], CHUNK)
     spots = [at for at in range(0, len(block) - 8, 8)
-             if POINTER[0] <= struct.unpack_from('<Q', block, at)[0] < POINTER[1]]
+             if model.POINTER[0] <= struct.unpack_from('<Q', block, at)[0] < model.POINTER[1]]
     shaped = _key_test(known)
     readings: dict[tuple[int, int, int], dict[int, str]] = {}
     for record in _own_number_strides(block, min(filled, SAMPLE)):
