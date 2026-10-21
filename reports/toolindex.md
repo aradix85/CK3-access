@@ -47,6 +47,7 @@ returns a pair, passed on as one thing, costs a run.
 | `script_runs()` | 2-tuple | How the documents and the scripts themselves say to start a script, checked against the package. |
 | `scripts()` | value | Every Python file of the tools and the tests. |
 | `loading_work(files)` | value | Every statement at the top level of these files that does work as the file is loaded. |
+| `stale_reports()` | list | A report drawn from the harvest that describes another harvest than the one on disk. |
 | `main(all_of_them)` | value | The checks that need nothing but this repository first, then the claims, which stop at the |
 
 ## never_silent.py
@@ -369,6 +370,7 @@ returns a pair, passed on as one thing, costs a run.
 | `bare_number(text)` | bool of value | A text that is only a number. This is the case the origin question exists for: `150` |
 | `unexplained(count, kind, context, built, developer)` | nothing | The texts the gui files do not predict, split the way the decision needed them. |
 | `sweep()` | 3-tuple | Every harvested window paired, as one tally. About twenty seconds for 204 windows (measured |
+| `harvested_at()` | value | When the newest record in the harvest was measured: which harvest a report drawn from it |
 | `main()` | nothing | - |
 
 ## ck3\place.py
@@ -401,6 +403,7 @@ returns a pair, passed on as one thing, costs a run.
 | `escape_to(root, pid, window_classes, menus)` | 4-tuple | Escape until one of `menus` is drawn, and what is drawn then; stop if it does not come. |
 | `exit_save_since(moment)` | value | - |
 | `gone()` | bool | Wait until the channel stops answering, which is the game being gone. It asks `alive`, |
+| `shut_console(root)` | nothing | The console draws the developers' toolbar, and over the pause menu that toolbar covers Exit |
 | `quit_game(pid)` | nothing | - |
 
 ## ck3\reader.py
@@ -517,6 +520,7 @@ returns a pair, passed on as one thing, costs a run.
 | `key_of(key)` | value | The virtual key for one key as the shortcut file or the map spells it: F1, c, 0, BACKSPACE. |
 | `press(spelling)` | nothing | Press a key as the map spells it - `F1`, or a combination such as `shift+F1` - from inside. |
 | `windows_on_disk()` | value | Every window the gui files declare, with the path the console wants and how it is declared. |
+| `console_drawn(nodes)` | value | Is the console on screen? From the flag byte of `console_window`. |
 | `shortcut_round(game, presses=None)` | value | Which shortcut opens which window? One key per test, and every window shut again. |
 | `create_round(game, windows, limit=None)` | value | Try every window with GUI.CreateWidget, and clean up immediately. |
 | `unmapped(pid, game=None)` | 3-tuple | Which windows the running game built that the map on disk does not know. |
