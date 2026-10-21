@@ -42,13 +42,16 @@ KEYS = {112: 'F1', 113: 'F2', 114: 'F3', 115: 'F4', 116: 'F5',
         117: 'F6', 118: 'F7', 119: 'F8', 120: 'F9', 121: 'F10',
         48: '0', 67: 'C', 86: 'V', 80: 'P', 76: 'L', 77: 'M', 81: 'Q', 78: 'N', 9: 'TAB'}
 # The bindings with a modifier that a round presses on a bare screen: every one a widget in hud.gui
-# declares that brings something up. Left out by name: open_capital, which moves the camera, and
-# the two notification bindings, which change the notifications they act on. Every other binding
-# with a modifier lives inside a window or is a map mode. The keys come from shortcuts.shortcuts, so a
-# patch that rebinds one is followed. They go in through the channel's `combo`, which holds the
-# modifier for the game; a posted key alone carries no modifier state (`tools\ck3\modifiers.py`).
+# declares that brings something up. open_capital also moves the camera, and opens holding_view
+# (measured 21 October 2026, every onclick of a block fires); royal_court is drawn only for a ruler
+# with a royal court. Left out by name: the two notification bindings, which change the
+# notifications they act on. Every other binding with a modifier lives inside a window or is a map
+# mode. The keys come from shortcuts.shortcuts, so a patch that rebinds one is followed. They go in
+# through the channel's `combo`, which holds the modifier for the game; a posted key alone carries
+# no modifier state (`tools\ck3\modifiers.py`).
 MODIFIED = ('ledger_window', 'hud_faith', 'hud_personal_beliefs', 'hud_culture', 'activity_shortcut',
-            'government_hud', 'domicile', 'war_view', 'college_of_cardinals')
+            'government_hud', 'domicile', 'war_view', 'college_of_cardinals', 'open_capital',
+            'royal_court')
 # The pause `combo` leaves after every step when a combination is posted, so the game takes each
 # step in a frame of its own. Assumed, not measured: a paused game on this laptop draws well over
 # ten frames a second.
