@@ -3,6 +3,9 @@
 Outcomes, newest first. No release yet.
 
 ## 2026-10-21 — CK3 1.20.1.1 and 1.20.1.2
+- `guimap` reads `local_template` and looks a local name up in the file it is written in, so the culture, hybridisation and ledger windows get their innovation tooltips.
+- `guimap` stops a widget that comes back inside itself with the same slots filled, instead of cutting the dynasty tree and the struggle window off at a fixed depth; a `using` nothing defines and a tree past that depth now stop with a GuiError.
+- A window declared as a type is expanded once instead of twice over.
 - A question goes to the channel once: a reply that comes too late is no longer asked again, so a click, a key or a scan cannot run twice.
 - `find` and `findin` see a match that ends exactly with a region or with the stretch searched; `mouse`, `sendkey` and `sendchar` say so when the game window refuses a message; `mouse` is a left click and refuses a point that does not fit a window message; wildcards in `find` and the limit on `tree`, which nothing used, are gone.
 - The DLL is two files: `dll/channel.cpp` for the pipe and memory, `dll/input.cpp` for keys and clicks.

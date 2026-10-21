@@ -232,7 +232,7 @@
  },
  {
   "name": "files that go into the repo",
-  "claimed": 85,
+  "claimed": 86,
   "measure": "repo_files",
   "counting_rule": "files under the project folder that .gitignore does not exclude, the same set git ls-files plus git ls-files --others --exclude-standard gives"
  },
@@ -317,12 +317,12 @@
  },
  {
   "name": "file-local gui templates",
-  "claimed": 6,
+  "claimed": 10,
   "measure": "gui_templates",
   "arguments": [
    "local"
   ],
-  "counting_rule": "names declared as `local_type`, keyed by file; all six sit in the developers' editor tools"
+  "counting_rule": "names declared as `local_type` or `local_template`, keyed by file; the six of `local_type` sit in the developers' editor tools, the four of `local_template` in cooltip.gui (three) and hud_outliner.gui (one)"
  },
  {
   "name": "windows with a name in the merged gui set",

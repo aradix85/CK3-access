@@ -149,7 +149,8 @@ def gui_merged(with_mods: bool) -> int:
 
 
 def gui_templates(scope: str) -> int:
-    """Templates in the merged set. `type` and `template` are global, `local_type` is not."""
+    """Templates in the merged set. `type` and `template` are global, `local_type` and
+    `local_template` are not."""
     from tools.ck3 import guimap
     table, local = guimap.type_table()
     return len(table if scope == 'global' else local)

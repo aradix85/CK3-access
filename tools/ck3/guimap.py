@@ -46,13 +46,16 @@ class Node(TypedDict):
     type: str | None
     attrs: list[tuple[str | None, str | None]]
     children: 'list[Node]'
-    truncated: bool
 
 
-# Template name -> definition, global; (file, name) -> definition for `local_type`; slot -> content.
+# Template name -> definition, global; (file, name) -> definition for `local_type` and
+# `local_template`.
 Table = dict[str | None, Definition]
 LocalTable = dict[tuple[str, str | None], Definition]
-Overrides = dict[str | None, list[Entry]]
+# An entry with the file it is written in, which is where a local name in it is looked up.
+Scoped = tuple[Entry, str]
+# Slot -> the `blockoverride` that fills it.
+Overrides = dict[str | None, Scoped]
 # Window name -> the file it is written in, and its entry.
 Known = dict[str, tuple[str, Entry]]
 # Type name -> the end of its inheritance chain, as `root_finder` builds it.
@@ -178,7 +181,7 @@ def _one(found: list[Token], at: int) -> tuple[int, Entry]:
         at, body = _body(found, at + 1)
         return at, _entry(word, arg=name, body=body)
 
-    if word == 'template':
+    if word in ('template', 'local_template'):
         at = _skip_equals(found, at)
         name = found[at][1]
         at, body = _body(found, at + 1)
@@ -274,7 +277,7 @@ def type_table(rows: list[Row] | None = None) -> tuple[Table, LocalTable]:
     come from such shared definitions. The common ones - `tooltip_es`, `Font_Size_Small` - sit in
     the preload folder and are pulled in tens of thousands of times, so treating `template` as
     file-local leaves the reader blind to most of what a widget inherits. Only `local_type` holds
-    inside its own file, which is what its name says.
+    inside its own file, which is what its name says, and so does `local_template`.
 
     Later layers win, which is why `files()` hands them over in the order the engine loads them.
     """
@@ -285,7 +288,7 @@ def type_table(rows: list[Row] | None = None) -> tuple[Table, LocalTable]:
             if entry['key'] in ('type', 'template'):
                 table[entry['arg']] = {'parent': entry['value'], 'body': entry['body'] or [],
                                        'file': virtual, 'layer': layer}
-            elif entry['key'] == 'local_type':
+            elif entry['key'] in ('local_type', 'local_template'):
                 local[(virtual, entry['arg'])] = {'parent': entry['value'],
                                                   'body': entry['body'] or [],
                                                   'file': virtual, 'layer': layer}
@@ -293,84 +296,85 @@ def type_table(rows: list[Row] | None = None) -> tuple[Table, LocalTable]:
 
 
 class Templates:
-    """The template table plus the one file being read, because `local_type` only holds there."""
+    """The template tables. A local name is looked up in the file of the entry that uses it, and
+    that is not the window's file when the entry came in through a template written elsewhere:
+    measured 21 October 2026 on 1.20.1.2, `era_innov_blockers` is local to cooltip.gui and used
+    there, by tooltips that three windows in other files pull in."""
 
-    def __init__(self, table: Table, local: LocalTable, virtual: str) -> None:
-        self.table, self.local, self.virtual = table, local, virtual
+    def __init__(self, table: Table, local: LocalTable) -> None:
+        self.table, self.local = table, local
 
-    def look_up(self, name: str) -> Definition | None:
-        return self.local.get((self.virtual, name)) or self.table.get(name)
+    def look_up(self, name: str, scope: str) -> Definition | None:
+        return self.local.get((scope, name)) or self.table.get(name)
 
-    def chain(self, name: str | None) -> list[list[Entry]]:
-        """The bodies of the inheritance chain, the base first.
+    def inherited(self, name: str | None, scope: str) -> list[Scoped]:
+        """The bodies of the inheritance chain, the base first, each entry with its own file.
 
         `type textbox = textbox` is how the engine's own widgets get their defaults, so a type
         whose parent is itself is where the chain ends and the C++ begins."""
-        out: list[list[Entry]] = []
-        seen: set[str] = set()
-        while name and name not in seen:
-            seen.add(name)
-            found = self.look_up(name)
-            if not found:
+        bodies: list[list[Scoped]] = []
+        while name:
+            found = self.look_up(name, scope)
+            if found is None:
                 break
-            out.append(found['body'])
-            name = found['parent']
-        return list(reversed(out))
+            bodies.append([(entry, found['file']) for entry in found['body']])
+            if found['parent'] == name:
+                break
+            if len(bodies) > MAX_DEPTH:
+                raise GuiError(f'{scope}: the inheritance of {name!r} goes round')
+            name, scope = found['parent'], found['file']
+        return [scoped for body in reversed(bodies) for scoped in body]
 
 
-def _inline_using(nodes: list[Entry], templates: Templates, depth: int,
-                  seen: frozenset[str]) -> list[Entry]:
-    """`using = X` drops the body of template X in at that spot.
+def _inline_using(nodes: list[Scoped], templates: Templates, depth: int = 0) -> list[Scoped]:
+    """`using = X` drops the body of template X in at that spot, each entry keeping its file.
 
     Only its own body, not the bodies of its ancestors: `using = Font_Size_Small` inside a button
     is meant to add a font size, not to make the button inherit whatever textbox happens to
     default to."""
-    out: list[Entry] = []
-    for entry in nodes:
-        if entry['key'] != 'using' or not entry['value']:
-            out.append(entry)
-            continue
+    out: list[Scoped] = []
+    for entry, scope in nodes:
         name = entry['value']
-        found = templates.look_up(name)
-        # **Both cases below are holes, and they are silent.** Measured 21 October 2026 on 1.20.1.2:
-        # a raise here and in `build` stopped five of 282 windows - `era_innov_blockers` is a
-        # `local_template` of cooltip.gui, a form this reader does not take in and a scope it looks
-        # up in the window's file rather than the definition's, in culture_window,
-        # hybridize_culture_window and ledger_window; dynasty_tree_view and struggle_window go past
-        # MAX_DEPTH. Until local scope is read properly they keep the expansion going.
+        if entry['key'] != 'using' or not name:
+            out.append((entry, scope))
+            continue
+        found = templates.look_up(name, scope)
         if found is None:
-            out.append(entry)
-        elif name not in seen and depth < MAX_DEPTH:
-            out += _inline_using(found['body'], templates, depth + 1, seen | {name})
+            raise GuiError(f'{scope}: using = {name}, and no template has that name')
+        if depth >= MAX_DEPTH:
+            raise GuiError(f'{scope}: using = {name} nests deeper than {MAX_DEPTH}')
+        out += _inline_using([(inner, found['file']) for inner in found['body']], templates,
+                             depth + 1)
     return out
 
 
-def _fill_blocks(nodes: list[Entry], overrides: Overrides, templates: Templates, depth: int,
-                 seen: frozenset[str | None] = frozenset()) -> list[Entry]:
+def _fill_blocks(nodes: list[Scoped], overrides: Overrides, templates: Templates,
+                 seen: frozenset[str | None] = frozenset()) -> list[Scoped]:
     """Named slots take the content that was written for them, or their own default.
 
     `seen` holds the slots being filled right now. Content written for a slot can declare a slot
     of the same name again, and then filling it means filling it forever - measured on 39 of the
     196 windows, which ran Python out of stack before anything said why. The engine fills it once,
     so the repeat is left out."""
-    out: list[Entry] = []
-    for entry in nodes:
+    out: list[Scoped] = []
+    for entry, scope in nodes:
         if entry['key'] == 'blockoverride':
             continue
         if entry['key'] != 'block':
-            out.append(entry)
+            out.append((entry, scope))
             continue
         if entry['arg'] in seen:
             continue
-        replacement = overrides.get(entry['arg'])
-        content = replacement if replacement is not None else (entry['body'] or [])
-        content = _inline_using(content, templates, depth, frozenset())
-        out += _fill_blocks(content, overrides, templates, depth + 1, seen | {entry['arg']})
+        source, where = overrides.get(entry['arg'], (entry, scope))
+        content = [(inner, where) for inner in source['body'] or []]
+        out += _fill_blocks(_inline_using(content, templates), overrides, templates,
+                            seen | {entry['arg']})
     return out
 
 
-def build(key: str | None, body: list[Entry], templates: Templates, overrides: Overrides | None = None,
-          depth: int = 0, in_tooltip: bool = False) -> Node:
+def build(key: str | None, body: list[Entry], scope: str, templates: Templates,
+          overrides: Overrides | None = None, depth: int = 0, in_tooltip: bool = False,
+          above: tuple[tuple[Entry, Overrides], ...] = ()) -> Node:
     """One widget, fully expanded: inherited defaults, mixed-in templates, slots filled.
 
     Every block becomes a node, including property groups like `size` and `state`. Nothing has to
@@ -384,35 +388,46 @@ def build(key: str | None, body: list[Entry], templates: Templates, overrides: O
     engine builds a tooltip only when the pointer arrives, so on disk the definition is allowed to
     be circular. Expanding it anyway turned one window into three and a half million nodes.
 
-    A widget deeper than MAX_DEPTH is cut off and marked `truncated`; see `_inline_using` for the
-    two windows where that happens and why it is still silent.
+    **A widget met again inside itself, with the same slots filled, stays an empty node of its
+    type**, because building it would repeat the same expansion without end. Measured 21 October
+    2026 on 1.20.1.2, in two of 282 windows: `dynasty_tree_item` sits in an `item` marked
+    `recursive = yes`, and `current_struggle_phase_progress` comes back through the slots of the
+    phase banner. Cutting on the entry alone also cut finite nestings, a scroll box inside a
+    scroll box among them, and cost `window_tgp_dynastic_cycle` 17 paired names; the pairing of
+    the harvest stays the same with this rule. Past MAX_DEPTH is then a GuiError: the deepest
+    window goes 46 levels down.
     """
     if depth >= MAX_DEPTH:
-        return {'type': key, 'attrs': [], 'children': [], 'truncated': True}
+        raise GuiError(f'{scope}: {key} lies deeper than {MAX_DEPTH} widgets')
 
-    nodes: list[Entry] = []
-    for inherited in templates.chain(key):
-        nodes += inherited
-    nodes += body
-    nodes = _inline_using(nodes, templates, depth, frozenset())
+    nodes = _inline_using(templates.inherited(key, scope) + [(entry, scope) for entry in body],
+                          templates)
 
     effective: Overrides = dict(overrides or {})
-    for entry in nodes:
+    for entry, where in nodes:
         if entry['key'] == 'blockoverride':
-            effective[entry['arg']] = entry['body'] or []
-    flat = _fill_blocks(nodes, effective, templates, depth)
+            effective[entry['arg']] = (entry, where)
+    flat = _fill_blocks(nodes, effective, templates)
 
-    node: Node = {'type': key, 'attrs': [], 'children': [], 'truncated': False}
-    for entry in flat:
+    node: Node = {'type': key, 'attrs': [], 'children': []}
+    for entry, where in flat:
         if entry['body'] is None:
             node['attrs'].append((entry['key'], entry['value']))
         elif entry['key'] == 'tooltipwidget' and in_tooltip:
             continue
+        elif any(entry is earlier and _same(slots, effective) for earlier, slots in above):
+            node['children'].append({'type': entry['key'], 'attrs': [], 'children': []})
         else:
-            node['children'].append(build(entry['key'], entry['body'], templates, effective,
+            node['children'].append(build(entry['key'], entry['body'], where, templates, effective,
                                           depth + 1,
-                                          in_tooltip or entry['key'] == 'tooltipwidget'))
+                                          in_tooltip or entry['key'] == 'tooltipwidget',
+                                          above + ((entry, effective),)))
     return node
+
+
+def _same(one: Overrides, other: Overrides) -> bool:
+    """Do these slots take their content from the same `blockoverride` entries?"""
+    return one.keys() == other.keys() and all(one[slot][0] is other[slot][0] for slot in one)
 
 
 def attribute(node: Node, key: str) -> str | None:
@@ -481,10 +496,13 @@ def windows(rows: list[Row] | None = None, table: Table | None = None) -> Known:
             continue
         for inner in found['body']:
             if inner['key'] == 'name' and inner['value']:
+                # An instance of the type with an empty body: `build` takes the type's own body
+                # from the table, and handing it in as well built these windows twice over
+                # (measured 21 October 2026: character_filter_window 6138 nodes against 3070).
                 out.setdefault(inner['value'], (found['file'],
                                                 {'key': type_name, 'arg': None,
                                                  'value': found['parent'],
-                                                 'body': found['body']}))
+                                                 'body': []}))
                 break
     return out
 
@@ -545,7 +563,7 @@ def window(name: str, table: Table | None = None, local: LocalTable | None = Non
     if name not in known:
         raise GuiError(f'no window named {name!r} on disk')
     virtual, entry = known[name]
-    return build(entry['key'], entry['body'] or [], Templates(table, local, virtual))
+    return build(entry['key'], entry['body'] or [], virtual, Templates(table, local))
 
 
 DECISION_WIDGETS = 'gui/decision_view_widgets/'
@@ -573,7 +591,7 @@ def decision_widget(name: str, table: Table | None = None, local: LocalTable | N
     for entry in read(full):
         if entry['body'] and any(inner['key'] == 'name' and inner['value'] == name
                                  for inner in entry['body']):
-            return build(entry['key'], entry['body'], Templates(table, local, virtual))
+            return build(entry['key'], entry['body'], virtual, Templates(table, local))
     raise GuiError(f'{virtual} has no block named {name!r}')
 
 

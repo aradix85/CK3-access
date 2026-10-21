@@ -52,6 +52,6 @@ def test_every_onclick_fires_not_only_the_last() -> None:
     """Measured 21 October 2026: a click and a shortcut fire every onclick of a block, in order.
     The ledger's own shortcut button opens the ledger first and folds the menu after it."""
     first, second = "[ToggleGameView('ledger')]", "[GetVariableSystem.Clear( 'extra_buttons_expand' )]"
-    source: guimap.Node = {'type': 'button_normal', 'children': [], 'truncated': False,
+    source: guimap.Node = {'type': 'button_normal', 'children': [],
                            'attrs': [('name', 'ledger_shortcut'), ('onclick', first), ('onclick', second)]}
     assert openers.fires_for(source, ('view', 'ledger', None)) == ([first], [f'onclick: {second}'])

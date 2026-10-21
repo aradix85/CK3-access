@@ -28,7 +28,7 @@ returns a pair, passed on as one thing, costs a run.
 | `channel_commands()` | value | Every command the DLL accepts, read out of its dispatch chain. |
 | `channel_names()` | 2-tuple | Command names the documents claim, checked against the DLL - both directions. |
 | `gui_merged(with_mods)` | value | Gui files as the engine sees them: the three layers merged, mods on top. |
-| `gui_templates(scope)` | value | Templates in the merged set. `type` and `template` are global, `local_type` is not. |
+| `gui_templates(scope)` | value | Templates in the merged set. `type` and `template` are global, `local_type` and |
 | `gui_windows()` | value | - |
 | `ledger_buildings(what)` | value | What a building box in the ledger can actually do when it is clicked. |
 | `gui_dlc(what)` | value | How the gui set gates content behind an expansion, counted over the merged files. |
@@ -213,7 +213,7 @@ returns a pair, passed on as one thing, costs a run.
 | `read(path)` | value | - |
 | `walk(nodes)` | iterator | Every entry in a parsed file, at any depth. |
 | `type_table(rows=None)` | 2-tuple | Every template the engine knows, as name -> definition. |
-| `build(key, body, templates, overrides=None, depth=0, in_tooltip=False)` | dict of value | One widget, fully expanded: inherited defaults, mixed-in templates, slots filled. |
+| `build(key, body, scope, templates, overrides=None, depth=0, in_tooltip=False, above=())` | value | One widget, fully expanded: inherited defaults, mixed-in templates, slots filled. |
 | `attribute(node, key)` | value of NoneType | The value of the first attribute with this key, or None when the widget has none. |
 | `windows(rows=None, table=None)` | value | Every window on disk, as name -> (virtual path, its entry). |
 | `root_finder(table)` | value | Type name -> the end of its inheritance chain, remembered, because the walk repeats itself |
