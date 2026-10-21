@@ -58,10 +58,6 @@ MAP = os.path.join(paths.REPORTS, 'windows.json')
 OPENERS = os.path.join(paths.REPORTS, 'openers.json')
 FREE_MEMORY_FLOOR = 2.0          # gigabytes; the game itself uses about 16
 OPEN_TRIES = 3
-# The HUD is drawn in every game state and never opens or closes, so it belongs in the baseline
-# rather than in the round. Without this the guard against leftovers fires on it and nothing runs;
-# with it, any *other* window in the baseline still stops the round, which is the point.
-ALWAYS_DRAWN = {'toolbars_window'}
 
 
 class Header(TypedDict):
@@ -546,33 +542,10 @@ def chain_step(game: windowmap.Game, route: 'openers.ChainRoute', source: str,
     if nodes is None:
         return None, (f'source {source} did not open'
                       if close_window(game, back, baseline) else 'state did not come back')
-    spots, live, acting, nodes, _scales, _classes = openers.spots_for_goal(
-        game, game.pid, source, route['goal'], tables)
-    buttons = openers.clickable_map(live, acting)
-    usable = [(s, openers.reachable_point(buttons, s['address'], s['rect']))
-              for s in spots if s['why_not'] is None]
-    reachable = [(s, p) for s, p in usable if p is not None]
-    if not reachable:
-        why = sorted({s['why_not'] or 'covered everywhere' for s in spots})
-        reason = 'nothing in {} can be pressed for it: {}'.format(
-            source, ', '.join(why) or 'no live widget carries the call')
-        return None, reason if close_window(game, back, baseline) else 'state did not come back'
-    spot, point = reachable[0]
     _, _, before = game.state()
-    if spot['name']:
-        # A named widget is pressed the way quit_game presses: the copy that is on screen, at its
-        # middle, with scale and class asked for the whole tree. Measured 21 September 2026 on
-        # `filters` in the ledger: the aligned point opened nothing, this opened the filter window.
-        from tools.ck3 import quit_game
-        full = game.tree()
-        refused = quit_game.press(full, onscreen.scales_for(list(full)),
-                                  widgettree.class_map(game.pid, {a: k[0] for a, k in full.items()}),
-                                  spot['name'])
-        if refused:
-            return None, (refused if close_window(game, back, baseline)
-                          else 'state did not come back')
-    else:
-        channel.ask(f'mouse {int(point[0])} {int(point[1])}')
+    _, spot, why = openers.press_toward(game, source, route['goal'], tables)
+    if spot is None:
+        return None, why if close_window(game, back, baseline) else 'state did not come back'
     opened: set[str] = set()
     for _ in range(6):
         time.sleep(1.0)
@@ -700,8 +673,11 @@ def main() -> None:
     # two of the buttons that open a window sit under it - a click there lands on the console.
     if (by_click or by_chain) and game.console_open():
         game.set_console(False)
-    time.sleep(1.0)
-    nodes, _, baseline = game.state()
+    # What the bare screen draws is drawn always, and is never seen to open: on 1.20 the bar at the
+    # bottom, the achievement popup and the layer window. A list of them written here knew only the
+    # bar, and stopped every round before its first window.
+    baseline = game.bare()
+    nodes = game.tree()
     player, player_name = model.player(pid)
     header: Header = {'measured': time.strftime('%Y-%m-%d %H:%M'), 'exe': derive.build_key(),
                       'game_date': game_date(nodes), 'baseline': sorted(baseline),
@@ -709,18 +685,9 @@ def main() -> None:
                       'fields': {k: v for k, v in game.fields.items() if isinstance(v, int)}}
     print(f"baseline {sorted(baseline) or 'nothing drawn'}, date {header['game_date']}, player {player_name} ({int(player)}), free memory {free_memory():.1f} GB")
     if by_chain:
-        if set(baseline) - ALWAYS_DRAWN:
-            raise SystemExit('these are already open before the round starts: {}. Close them first.'.format(', '.join(sorted(set(baseline) - ALWAYS_DRAWN))))
         chain_round(game, pid, windows, wanted, baseline, header, player, player_name)
         return
-
-    left_over = [n for n in names if n in baseline and n not in ALWAYS_DRAWN]
-    if left_over:
-        raise SystemExit('these are already open before the round starts: {}. A window in the '
-                         'baseline can never be seen to open, so it would be recorded as a '
-                         'failure; and if it is there because an earlier run left it standing, '
-                         'every measurement after it is contaminated. Close it first.'.format(', '.join(left_over)))
-    names = [n for n in names if n not in ALWAYS_DRAWN]
+    names = [n for n in names if n not in baseline]
 
     done = failed = 0
     for number, name in enumerate(names, 1):

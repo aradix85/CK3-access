@@ -510,6 +510,48 @@ def spots_for_goal(game: windowmap.Game, pid: int, window: str, goal: Goal,
     return out, record, acting, nodes, scales, classes
 
 
+def press_toward(game: windowmap.Game, window: str, goal: Goal,
+                 tables: guimap.Tables) -> tuple[list[Spot], Spot | None, str | None]:
+    """In `window`, open, press the first widget that reaches `goal` and a click can reach.
+
+    A named one is pressed the way `quit_game.press` presses: the copy on screen, at its middle,
+    with scale and class asked of the whole tree. Measured 21 September 2026 on `filters` in the
+    ledger: the aligned point opened nothing, and this opened the filter window. A nameless one is
+    pressed at a point a click reaches. Returns every widget that reaches the goal, the one pressed
+    or None, and why nothing was pressed. The chain round and the step by hand both press here.
+    """
+    from tools.ck3 import quit_game  # it imports this module
+    spots, record, acting, _, _, _ = spots_for_goal(game, game.pid, window, goal, tables)
+    buttons = clickable_map(record, acting)
+    reachable: list[tuple[Spot, tuple[int, int]]] = []
+    for spot in spots:
+        if spot['why_not'] is not None:
+            continue
+        point = reachable_point(buttons, spot['address'], spot['rect'])
+        if point is not None:
+            reachable.append((spot, point))
+            continue
+        x, y, w, h = spot['rect']
+        top = lands_on(buttons, (int(x + w / 2), int(y + h / 2)))
+        spot['why_not'] = 'covered everywhere, at its middle by {}'.format(
+            (top['name'] or top['class']) if top else 'nothing readable')
+    if not reachable:
+        why = sorted({s['why_not'] or '' for s in spots})
+        return spots, None, 'nothing in {} can be pressed for it: {}'.format(
+            window, ', '.join(why) or 'no live widget carries the call')
+    spot, point = reachable[0]
+    if spot['name']:
+        full = game.tree()
+        refused = quit_game.press(full, onscreen.scales_for(list(full)),
+                                  widgettree.class_map(game.pid, {a: k[0] for a, k in full.items()}),
+                                  spot['name'])
+        if refused:
+            return spots, None, refused
+    else:
+        channel.ask(f'mouse {int(point[0])} {int(point[1])}')
+    return spots, spot, None
+
+
 def trigger_spots(row: Button, named: list[int], nodes: widgettree.Nodes) -> list[int]:
     """Where the click for this row could land: the widget itself, or its nameless children.
 
@@ -647,14 +689,20 @@ def press(address: int, nodes: widgettree.Nodes, scales: onscreen.Scales, classe
     return None
 
 
-def back_to(game: windowmap.Game, baseline: set[str], tries: int = 4) -> bool:
-    """Shut whatever opened. Escape only when something is open, or it opens the pause menu."""
-    for _ in range(tries):
-        if game.state()[2] == baseline:
-            return True
+def back_to(game: windowmap.Game, target: set[str]) -> bool:
+    """Shut whatever opened, until `target` is drawn again.
+
+    Escape only while something beyond `target` is drawn: with nothing more open, Escape opens the
+    pause menu, and a window of `target` that a click shut does not come back from it either. This
+    used to press on regardless, flipping the pause menu until its tries ran out.
+    """
+    for _ in range(4):
+        drawn = game.state()[2]
+        if drawn <= target:
+            return drawn == target
         channel.ask('sendkey 27')
         time.sleep(1.5)
-    return game.state()[2] == baseline
+    return game.state()[2] == target
 
 
 def subtree_of(nodes: widgettree.Nodes, window: str) -> set[int]:
@@ -737,10 +785,8 @@ def main() -> None:
             raise SystemExit('not a button on disk that only opens a view: {}'.format(', '.join(missing)))
         rows = [r for r in rows if r['widget'] in wanted]
     target = (os.path.join(paths.WORK, 'openers_trial.json') if trial else OUT)
-    nodes, _, baseline = game.state()
-    if baseline:
-        raise SystemExit('these are open before the round starts: {}. Close them first, or every '
-                         'window this round sees will be attributed to a click that did not open it'.format(', '.join(sorted(baseline))))
+    baseline = game.bare()
+    nodes = game.tree()
     date = game_date(nodes)
     print(f'{len(rows)} buttons on disk open nothing but a view; fields {game.why}, date {date}, free memory {free_memory():.1f} GB')
 
@@ -858,31 +904,16 @@ def chain(pid: int, window: str, target: str) -> None:
         print(f'{target} is reached by opening the view {goal[1]}')
     else:
         print('{} is reached by setting {} to {}'.format(target, goal[1], goal[2] if goal[2] is not None else 'anything'))
-    spots, record, acting, _nodes, _scales, _classes = spots_for_goal(game, pid, window, goal, tables)
+    spots, pressed, why = press_toward(game, window, goal, tables)
     print(f'{len(spots)} widgets in {window} carry a call that does that')
-    usable: list[tuple[Spot, tuple[int, int]]] = []
-    buttons = clickable_map(record, acting)
-    for spot in spots:
-        if spot['why_not'] is not None:
-            continue
-        x, y, w, h = spot['rect']
-        point = reachable_point(buttons, spot['address'], spot['rect'])
-        if point is not None:
-            usable.append((spot, point))
-        else:
-            top = lands_on(buttons, (int(x + w / 2), int(y + h / 2)))
-            spot['why_not'] = 'covered everywhere, at its middle by %s' % (
-                (top['name'] or top['class']) if top else 'nothing readable')
     for spot in spots[:12]:
-        print(f"   {spot['address']:x} {spot['class']!s:<12} {spot['name'] or '-'!s:<18} rect {spot['rect']} {spot['why_not'] or 'CLICKABLE and reachable'}")
+        print(f"   {spot['address']:x} {spot['class']!s:<12} {spot['name'] or '-'!s:<18} rect {spot['rect']} {spot['why_not'] or 'clickable and reachable'}")
         for call in spot['also_does'][:2]:
             print(f'        also: {call[:86]}')
-    print(f'{len(usable)} of them can actually be reached by a click')
-    if not usable:
+    if pressed is None:
+        print(why)
         return
-    spot, point = usable[0]
-    print(f"pressing {spot['address']:x} at {int(point[0])},{int(point[1])}")
-    channel.ask(f'mouse {int(point[0])} {int(point[1])}')
+    print(f"pressed {pressed['name'] or pressed['class']} at {pressed['address']:x}")
     for _ in range(6):
         time.sleep(SETTLE)
         _, _, drawn = game.state()

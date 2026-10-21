@@ -159,8 +159,8 @@ def back_to(game: windowmap.Game, baseline: set[str], first_key: int) -> bool:
     for _ in range(4):
         time.sleep(1.4)
         _, _, now = game.state()
-        if now == baseline:
-            return True
+        if now <= baseline:         # nothing more open: Escape would only open the pause menu
+            return now == baseline
         channel.ask(f'sendkey {int(VK_ESCAPE)}')
     return game.state()[2] == baseline
 
@@ -168,9 +168,7 @@ def back_to(game: windowmap.Game, baseline: set[str], first_key: int) -> bool:
 def main(pid: int) -> None:
     print('state:', states.wait(pid), flush=True)
     game = windowmap.Game(pid)
-    _, _, baseline = game.state()
-    if baseline:
-        raise SystemExit('not starting from an empty screen; still drawn: {}'.format(', '.join(sorted(baseline))))
+    baseline = game.bare()
     if not paused(game):
         raise SystemExit('the clock is running; pause the game first')
     print('counter:', ' | '.join(line for line in channel.ask('count').split('\n') if line.startswith('count')))

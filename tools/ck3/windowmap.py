@@ -269,7 +269,7 @@ def window_keys_round(game: 'Game', names: list[str]) -> dict[str, str | list[tu
             raise SystemExit(f'{name} stands open and is not drawn')
         return texts
 
-    _, _, baseline = game.state()
+    baseline = game.bare()
     out: dict[str, str | list[tuple[str, str, str]]] = {}
     for name in names:
         row = windows[name]
@@ -307,6 +307,10 @@ def window_keys_round(game: 'Game', names: list[str]) -> dict[str, str | list[tu
                 channel.ask('sendkey 27')
                 time.sleep(1.2)
                 _, _, drawn = game.state()
+            if drawn - baseline - {name} or baseline - drawn:
+                raise SystemExit(f'after {keys} in {name} the state did not come back: '
+                                 f"{', '.join(sorted(drawn - baseline - {name}))} still open, "
+                                 f"{', '.join(sorted(baseline - drawn)) or 'nothing'} gone from the bare screen")
             if name not in drawn:
                 nodes, _ = harvest.open_window(game, name, row, baseline)
                 if nodes is None:
@@ -446,6 +450,28 @@ class Game:
         drawn = {nodes[a][6] for a in onscreen.shown(nodes, windows) if nodes[a][6]}
         return nodes, counts, drawn
 
+    def bare(self) -> set[str]:
+        """Bring the game to its bare screen, and what is drawn there.
+
+        The bare screen is where Escape opens the pause menu: nothing is open that Escape would
+        shut. What is drawn there is drawn always, and it is measured here rather than listed. On
+        1.20 that is more than the bar at the bottom: the achievement popup and the layer window are
+        drawn too, and a round that took an empty screen for bare pressed Escape four times to shut
+        them, flipping the pause menu each time, and once began its keys with the pause menu up
+        (measured 4 October 2026 on Ghur played).
+        """
+        from tools.ck3 import quit_game  # it imports openers, which imports this module
+        if self.console_open():
+            self.set_console(False)
+        quit_game.escape_to(self.root, self.pid, self.window_classes, {quit_game.PAUSE_MENU})
+        channel.ask('sendkey 27')
+        for _ in range(20):
+            time.sleep(0.5)
+            _, _, drawn = self.state()
+            if quit_game.PAUSE_MENU not in drawn:
+                return drawn
+        raise SystemExit('Escape did not shut the pause menu again')
+
     def console_open(self, nodes: widgettree.Nodes | None = None) -> bool:
         """Is the console on screen? From the flag byte of `console_window`.
 
@@ -556,9 +582,9 @@ class Game:
 def shortcut_round(game: Game, presses: list[Press] | None = None) -> dict[str, str]:
     """Which shortcut opens which window? One key per test, and every window shut again.
 
-    **Start from a verified empty state.** If something was still open it becomes the baseline and
-    the first key reports "no change" - that happened on 23 August 2026 with F1, which kept four of
-    the nine keys out of the file.
+    **Start from the bare screen.** If something was still open it becomes the baseline and the
+    first key reports "no change" - that happened on 23 August 2026 with F1, which kept four of the
+    nine keys out of the file.
 
     `presses` is a list of (name, press, twice); without it the round posts the keys in `KEYS`. A
     press with `twice` goes in a second time whether a window opened or not: alt+t is also
@@ -568,19 +594,8 @@ def shortcut_round(game: Game, presses: list[Press] | None = None) -> dict[str, 
     if presses is None:
         presses = [(name, functools.partial(channel.ask, f'sendkey {int(code)}'), False)
                    for code, name in sorted(KEYS.items())]
-    # Only with -debug_mode is there a console to shut; a round without it has nothing to do here.
-    if game.console_open():
-        game.set_console(False)
-    for _ in range(4):
-        _, _, open_now = game.state()
-        if not open_now:
-            break
-        print('  closing first: {}'.format(', '.join(sorted(open_now))))
-        channel.ask('sendkey 27')
-        time.sleep(1.6)
-    _, _, baseline = game.state()
-    if baseline:
-        print('  NOTE: did not start empty, still open: {}'.format(', '.join(sorted(baseline))))
+    baseline = game.bare()
+    print('  bare screen: {}'.format(', '.join(sorted(baseline)) or 'nothing drawn'))
     # Imported here because harvest imports this module.
     from tools.ck3.harvest import paused
     for name, press, twice in presses:

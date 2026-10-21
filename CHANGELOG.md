@@ -3,6 +3,9 @@
 Outcomes, newest first. No release yet.
 
 ## 2026-10-21 — CK3 1.20.1.1 and 1.20.1.2
+- Every round starts from the bare screen, measured as the state where Escape opens the pause menu, so windows 1.20 always draws no longer count as open; the harvest no longer keeps its own list of them.
+- Shutting what a press opened sends Escape only while something more is open, so it no longer flips the pause menu; the window key round checks after every key that the state came back.
+- The chain round and the chain step by hand press through one function, `openers.press_toward`.
 - `tree` reports a widget whose parent, position or size cannot be read as lost, instead of a widget at 0,0 under no parent; the DLL has one definition of a readable page.
 - `derive.fields_for` returns the root of the tree with the derivation, so no caller searches for it again; visibility is left out only where the tree has no character window, as on the main menu, and any other failure stops.
 - `derive.verify` shares its thresholds with the derivation and checks the scale offset, which is not derived.

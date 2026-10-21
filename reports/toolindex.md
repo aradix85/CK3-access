@@ -296,7 +296,7 @@ returns a pair, passed on as one thing, costs a run.
 | `held(vk)` | value | - |
 | `counted()` | value | What the game asked since the previous `count`, which also starts the next interval. |
 | `drawn_after(game, wanted)` | value | - |
-| `back_to(game, baseline, first_key)` | bool of value | Shut what opened with posted keys, and prove the state is back. |
+| `back_to(game, baseline, first_key)` | value | Shut what opened with posted keys, and prove the state is back. |
 | `main(pid)` | nothing | - |
 
 ## ck3\numbering.py
@@ -344,11 +344,12 @@ returns a pair, passed on as one thing, costs a run.
 | `lands_on(buttons, point)` | value | Which widget handles a click at this point. |
 | `reachable_point(buttons, widget_address, rect)` | value of NoneType | A point on this widget that a click really reaches, or None if it is covered everywhere. |
 | `spots_for_goal(game, pid, window, goal, tables)` | 6-tuple | Every widget of an open window that the files say reaches `goal`, aligned rather than guessed. |
+| `press_toward(game, window, goal, tables)` | 3-tuple | In `window`, open, press the first widget that reaches `goal` and a click can reach. |
 | `trigger_spots(row, named, nodes)` | value of list | Where the click for this row could land: the widget itself, or its nameless children. |
 | `on_screen(address, nodes, scales, classes)` | str of value of NoneType | Why this widget cannot be clicked, or None when it can. |
 | `window_above(address, chain, nodes, scales)` | value of NoneType | A drawn window later in the tree whose rectangle holds this widget's middle, or None. |
 | `press(address, nodes, scales, classes, row=None)` | value of NoneType | Click the middle of a widget, but only if it is really on screen. |
-| `back_to(game, baseline, tries=4)` | bool of value | Shut whatever opened. Escape only when something is open, or it opens the pause menu. |
+| `back_to(game, target)` | value | Shut whatever opened, until `target` is drawn again. |
 | `subtree_of(nodes, window)` | value | The addresses under the drawn window object of that name. Every window is built up front, |
 | `try_button(game, row, address, nodes, scales, classes, floor, date, number, total, where, fallback=None)` | str of value | Press one button, record what opened, and put the state back. |
 | `main()` | nothing | - |
