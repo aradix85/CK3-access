@@ -372,9 +372,18 @@ def sweep() -> tuple[collections.Counter[str], collections.Counter[str], collect
     return count, functions, unplaced
 
 
+def harvested_at() -> str:
+    """When the newest record in the harvest was measured: which harvest a report drawn from it
+    describes, written into the report so that `tools.check` can see a report outlive its harvest."""
+    moments: list[str] = [record['measured'] for path in glob.glob(os.path.join(paths.HARVEST, '*.json'))
+                          if 'measured' in (record := json.loads(pathlib.Path(path).read_text(encoding='utf-8')))]
+    return max(moments)
+
+
 def main() -> None:
     count, functions, unplaced = sweep()
-    report: dict[str, int | dict[str, int]] = dict(count)
+    report: dict[str, str | int | dict[str, int]] = dict(count)
+    report['harvest'] = harvested_at()
     report['top functions'] = dict(functions.most_common(20))
     # Which windows the leftover texts sit in, per window. Without this the share that lands in
     # the developers' own windows - the reason for leaving the rest alone - is a number nobody can

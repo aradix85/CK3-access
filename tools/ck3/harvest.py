@@ -693,6 +693,14 @@ def main() -> None:
         chain_round(game, pid, windows, wanted, baseline, header, player, player_name)
         return
     names = [n for n in names if n not in baseline]
+    # A window with neither key nor button that the console cannot build either - one declared
+    # inside a `types` block - has no route at all, and trying it costs a refusal of ten seconds:
+    # on 21 October 2026 thirteen of the first nineteen refusals were such windows, of 78 in the map.
+    routeless = [n for n in names if not (windows[n].get('shortcut') or windows[n].get('click')
+                                          or windows[n].get('console'))]
+    if routeless:
+        print(f'{len(routeless)} windows have no route at all and are not tried')
+    names = [n for n in names if n not in routeless]
 
     done = failed = 0
     for number, name in enumerate(names, 1):

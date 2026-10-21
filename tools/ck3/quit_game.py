@@ -21,7 +21,7 @@ import sys
 import time
 
 from tools import paths
-from tools.ck3 import channel, derive, onscreen, openers, widgettree
+from tools.ck3 import channel, derive, onscreen, openers, widgettree, windowmap
 
 PAUSE_MENU, CONFIRMATION = 'ingame_pausemenu', 'ingame_resign_confirmation'
 # The game's own yes-or-no dialog, in shared/dialogs.gui. Escape on it says no.
@@ -131,8 +131,22 @@ def gone() -> bool:
     return False
 
 
+def shut_console(root: int) -> None:
+    """The console draws the developers' toolbar, and over the pause menu that toolbar covers Exit
+    to Desktop: measured 21 October 2026 on 1.20.1.2, after a console round of the harvest, which
+    ends with the console open. Its key shuts it, as in `windowmap.Game.set_console`."""
+    if not windowmap.console_drawn(widgettree.widgets(root)):
+        return
+    channel.ask('sendkey 192')
+    time.sleep(1.4)
+    if windowmap.console_drawn(widgettree.widgets(root)):
+        raise SystemExit('the console stands open and its key did not shut it, so nothing was pressed')
+    print('shut the console first')
+
+
 def quit_game(pid: int) -> None:
     root, window_classes = ready(pid)
+    shut_console(root)
     nodes, scales, drawn, classes = look(root, pid, window_classes)
 
     left_at: float | None = None        # the moment a loaded game was left, after which its exit save comes

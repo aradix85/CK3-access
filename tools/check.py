@@ -655,6 +655,25 @@ def loading_work(files: list[str]) -> list[str]:
     return found
 
 
+def stale_reports() -> list[str]:
+    """A report drawn from the harvest that describes another harvest than the one on disk.
+
+    The claims on `reports\\pairing.json` are checked against the report, not against the harvest
+    it was drawn from: from September to 21 October 2026 the report described an older harvest than
+    the one on disk, and every claim on it still matched. A clone without a harvest has nothing to
+    compare.
+    """
+    from tools.ck3 import pairing
+    if not glob.glob(os.path.join(paths.HARVEST, '*.json')):
+        return []
+    described = json.loads(pathlib.Path(pairing.REPORT).read_text(encoding='utf-8')).get('harvest')
+    on_disk = pairing.harvested_at()
+    if described == on_disk:
+        return []
+    return [(f'reports\\pairing.json describes the harvest of {described}, and the one on disk is of '
+             f'{on_disk}; run python -m tools.ck3.pairing')]
+
+
 def main(all_of_them: bool) -> int:
     """The checks that need nothing but this repository first, then the claims, which stop at the
     first input this machine lacks: the game, the Documents folder, a built DLL, a harvest."""
@@ -672,6 +691,10 @@ def main(all_of_them: bool) -> int:
     for problem in runs:
         print(f'RUN     {problem}')
     print(f"{int(started - len([r for r in runs if 'does not exist' in r]))} of the {int(started)} script starts named in documents and code are modules that exist.")
+
+    stale = stale_reports()
+    for problem in stale:
+        print(f'STALE   {problem}')
 
     claims: list[Claim] = json.loads(pathlib.Path(os.path.join(PROJ, 'reports', 'claims.json')).read_text(encoding='utf-8'))
     drifted = []
@@ -696,7 +719,7 @@ def main(all_of_them: bool) -> int:
     for problem in quotes:
         print(f'QUOTED  {problem}')
     print(f"{int(counted - len(quotes))} of the {int(counted)} numbers a document quotes are still the measured ones.{'' if not absent else f' {int(absent)} more are quoted only in documents that are not in this repository, so they cannot be checked here.'}")
-    return 1 if drifted or missing or wrong or quotes or runs else 0
+    return 1 if drifted or missing or wrong or quotes or runs or stale else 0
 
 
 if __name__ == '__main__':

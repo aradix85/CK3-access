@@ -218,38 +218,38 @@
  },
  {
   "name": "texts the reading rule says over the harvest",
-  "claimed": 4439,
+  "claimed": 5094,
   "measure": "unseen_texts",
   "arguments": ["texts"],
-  "counting_rule": "every widget in a harvested record whose text is not empty once the game's markup is stripped, summed over the records that hold a window; refusal records carry a reason and no tree and do not count. Since 21 September 2026 the harvest holds the encyclopedia, 2344 texts in one window, and the windows harvested that day along a new shortcut or a chain"
+  "counting_rule": "every widget in a harvested record whose text is not empty once the game's markup is stripped, summed over the records that hold a window; refusal records carry no tree and do not count. The harvest of 21 October 2026 on 1.20.1.2, Ghur played"
  },
  {
   "name": "harvested texts that are in the tree but not on the screen",
-  "claimed": 2655,
+  "claimed": 2971,
   "measure": "unseen_texts",
   "arguments": ["all"],
-  "counting_rule": "of those texts, the ones the reading rule skips: the rectangle falls outside the drawing area of that record, or it is clipped inside its scroll area, or an ancestor sits at alpha zero, or an ancestor carries 0x08 in its state byte - the game hiding it, which records carry since 20 September 2026. The union is smaller than the sum because a text can fail two at once. 172 of 1753 on 20 September 2026; on 21 September the rule gained the hidden state (563 texts) and the harvest the encyclopedia, most of whose list sits clipped"
+  "counting_rule": "of those texts, the ones the reading rule skips: the rectangle falls outside the drawing area of that record, or it is clipped inside its scroll area, or an ancestor sits at alpha zero, or an ancestor carries 0x08 in its state byte - the game hiding it. The union is smaller than the sum because a text can fail two at once"
  },
  {
   "name": "files that go into the repo",
-  "claimed": 88,
+  "claimed": 89,
   "measure": "repo_files",
   "counting_rule": "files under the project folder that .gitignore does not exclude, the same set git ls-files plus git ls-files --others --exclude-standard gives"
  },
  {
   "name": "windows opened in the harvest round",
-  "claimed": 205,
+  "claimed": 212,
   "measure": "harvest_total",
   "arguments": [
    "<project>\\harvest",
    "windows"
   ],
-  "counting_rule": "records in harvest\\ with opened true: 174 opened by the console, 17 by a shortcut, 8 by a click and 6 by a chain, counted 21 September 2026. The 15 that refuse carry a reason and no tree, and toolbars_window is the baseline state and is never harvested",
+  "counting_rule": "records in harvest\\ with opened true: 177 opened by the console, 22 by a shortcut, 6 by a click and 7 by a chain, counted 21 October 2026 on 1.20.1.2. The 32 that refuse carry no tree; a window with no route at all is not tried, and what the bare screen draws is the baseline and is never harvested",
   "quoted_in": ["README.md", "brief\\vensters.md"]
  },
  {
   "name": "text boxes in the harvest round",
-  "claimed": 1788,
+  "claimed": 2086,
   "measure": "harvest_total",
   "arguments": [
    "<project>\\harvest",
@@ -259,7 +259,7 @@
  },
  {
   "name": "text boxes the recogniser confirmed",
-  "claimed": 1564,
+  "claimed": 1880,
   "measure": "harvest_total",
   "arguments": [
    "<project>\\harvest",
@@ -269,7 +269,7 @@
  },
  {
   "name": "text boxes outside the drawing area",
-  "claimed": 138,
+  "claimed": 115,
   "measure": "harvest_total",
   "arguments": [
    "<project>\\harvest",
@@ -333,27 +333,27 @@
  },
  {
   "name": "harvested widgets that carry text",
-  "claimed": 1754,
+  "claimed": 5125,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
    "texts"
   ],
-  "counting_rule": "every widget with a non-empty text in the 203 harvested trees, counted while walking, and the walk asserts it saw all 74548 widgets of every record; a live subtree whose parent found no source used to be skipped, which shrank this denominator by dropping exactly the hard cases"
+  "counting_rule": "every widget with a non-empty text in the 212 harvested trees, counted while walking, and the walk asserts it saw all 91457 widgets of every record; a live subtree whose parent found no source used to be skipped, which shrank this denominator by dropping exactly the hard cases"
  },
  {
   "name": "harvested texts paired with a place in a gui file",
-  "claimed": 1617,
+  "claimed": 4534,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
    "paired"
   ],
-  "counting_rule": "paired by class and child order only, never by name. 173 of them are a caption: a button carries its own text and the engine hangs a text box under it to draw it, so the box is not in the file and the widget above answers for it. The remaining 137 are texts the files describe nowhere, spread over 38 windows, and 76 of those sit in five developer windows - the debug map alone holds 42. They are listed per window in reports\\pairing.json, so the share is recomputable rather than a number that ages"
+  "counting_rule": "paired by class and child order only, never by name. 206 of them are a caption: a button carries its own text and the engine hangs a text box under it to draw it, so the box is not in the file and the widget above answers for it. The remaining 591 are texts the files describe nowhere, spread over 45 windows, and 85 of those sit in eleven developer windows; ruler_designer and title_customization_window hold 96 each. They are listed per window in reports\\pairing.json, so the share is recomputable rather than a number that ages"
  },
  {
   "name": "harvested texts whose gui file names a plain localization key",
-  "claimed": 578,
+  "claimed": 637,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -363,27 +363,27 @@
  },
  {
   "name": "plain keys whose localization matches what was on screen",
-  "claimed": 578,
+  "claimed": 637,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
    "plain key agrees"
   ],
-  "counting_rule": "the check that can fail: game markup stripped from the screen text, style markup and icon tokens from the localization, then compared whole. All 578 agree, which is also what carries the caption model - had a button's caption not been the source of the box under it, those 173 would have disagreed"
+  "counting_rule": "the check that can fail: game markup stripped from the screen text, style markup and icon tokens from the localization, then compared whole. All 637 agree, which is also what carries the caption model - had a button's caption not been the source of the box under it, those 206 would have disagreed"
  },
  {
   "name": "harvested texts filled by a data function",
-  "claimed": 522,
+  "claimed": 2095,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
    "data functions together"
   ],
-  "counting_rule": "334 where the gui file carries the call itself and 188 where it carries a key whose localization does; both need the data context of the ancestors to say who the sentence is about"
+  "counting_rule": "1607 where the gui file carries the call itself and 488 where it carries a key whose localization does; both need the data context of the ancestors to say who the sentence is about"
  },
  {
   "name": "harvested texts the gui file leaves to code",
-  "claimed": 312,
+  "claimed": 1545,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -452,23 +452,23 @@
  },
  {
   "name": "harvested texts the gui files do not predict",
-  "claimed": 631,
+  "claimed": 2374,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
    "unexplained"
   ],
-  "counting_rule": "of the 1754 harvested texts, the three kinds the files cannot foretell: the gui file says the code sets it, or the widget has a place on disk but no text source, or the alignment finds it no place at all"
+  "counting_rule": "of the 5125 harvested texts, the three kinds the files cannot foretell: the gui file says the code sets it, or the widget has a place on disk but no text source, or the alignment finds it no place at all"
  },
  {
   "name": "unexplained texts that inherit a data context",
-  "claimed": 417,
+  "claimed": 2102,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
    "unexplained with data context"
   ],
-  "counting_rule": "of those 631, the ones whose ancestors carry a datacontext, so that what the text is about is known even though where it comes from is not"
+  "counting_rule": "of those 2374, the ones whose ancestors carry a datacontext, so that what the text is about is known even though where it comes from is not"
  },
  {
   "name": "unexplained texts in the developers' own windows",
@@ -478,27 +478,27 @@
    "<project>\\reports\\pairing.json",
    "unexplained in developer windows"
   ],
-  "counting_rule": "of those 631, the ones in a window whose gui file sits under gui/debug/ or whose name carries the word debug; fourteen windows, and nobody reads them"
+  "counting_rule": "of those 2374, the ones in a window whose gui file sits under gui/debug/ or whose name carries the word debug; fourteen of the 212 harvested windows, and nobody reads them"
  },
  {
   "name": "unexplained texts in windows a player opens",
-  "claimed": 470,
+  "claimed": 2213,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
    "unexplained in player windows"
   ],
-  "counting_rule": "the 631 minus the developers' own windows, over 126 windows"
+  "counting_rule": "the 2374 minus the developers' own windows"
  },
  {
   "name": "unexplained bare numbers in windows a player opens",
-  "claimed": 4,
+  "claimed": 403,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
    "unexplained bare number in player windows"
   ],
-  "counting_rule": "of those 470, the texts that are only digits and the punctuation a number carries, so that no word says what they are; two war scores in the ledger and two in the war overview"
+  "counting_rule": "of those 2213, the texts that are only digits and the punctuation a number carries, so that no word says what they are"
  },
  {
   "name": "provinces that appear on the map image",

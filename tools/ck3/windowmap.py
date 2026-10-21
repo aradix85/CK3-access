@@ -422,6 +422,20 @@ def windows_on_disk() -> dict[str, OnDisk]:
     return out
 
 
+def console_drawn(nodes: widgettree.Nodes) -> bool:
+    """Is the console on screen? From the flag byte of `console_window`.
+
+    Measured 25 August 2026 by pressing the key twice with the recogniser watching: open, the
+    window sits at 20,31 with a frame of 427x838 and its flag byte reads 0x00, and the screen
+    carries the console's own output; shut, the frame is 0x0 and the byte reads 0x18. So the
+    ordinary rule decides it after all (`onscreen.shown`) - what does not work is asking
+    `Game.state()`, because that only looks at widgets of the `Window` class and `console_window`
+    is not one. That is the whole reason this used to be judged by typing into it.
+    """
+    address = next((a for a, k in nodes.items() if k[6] == 'console_window'), None)
+    return address is not None and bool(onscreen.shown(nodes, [address]))
+
+
 class Game:
     """The actions on the running game, each with the measurement that says whether it landed."""
 
@@ -475,21 +489,7 @@ class Game:
         raise SystemExit('Escape did not shut the pause menu again')
 
     def console_open(self, nodes: widgettree.Nodes | None = None) -> bool:
-        """Is the console on screen? From the flag byte of `console_window`.
-
-        Measured 25 August 2026 by pressing the key twice with the recogniser watching: open, the
-        window sits at 20,31 with a frame of 427x838 and its flag byte reads 0x00, and the screen
-        carries the console's own output; shut, the frame is 0x0 and the byte reads 0x18. So the
-        ordinary rule decides it after all (`onscreen.shown`) - what does not work is asking
-        `state()`, because that only looks at widgets of the `Window` class and `console_window` is
-        not one.
-        That is the whole reason this used to be judged by typing into it.
-        """
-        nodes = nodes if nodes is not None else self.tree()
-        address = next((a for a, k in nodes.items() if k[6] == 'console_window'), None)
-        if address is None:
-            return False
-        return bool(onscreen.shown(nodes, [address]))
+        return console_drawn(nodes if nodes is not None else self.tree())
 
     def field_text(self, address: int) -> str:
         """The text of one widget, without walking the tree - a single channel question.

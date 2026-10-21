@@ -3,6 +3,9 @@
 Outcomes, newest first. No release yet.
 
 ## 2026-10-21 — CK3 1.20.1.1 and 1.20.1.2
+- The harvest is redone on 1.20.1.2: 212 windows along shortcuts, clicks, chains and the console, every widget with its state byte; 4534 of 5125 texts pair with a place in the `.gui` files.
+- The harvest no longer tries a window that has no route at all, and `check.py` reports a pairing report that is older than the harvest.
+- `quit_game` shuts the console first, because the toolbar it draws covers Exit to Desktop.
 - A start that has to find the game's memory layout again says why it takes minutes, and the reader asks the player to press F1 twice instead of sending the key itself.
 - The harvest compares against the bare screen in the console state it runs in: the console draws the developers' toolbar, which a fixed list had taken for part of every screen; a click round tells `openers` the window classes it needs.
 - Every round starts from the bare screen, measured as the state where Escape opens the pause menu, so windows 1.20 always draws no longer count as open; the harvest no longer keeps its own list of them.
