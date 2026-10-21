@@ -417,11 +417,6 @@ def windows_on_disk() -> dict[str, OnDisk]:
     return out
 
 
-def classes(pid: int) -> set[int]:
-    base = vtablemap.module_base(pid)
-    return {base + v for v in memory.vtables_by_name('Window')}
-
-
 class Game:
     """The actions on the running game, each with the measurement that says whether it landed."""
 
@@ -429,7 +424,7 @@ class Game:
         self.pid = pid
         self.fields, _ = derive.fields_for(pid)
         derive.configure_channel(self.fields)
-        self.window_classes = classes(pid)
+        self.window_classes = derive.window_classes_of(pid)
         self.root, _ = derive.quick_root(self.fields, pid)
         self.field: int | None = None        # address of console_edit
         # The click point of that field; it does not change while the game runs.

@@ -31,25 +31,12 @@ import sys
 import time
 
 from tools import ocr, paths, terminal, windowgrab
-from tools.ck3 import channel, derive, model, openers, savegame, vtablemap, windowmap
-from tools.ck3.quit_game import PAUSE_MENU, look, press
+from tools.ck3 import channel, derive, model, savegame
+from tools.ck3.quit_game import PAUSE_MENU, escape_to, look, press, ready
 
 IN_GAME = re.compile(r'\bPaused\b|Domain Holdings|Pinned Characters')
 MAIN_MENU = ('New Game', 'Load')
 SETUP = 'Random Character'         # the button `new` presses on the setup screen of a bookmark
-
-
-def _ready(pid: int) -> tuple[int, set[int]]:
-    """The tree of the running game with everything `look` and `press` ask for."""
-    fields = derive.stored() or derive.fields_for(pid)[0]
-    derive.configure_channel(fields)
-    derive.use_fields(fields)
-    derive.use_screen(pid)
-    vtablemap.configure(pid)
-    window_classes = windowmap.classes(pid)
-    openers.game_classes = window_classes
-    root, _ = derive.quick_root(fields, pid)
-    return root, window_classes
 
 
 def _screen(pid: int) -> list[ocr.Line]:
@@ -84,16 +71,8 @@ def wait(pid: int, timeout: int = 900) -> str:
 def save(pid: int, suffix: str = '') -> str:
     """Save through the pause menu; the name of the new save comes back."""
     before = set(os.listdir(paths.require('SAVES')))
-    root, classes_of_windows = _ready(pid)
-    nodes, scales, drawn, classes = look(root, pid, classes_of_windows)
-    for _ in range(5):
-        if PAUSE_MENU in drawn:
-            break
-        channel.ask('sendkey 27')
-        time.sleep(2.0)
-        nodes, scales, drawn, classes = look(root, pid, classes_of_windows)
-    if PAUSE_MENU not in drawn:
-        raise SystemExit('the pause menu did not come up; drawn: {}'.format(', '.join(sorted(drawn))))
+    root, classes_of_windows = ready(pid)
+    nodes, scales, drawn, classes = escape_to(root, pid, classes_of_windows, {PAUSE_MENU})
     why = press(nodes, scales, classes, 'save_button')
     if why:
         raise SystemExit(f'the pause menu is up, but its save button: {why}')
@@ -136,7 +115,7 @@ def save(pid: int, suffix: str = '') -> str:
 
 def console(pid: int, command: str) -> None:
     """Type one command into the console and shut it again. What the console answers is not read."""
-    root, classes_of_windows = _ready(pid)
+    root, classes_of_windows = ready(pid)
 
     def is_open() -> tuple[bool, derive.Nodes, derive.Scales, dict[int, str | None]]:
         nodes, scales, _, classes = look(root, pid, classes_of_windows)

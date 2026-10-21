@@ -21,13 +21,32 @@ import sys
 import time
 
 from tools import paths
-from tools.ck3 import channel, derive, openers, vtablemap, windowmap
+from tools.ck3 import channel, derive, openers, vtablemap
 
 PAUSE_MENU, CONFIRMATION = 'ingame_pausemenu', 'ingame_resign_confirmation'
 # The game's own yes-or-no dialog, in shared/dialogs.gui. Escape on it says no.
 QUESTION = 'basic_confirmation_popup'
 # EXIT_SAVE_NAME in the game's common/defines/00_defines.txt.
 EXIT_SAVE = 'autosave_exit.ck3'
+
+
+def ready(pid: int) -> tuple[int, set[int]]:
+    """The root of the running game's tree and its window classes, with everything `look` and
+    `press` ask for handed to the channel and to derive.
+
+    **The stored derivation is used without its recheck.** On the main menu the recheck turns a
+    good derivation down and derives again for minutes (`tools/never_silent.py`), and leaving the
+    game has to work there. Only a build without one derives it, and that needs a loaded game.
+    """
+    fields = derive.stored() or derive.fields_for(pid)[0]
+    derive.configure_channel(fields)
+    derive.use_fields(fields)           # flags_for reads the offsets from here, not from the DLL
+    derive.use_screen(pid)              # on_screen asks the drawing area of this run, not a constant
+    vtablemap.configure(pid)
+    window_classes = derive.window_classes_of(pid)
+    openers.game_classes = window_classes
+    root, _ = derive.quick_root(fields, pid)
+    return root, window_classes
 
 
 def look(root: int, pid: int, window_classes: set[int]) -> tuple[derive.Nodes, derive.Scales, set[str],
@@ -62,11 +81,8 @@ def press(nodes: derive.Nodes, scales: derive.Scales, classes: dict[int, str | N
         return f'there is no widget called {name}'
     refused = []
     for address in found:
-        reason = openers.on_screen(address, nodes, scales, classes)
+        reason = openers.press(address, nodes, scales, classes)
         if reason is None:
-            x, y = derive.screen_pos(nodes, address, scales)
-            width, height = derive.screen_size(nodes, address, scales)
-            channel.ask(f'mouse {int(x + width / 2)} {int(y + height / 2)}')
             return None
         refused.append(reason)
     return f"{name} is in the tree {len(found)} time(s) and none of them can be clicked: {', '.join(sorted(set(refused)))}"
@@ -74,6 +90,33 @@ def press(nodes: derive.Nodes, scales: derive.Scales, classes: dict[int, str | N
 
 def listed(drawn: set[str]) -> str:
     return ', '.join(sorted(drawn)) or 'nothing'
+
+
+def escape_to(root: int, pid: int, window_classes: set[int], menus: set[str]
+              ) -> tuple[derive.Nodes, derive.Scales, set[str], dict[int, str | None]]:
+    """Escape until one of `menus` is drawn, and what is drawn then; stop if it does not come.
+
+    Escape shuts one open window at a time and only opens the pause menu when nothing is open, so
+    this steps through what is open rather than pressing once and giving up. A window holding
+    unfinished work asks first - the activity planner whether its plan may go - and the answer is
+    yes, as a player has to give it to get past; Escape there would say no and keep it standing.
+    """
+    nodes, scales, drawn, classes = look(root, pid, window_classes)
+    for _ in range(5):
+        if drawn & menus:
+            return nodes, scales, drawn, classes
+        if QUESTION in drawn:
+            why = press(nodes, scales, classes, 'accept_button')
+            if why:
+                raise SystemExit(f'the game asks a question and {why}')
+            print('the game asked a question, answered yes')
+        else:
+            channel.ask('sendkey 27')
+        time.sleep(2.0)
+        nodes, scales, drawn, classes = look(root, pid, window_classes)
+    if not drawn & menus:
+        raise SystemExit(f'{listed(menus)} did not come up; drawn: {listed(drawn)}')
+    return nodes, scales, drawn, classes
 
 
 def exit_save_since(moment: float) -> bool:
@@ -93,42 +136,17 @@ def gone(seconds: int = 40) -> bool:
 
 
 def quit_game(pid: int) -> None:
-    fields = derive.stored()
-    if fields is None:
-        fields, _ = derive.fields_for(pid)      # only a loaded game can derive them
-    derive.configure_channel(fields)
-    derive.use_fields(fields)           # flags_for reads the offsets from here, not from the DLL
-    derive.use_screen(pid)              # on_screen asks the drawing area of this run, not a constant
-    vtablemap.configure(pid)
-    window_classes = windowmap.classes(pid)
-    openers.game_classes = window_classes
-    root, _ = derive.quick_root(fields, pid)
-
+    root, window_classes = ready(pid)
     nodes, scales, drawn, classes = look(root, pid, window_classes)
 
     left_at: float | None = None        # the moment a loaded game was left, after which its exit save comes
     if press(nodes, scales, classes, 'exit_game_button') is None:
         print('pressed exit game on the main menu')
     else:
-        # Escape shuts one open window at a time and only opens the pause menu when nothing is
-        # open, so this steps through what is open rather than pressing once and giving up. A window
-        # holding unfinished work asks first - the activity planner whether its plan may go - and
-        # the answer is yes, because the game is being shut down. Escape there would say no. On the
-        # setup screen of a bookmark Escape brings up the exit confirmation itself, with no pause
-        # menu in between (measured 21 October 2026).
-        for _ in range(5):
-            if PAUSE_MENU in drawn or CONFIRMATION in drawn:
-                break
-            if QUESTION in drawn:
-                why = press(nodes, scales, classes, 'accept_button')
-                if why:
-                    raise SystemExit(f'the game asks a question and {why}')
-                print('the game asked a question, answered yes')
-            else:
-                channel.ask('sendkey 27')
-            time.sleep(2.0)
-            nodes, scales, drawn, classes = look(root, pid, window_classes)
-        if PAUSE_MENU in drawn and CONFIRMATION not in drawn:
+        # On the setup screen of a bookmark Escape brings up the exit confirmation itself, with no
+        # pause menu in between (measured 21 October 2026).
+        nodes, scales, drawn, classes = escape_to(root, pid, window_classes, {PAUSE_MENU, CONFIRMATION})
+        if CONFIRMATION not in drawn:
             why = press(nodes, scales, classes, 'exit_button')
             if why:
                 raise SystemExit(f'the pause menu is up but {why}')

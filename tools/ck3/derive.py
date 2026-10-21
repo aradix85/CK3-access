@@ -15,7 +15,6 @@ How it works, at two speeds:
 Every prediction below is one that can only come true for the right field. If a field cannot be
 found, this file stops hard and names that field.
 """
-import glob
 import json
 import math
 import os
@@ -28,7 +27,7 @@ from collections.abc import Iterable, Iterator
 from typing import NotRequired, TypedDict
 
 from tools import paths, windowgrab
-from tools.ck3 import channel, memory, vtablemap
+from tools.ck3 import channel, guimap, memory, vtablemap
 from tools.nvda import speech
 
 STORED = os.path.join(paths.REPORTS, 'fields.json')
@@ -92,9 +91,15 @@ def build_key() -> str:
 
 
 def read(address: int, count: int) -> bytes | None:
+    """Raw bytes, or None where the game holds nothing readable. Any other refusal of the DLL - a
+    count over its limit, a command it does not know - is a fault and stops here."""
     line = channel.ask(f'read {address:x} {int(count)}', timeout=20,
                         errors_ok=True).split('\n')[0].strip()
-    return None if line.startswith('error') else bytes.fromhex(line)
+    if line == 'error: unreadable':
+        return None
+    if line.startswith('error'):
+        raise ValueError(f'{line} (read {address:x} {int(count)})')
+    return bytes.fromhex(line)
 
 
 def read_known(address: int, count: int) -> bytes:
@@ -328,7 +333,6 @@ def _lost_where(nodes: Nodes, address: int) -> str:
 
 
 OWN_SCALE = 0x110
-PARENT_SCALE = 0x114
 
 
 def scales_for(addresses: Iterable[int]) -> Scales:
@@ -378,8 +382,8 @@ def screen_pos(nodes: Nodes, address: int, scales: Scales,
     (+0x114), and for each scaled container above it add `size x (1 - own scale) / 2`. That is the
     difference between shrinking around the centre and shrinking around the edge - and so it only
     applies on an axis where the container hangs centred. Which axes those are comes from disk, via
-    `scale_anchors`; if a window is missing there, both axes are corrected, which is right for four
-    of the five files.
+    `scale_anchors`; a scaled container it does not know is corrected on both axes, which is a
+    choice and not a measurement.
 
     `scales` comes from `scales_for`; pass it in rather than fetching it per widget, because that
     makes it one channel question per four hundred nodes instead of one per node.
@@ -423,47 +427,43 @@ def _anchor_for(nodes: Nodes, address: int, anchors: Anchors) -> tuple[bool, boo
 _ANCHORS: Anchors | None = None
 
 
-def scale_anchors() -> Anchors:
-    """Per window: does the centring correction apply in x, and in y? Read from the gui files.
+def _scaled(entries: list[guimap.Entry], named: str | None, anchors: Anchors) -> None:
+    """Every block that scales itself to fit, under its own name or the nearest name above it,
+    with the anchor it hangs on itself - not one a child a few lines further down carries."""
+    for entry in entries:
+        body = entry['body']
+        if not body:
+            continue
+        own = next((e['value'] for e in body if e['key'] == 'name' and e['value']), named)
+        if own and any(e['key'] == 'scale' and 'ScaleToFitElement' in (e['value'] or '') for e in body):
+            parts = set(next((e['value'] or '' for e in body if e['key'] == 'parentanchor'), '').split('|'))
+            anchors[own] = ('center' in parts or 'hcenter' in parts, 'center' in parts or 'vcenter' in parts)
+        _scaled(body, own, anchors)
 
-    No table of our own: the anchoring sits as `parentanchor` next to the `scale` line in the gui
-    file itself, and that is the source that changes along with the game. Measured 23 August 2026
-    across all gui files: five files really scale. The main menu, the bookmarks and the barbershop
-    hang on `center` and therefore correct on both axes; `ingame_pausemenu` hangs on `left|vcenter`
-    and corrects only in y; the ruler designer on `hcenter` and `bottom|hcenter` respectively, so
-    only in x. In `fullscreen_event.gui` the scale line is commented out, so the event window does
-    not scale - that is the hard requirement and it falls outside this.
+
+def scale_anchors() -> Anchors:
+    """Per scaled container, by its own name or the nearest name above it: does the centring
+    correction apply in x, and in y? Read from the gui files, through `guimap`.
+
+    No table of our own: the anchoring sits as `parentanchor` in the block that carries the `scale`
+    line, and that is the source that changes along with the game. Measured 23 August 2026 across
+    all gui files: five files really scale. The main menu and the bookmarks hang on `center` and
+    therefore correct on both axes; `ingame_pausemenu` hangs on `left|vcenter` and corrects only in
+    y; the ruler designer on `hcenter` and `bottom|hcenter` respectively, so only in x. In
+    `fullscreen_event.gui` the scale line is commented out, so the event window does not scale -
+    that is the hard requirement and it falls outside this. Read per block on 21 October 2026, the
+    barbershop scales three containers, and only its portrait hangs on `center`: the line reader
+    before it took the anchor of a child eight lines down for the whole window.
     """
     global _ANCHORS
     if _ANCHORS is not None:
         return _ANCHORS
     anchors: Anchors = {}
-    game = paths.require('GAME')
-    for pattern in (os.path.join(game, 'game', 'gui', '**', '*.gui'),
-                    os.path.join(game, 'clausewitz', 'gui', '**', '*.gui'),
-                    os.path.join(game, 'jomini', '**', '*.gui')):
-        for path in glob.glob(pattern, recursive=True):
-            lines = pathlib.Path(path).read_text(encoding='utf-8', errors='replace').splitlines()
-            for i, line in enumerate(lines):
-                if 'ScaleToFitElement' not in line or line.lstrip().startswith('#'):
-                    continue
-                anchor = ''
-                for j in range(max(0, i - 8), min(len(lines), i + 9)):
-                    if 'parentanchor' in lines[j]:
-                        anchor = lines[j].split('=', 1)[1].strip()
-                        break
-                window = ''
-                for j in range(i, -1, -1):
-                    if lines[j].strip().startswith('name =') and window == '':
-                        window = lines[j].split('=', 1)[1].strip().strip('"')
-                    if lines[j].startswith('window = {'):
-                        break
-                    if lines[j].strip().startswith('name ='):
-                        window = lines[j].split('=', 1)[1].strip().strip('"')
-                if window:
-                    parts = {s.strip() for s in anchor.split('|')}
-                    anchors[window] = ('center' in parts or 'hcenter' in parts,
-                                       'center' in parts or 'vcenter' in parts)
+    for _, _, full in guimap.files():
+        text = pathlib.Path(full).read_text(encoding='utf-8-sig', errors='replace')
+        if 'ScaleToFitElement' not in text:
+            continue
+        _scaled(guimap.parse(text), None, anchors)
     _ANCHORS = anchors
     return anchors
 
@@ -743,11 +743,12 @@ def _pos_field(chunks: dict[int, bytes], f_parent: int, f_size: int, spread_requ
 
 def _cstring(chunk: bytes, offset: int) -> str | None:
     """MSVC layout of 32 bytes: sixteen bytes of buffer or pointer, then the length, then the
-    capacity. If the capacity is 15, the text sits inside the object itself."""
+    capacity. If the capacity is 15, the text sits inside the object itself. A length past what
+    one `read` may ask is no string of the game's, the way a derivation meets most candidates."""
     block = chunk[offset:offset + 32]
     length = int.from_bytes(block[16:24], 'little')
     capacity = int.from_bytes(block[24:32], 'little')
-    if capacity < 15 or capacity > 0x100000 or length > capacity or length == 0:
+    if capacity < 15 or capacity > 0x100000 or length > capacity or length == 0 or length > 65536:
         return None
     if capacity == 15:
         if block[length] != 0 or any(c < 32 or c > 126 for c in block[:length]):
@@ -760,20 +761,15 @@ def _cstring(chunk: bytes, offset: int) -> str | None:
     return None if b is None else b.decode('utf-8', 'replace')
 
 
-def _file_chunk(pattern: str, text_encoding: str = 'utf-8') -> str:
-    return ''.join(pathlib.Path(p).read_text(encoding=text_encoding, errors='ignore')
-                   for p in glob.glob(pattern, recursive=True))
-
-
 def gui_text() -> str:
-    game = paths.require('GAME')
-    return (_file_chunk(os.path.join(game, 'game', 'gui', '**', '*.gui')) +
-            _file_chunk(os.path.join(game, 'clausewitz', 'gui', '**', '*.gui')))
+    """Every gui file the engine loads, as one text: what the name prediction looks names up in."""
+    return ''.join(pathlib.Path(full).read_text(encoding='utf-8-sig', errors='replace')
+                   for _, _, full in guimap.files())
 
 
 def localization_text() -> str:
-    return _file_chunk(os.path.join(paths.require('GAME'), 'game', 'localization', 'english',
-                                      '**', '*.yml'), 'utf-8-sig')
+    """Every sentence the localization gives, as one text: what the text prediction looks in."""
+    return '\n'.join(guimap.localization().values())
 
 
 def _name_field(chunks: dict[int, bytes], gui: str) -> int:
@@ -831,6 +827,12 @@ def _text_field(chunks: dict[int, bytes], text_boxes: list[int], translation: st
     if best[0] is None:
         raise SystemExit('deriving failed on field: text')
     return best[0]
+
+
+def window_classes_of(pid: int) -> set[int]:
+    """Where the vtables of every class with Window in its name are loaded in this run."""
+    module = vtablemap.module_base(pid)
+    return {module + v for v in memory.vtables_by_name('Window')}
 
 
 def class_map(pid: int, addresses: dict[int, int]) -> dict[int, str | None]:
@@ -905,8 +907,7 @@ def visibility_fields(pid: int, fields: Fields, root: int, key: int = 112,
 
     The counter is why the control matters: without it a field that simply ticks would pass.
     """
-    module = vtablemap.module_base(pid)
-    window_classes = {module + v for v in memory.vtables_by_name('Window')}
+    window_classes = window_classes_of(pid)
     nodes = widgets(root)
     named: dict[str, int] = {}
     for a, k in nodes.items():
@@ -1218,8 +1219,8 @@ def _child_check(fields: Fields, root: int, how_many: int = 20) -> tuple[int, in
 
 
 def verify(fields: Fields, root: int, nodes: dict[int, int], pid: int) -> list[str]:
-    """Recheck the stored derivation against the game running right now. Three predictions, all
-    three verifiable without eyesight. What comes back is a list of defects; if it is empty, the
+    """Recheck the stored derivation against the game running right now, with predictions that are
+    each verifiable without eyesight. What comes back is a list of defects; if it is empty, the
     stored derivation still holds.
 
     A sample is enough: this check has to establish whether the layout is still the same, not take
@@ -1270,8 +1271,6 @@ def _position_check(fields: Fields, nodes: Iterable[int], how_many: int = 800) -
     for +0x280 over a thousand widgets), and children of one parent are not stacked on one spot
     (0.97 of families against 0.33).
     """
-    if 'position' not in fields:
-        return ['no position offset in the stored derivation']
     chunks, _ = chunks_of(list(nodes)[:how_many])
     if not chunks:
         return ['nothing could be read from the tree to check the position offset against']
@@ -1304,10 +1303,9 @@ def _visibility_check(fields: Fields, chunks: dict[int, bytes], nodes: dict[int,
     if not alphas or any(a < 0.0 or a > 1.0 for a in alphas) or 1.0 not in alphas:
         defects.append('alpha at +0x{:03X} is not a fraction across the sample'.format(fields['alpha']))
 
-    module = vtablemap.module_base(pid)
-    window_classes = {module + v for v in memory.vtables_by_name('Window')}
+    window_classes = window_classes_of(pid)
     windows = [a for a, vtable in nodes.items() if vtable in window_classes][:400]
-    values = list(flags_for(windows).values()) if windows else []
+    values = list(flags_for(windows).values())
     if not values:
         defects.append('no window object could be read at +0x{:03X}'.format(fields['flag']))
     elif any(v & ~0x3F for v in values):
