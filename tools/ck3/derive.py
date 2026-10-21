@@ -297,7 +297,7 @@ def widgets(root: int) -> Nodes:
     # widgets. Spoken once per address, because the reader asks for the toast container every round
     # and a node that stays unreadable would otherwise be said every 400 ms.
     if missing:
-        print(f"tree from {root:x}: {len(missing)} places lost: {'; '.join(f'{pair[0]} {pair[1]}' for pair in missing[:5])}", file=sys.stderr, flush=True)
+        print(f"tree from {root:x}: {len(missing)} places lost: {'; '.join(f'{address} {why}{_lost_where(nodes, int(address, 16))}' for address, why in missing[:5])}", file=sys.stderr, flush=True)
         new = {address for address, _ in missing} - _MISSING_SAID
         if new:
             _MISSING_SAID.update(new)
@@ -308,6 +308,16 @@ def widgets(root: int) -> Nodes:
 
 # The addresses as the DLL writes them on a `missing` line, in hex text.
 _MISSING_SAID: set[str] = set()
+
+
+def _lost_where(nodes: Nodes, address: int) -> str:
+    """The names from a lost widget up towards its window, so a loss says where it is: the texts cut
+    short on 21 October 2026 could not be brought back that afternoon to see which they were."""
+    names: list[str] = []
+    while address in nodes and len(names) < 6:
+        names.append(nodes[address][6] or '-')
+        address = nodes[address][5]
+    return f" ({' < '.join(names)})" if names else ''
 
 
 OWN_SCALE = 0x110

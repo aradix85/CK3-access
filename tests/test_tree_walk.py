@@ -55,3 +55,14 @@ def test_the_same_node_is_said_once_and_a_new_one_again(heard: speech.Recorder,
     answer(monkeypatch, WIDGET, 'missing\t3000\tchild list unreadable')
     derive.widgets(0x1000)
     assert len(heard.spoken) == 2
+
+
+def test_a_text_cut_short_names_its_widget(heard: speech.Recorder, monkeypatch: pytest.MonkeyPatch,
+                                           capsys: pytest.CaptureFixture[str]) -> None:
+    """The line in the terminal names the widget and the ones above it, so a loss that will not come
+    back on demand still says where it was."""
+    answer(monkeypatch, WIDGET, 'w\t2000\t5\t0\t0\t10\t10\t1000\tlong_text\tx',
+           'missing\t2000\ttext of 65296 characters cut short')
+    derive.widgets(0x1000)
+    assert '(long_text < root)' in capsys.readouterr().err
+    assert len(heard.spoken) == 1

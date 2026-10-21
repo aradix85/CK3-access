@@ -13,8 +13,8 @@ no fallback that kills it - that would be the very thing this exists to stop, an
 quietly does the dangerous thing is worse than no tool at all.
 
 **Leaving a loaded game, the game writes its exit save**, and this says whether it did: that is
-the check that it ended itself. With `save_on_exit` on in its settings it wrote one five times out
-of five, and leaving the main menu it wrote none (measured 21 October 2026, 1.20.1.1).
+the check that it ended itself. With `save_on_exit` on in its settings it wrote one every time it
+left a loaded game, and none leaving the main menu (measured 21 October 2026, 1.20.1.1).
 """
 import os
 import sys
