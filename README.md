@@ -22,7 +22,7 @@ NVDA. No game files are copied or redistributed.
 - **A map layer from the files alone:** neighbours, de jure titles, distance, bearing, travel days.
 - **The game state is readable** without searching, checked against a save.
 
-Developed on 1.19.0.6, checked on 1.20.1.1. Every number that carries a decision is in
+Developed on 1.19.0.6, checked on 1.20.1.2. Every number that carries a decision is in
 `reports/claims.json` with its counting rule; `tools/check.py` recomputes them.
 
 ## Requirements

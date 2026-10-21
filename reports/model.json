@@ -1,5 +1,5 @@
 {
- "key": "101123704-1792124274",
+ "key": "101125752-1792594002",
  "number_field_in_record": 24,
  "number_mask": 16777215,
  "block_size": 1024,
@@ -115,13 +115,13 @@
  },
  "derived_on": "2026-10-01, 80 characters, 0 records unreadable or reused, against Ghurshah_Suri_of_the_Ghurid_Shahdom_867_10_26_reload.ck3",
  "globals": {
-  ".?AV?$TPdxRefDatabase@VCCulture@@$07@@": 97722824,
-  ".?AV?$TPdxRefDatabase@VCFaith@@$07@@": 97722840,
-  ".?AV?$TPdxRefDatabase@VCReligion@@$07@@": 97721688,
-  ".?AVCTraitDatabase@@": 96973680,
-  ".?AV?$TPdxRefDatabase@VCCharacter@@$07@@": 96973744,
-  ".?AV?$TPdxRefDatabase@VCLandedTitle@@$07@@": 97720776,
-  ".?AV?$TPdxRefDatabase@VCRite@@$07@@": 97722832
+  ".?AV?$TPdxRefDatabase@VCCulture@@$07@@": 97727232,
+  ".?AV?$TPdxRefDatabase@VCFaith@@$07@@": 97727248,
+  ".?AV?$TPdxRefDatabase@VCReligion@@$07@@": 97726104,
+  ".?AVCTraitDatabase@@": 96978096,
+  ".?AV?$TPdxRefDatabase@VCCharacter@@$07@@": 96978160,
+  ".?AV?$TPdxRefDatabase@VCLandedTitle@@$07@@": 97725192,
+  ".?AV?$TPdxRefDatabase@VCRite@@$07@@": 97727240
  },
  "databases": {
   "culture": {
@@ -152,13 +152,13 @@
   }
  },
  "player_spots": [
-  "544c7c4",
-  "544c8a0",
-  "544c8c8",
-  "544c960",
-  "54eec40",
-  "5d3bef8"
+  "544d7c4",
+  "544d8a0",
+  "544d8c8",
+  "544d960",
+  "54efc40",
+  "5d3cd88"
  ],
- "player_derived_on": "2026-10-21 10:46 against character 32399, keeping the places that also held the player before (2026-10-21 10:43 against character 15310)",
- "player_key": "101123704-1792124274"
+ "player_derived_on": "2026-10-21 17:17 against character 32399, keeping the places that also held the player before (2026-10-21 17:12 against character 15310)",
+ "player_key": "101125752-1792594002"
 }
