@@ -3,91 +3,73 @@
 Outcomes, newest first. No release yet.
 
 ## 2026-10-21 — CK3 1.20.1.1
-- When the game ends while the reader runs, closed or crashed, the reader stops without a word: a link that breaks and stays shut is `channel.Gone`, and a broken pipe is noticed at once instead of after the timeout.
+- When the game ends while the reader runs, closed or crashed, the reader stops without a word: a link that breaks and stays shut is `channel.Gone`, noticed at once instead of after the timeout.
 - "No window to read" is said only in answer to a key: a game shutting down clears its windows seconds before it ends.
 - `CONTRIBUTING.md` says how the code is written, for Python and C++ alike; `ARCHITECTURE.md` says that every onclick fires and that the game ending is no fault.
-- Every script only defines when it is loaded, and `check.py` reports one that does more: `toolindex` and the speech check by ear work behind a main, DPI awareness is set where a capture needs it, and the text recogniser is imported without a wrapper.
-- Measured on the game: an activity's own events, shown in the activity window, hold the date until they are answered; that was the clock that stood still after starting a hunt, and Enter and a click start it alike.
-- The DLL build and the channel test find MSVC through vswhere in `dll\vcvars.bat` instead of a path of one machine.
-- `states.wait` recognises the setup screen of a bookmark and says `setup`, and `states.new` asks it first; `quit_game` also shuts the game from there, where Escape brings up the exit confirmation itself.
-- A click and a shortcut both fire every onclick of a block, in order, measured on the game; `openers` and the ledger claim in `check.py` counted only the last one, and the holding view opens with Alt+S after all.
-- `openers` reads the gui files through `guimap` instead of counting braces itself; it now also finds the legends button, whose name has no quotes.
-- What the tree walk loses is named in the terminal with the widgets above it, so a text cut short says where it is.
-- `quit_game` answers yes when Escape raises the game's own question (the activity planner asks whether its plan may go), and says whether the game wrote its exit save.
-- Checked against 1.20.1.1 on disk and in the game: still 282 windows and none behind an expansion, the nine field offsets unchanged, the game model agrees with a save on every field that survives a load, and the game builds no window the map lacks. One named shortcut and 38 gui templates more.
-- Starting the game no longer says the link is gone while it waits for the channel to open; a channel that never answers is said once.
-- `derive.tooltip_root` finds the root that holds the game's tooltip in milliseconds instead of a 21-second scan: the engine keeps its layer roots side by side, and a global in the exe points at them. It alone carried the tooltip of the moment on buttons, portraits and the map, and a fixed tooltip key reads exactly as the gui and localization files say.
-- The numbering reads from the running game again on 1.20, all six databases, checked on two states against their saves: the record length of a database whose records point at their key comes from each record's own number, cultures point at their template, the game's own rites (`dynamic_rite_151`) pass the key test, and the hegemony tier is a title tier. A character is placed on the map again.
-- Where the player is kept carries its own build key, so the places of an older build are never taken for an earlier derivation on this one.
-- The move-camp planner opens after all: with the game in front, the pointer on the camp's map icon draws its quick buttons, and the move button opens `window_move_domicile`.
+- Every script only defines when it is loaded, and `check.py` reports one that does more.
+- An activity's own events, shown in the activity window, hold the date until they are answered; Enter and a click start a hunt alike.
+- The DLL build and the channel test find MSVC through vswhere (`dll\vcvars.bat`) instead of a path on one machine.
+- `states.wait` recognises the setup screen of a bookmark and says `setup`; `quit_game` also shuts the game from there.
+- A click and a shortcut both fire every onclick of a block, in order; `openers` and `check.py` had counted only the last, and the holding view opens with Alt+S.
+- `openers` reads the gui files through `guimap`, and now also finds the legends button, whose name has no quotes.
+- What the tree walk loses is named with the widgets above it, so a text cut short says where it is.
+- `quit_game` answers yes when Escape raises the game's own question, and says whether the game wrote its exit save.
+- Checked against 1.20.1.1 on disk and in the game: still 282 windows, none behind an expansion; the nine field offsets unchanged; the game model agrees with a save on every field that survives a load; the game builds no window the map lacks. One named shortcut and 38 gui templates more.
+- Starting the game no longer says the link is gone while it waits for the channel; a channel that never answers is said once.
+- `derive.tooltip_root` finds the root that holds the game's tooltip in milliseconds instead of a 21-second scan, through the engine's own list of layer roots; a fixed tooltip key reads as the gui and localization files say.
+- The numbering reads from the running game again on 1.20, all six databases, checked on two states against their saves; the hegemony tier is a title tier, and a character is placed on the map again.
+- Where the player is kept carries its own build key, so places from an older build are never taken for this one.
+- The move-camp planner opens: with the game in front, the pointer on the camp's map icon draws its quick buttons, and the move button opens `window_move_domicile`.
 
 ## 2026-10-06
-- mypy runs fully strict over every module and every test; reading and the reader were the last, and say exactly what they said before, without the game and on a running one.
-- A toast counts as showing only when `derive.shown` says so, up to the root, and only text boxes give it its words; the key round's `shown_texts` asks `derive.shown` too. Both had their own rule, which took a state byte that could not be read for not hiding. A real toast, called up through the console, is read the moment it appears, and the game's own message log keeps it.
-- The game's tooltips can be read: with the game in front, moving the pointer moves the game's hover point, and the tooltip's text stands in roots outside the widget tree, where `derive.shown` tells the current text from a stale one. Posted mouse messages, and a pointer moved while the game is behind, do not move it; the closing of this question in August had measured the tree, where no tooltip is. Not yet used by the reader.
-- The text classes are named once, in `derive`, and the gui tables are built in one place, `guimap.tables`, instead of in nine; the templates are read once there instead of twice.
-- Reading a harvested window that was never opened says so in a sentence instead of failing on a missing field.
+- mypy runs fully strict over every module and every test.
+- A toast counts as showing only when `derive.shown` says so, and only text boxes give it words; the key round asks `derive.shown` too. A real toast, called up through the console, is read the moment it appears, and the game's message log keeps it.
+- The game's tooltips can be read: with the game in front, moving the pointer moves the game's hover point, and the text stands in roots outside the widget tree, where `derive.shown` tells the current text from a stale one. Not yet used by the reader.
+- The text classes are named once, in `derive`, and the gui tables are built once, in `guimap.tables`.
+- Reading a harvested window that was never opened says so in a sentence.
 
 ## 2026-10-04
-- harvest, openers, windowmap, modifiers, quit_game and states carry real types and hold all of mypy's strict flags; each does what it did before, without the game and on a running one.
-- A harvested window record has a type of its own, a chain route takes its source as an argument, and a click route keeps the window it opens first together with the key for it; windowmap reads the shortcut file once.
-- `windowmap --window-keys` prints its plan in the same order every run: ties had come out of a set in an order Python changes per run.
-- The usage line `openers` prints is a usage line again; it had printed the last line of its docstring.
-- The recheck at every start reads only the fields it tests. With the root of the widget tree just before unreadable memory it had turned a good derivation down, told the player a field had moved, and spent three minutes deriving the same offsets.
-- mapdata, pairing, never_silent, check, anchor, model, numbering, calibrate, place and five tests carry real types and hold all of mypy's strict flags; each says exactly what it said before, without the game and on a running one.
-- `reports/model.json` is read and written in one place, anchor, instead of four; never_silent no longer takes over the NVDA client when it is imported; check reads the shortcut file once; pairing uses `guimap.root_finder` instead of its own copy.
-- On 1.20 titles do not read from the running game, so placing a character on the map does not work there yet.
-- A start finds the widget tree in 2 to 10 seconds instead of 80: `scan` and `find` skip the DLL's own thread stacks, where `vtables` left a copy of its list that came back as false widgets, and write-combined memory shared with the graphics card, which held no widget and was slow to read. Both are reported, and the channel test fails on either.
-- What a search skipped is reported in regions and bytes, and every search that finds nothing says it, so "not found" never reads as "not there". Read from outside on two saves, the skipped memory held no vtable of any of the executable's classes, so no object a search looks for.
-- Every new derivation checks that each widget of the tree is in the full scan; should a patch ever put widgets in skipped memory, the derivation stops there and says what was skipped.
-- `restore_launcher` acts only when started: loading it to check imports had copied the 1.19 launcher settings over those of 1.20.
+- harvest, openers, windowmap, modifiers, quit_game, states, mapdata, pairing, never_silent, check, anchor, model, numbering, calibrate, place and five tests hold all of mypy's strict flags; each does what it did before.
+- A harvested window record has a type of its own; `windowmap --window-keys` prints its plan in the same order every run.
+- The recheck at every start reads only the fields it tests; it had turned down a good derivation when the tree's root lay just before unreadable memory.
+- `reports/model.json` is read and written in one place, anchor; never_silent no longer takes over the NVDA client when it is imported.
+- A start finds the widget tree in 2 to 10 seconds instead of 80: `scan` and `find` skip the DLL's own thread stacks and write-combined memory, report what they skipped, and the channel test fails on either.
+- Every new derivation checks that each widget of the tree is in the full scan.
+- `restore_launcher` acts only when started.
 
 ## 2026-10-03
-- Alt+A opens the activity window, so all nine HUD key combinations open a window.
-- Only state bit 0x08 hides; 0x20 lets the mouse through, so the activity planner is now read and its buttons clicked. One rule, in `derive.shown`; 0x02 marks a switched-off widget and its contents.
-- Tooling brought up to date: OpenVINO 2026.4 (recognition unchanged on the harvest captures), onnx 1.23, pytest 9.1, ruff 0.16. Build Tools 18.10.2 and LLVM 23: `tests/test_channel.py` finds clang-tidy through LLVM's uninstall entry, and the 24 findings of its new signed-bitwise check are fixed rather than switched off.
-- No check is switched off for convenience: pytest fails on any warning and lists every skip, which exposed unclosed files in `tools/paths.py` and the channel test, now closed; clang-tidy's enum-size check is on again and satisfied.
-- The DLL reads numbers strictly - digits only, no sign, nothing too big for its field - and builds with no check of clang-tidy or MSVC switched off.
-- mypy checks every function body and holds eleven of the fourteen strict flags across the project, all fourteen in each module with real types so far; a missing game or documents folder stops with a sentence wherever it is used, instead of failing further on.
-- `tools` is a package: scripts start from the project folder as `python -m tools.ck3.start_game`, and `check.py` reports any start by file path or by file name, or of a module that does not exist.
-- ruff runs its own default rules, which cover pyflakes, so pyflakes is no longer a requirement. Tests and files outside the repository included, it finds nothing: f-strings throughout, every file closed after use. The reader and the map layer say exactly what they said before.
+- Alt+A opens the activity window; each of the nine combinations the modifier key round presses opens a window.
+- Only state bit 0x08 hides; 0x20 lets the mouse through, so the activity planner is read and its buttons clicked. One rule, in `derive.shown`; 0x02 marks a switched-off widget and its contents.
+- Tooling brought up to date (OpenVINO 2026.4, onnx 1.23, pytest 9.1, ruff 0.16, Build Tools 18.10.2, LLVM 23); text recognition unchanged on the harvest captures.
+- No check is switched off for convenience: pytest fails on any warning and lists every skip, and the DLL builds with no check of clang-tidy or MSVC switched off.
+- The DLL reads numbers strictly: digits only, no sign, nothing too big for its field.
+- `tools` is a package: scripts start from the project folder as `python -m tools.ck3.start_game`, and `check.py` reports any other start.
 - On a machine marked with `.tools-required` the channel test fails, rather than skips, when MSVC or clang-tidy is missing.
-- The tool index shows keyword-only parameters, and no longer counts the returns of a function defined inside another: `states.console` and `harvest.chain_round` return nothing, `windowgrab.window_of` a 3-tuple, and a generator is an iterator.
-- The text recogniser checks which form rapidocr answers in and stops on any other, instead of reading fields that may not be there; it reads a harvest capture exactly as before.
-- `database.numbering` stops with a sentence where a save has no faiths block under religion, as on 1.20, instead of failing a line later on a type error.
-- guimap carries real types: an entry, a template and an expanded widget each have their fixed shape. Its unused `widgets` is gone and a gui file is closed after reading. Files, templates, all 282 windows, five fully expanded windows and every localization key read exactly as before.
-- database, screens and propose carry real types. screens and reading walk a parsed file with `guimap.walk`, propose and pairing read an attribute with `guimap.attribute`, each once instead of twice, and propose, openers and windowmap write their drafts and trials under the scratch folder `paths.py` names. Drafts for all 282 windows, the screen check, the screen rules, every database and the pairing sweep come out exactly as before.
-- derive carries real types: a widget, the tree, the scales and the derivation itself each have their fixed shape. A read the caller knows must succeed goes through `derive.read_known`, which stops with the address, in model, anchor and numbering, where an unreadable address used to fail a line later on a type error. `is_visible` counts an ancestor that can no longer be read as not shown, as `shown` does. The gui and localization files are closed after reading. Text, anchors, the channel's set command and the stored derivation read exactly as before.
-- The channel's one retry is tested without a game: a link that breaks is tried once more, a link that will not open is said once.
-- The channel test no longer fails when someone holds ctrl, shift or alt while it runs: it watches the real keyboard throughout and repeats a disturbed key.
+- A missing game or documents folder stops with a sentence; the game is found through the Steam libraries in the registry, or `CK3_GAME`.
+- guimap, database, screens, propose and derive carry real types, with their output unchanged; a read that must succeed goes through `derive.read_known`.
+- The channel's one retry is tested without a game, and the channel test tolerates someone holding ctrl, shift or alt.
 - The game model holds on a state begun and played on 1.20: 400 characters, all 19 fields agree with the save.
-- The game is found through the Steam libraries in the registry only; set `CK3_GAME` otherwise.
 - Removed two unused tools; the code no longer refers to the maintainer's private notes.
 
 ## 2026-10-02
 - `combo`: shift, ctrl and alt combinations are posted from inside, without taking focus; shift+1 answers an event.
-- windowmap's `--modified-keys` and `--window-keys`: key rounds with modifiers and inside windows. Keys that act on the game are never pressed.
-- Of the 241 named shortcuts, 192 are declared by a widget, 41 only under a computed name, and 8 nowhere.
+- windowmap's `--modified-keys` and `--window-keys`: key rounds with modifiers and inside windows; keys that act on the game are never pressed.
 - The game starts without taking the foreground.
-- The tree walk reports everything it loses; the DLL has no default field offsets; the channel refuses malformed commands. `call` and `waitchange` removed.
+- The tree walk reports everything it loses; the DLL has no default field offsets; the channel refuses malformed commands.
 - The DLL is tested without the game (`tests/test_channel.py`), also under AddressSanitizer; the build stops on any warning; pytest runs clang-tidy.
 - `count`: an instrument for what the game asks Windows about the keyboard.
-- The numbering of cultures, faiths, religions and rites does not read on 1.20 yet.
 
 ## 2026-10-01 — CK3 1.20 "Crozier"
 - Checked against 1.20.0.3 on disk and in the game: 282 named windows, field offsets unchanged.
 - The tree walk no longer drops a widget silently; on 1.20 it had lost the decisions window.
-- The character record length is measured at every start.
-- Characters carry a rite; faiths moved to a folder of their own, and `database.py` reads both forms.
+- The character record length is measured at every start; characters carry a rite.
 - Content mods switched off: the project waits on one publisher.
 
 ## 2026-09-21
-- Widgets the game hides (state bit 0x08) are neither read nor clicked.
+- Widgets the game hides are neither read nor clicked, and a button covered by another window is not clicked.
 - Seventeen windows open on a plain key.
-- Harvests along shortcut, click and chain need no debug mode; harvest's `--chain` walks chain routes.
-- A button covered by another window is not clicked.
-- A toast is announced when it appears (no real toast heard yet).
-- A list is announced once with its row count; a list inside a row folds into the row.
+- Harvests along shortcut, click and chain need no debug mode.
+- A toast is announced when it appears; a list is announced once with its row count, and a list inside a row folds into the row.
 
 ## 2026-09-20
 - An event is read aloud live, the requirement this project exists for.
@@ -102,7 +84,7 @@ Outcomes, newest first. No release yet.
 - First tests and lint configuration (`pytest`, `ruff`).
 
 ## 2026-09-13
-- Map layer done. The holding view and the move-domicile planner cannot be opened by any route.
+- Map layer done.
 
 ## 2026-09-01
 - `mapdata.py`: where a county is, its neighbours, distance, bearing, travel days, the de jure chain.
@@ -114,7 +96,7 @@ Outcomes, newest first. No release yet.
 - `openers.chain` reaches windows that wait on a state.
 
 ## 2026-08-24 – 2026-08-30
-- 203 windows harvested; opening a window the way a player does gives values, the console only captions.
+- The first harvest: opening a window the way a player does gives values, the console only captions.
 - `guimap.py` parses the gui format; `pairing.py` joins it to the live tree on structure.
 - `model.py` and `calibrate.py` derive and check the character record; `numbering.py` reads the numbering from the running game.
 - Braille is not optional; an NVDA add-on puts NVDA to sleep while the game has focus.

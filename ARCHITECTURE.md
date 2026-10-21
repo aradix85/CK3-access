@@ -51,7 +51,7 @@ whatever lies underneath.
 
 - **Receiving:** the DLL hooks the game's window procedure and swallows the keys the reader owns.
 - **Sending:** mouse and key messages are posted into the process, so the player's screen is never
-  taken. The product never sends keys; this is for mapping the interface.
+  taken. This is for mapping the interface; the product sends no keys or clicks.
 - **A posted click lands on what is topmost at that point.** A click is therefore a measurement: press,
   read what is drawn, put the state back (`tools/ck3/openers.py`).
 - **Modifiers:** a posted key carries no modifier state, so `combo` holds the modifier for the game
@@ -113,6 +113,6 @@ Two functions: `output(text, mode, braille)` and `failure(where, what, remedy)`.
 ## Deliberately not done
 
 - No decompiling or rebuilding the engine; no redistribution of game files.
-- The product sends no keys or clicks from outside the process; the one exception is moving the
-  pointer to read a tooltip. `tools/ck3/modifiers.py` presses real keys, as a measurement only.
+- The product sends no keys or clicks, from inside or outside the process; the one thing it may move
+  is the pointer, to read a tooltip. `tools/ck3/modifiers.py` presses real keys, as a measurement only.
 - No hard-coded addresses, offsets or click positions.
