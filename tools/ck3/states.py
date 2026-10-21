@@ -1,7 +1,8 @@
 r"""Play states: wait until a game is up, save it, type into the console, play someone else.
 
 Usage:
-    python -m tools.ck3.states <pid> wait               until a game is on screen, asked of the recogniser
+    python -m tools.ck3.states <pid> wait               until a game, the main menu or the setup screen of
+                                                        a bookmark is on screen, asked of the recogniser
     python -m tools.ck3.states <pid> save [suffix]      save through the pause menu, never over a save
     python -m tools.ck3.states <pid> console <command>  type one console command; needs -debug_mode
     python -m tools.ck3.states <pid> new <title key>    on the setup screen of a bookmark: start at
@@ -35,6 +36,7 @@ from tools.ck3.quit_game import PAUSE_MENU, look, press
 
 IN_GAME = re.compile(r'\bPaused\b|Domain Holdings|Pinned Characters')
 MAIN_MENU = ('New Game', 'Load')
+SETUP = 'Random Character'         # the button `new` presses on the setup screen of a bookmark
 
 
 def _ready(pid: int) -> tuple[int, set[int]]:
@@ -56,7 +58,8 @@ def _screen(pid: int) -> list[ocr.Line]:
 
 
 def wait(pid: int, timeout: int = 900) -> str:
-    """'game' once a game is on screen, 'menu' on the main menu; stops when the game is gone."""
+    """'game' once a game is on screen, 'menu' on the main menu, 'setup' on the setup screen of a
+    bookmark (`-bookmark=<name>`); stops when the game is gone."""
     import psutil
     start = time.time()
     while time.time() - start < timeout:
@@ -72,8 +75,10 @@ def wait(pid: int, timeout: int = 900) -> str:
             return 'game'
         if all(w in words for w in MAIN_MENU):
             return 'menu'
+        if SETUP in words:
+            return 'setup'
         time.sleep(15)
-    raise SystemExit(f'no game and no main menu on screen after {int(timeout)} seconds')
+    raise SystemExit(f'no game, main menu or setup screen on screen after {int(timeout)} seconds')
 
 
 def save(pid: int, suffix: str = '') -> str:
@@ -183,7 +188,9 @@ def holder(save_name: str, title: str) -> int:
 
 def new(pid: int, title: str) -> tuple[str, str]:
     """From the setup screen: start at random, play the holder of the title, save. Both saves."""
-    _click_text(pid, 'Random Character', tries=40)
+    if wait(pid) != 'setup':
+        raise SystemExit('this is not the setup screen of a bookmark')
+    _click_text(pid, SETUP, tries=1)
     time.sleep(3.0)
     _click_text(pid, 'Start', tries=6)
     if wait(pid) != 'game':

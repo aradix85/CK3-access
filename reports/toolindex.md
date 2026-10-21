@@ -473,7 +473,7 @@ returns a pair, passed on as one thing, costs a run.
 
 | call | returns | does |
 |---|---|---|
-| `wait(pid, timeout=900)` | str | 'game' once a game is on screen, 'menu' on the main menu; stops when the game is gone. |
+| `wait(pid, timeout=900)` | str | 'game' once a game is on screen, 'menu' on the main menu, 'setup' on the setup screen of a |
 | `save(pid, suffix='')` | value | Save through the pause menu; the name of the new save comes back. |
 | `console(pid, command)` | nothing | Type one command into the console and shut it again. What the console answers is not read. |
 | `holder(save_name, title)` | value | The running number of whoever holds the title, out of a save of that game. |

@@ -113,9 +113,11 @@ def quit_game(pid: int) -> None:
         # Escape shuts one open window at a time and only opens the pause menu when nothing is
         # open, so this steps through what is open rather than pressing once and giving up. A window
         # holding unfinished work asks first - the activity planner whether its plan may go - and
-        # the answer is yes, because the game is being shut down. Escape there would say no.
+        # the answer is yes, because the game is being shut down. Escape there would say no. On the
+        # setup screen of a bookmark Escape brings up the exit confirmation itself, with no pause
+        # menu in between (measured 21 October 2026).
         for _ in range(5):
-            if PAUSE_MENU in drawn:
+            if PAUSE_MENU in drawn or CONFIRMATION in drawn:
                 break
             if QUESTION in drawn:
                 why = press(nodes, scales, classes, 'accept_button')
@@ -126,15 +128,14 @@ def quit_game(pid: int) -> None:
                 channel.ask('sendkey 27')
             time.sleep(2.0)
             nodes, scales, drawn, classes = look(root, pid, window_classes)
-        if PAUSE_MENU not in drawn:
-            raise SystemExit(f'the pause menu did not come up, so nothing was pressed. Drawn right now: {listed(drawn)}')
-        why = press(nodes, scales, classes, 'exit_button')
-        if why:
-            raise SystemExit(f'the pause menu is up but {why}')
-        time.sleep(2.0)
-        nodes, scales, drawn, classes = look(root, pid, window_classes)
+        if PAUSE_MENU in drawn and CONFIRMATION not in drawn:
+            why = press(nodes, scales, classes, 'exit_button')
+            if why:
+                raise SystemExit(f'the pause menu is up but {why}')
+            time.sleep(2.0)
+            nodes, scales, drawn, classes = look(root, pid, window_classes)
         if CONFIRMATION not in drawn:
-            raise SystemExit(f'the exit button was pressed and the confirmation did not come up. Drawn right now: {listed(drawn)}')
+            raise SystemExit(f'neither the pause menu nor the exit confirmation came up as it should, so nothing more was pressed. Drawn right now: {listed(drawn)}')
         left_at = time.time()
         why = press(nodes, scales, classes, 'descktop_button')
         if why:
