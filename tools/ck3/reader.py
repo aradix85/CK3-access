@@ -28,6 +28,9 @@ The one thing this may never do is fall over quietly. It owns the arrows, so a r
 without a word leaves a keyboard that half works in a game that will not say why. So the keys go
 back to the game first and the failure is spoken second, and that order is the point of it.
 
+The game ending is not a failure. Its keys go with it, and the player closed it or saw it crash
+(her decision, 21 October 2026), so the reader ends with it and says nothing.
+
 An event is the one thing that arrives without a keystroke, so it gets the one piece of machinery
 here: the layers under the root count their own children, and an event is a new window object
 added to one of them. Reading those counts is a single question, and one of
@@ -139,8 +142,13 @@ class Reader:
         codes = [TOGGLE] + ([UP, DOWN, EXPLAIN] if self.on else [])
         channel.ask('swallow ' + ' '.join(str(code) for code in codes))
 
-    def refresh(self) -> str | None:
+    def refresh(self, asked: bool) -> str | None:
         """Read whatever is on top, and stand at the top of it.
+
+        **No window is said only when the player asked**, with a key. When the game takes its last
+        window away by itself the reader says nothing: shutting down, the game clears every window
+        seconds before it ends, and the player who chose Exit to Desktop heard "no window open"
+        twice (measured 21 October 2026; her decision the same day).
 
         Starting at the top rather than where you were is deliberate: a remembered place points
         into a list that may since be sorted differently or a row shorter, and then it points at
@@ -162,8 +170,9 @@ class Reader:
         self.lines, self.at = lines, 0
         self.counted = self.counts()
         if window is None:
-            speech.failure('the reader', 'there is no window open for it to read',
-                           'open one with F1 and it will speak')
+            if asked:
+                speech.failure('the reader', 'there is no window open for it to read',
+                               'open one with F1 and it will speak')
             return None
         if lines:
             speech.output(lines[0]['say'])
@@ -196,7 +205,7 @@ class Reader:
         self.claim()
         speech.output('on' if self.on else 'off')
         if self.on:
-            self.refresh()
+            self.refresh(asked=True)
 
 
 def keys_waiting(answer: str) -> list[int]:
@@ -232,7 +241,7 @@ def loop(reader: Reader) -> None:
             elif code == EXPLAIN:
                 reader.explain()
             else:
-                reader.refresh()
+                reader.refresh(asked=True)
         if not reader.on:
             continue
         said = reader.toast()
@@ -243,7 +252,7 @@ def loop(reader: Reader) -> None:
         if now != reader.counted:
             moved = sorted(reader.layers[a] for a in now if now[a] != reader.counted.get(a))
             print('layer changed: {}'.format(', '.join(moved)), flush=True)
-            reader.refresh()
+            reader.refresh(asked=False)
 
 
 def give_back() -> None:
@@ -262,12 +271,13 @@ def main() -> None:
     print(f"watching {len(reader.layers)} layers: {', '.join(f'{reader.layers[a]} {count}' for a, count in sorted(reader.counted.items(), key=lambda pair: reader.layers[pair[0]]))}", flush=True)
     try:
         loop(reader)
+    except channel.Gone:
+        print('the game has ended, and so has the reader', flush=True)
     except BaseException as trouble:
         give_back()
         speech.failure('the reader', f'it stopped after {type(trouble).__name__}',
                        'the game has its keys back, start the reader again')
         raise
-    give_back()
 
 
 if __name__ == '__main__':

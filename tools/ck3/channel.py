@@ -22,11 +22,21 @@ _k32 = ctypes.WinDLL('kernel32', use_last_error=True)
 _connection: io.FileIO | None = None
 
 
+class Gone(OSError):
+    """The link broke under a question and does not open again: the game has ended.
+
+    Not spoken. A player who closes the game knows it, and one whose game crashed notices that
+    without being told (her decision, 21 October 2026).
+    """
+
+
 def _queue(file: io.FileIO) -> int:
+    """Bytes waiting on the pipe. A pipe that cannot be asked is broken, and says so."""
     handle = msvcrt.get_osfhandle(file.fileno())
     ready = wintypes.DWORD()
-    ok = _k32.PeekNamedPipe(handle, None, 0, None, ctypes.byref(ready), None)
-    return ready.value if ok else 0
+    if not _k32.PeekNamedPipe(handle, None, 0, None, ctypes.byref(ready), None):
+        raise ctypes.WinError(ctypes.get_last_error())
+    return ready.value
 
 
 def _drain(file: io.FileIO) -> int:
@@ -39,28 +49,21 @@ def _drain(file: io.FileIO) -> int:
 
 
 def _connect(attempts: int = 20) -> io.FileIO:
-    """Open the pipe, and say out loud when it stays shut.
-
-    This is the hardest of the four cases that have to speak: with the channel gone there is no
-    game information left either, so nothing further down can report it. The speech seam sits
-    outside the game process for exactly this reason - it is still alive when the game is not.
-    """
+    """Open the pipe, waiting for a free instance. `ask` decides whether a shut pipe is said."""
     for _ in range(attempts):
         try:
             return open(PIPE, 'r+b', buffering=0)
         except OSError:
             _k32.WaitNamedPipeW(ctypes.c_wchar_p(PIPE), 500)
-    raise OSError(speech.failure('the game', 'the link with it is gone',
-                                 'start the game again and try what you were doing once more'))
+    raise Gone('the link with the game does not open')
 
 
 def alive() -> bool:
     """Is the link there? Asked without speaking, for a caller that expects it to be gone.
 
-    `ask` says it out loud when the pipe will not open, and that is right: for anything that needs
-    the game, a missing link is the one failure with nothing left underneath it to report. Shutting
-    the game down is the single case where the link disappearing is the goal, and announcing it
-    there told the player that their own Exit to Desktop had broken something.
+    `ask` says it out loud when there is no link to begin with, and that is right: for anything that
+    needs the game, a missing link is the one failure with nothing left underneath it to report.
+    Waiting for the game to go or to come up is the case where the link is expected to be missing.
     """
     try:
         with open(PIPE, 'r+b', buffering=0):
@@ -133,12 +136,23 @@ def ask(command: str, timeout: float = 60.0, errors_ok: bool = False) -> str:
 
     `errors_ok=True` is for the single caller that treats an error as a valid answer, such as
     `derive.read` on an unreadable address.
+
+    **A link that is not there is said out loud; a link that breaks and stays shut is not.** With
+    no link to begin with there is no game information either, so nothing further down can report
+    it, and the speech seam sits outside the game process for exactly that reason. A link that
+    breaks under a question is the game ending, and that raises `Gone` without a word.
     """
     global _connection
     retried = False
     while True:
         if _connection is None:
-            _connection = _connect()
+            try:
+                _connection = _connect()
+            except Gone:
+                if retried:
+                    raise
+                raise OSError(speech.failure('the game', 'the link with it is gone',
+                                             'start the game again and try what you were doing once more')) from None
         try:
             _drain(_connection)
             _connection.write(command.encode('utf-8'))

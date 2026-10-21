@@ -1,14 +1,15 @@
-"""The channel's one retry, checked without a game.
+"""The channel's one retry, and when a missing link is said, checked without a game.
 
 A link that breaks during a question is closed and tried once more, so a pipe the DLL opened again
-answers. A link that will not open at all is not tried twice: opening it already said so out loud,
-and a second try would say it again.
+answers. If it stays shut, the game has ended: `Gone`, without a word. A link that is not there to
+begin with is said once, and not tried twice.
 """
-from typing import NoReturn
+import io
 
 import pytest
 
 from tools.ck3 import channel
+from tools.nvda import speech
 
 
 class BrokenLink:
@@ -22,6 +23,15 @@ class BrokenLink:
 
     def close(self) -> None:
         self.closed = True
+
+
+@pytest.fixture
+def heard(monkeypatch: pytest.MonkeyPatch) -> speech.Recorder:
+    """NVDA replaced by a recorder, and the pipe pointed at a name nobody opened."""
+    recorder = speech.Recorder()
+    monkeypatch.setattr(speech, '_client', recorder)
+    monkeypatch.setattr(channel, 'PIPE', channel.PIPE + '_nobody_opened')
+    return recorder
 
 
 def test_a_broken_link_is_tried_once_more(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -40,15 +50,26 @@ def test_a_broken_link_is_tried_once_more(monkeypatch: pytest.MonkeyPatch) -> No
     assert channel._connection is None
 
 
-def test_a_link_that_will_not_open_is_not_tried_twice(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_a_link_that_breaks_and_stays_shut_ends_without_a_word(
+        monkeypatch: pytest.MonkeyPatch, heard: speech.Recorder) -> None:
+    monkeypatch.setattr(channel, '_connection', BrokenLink())
+    with pytest.raises(channel.Gone):
+        channel.ask('waitkey 400')
+    assert heard.spoken == []
+
+
+def test_a_link_that_is_not_there_is_said_once(monkeypatch: pytest.MonkeyPatch, heard: speech.Recorder) -> None:
     attempts: list[int] = []
+    connect = channel._connect
 
-    def connect() -> NoReturn:
+    def counted() -> io.FileIO:
         attempts.append(1)
-        raise OSError('the link is gone')
+        return connect()
 
-    monkeypatch.setattr(channel, '_connect', connect)
+    monkeypatch.setattr(channel, '_connect', counted)
     monkeypatch.setattr(channel, '_connection', None)
-    with pytest.raises(OSError, match='the link is gone'):
+    with pytest.raises(OSError) as raised:
         channel.ask('hello')
+    assert not isinstance(raised.value, channel.Gone)
+    assert len(heard.spoken) == 1 and heard.brailled == heard.spoken
     assert len(attempts) == 1

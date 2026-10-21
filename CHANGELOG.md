@@ -3,6 +3,9 @@
 Outcomes, newest first. No release yet.
 
 ## 2026-10-21 — CK3 1.20.1.1
+- When the game ends while the reader runs, closed or crashed, the reader stops without a word: a link that breaks and stays shut is `channel.Gone`, and a broken pipe is noticed at once instead of after the timeout.
+- "No window to read" is said only in answer to a key: a game shutting down clears its windows seconds before it ends.
+- `quit_game` answers yes when Escape raises the game's own question (the activity planner asks whether its plan may go), and says whether the game wrote its exit save.
 - Checked against 1.20.1.1 on disk and in the game: still 282 windows and none behind an expansion, the nine field offsets unchanged, the game model agrees with a save on every field that survives a load, and the game builds no window the map lacks. One named shortcut and 38 gui templates more.
 - Starting the game no longer says the link is gone while it waits for the channel to open; a channel that never answers is said once.
 - `derive.tooltip_root` finds the root that holds the game's tooltip in milliseconds instead of a 21-second scan: the engine keeps its layer roots side by side, and a global in the exe points at them. It alone carried the tooltip of the moment on buttons, portraits and the map, and a fixed tooltip key reads exactly as the gui and localization files say.

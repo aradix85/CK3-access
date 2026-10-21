@@ -11,13 +11,23 @@ So this presses the buttons: the pause menu, then Exit to Desktop, or on the mai
 button there. If a step does not land it says what it saw and leaves the game running. There is
 no fallback that kills it - that would be the very thing this exists to stop, and a fallback that
 quietly does the dangerous thing is worse than no tool at all.
+
+**Leaving a loaded game, the game writes its exit save**, and this says whether it did: that is
+the check that it ended itself. With `save_on_exit` on in its settings it wrote one five times out
+of five, and leaving the main menu it wrote none (measured 21 October 2026, 1.20.1.1).
 """
+import os
 import sys
 import time
 
+from tools import paths
 from tools.ck3 import channel, derive, openers, vtablemap, windowmap
 
 PAUSE_MENU, CONFIRMATION = 'ingame_pausemenu', 'ingame_resign_confirmation'
+# The game's own yes-or-no dialog, in shared/dialogs.gui. Escape on it says no.
+QUESTION = 'basic_confirmation_popup'
+# EXIT_SAVE_NAME in the game's common/defines/00_defines.txt.
+EXIT_SAVE = 'autosave_exit.ck3'
 
 
 def look(root: int, pid: int, window_classes: set[int]) -> tuple[derive.Nodes, derive.Scales, set[str],
@@ -62,13 +72,18 @@ def press(nodes: derive.Nodes, scales: derive.Scales, classes: dict[int, str | N
     return f"{name} is in the tree {len(found)} time(s) and none of them can be clicked: {', '.join(sorted(set(refused)))}"
 
 
-def gone(seconds: int = 40) -> bool:
-    """Wait until the channel stops answering, which is the game being gone.
+def listed(drawn: set[str]) -> str:
+    return ', '.join(sorted(drawn)) or 'nothing'
 
-    It asks `alive` rather than `ask`, because here the link disappearing is what success looks
-    like: going through `ask` made a clean shutdown speak the failure sentence for a game that had
-    done exactly what it was told.
-    """
+
+def exit_save_since(moment: float) -> bool:
+    path = os.path.join(paths.require('SAVES'), EXIT_SAVE)
+    return os.path.exists(path) and os.path.getmtime(path) >= moment
+
+
+def gone(seconds: int = 40) -> bool:
+    """Wait until the channel stops answering, which is the game being gone. It asks `alive`,
+    because here the link disappearing is what success looks like."""
     for _ in range(seconds):
         if not channel.alive():
             channel.close()
@@ -91,36 +106,47 @@ def quit_game(pid: int) -> None:
 
     nodes, scales, drawn, classes = look(root, pid, window_classes)
 
+    left_at: float | None = None        # the moment a loaded game was left, after which its exit save comes
     if press(nodes, scales, classes, 'exit_game_button') is None:
         print('pressed exit game on the main menu')
     else:
         # Escape shuts one open window at a time and only opens the pause menu when nothing is
-        # open, so this steps through what is open rather than pressing once and giving up.
+        # open, so this steps through what is open rather than pressing once and giving up. A window
+        # holding unfinished work asks first - the activity planner whether its plan may go - and
+        # the answer is yes, because the game is being shut down. Escape there would say no.
         for _ in range(5):
             if PAUSE_MENU in drawn:
                 break
-            channel.ask('sendkey 27')
+            if QUESTION in drawn:
+                why = press(nodes, scales, classes, 'accept_button')
+                if why:
+                    raise SystemExit(f'the game asks a question and {why}')
+                print('the game asked a question, answered yes')
+            else:
+                channel.ask('sendkey 27')
             time.sleep(2.0)
             nodes, scales, drawn, classes = look(root, pid, window_classes)
         if PAUSE_MENU not in drawn:
-            raise SystemExit('the pause menu did not come up, so nothing was pressed')
+            raise SystemExit(f'the pause menu did not come up, so nothing was pressed. Drawn right now: {listed(drawn)}')
         why = press(nodes, scales, classes, 'exit_button')
         if why:
             raise SystemExit(f'the pause menu is up but {why}')
         time.sleep(2.0)
         nodes, scales, drawn, classes = look(root, pid, window_classes)
         if CONFIRMATION not in drawn:
-            raise SystemExit('the exit button was pressed and the confirmation did not come up. '
-                             'Drawn right now: %s' % (', '.join(sorted(drawn)) or 'nothing'))
+            raise SystemExit(f'the exit button was pressed and the confirmation did not come up. Drawn right now: {listed(drawn)}')
+        left_at = time.time()
         why = press(nodes, scales, classes, 'descktop_button')
         if why:
             raise SystemExit(f'the confirmation is up but {why}')
         print('pressed exit to desktop')
 
-    if gone():
-        print('the game is gone, and it ended itself')
-    else:
+    if not gone():
         print('the game is still there after forty seconds. It is not killed; look at the screen.')
+    elif left_at is not None and not exit_save_since(left_at):
+        print('the game is gone, and it wrote no exit save')
+    else:
+        print('the game is gone, and it ended itself' + ('' if left_at is None else ': its exit save is written'))
 
 
 if __name__ == '__main__':

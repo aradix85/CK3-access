@@ -393,7 +393,9 @@ returns a pair, passed on as one thing, costs a run.
 |---|---|---|
 | `look(root, pid, window_classes)` | 4-tuple | The tree of this moment, with what is drawn, where it is, and what class each node is. |
 | `press(nodes, scales, classes, name)` | value of NoneType | Click the widget with this name that is really on screen. Returns None, or why not. |
-| `gone(seconds=40)` | bool | Wait until the channel stops answering, which is the game being gone. |
+| `listed(drawn)` | value | - |
+| `exit_save_since(moment)` | value | - |
+| `gone(seconds=40)` | bool | Wait until the channel stops answering, which is the game being gone. It asks `alive`, |
 | `quit_game(pid)` | nothing | - |
 
 ## ck3\reader.py
