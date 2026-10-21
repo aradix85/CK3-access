@@ -49,9 +49,6 @@ OUT = os.path.join(paths.PROJECT, 'reports', 'openers.json')
 USAGE = ('usage: python -m tools.ck3.openers <pid> [--beside | <button> <button> ...], '
          'or <pid> --chain <window> <target>')
 ONLY_A_VIEW = re.compile(r"^\[\s*(?:Open|Toggle)GameView(?:Data)?\s*\(\s*'([^']+)'[^\[\]]*\)\s*\]$")
-NAME = re.compile(r'\bname\s*=\s*"([^"]+)"')
-SHORTCUT = re.compile(r'\bshortcut\s*=\s*"([^"]+)"')
-ONCLICK = re.compile(r'\bonclick\s*=\s*(.+)', re.IGNORECASE)
 SETTLE = 1.8
 game_classes: set[int] = set()
 
@@ -78,7 +75,6 @@ class _Block(TypedDict):
     name: str | None
     views: list[str | None]
     shortcut: str | None
-    opener: str
 
 
 # What has to happen before a window is drawn: ('view', name, None), or ('variable', name, value)
@@ -151,70 +147,57 @@ def buttons_on_disk() -> list[Button]:
     905 bindings are actions inside a window rather than openers, and pressing those unattended is
     how a round changes the game instead of measuring it.
 
-    Blocks are followed by counting braces, not by the shape of a line, because a gui file closes a
-    block on a line that also carries content. A block whose name comes after its trigger is common,
-    so nothing is decided until the block closes.
+    The files are read the way `guimap` reads them, as the engine loads them, so a block is a block
+    whatever the lines look like, and a block whose name comes after its trigger is read whole.
 
     **A trigger whose name sits one level up is taken as well, and answered for by the namebearer.**
     310 blocks carry a call while carrying no name of their own but hanging directly under one that
-    does; of those, 27 would pass the test above if the namebearer answered for them. They are only
+    does; of those, 27 would pass the test above if the namebearer answered for them (counted with
+    the line reader this replaced, which missed one row: a name written without quotes). They are only
     added where the name is still free, so a widget that opens a view itself always wins - the
-    child closes before its parent, and without that rule it would shadow the parent's own row.
+    child is settled before its parent, and without that rule it would shadow the parent's own row.
     """
     windows = set(json.loads(pathlib.Path(os.path.join(paths.PROJECT, 'reports', 'windows.json')).read_text(encoding='utf-8'))['windows'])
     found: dict[str, Button] = {}
     beneath: dict[str, Button] = {}
-    for root, _, names in os.walk(paths.require('GAME')):
-        for name in sorted(names):
-            if not name.endswith('.gui'):
-                continue
-            stack: list[_Block] = []
-            last = ''
-            with open(os.path.join(root, name), encoding='utf-8-sig', errors='replace') as file:
-                for line in file:
-                    for piece in re.split(r'([{}])', line.split('#')[0]):
-                        if piece == '{':
-                            stack.append({'name': None, 'views': [], 'shortcut': None,
-                                          'opener': last})
-                        elif piece == '}':
-                            if not stack:
-                                continue
-                            block = stack.pop()
-                            carries = block['views'] or block['shortcut']
-                            if not block['name'] and carries and stack \
-                                    and block['opener'].startswith('blockoverride'):
-                                stack[-1]['views'] += block['views']
-                                stack[-1]['shortcut'] = stack[-1]['shortcut'] or block['shortcut']
-                                continue
-                            opens = _opens(block, windows)
-                            parent = stack[-1]['name'] if stack else None
-                            if block['name']:
-                                if opens:
-                                    found.setdefault(block['name'], {
-                                        'via': opens[0], 'target': opens[1],
-                                        'widget': block['name'], 'file': name})
-                            elif parent and opens:
-                                beneath.setdefault(parent, {
-                                    'via': opens[0], 'target': opens[1], 'widget': parent,
-                                    'file': name, 'under': True})
-                        elif stack:
-                            if piece.strip():
-                                last = piece.strip().splitlines()[-1].strip()
-                            named = NAME.search(piece)
-                            if named:
-                                stack[-1]['name'] = named.group(1)
-                            short = SHORTCUT.search(piece)
-                            if short:
-                                stack[-1]['shortcut'] = short.group(1)
-                            click = ONCLICK.search(piece)
-                            if click:
-                                only = ONLY_A_VIEW.match(click.group(1).strip().strip('"'))
-                                stack[-1]['views'].append(only.group(1) if only else None)
-                        elif piece.strip():
-                            last = piece.strip().splitlines()[-1].strip()
+    for _layer, _virtual, path in guimap.files():
+        _settle({'key': None, 'arg': None, 'value': None, 'body': guimap.read(path)},
+                 os.path.basename(path), windows, found, beneath)
     for widget, row in beneath.items():
         found.setdefault(widget, row)
     return sorted(found.values(), key=lambda row: row['widget'])
+
+
+def _settle(entry: guimap.Entry, file: str, windows: set[str], found: dict[str, Button],
+            beneath: dict[str, Button]) -> _Block:
+    """One block, its children settled first: each child that opens a window becomes a row under its
+    own name or its parent's, and a nameless `blockoverride` carrying a call hands it upwards."""
+    block: _Block = {'name': None, 'views': [], 'shortcut': None}
+    body = entry['body'] or []
+    for item in body:
+        if item['key'] == 'name':
+            block['name'] = item['value']
+        elif item['key'] == 'shortcut':
+            block['shortcut'] = item['value']
+        elif (item['key'] or '').lower() == 'onclick':
+            only = ONLY_A_VIEW.match((item['value'] or '').strip())
+            block['views'].append(only.group(1) if only else None)
+    for item in body:
+        if item['body'] is None:
+            continue
+        inner = _settle(item, file, windows, found, beneath)
+        if item['key'] == 'blockoverride' and not inner['name'] and (inner['views'] or inner['shortcut']):
+            block['views'] += inner['views']
+            block['shortcut'] = block['shortcut'] or inner['shortcut']
+            continue
+        opens = _opens(inner, windows)
+        if opens and inner['name']:
+            found.setdefault(inner['name'], {'via': opens[0], 'target': opens[1],
+                                             'widget': inner['name'], 'file': file})
+        elif opens and block['name']:
+            beneath.setdefault(block['name'], {'via': opens[0], 'target': opens[1],
+                                               'widget': block['name'], 'file': file, 'under': True})
+    return block
 
 
 def live_record(game: windowmap.Game, pid: int, window: str, address: int | None = None,
