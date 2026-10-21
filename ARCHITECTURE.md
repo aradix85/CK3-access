@@ -109,6 +109,6 @@ Two functions: `output(text, mode, braille)` and `failure(where, what, remedy)`.
 ## Deliberately not done
 
 - No decompiling or rebuilding the engine; no redistribution of game files.
-- No keys or clicks from outside the process. The one exception is moving the pointer to read a
-  tooltip.
+- The product sends no keys or clicks from outside the process; the one exception is moving the
+  pointer to read a tooltip. `tools/ck3/modifiers.py` presses real keys, as a measurement only.
 - No hard-coded addresses, offsets or click positions.

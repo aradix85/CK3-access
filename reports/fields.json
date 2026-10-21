@@ -1,5 +1,5 @@
 {
- "key": "101039736-1790866162",
+ "key": "101123704-1792124274",
  "parent": 232,
  "children": 240,
  "count": 252,
@@ -7,10 +7,10 @@
  "size": 296,
  "name": 440,
  "text": 912,
- "objects": 86856,
- "unreadable": 10,
- "roots": 1321,
- "skipped": "skipped 1 region of the channel's own stack, 40 kB; skipped 116 regions of memory without a cache, 3044 MB",
+ "objects": 80238,
+ "unreadable": 6,
+ "roots": 1627,
+ "skipped": "skipped 1 region of the channel's own stack, 28 kB; skipped 103 regions of memory without a cache, 2947 MB",
  "flag": 208,
  "alpha": 264
 }

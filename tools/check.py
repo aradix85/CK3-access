@@ -215,8 +215,9 @@ DLC_CHECK = re.compile(r"HasDlcFeature\(\s*'([^']+)'\s*\)")
 def gui_dlc(what: str) -> int:
     """How the gui set gates content behind an expansion, counted over the merged files.
 
-    Measured 27 August 2026 over the expansion of all 196 windows, and again on 1 October 2026 over
-    all 282 of 1.20.0.2: **not one window block carries such a check**, while 39 of them carry a
+    Measured 27 August 2026 over the expansion of all 196 windows, and again over all 282 on
+    1 October 2026 on 1.20.0.2 and on 21 October 2026 on 1.20.1.1: **not one window block carries
+    such a check**, while 39 of them carry a
     `visible` of their own. Every check sits on the `visible` of a widget deeper down, and on 1.20
     147 of the 150 windows that touch a feature at all do so through `all_under_heaven`. So an expansion never removes a window from a tester's game, only parts
     inside one - which is what a beta report has to be read against.

@@ -1,5 +1,5 @@
 {
- "key": "101039736-1790866162",
+ "key": "101123704-1792124274",
  "number_field_in_record": 24,
  "number_mask": 16777215,
  "block_size": 1024,
@@ -119,7 +119,7 @@
   ".?AV?$TPdxRefDatabase@VCFaith@@$07@@": 97641216,
   ".?AV?$TPdxRefDatabase@VCReligion@@$07@@": 97640072,
   ".?AVCTraitDatabase@@": 91275512,
-  ".?AV?$TPdxRefDatabase@VCCharacter@@$07@@": 96892264,
+  ".?AV?$TPdxRefDatabase@VCCharacter@@$07@@": 96973744,
   ".?AV?$TPdxRefDatabase@VCLandedTitle@@$07@@": 97639160,
   ".?AV?$TPdxRefDatabase@VCRite@@$07@@": 97641208
  },

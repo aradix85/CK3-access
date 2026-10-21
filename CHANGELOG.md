@@ -2,6 +2,10 @@
 
 Outcomes, newest first. No release yet.
 
+## 2026-10-21 — CK3 1.20.1.1
+- Checked against 1.20.1.1 on disk and in the game: still 282 windows and none behind an expansion, the nine field offsets unchanged, the game model agrees with a save on every field that survives a load, and the game builds no window the map lacks. One named shortcut and 38 gui templates more.
+- Starting the game no longer says the link is gone while it waits for the channel to open; a channel that never answers is said once.
+
 ## 2026-10-06
 - mypy runs fully strict over every module and every test; reading and the reader were the last, and say exactly what they said before, without the game and on a running one.
 - A toast counts as showing only when `derive.shown` says so, up to the root, and only text boxes give it its words; the key round's `shown_texts` asks `derive.shown` too. Both had their own rule, which took a state byte that could not be read for not hiding. A real toast, called up through the console, is read the moment it appears, and the game's own message log keeps it.

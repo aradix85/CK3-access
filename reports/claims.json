@@ -1,7 +1,7 @@
 [
  {
   "name": "size of ck3.exe",
-  "claimed": 101040248,
+  "claimed": 101123704,
   "measure": "bytes",
   "arguments": [
    "<game>\\binaries\\ck3.exe"
@@ -19,7 +19,7 @@
  },
  {
   "name": "RTTI type names according to memory.py",
-  "claimed": 51024,
+  "claimed": 51058,
   "measure": "type_names",
   "counting_rule": "memory.type_name_count() on the same exe; equal to check_rtti.ps1 since that script started deduplicating case sensitively on 30 July 2026"
  },
@@ -84,7 +84,7 @@
  },
  {
   "name": "lines in shortcuts.shortcuts",
-  "claimed": 1061,
+  "claimed": 1062,
   "measure": "lines",
   "arguments": [
    "<game>\\game\\gui\\shortcuts.shortcuts"
@@ -120,7 +120,7 @@
  },
  {
   "name": "00_landed_titles.txt",
-  "claimed": 1315737,
+  "claimed": 1315675,
   "measure": "bytes",
   "arguments": [
    "<game>\\game\\common\\landed_titles\\00_landed_titles.txt"
@@ -239,7 +239,7 @@
  },
  {
   "name": "files that go into the repo",
-  "claimed": 76,
+  "claimed": 77,
   "measure": "repo_files",
   "counting_rule": "files under the project folder that .gitignore does not exclude, the same set git ls-files plus git ls-files --others --exclude-standard gives"
  },
@@ -314,7 +314,7 @@
  },
  {
   "name": "global gui templates",
-  "claimed": 2890,
+  "claimed": 2928,
   "measure": "gui_templates",
   "arguments": [
    "global"
@@ -400,12 +400,12 @@
  },
  {
   "name": "HasDlcFeature checks in the merged gui set",
-  "claimed": 46,
+  "claimed": 47,
   "measure": "gui_dlc",
   "arguments": [
    "checks"
   ],
-  "counting_rule": "every HasDlcFeature('x') in the merged files, counted by text. None of them sits on a window block: expanded over all 282 windows on 1 October 2026, on 1.20.0.2, not one window block carries such a check while 39 carry a visible of their own, so an expansion never takes a window away from a tester, only parts inside one"
+  "counting_rule": "every HasDlcFeature('x') in the merged files, counted by text. None of them sits on a window block: expanded over all 282 windows on 1 October 2026 on 1.20.0.2, and again on 21 October 2026 on 1.20.1.1, not one window block carries such a check while 39 carry a visible of their own, so an expansion never takes a window away from a tester, only parts inside one"
  },
  {
   "name": "distinct expansion features the gui set gates on",
@@ -578,7 +578,7 @@
  },
  {
   "name": "key bindings in shortcuts.shortcuts",
-  "claimed": 921,
+  "claimed": 922,
   "measure": "shortcuts",
   "arguments": [
    "bindings"
@@ -588,13 +588,13 @@
  },
  {
   "name": "named game actions with a shortcut",
-  "claimed": 241,
+  "claimed": 242,
   "measure": "shortcuts",
   "arguments": [
    "named"
   ],
   "counting_rule": "bindings whose name does not start with an underscore; a name starting with an underscore is the engine generic entry for one key combination and not an action of the game; those are counted apart from the named actions",
-  "quoted_in": ["CHANGELOG.md", "brief\\invoer.md"]
+  "quoted_in": ["brief\\invoer.md"]
  },
  {
   "name": "shortcuts without a modifier",
@@ -608,7 +608,7 @@
  },
  {
   "name": "shortcuts that need a modifier",
-  "claimed": 122,
+  "claimed": 123,
   "measure": "shortcuts",
   "arguments": [
    "modified"
@@ -618,13 +618,13 @@
  },
  {
   "name": "shortcuts a widget declares",
-  "claimed": 192,
+  "claimed": 193,
   "measure": "shortcut_words",
   "arguments": [
    "declared"
   ],
   "counting_rule": "named bindings for which at least one widget in the merged gui set carries shortcut = \"<name>\", every shortcut line of a block counted - a widget may carry several, and counting only the first gave 173 until 2 October 2026. Of the rest most are declared under a name the gui computes, such as tab_ plus the row number, which this does not count; eight are declared nowhere",
-  "quoted_in": ["CHANGELOG.md", "brief\\invoer.md"]
+  "quoted_in": ["brief\\invoer.md"]
  },
  {
   "name": "shortcuts that resolve to a sentence on disk",
@@ -644,7 +644,7 @@
    "computed"
   ],
   "counting_rule": "named bindings no widget declares literally, but which a computed shortcut in the merged gui set names: one of its quoted pieces is the name, or its prefix with only digits after - [Concatenate('event_option_', index + 1)] covers event_option_1 to event_option_14. That a window ever has that many rows is not part of the count",
-  "quoted_in": ["CHANGELOG.md", "brief\\invoer.md"]
+  "quoted_in": ["brief\\invoer.md"]
  },
  {
   "name": "shortcuts declared nowhere",
