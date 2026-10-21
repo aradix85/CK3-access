@@ -539,10 +539,10 @@
    "shortcut": null
   },
   "character_ally_list_subview": {
-   "console": false,
-   "created": null,
+   "console": true,
+   "created": true,
+   "drawn": true,
    "file": "gui/interaction_declare_war.gui",
-   "reason": "declared as a nested window block, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
    "shape": "nested window block",
    "shortcut": null
   },
@@ -1439,10 +1439,10 @@
    "shortcut": null
   },
   "houses_list": {
-   "console": false,
-   "created": null,
+   "console": true,
+   "created": true,
+   "drawn": false,
    "file": "gui/window_dynasty_house.gui",
-   "reason": "declared as a nested window block, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
    "shape": "nested window block",
    "shortcut": null
   },
@@ -1567,10 +1567,10 @@
    "shortcut": null
   },
   "jomini_notification_sidebar": {
-   "console": false,
-   "created": null,
+   "console": true,
+   "created": true,
+   "drawn": false,
    "file": "gui/notifications/notification_overlay.gui",
-   "reason": "declared as a nested window block, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
    "shape": "nested window block",
    "shortcut": null
   },
@@ -1591,10 +1591,10 @@
    "shortcut": null
   },
   "knight_permissions": {
-   "console": false,
-   "created": null,
+   "console": true,
+   "created": true,
+   "drawn": false,
    "file": "gui/window_knights.gui",
-   "reason": "declared as a nested window block, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
    "shape": "nested window block",
    "shortcut": null
   },
@@ -1623,10 +1623,10 @@
    "shortcut": null
   },
   "layer_window": {
-   "console": false,
-   "created": null,
+   "console": true,
+   "created": true,
+   "drawn": true,
    "file": "gui/map_icon_layer.gui",
-   "reason": "declared as a nested window block, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
    "shape": "nested window block",
    "shortcut": null
   },
@@ -2515,10 +2515,10 @@
    "shortcut": null
   },
   "toolbars_window": {
-   "console": false,
-   "created": null,
+   "console": true,
+   "created": true,
+   "drawn": true,
    "file": "gui/console.gui",
-   "reason": "declared as a nested window block, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
    "shape": "nested window block",
    "shortcut": null
   },

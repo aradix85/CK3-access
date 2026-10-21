@@ -378,13 +378,14 @@ def windows_on_disk() -> dict[str, OnDisk]:
     in: on 20 September 2026 it counted 197 where the parser counted 265, so a round run from it
     would have written a map worse than the one it replaced. One reader, one answer.
 
-    **Only one of those three shapes has a console route, and saying so is the point of this.**
-    `GUI.CreateWidget` looks a widget up by name in a file and finds only what is declared there at
-    depth zero. A window declared through a type of its own, or as a block inside another window,
-    answers `could not find widget` - which is a property of the route and not of the window.
-    Writing that down as `created: False` produces a map claiming a third of the windows do not
-    exist, and overwrites one that knew better. So the shape is decided here, before anything is
-    pressed, and the windows without a console route are never tried.
+    **Which windows have a console route is decided here, before anything is pressed.**
+    `GUI.CreateWidget` looks a window up by name in a file and finds it at any depth, inside another
+    window or a container alike, but not inside a `types` block, where a window is only a template:
+    measured 21 October 2026 on 1.20.1.1, all six nested windows outside one were made, and
+    `colorpicker_window` and `JominiJoinServerDialog` inside one answered `could not find widget`.
+    That answer is a property of the route and not of the window; writing it down as `created:
+    False` produces a map claiming a quarter of the windows do not exist. So a window without a
+    console route is never tried.
 
     The engine merges the three layers into one virtual folder: `game/gui/x.gui`,
     `clausewitz/gui/x.gui` and `jomini/gui/x.gui` are all called `gui/x.gui` as far as the console
@@ -393,23 +394,32 @@ def windows_on_disk() -> dict[str, OnDisk]:
     path, so nothing has to be stripped here.
     """
     from tools.ck3 import guimap
+
+    def name_of(entry: guimap.Entry) -> str | None:
+        return next((inner['value'] for inner in entry['body'] or [] if inner['key'] == 'name'), None)
+
+    def outside_types(entries: list[guimap.Entry], into: set[str | None]) -> None:
+        for entry in entries:
+            if entry['key'] == 'types' or not entry['body']:
+                continue
+            if entry['key'] == 'window':
+                into.add(name_of(entry))
+            outside_types(entry['body'], into)
+
     rows = guimap.files()
     known = guimap.windows(rows)
-    top_level: set[str] = set()
+    top_level: set[str | None] = set()
+    reachable: set[str | None] = set()
     for _, _, full in rows:
-        for entry in guimap.read(full):
-            if entry['key'] != 'window' or not entry['body']:
-                continue
-            for inner in entry['body']:
-                if inner['key'] == 'name' and inner['value']:
-                    top_level.add(inner['value'])
-                    break
+        entries = guimap.read(full)
+        top_level.update(name_of(entry) for entry in entries if entry['key'] == 'window')
+        outside_types(entries, reachable)
     out: dict[str, OnDisk] = {}
     for name, (virtual, entry) in known.items():
         shape = ('top level' if name in top_level else
                  'type definition' if entry['key'] != 'window' else
                  'nested window block')
-        out[name] = {'file': virtual, 'shape': shape, 'console': name in top_level}
+        out[name] = {'file': virtual, 'shape': shape, 'console': name in reachable}
     return out
 
 

@@ -4,6 +4,7 @@ Outcomes, newest first. No release yet.
 
 ## 2026-10-21 — CK3 1.20.1.1
 - The window map's drawn flags of sixteen windows are measured again with today's rule: eleven windows the console builds are drawn while carrying 0x20, among them the planners and the holding view, which the rule before 3 October had called not drawn.
+- `GUI.CreateWidget` finds a window at any depth of a file except inside a `types` block, so six nested windows have a console route too: 204 in all.
 - The modifier key round also presses Alt+S, which opens the holding view, and Shift+F2, which opens the royal court for a ruler who has one.
 - When the game ends while the reader runs, closed or crashed, the reader stops without a word: a link that breaks and stays shut is `channel.Gone`, noticed at once instead of after the timeout.
 - "No window to read" is said only in answer to a key: a game shutting down clears its windows seconds before it ends.
