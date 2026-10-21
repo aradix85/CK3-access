@@ -4,7 +4,7 @@ Seven parts, split where a game patch is most likely to hit.
 
 | | Part | What it is for |
 |---|---|---|
-| 1 | **The channel** — `dll/channel.cpp` | a few primitives over a pipe; knows nothing about the game |
+| 1 | **The channel** — `dll/channel.cpp`, `dll/input.cpp` | a few primitives over a pipe; knows nothing about the game |
 | 2 | **Derivation** — `tools/ck3/derive.py` | finds every memory offset again at each start |
 | 3 | **Visibility** | what of the tree is really on screen, and which window lies on top |
 | 4 | **Input** | keys taken before the game sees them; clicks and keys posted inward |

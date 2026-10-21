@@ -3,6 +3,18 @@
 Outcomes, newest first. No release yet.
 
 ## 2026-10-21 — CK3 1.20.1.1 and 1.20.1.2
+- A question goes to the channel once: a reply that comes too late is no longer asked again, so a click, a key or a scan cannot run twice.
+- `find` and `findin` see a match that ends exactly with a region or with the stretch searched; `mouse`, `sendkey` and `sendchar` say so when the game window refuses a message; `mouse` is a left click and refuses a point that does not fit a window message; wildcards in `find` and the limit on `tree`, which nothing used, are gone.
+- The DLL is two files: `dll/channel.cpp` for the pipe and memory, `dll/input.cpp` for keys and clicks.
+- Saving through the pause menu answers yes to the game's own question, as quitting does, through one shared Escape loop.
+- Faiths are read only where 1.20 keeps them; a save gives the culture numbering and no other.
+- Paths come from the registry and the Steam client alone: no guessed Documents folder, and an override that points nowhere stops instead of giving way.
+- The derivation reads the scale anchors, the gui text and the localization through `guimap`, mods included, and each scaled container carries its own anchor.
+- An alpha or a state byte that cannot be read counts as not drawn in the harvest and the click map, as in `derive.shown`.
+- The exe's class tree is read once per run: a class looked up by name in 0.03 s instead of 9.4.
+- `check.py` checks the documents before the claims and measures each claim once; check_rtti.ps1 is gone, `memory.type_name_count` does the same.
+- `never_silent` keeps the step that needs the game; the link taken away is a test without one.
+- Dead code, parameters nobody passed and the defaults they hid are gone across the tools, and the docstrings say what the code does.
 - ruff and clang-tidy enforce the rules for code: sixteen ruff rules and twelve clang-tidy checks for silent or blind catches and dead code, each seen to fire on a planted fault; seven silent catches, two lost causes and nine unused names fixed, and the registry is read in one place (`paths.registry_value`).
 - On 1.20.1.2 all nineteen fields of the game model agree with a save written from the loaded state.
 - Checked against 1.20.1.2 on disk and in the game: ck3.exe is 2048 bytes larger and the gui carries one expansion check fewer; the nine field offsets, the game model, where the player is kept, the numbering and the window map hold, and the globals that moved were derived again by themselves.
