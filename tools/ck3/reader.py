@@ -101,7 +101,7 @@ class Reader:
 
     def __init__(self, pid: int) -> None:
         self.pid = pid
-        self.game = windowmap.Game(pid)
+        self.game = windowmap.Game(pid, player=True)
         self.tables = gui_tables()
         self.on = False
         self.lines: list[reading.Line] = []

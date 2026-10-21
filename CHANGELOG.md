@@ -3,6 +3,8 @@
 Outcomes, newest first. No release yet.
 
 ## 2026-10-21 — CK3 1.20.1.1 and 1.20.1.2
+- A start that has to find the game's memory layout again says why it takes minutes, and the reader asks the player to press F1 twice instead of sending the key itself.
+- The harvest compares against the bare screen in the console state it runs in: the console draws the developers' toolbar, which a fixed list had taken for part of every screen; a click round tells `openers` the window classes it needs.
 - Every round starts from the bare screen, measured as the state where Escape opens the pause menu, so windows 1.20 always draws no longer count as open; the harvest no longer keeps its own list of them.
 - Shutting what a press opened sends Escape only while something more is open, so it no longer flips the pause menu; the window key round checks after every key that the state came back.
 - The chain round and the chain step by hand press through one function, `openers.press_toward`.

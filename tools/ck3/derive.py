@@ -494,7 +494,7 @@ def _window_objects(pid: int, root: int) -> dict[str, int]:
     return named
 
 
-def visibility_fields(fields: Fields, named: dict[str, int]) -> Fields:
+def visibility_fields(fields: Fields, named: dict[str, int], player: bool) -> Fields:
     """Derive the two visibility offsets by toggling a window and watching what moves.
 
     Everything else here is derived from what one reading of memory looks like. These two cannot
@@ -511,8 +511,12 @@ def visibility_fields(fields: Fields, named: dict[str, int]) -> Fields:
     shape above, and the control moved on nothing else.
 
     The counter is why the control matters: without it a field that simply ticks would pass.
+
+    **With `player` the player presses F1, asked out loud**, and gets a minute for each press: the
+    product never sends a key itself (her decision, 21 October 2026). The tools press it themselves.
     """
     subject, control = SUBJECT, CONTROL
+    waits = 120 if player else 20           # half seconds: a minute for a person, ten for a post
 
     def snapshot() -> dict[str, bytes]:
         out: dict[str, bytes] = {}
@@ -523,18 +527,21 @@ def visibility_fields(fields: Fields, named: dict[str, int]) -> Fields:
             out[name] = chunk
         return out
 
-    def toggle(before: dict[str, bytes], what: str) -> dict[str, bytes]:
-        channel.ask(f'sendkey {KEY}')
-        for _ in range(20):
+    def toggle(before: dict[str, bytes], what: str, asked: str) -> dict[str, bytes]:
+        if player:
+            speech.output(asked)
+        else:
+            channel.ask(f'sendkey {KEY}')
+        for _ in range(waits):
             time.sleep(0.5)
             after = snapshot()
             if after[subject] != before[subject]:
                 return after
-        raise SystemExit(f'deriving visibility failed: {what} changed nothing in ten seconds')
+        raise SystemExit(f'deriving visibility failed: {what} changed nothing in {waits // 2} seconds')
 
     start = snapshot()
-    opened = toggle(start, 'opening')
-    closed = toggle(opened, 'closing')
+    opened = toggle(start, 'opening', 'to finish, press F1 once to open the character window')
+    closed = toggle(opened, 'closing', 'and press F1 once more to close it')
 
     def moved(a: bytes, b: bytes, offset: int, size: int) -> bool:
         return a[offset:offset + size] != b[offset:offset + size]
@@ -934,7 +941,7 @@ def _visibility_check(fields: Fields, chunks: dict[int, bytes], nodes: dict[int,
     return defects
 
 
-def fields_for(pid: int, recheck: bool = True) -> tuple[Fields, int, str]:
+def fields_for(pid: int, recheck: bool = True, player: bool = False) -> tuple[Fields, int, str]:
     """The path walked at every start: the derivation, the root of the tree, and what happened.
 
     If there is a derivation for this exe and it holds up against the running game, that is the
@@ -944,7 +951,8 @@ def fields_for(pid: int, recheck: bool = True) -> tuple[Fields, int, str]:
 
     When this returns, the channel walks with these offsets and `onscreen` knows the drawing area
     and the two visibility offsets. The root comes back too: finding it again cost every caller a
-    seed search of up to ten seconds.
+    seed search of up to ten seconds. A start that derives again says why it takes minutes, and
+    with `player` asks the player for F1 (`visibility_fields`).
     """
     vtablemap.configure(pid)          # vtables first, or no scan finds anything
     onscreen.use_screen(pid)          # and the drawing area, which every geometric answer needs
@@ -963,10 +971,12 @@ def fields_for(pid: int, recheck: bool = True) -> tuple[Fields, int, str]:
                        'it is working out the new places, which takes a few minutes')
     else:
         reason = 'no derivation for this version of the game'
+        speech.output('the game has changed since the last start, so finding where it keeps things '
+                      'takes a few minutes')
     fields, scanned = derive_all(pid)
     fields, root, nodes = position_from_tree(pid, fields)
     all_in_scan(nodes, scanned, fields.get('skipped', ''))
-    fields, note = _with_visibility(pid, fields, root)
+    fields, note = _with_visibility(pid, fields, root, player)
     store(fields)
     configure_channel(fields)
     onscreen.use_fields(fields.get('alpha'), fields.get('flag'))
@@ -974,7 +984,7 @@ def fields_for(pid: int, recheck: bool = True) -> tuple[Fields, int, str]:
     return fields, root, reason + ' - derived again' + note + left_out
 
 
-def _with_visibility(pid: int, fields: Fields, root: int) -> tuple[Fields, str]:
+def _with_visibility(pid: int, fields: Fields, root: int, player: bool) -> tuple[Fields, str]:
     """Add the two visibility offsets where this game state has the windows to derive them with.
 
     They need a window that can be opened, and the main menu has none - its window objects are all
@@ -987,7 +997,7 @@ def _with_visibility(pid: int, fields: Fields, root: int) -> tuple[Fields, str]:
     named = _window_objects(pid, root)
     if SUBJECT not in named or CONTROL not in named:
         return fields, f'; visibility not derived: no {SUBJECT} in this tree, as on the main menu'
-    return visibility_fields(fields, named), ''
+    return visibility_fields(fields, named, player), ''
 
 
 def configure_channel(fields: Fields) -> None:

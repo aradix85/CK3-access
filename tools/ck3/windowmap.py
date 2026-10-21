@@ -425,9 +425,11 @@ def windows_on_disk() -> dict[str, OnDisk]:
 class Game:
     """The actions on the running game, each with the measurement that says whether it landed."""
 
-    def __init__(self, pid: int) -> None:
+    def __init__(self, pid: int, player: bool = False) -> None:
+        """`player` is the reader starting: a derivation asks the player for F1 instead of
+        pressing it (`derive.visibility_fields`)."""
         self.pid = pid
-        self.fields, self.root, self.why = derive.fields_for(pid)
+        self.fields, self.root, self.why = derive.fields_for(pid, player=player)
         self.window_classes = derive.window_classes_of(pid)
         self.field: int | None = None        # address of console_edit
         # The click point of that field; it does not change while the game runs.

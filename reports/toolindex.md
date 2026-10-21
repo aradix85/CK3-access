@@ -173,7 +173,7 @@ returns a pair, passed on as one thing, costs a run.
 | `window_classes_of(pid)` | set | Where the vtables of every class with Window in its name are loaded in this run. |
 | `derive_all(pid)` | 2-tuple | Derive every field from a full scan. Expensive, so once per build. The widgets the scan found |
 | `all_in_scan(nodes, scanned, left_out)` | nothing | Every widget of the tree has to be in the full scan, or the scan missed some. |
-| `visibility_fields(fields, named)` | value | Derive the two visibility offsets by toggling a window and watching what moves. |
+| `visibility_fields(fields, named, player)` | value | Derive the two visibility offsets by toggling a window and watching what moves. |
 | `position_from_tree(pid, fields)` | 3-tuple | Derive the position field a second time, from the live tree instead of the scan. |
 | `store(fields)` | nothing | - |
 | `stored()` | NoneType of value | - |
@@ -181,7 +181,7 @@ returns a pair, passed on as one thing, costs a run.
 | `to_root(address, f_parent)` | 2-tuple | Up until the parent is no longer a widget. `tree` on a non-widget returns nothing, and that |
 | `quick_root(fields, pid)` | 2-tuple | From seed widgets up to the roots, then return the largest tree. |
 | `verify(fields, root, nodes, pid)` | value | Recheck the stored derivation against the game running right now, with predictions that are |
-| `fields_for(pid, recheck=True)` | 3-tuple | The path walked at every start: the derivation, the root of the tree, and what happened. |
+| `fields_for(pid, recheck=True, player=False)` | 3-tuple | The path walked at every start: the derivation, the root of the tree, and what happened. |
 | `configure_channel(fields)` | nothing | Hands the derived offsets to the DLL. The DLL knows nothing about CK3; all knowledge about |
 | `regions(pid)` | value | The memory regions of the game, asked for from the outside. |
 | `seed_batches(pid)` | iterator | Per piece of memory the addresses found, and what the scan of that piece left out, until |

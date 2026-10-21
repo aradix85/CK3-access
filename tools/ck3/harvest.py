@@ -661,22 +661,27 @@ def main() -> None:
         raise SystemExit('no {} route for: {}'.format('click' if by_click else 'phase 0', ', '.join(unknown)))
 
     game = windowmap.Game(pid)
+    from tools.ck3 import openers  # openers imports this module
+    openers.game_classes = game.window_classes      # a click asks what lies over its button
     if not paused(game):
         raise SystemExit('the clock is running: pause the game first, or the state is not '
                          'repeatable and the character can die halfway through')
     # Only a round that builds windows through the console touches it, and only with -debug_mode
     # is there a console at all. A round along the player routes - shortcut, click and chain -
-    # runs without it, and that is the round that gives windows their data.
-    if any(not windows[n].get('shortcut') and not windows[n].get('click') for n in names):
+    # runs without it, and that is the round that gives windows their data; a click there would
+    # land on the console, drawn over the left third of the screen where two buttons sit.
+    console_round = any(not windows[n].get('shortcut') and not windows[n].get('click') for n in names)
+    if console_round:
         game.command('GUI.ClearWidgets')
-    # A click round runs with the console shut: it is drawn over the left third of the screen, and
-    # two of the buttons that open a window sit under it - a click there lands on the console.
-    if (by_click or by_chain) and game.console_open():
-        game.set_console(False)
-    # What the bare screen draws is drawn always, and is never seen to open: on 1.20 the bar at the
-    # bottom, the achievement popup and the layer window. A list of them written here knew only the
-    # bar, and stopped every round before its first window.
+    # What the bare screen draws is drawn always, and is never seen to open: on 1.20 the achievement
+    # popup and the layer window. `bare` shuts the console, and the console draws the developers'
+    # toolbar, `toolbars_window`, for as long as it stands open (measured 21 October 2026 on
+    # 1.20.1.2: shut, open, shut). A list here took that toolbar for the bar at the bottom of every
+    # game; so a console round compares against the bare screen with the console open.
     baseline = game.bare()
+    if console_round:
+        game.set_console(True)
+        baseline = game.state()[2]
     nodes = game.tree()
     player, player_name = model.player(pid)
     header: Header = {'measured': time.strftime('%Y-%m-%d %H:%M'), 'exe': derive.build_key(),

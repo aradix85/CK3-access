@@ -1,6 +1,6 @@
 {
- "measured": "2026-08-30 13:50",
- "game_date": "23rd of November, 1067 AD",
+ "measured": "2026-10-21 20:56",
+ "game_date": "30th of December, 867 AD",
  "buttons": [
   {
    "via": "onclick",
@@ -47,6 +47,15 @@
   },
   {
    "via": "onclick",
+   "target": "organization",
+   "widget": "char_view_house_area",
+   "file": "window_character.gui",
+   "under": true,
+   "reason": "2 widgets carry this name and 0 of them are on screen",
+   "opens": null
+  },
+  {
+   "via": "onclick",
    "target": "dynasty_tree_view",
    "widget": "character_container",
    "file": "window_dynasty_tree.gui",
@@ -56,23 +65,19 @@
   },
   {
    "via": "onclick",
+   "target": "cardinals_window",
+   "widget": "christian_church_college_of_cardinals_button",
+   "file": "window_pam_christian_church.gui",
+   "reason": "not visible",
+   "opens": null
+  },
+  {
+   "via": "onclick",
    "target": "confederation_window",
    "widget": "confederation_button",
    "file": "hud.gui",
-   "point": [
-    565,
-    865
-   ],
-   "box": [
-    537,
-    837,
-    56,
-    56
-   ],
-   "reason": null,
-   "opens": [],
-   "found_in": "the screen",
-   "state_returned": true
+   "reason": "2 widgets carry this name and 0 of them are on screen",
+   "opens": null
   },
   {
    "via": "onclick",
@@ -86,17 +91,33 @@
   {
    "via": "onclick",
    "target": "faith_conversion",
-   "widget": "convert_faith",
+   "widget": "convert_rite",
    "file": "window_faith.gui",
    "reason": "not visible",
    "opens": null
   },
   {
    "via": "onclick",
-   "target": "faith_creation",
-   "widget": "create_faith",
+   "target": "decision_detail",
+   "widget": "create_head_of_faith",
    "file": "window_faith.gui",
-   "reason": "3 widgets carry this name and 0 of them are on screen",
+   "reason": "2 widgets carry this name and 0 of them are on screen",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "rite_creation",
+   "widget": "create_rite",
+   "file": "window_faith.gui",
+   "reason": "not visible",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "rite_creation",
+   "widget": "create_rite_puppet",
+   "file": "window_faith.gui",
+   "reason": "not visible",
    "opens": null
   },
   {
@@ -139,7 +160,7 @@
    "target": "domicile",
    "widget": "domicile_map_icon",
    "file": "map_icon_layer.gui",
-   "reason": "105 widgets carry this name and 0 of them are on screen",
+   "reason": "10 widgets carry this name and 0 of them are on screen",
    "opens": null
   },
   {
@@ -148,42 +169,24 @@
    "widget": "domiciles",
    "file": "hud_outliner.gui",
    "under": true,
-   "point": [
-    1401,
-    402
-   ],
-   "box": [
-    1264,
-    325,
-    275,
-    155
-   ],
-   "reason": null,
-   "opens": [],
-   "found_in": "the screen",
-   "state_returned": true
+   "reason": "hidden by the game",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "rite_creation",
+   "widget": "edit_rite",
+   "file": "window_faith.gui",
+   "reason": "not visible",
+   "opens": null
   },
   {
    "via": "onclick",
    "target": "character_focus",
    "widget": "education_button",
    "file": "hud.gui",
-   "point": [
-    325,
-    865
-   ],
-   "box": [
-    297,
-    837,
-    56,
-    56
-   ],
-   "reason": null,
-   "opens": [
-    "inventory_view"
-   ],
-   "found_in": "the screen",
-   "state_returned": true
+   "reason": "hidden by the game",
+   "opens": null
   },
   {
    "via": "onclick",
@@ -195,26 +198,19 @@
   },
   {
    "via": "onclick",
-   "target": "legends",
-   "widget": "explore_legends",
-   "file": "hud_bottom.gui",
-   "reason": "not visible",
-   "opens": null
-  },
-  {
-   "via": "onclick",
-   "target": "epidemics",
-   "widget": "explore_plagues",
-   "file": "hud_bottom.gui",
-   "reason": "not visible",
-   "opens": null
-  },
-  {
-   "via": "onclick",
    "target": "faith",
    "widget": "faith_button",
    "file": "hud.gui",
-   "reason": "9 widgets carry this name and 0 of them are on screen",
+   "reason": "12 widgets carry this name and 0 of them are on screen",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "personal_beliefs_window",
+   "widget": "faith_button_container",
+   "file": "hud.gui",
+   "under": true,
+   "reason": "2 widgets carry this name and 0 of them are on screen",
    "opens": null
   },
   {
@@ -222,7 +218,7 @@
    "target": "great_holy_war",
    "widget": "faith_icon",
    "file": "hud.gui",
-   "reason": "4 widgets carry this name and 0 of them are on screen",
+   "reason": "3 widgets carry this name and 0 of them are on screen",
    "opens": null
   },
   {
@@ -230,8 +226,30 @@
    "target": "decision_detail",
    "widget": "gather_provisions_decision",
    "file": "map_icon_layer.gui",
-   "reason": "63 widgets carry this name and 0 of them are on screen",
+   "reason": "6 widgets carry this name and 0 of them are on screen",
    "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "geographical_regions",
+   "widget": "geographical_regions",
+   "file": "mapmodes.gui",
+   "point": [
+    1853,
+    912
+   ],
+   "box": [
+    1836,
+    894,
+    36,
+    36
+   ],
+   "reason": null,
+   "opens": [
+    "geographical_regions_window"
+   ],
+   "found_in": "the screen",
+   "state_returned": "ok"
   },
   {
    "via": "onclick",
@@ -259,6 +277,23 @@
   },
   {
    "via": "onclick",
+   "target": "title_view_window",
+   "widget": "holy_order_coa_icon",
+   "file": "map_icon_layer.gui",
+   "under": true,
+   "reason": "not in the tree from a neutral state",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "holy_site",
+   "widget": "holy_site_coa",
+   "file": "decision_view_widget_select_holy_site.gui",
+   "reason": "not in the tree from a neutral state",
+   "opens": null
+  },
+  {
+   "via": "onclick",
    "target": "great_holy_war",
    "widget": "holy_war_icon_prep",
    "file": "hud.gui",
@@ -278,40 +313,24 @@
    "target": "house_aspiration_window",
    "widget": "house_power_hud_button",
    "file": "hud.gui",
-   "point": [
-    625,
-    865
-   ],
-   "box": [
-    597,
-    837,
-    56,
-    56
-   ],
-   "reason": null,
-   "opens": [],
-   "found_in": "the screen",
-   "state_returned": true
+   "reason": "hidden by the game",
+   "opens": null
   },
   {
    "via": "onclick",
    "target": "domicile",
    "widget": "hud_camp_button",
    "file": "hud.gui",
-   "point": [
-    505,
-    865
-   ],
-   "box": [
-    477,
-    837,
-    56,
-    56
-   ],
-   "reason": null,
-   "opens": [],
-   "found_in": "the screen",
-   "state_returned": true
+   "reason": "hidden by the game",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "cardinals_window",
+   "widget": "hud_college_of_cardinals_button_tutorial_uses_this",
+   "file": "hud.gui",
+   "reason": "off screen",
+   "opens": null
   },
   {
    "via": "onclick",
@@ -368,12 +387,12 @@
    "widget": "ledger_window",
    "file": "hud.gui",
    "point": [
-    1121,
-    884
+    1441,
+    1184
    ],
    "box": [
-    1105,
-    868,
+    1425,
+    1168,
     32,
     32
    ],
@@ -382,7 +401,15 @@
     "ledger_window"
    ],
    "found_in": "the screen",
-   "state_returned": true
+   "state_returned": "ok"
+  },
+  {
+   "via": "onclick",
+   "target": "legend_creation",
+   "widget": "legends_button_tutorial_uses_this",
+   "file": "window_legends.gui",
+   "reason": "not in the tree from a neutral state",
+   "opens": null
   },
   {
    "via": "onclick",
@@ -390,12 +417,12 @@
    "widget": "lifestyle_button",
    "file": "hud.gui",
    "point": [
-    265,
-    865
+    272,
+    1165
    ],
    "box": [
-    237,
-    837,
+    244,
+    1137,
     56,
     56
    ],
@@ -404,7 +431,7 @@
     "character_lifestyle_window"
    ],
    "found_in": "the screen",
-   "state_returned": true
+   "state_returned": "ok"
   },
   {
    "via": "onclick",
@@ -420,7 +447,7 @@
    "target": "move_domicile_planner",
    "widget": "move_camp_quick_button",
    "file": "map_icon_layer.gui",
-   "reason": "63 widgets carry this name and 0 of them are on screen",
+   "reason": "6 widgets carry this name and 0 of them are on screen",
    "opens": null
   },
   {
@@ -436,22 +463,8 @@
    "target": "diarchy",
    "widget": "open_diarchy_tutorial_uses_this",
    "file": "hud.gui",
-   "point": [
-    1355,
-    777
-   ],
-   "box": [
-    1310,
-    732,
-    90,
-    90
-   ],
-   "reason": null,
-   "opens": [
-    "window_situation"
-   ],
-   "found_in": "the screen",
-   "state_returned": true
+   "reason": "hidden by the game",
+   "opens": null
   },
   {
    "via": "onclick",
@@ -463,17 +476,17 @@
     "diarchy_window"
    ],
    "point": [
-    1194,
-    211
+    1514,
+    186
    ],
    "box": [
-    1178,
-    195,
+    1498,
+    170,
     32,
     32
    ],
    "found_in": "in my_realm_window",
-   "state_returned": true
+   "state_returned": "ok"
   },
   {
    "via": "onclick",
@@ -498,11 +511,11 @@
    "widget": "outliner_button",
    "file": "hud.gui",
    "point": [
-    1577,
+    1897,
     72
    ],
    "box": [
-    1560,
+    1880,
     55,
     35,
     35
@@ -510,7 +523,15 @@
    "reason": null,
    "opens": [],
    "found_in": "the screen",
-   "state_returned": true
+   "state_returned": "ok"
+  },
+  {
+   "via": "onclick",
+   "target": "personal_beliefs_window",
+   "widget": "personal_beliefs_button",
+   "file": "window_personal_beliefs.gui",
+   "reason": "not visible",
+   "opens": null
   },
   {
    "via": "onclick",
@@ -534,7 +555,7 @@
    "target": "great_project",
    "widget": "portrait_pin",
    "file": "map_icon_layer.gui",
-   "reason": "21 widgets carry this name and 0 of them are on screen",
+   "reason": "2 widgets carry this name and 0 of them are on screen",
    "opens": null
   },
   {
@@ -543,7 +564,7 @@
    "widget": "reassign_button",
    "file": "window_military.gui",
    "under": true,
-   "reason": "7 widgets carry this name and 0 of them are on screen",
+   "reason": "13 widgets carry this name and 0 of them are on screen",
    "opens": null
   },
   {
@@ -557,17 +578,17 @@
     "decisions_view"
    ],
    "point": [
-    1266,
+    1586,
     183
    ],
    "box": [
-    1116,
+    1436,
     161,
     300,
     45
    ],
    "found_in": "in court_window",
-   "state_returned": true
+   "state_returned": "fell back"
   },
   {
    "via": "onclick",
@@ -575,6 +596,14 @@
    "widget": "reforge",
    "file": "window_artifact_details.gui",
    "reason": "not visible",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "faith",
+   "widget": "rite_button",
+   "file": "window_admin_vassal_detail.gui",
+   "reason": "20 widgets carry this name and 0 of them are on screen",
    "opens": null
   },
   {
@@ -590,8 +619,23 @@
    "target": "decision_detail",
    "widget": "search_for_tax_collector_decision",
    "file": "window_manage_tax_slots.gui",
-   "reason": "not visible",
-   "opens": null
+   "reason": null,
+   "opens": [
+    "decisiondetail_view",
+    "decisions_view"
+   ],
+   "point": [
+    1586,
+    1111
+   ],
+   "box": [
+    1345,
+    1089,
+    482,
+    45
+   ],
+   "found_in": "in window_manage_tax_slots",
+   "state_returned": "fell back"
   },
   {
    "via": "onclick",
@@ -606,16 +650,44 @@
    "target": "struggle",
    "widget": "struggle_banner_tutorial_uses_this",
    "file": "hud.gui",
-   "reason": "not in the tree from a neutral state",
-   "opens": null
+   "point": [
+    1665,
+    1087
+   ],
+   "box": [
+    1610,
+    1032,
+    110,
+    110
+   ],
+   "reason": null,
+   "opens": [
+    "struggle_window"
+   ],
+   "found_in": "the screen",
+   "state_returned": "ok"
   },
   {
    "via": "onclick",
    "target": "struggle_involvement",
    "widget": "struggle_involvement_button_tutorial_uses_this",
    "file": "window_struggle.gui",
-   "reason": "not visible",
-   "opens": null
+   "reason": null,
+   "opens": [
+    "struggle_involvement_window"
+   ],
+   "point": [
+    1605,
+    133
+   ],
+   "box": [
+    1490,
+    117,
+    230,
+    32
+   ],
+   "found_in": "in struggle_window",
+   "state_returned": "ok"
   },
   {
    "via": "onclick",
@@ -632,11 +704,11 @@
    "widget": "tab_activities",
    "file": "hud.gui",
    "point": [
-    1577,
+    1897,
     467
    ],
    "box": [
-    1555,
+    1875,
     445,
     45,
     45
@@ -646,29 +718,15 @@
     "activity_list"
    ],
    "found_in": "the screen",
-   "state_returned": true
+   "state_returned": "ok"
   },
   {
    "via": "onclick",
    "target": "decisions",
    "widget": "tab_contracts",
    "file": "hud.gui",
-   "point": [
-    1577,
-    512
-   ],
-   "box": [
-    1555,
-    490,
-    45,
-    45
-   ],
-   "reason": null,
-   "opens": [
-    "window_situation_list"
-   ],
-   "found_in": "the screen",
-   "state_returned": true
+   "reason": "hidden by the game",
+   "opens": null
   },
   {
    "via": "onclick",
@@ -676,11 +734,11 @@
    "widget": "tab_council",
    "file": "hud.gui",
    "point": [
-    1577,
+    1897,
     212
    ],
    "box": [
-    1555,
+    1875,
     190,
     45,
     45
@@ -690,7 +748,7 @@
     "council_window"
    ],
    "found_in": "the screen",
-   "state_returned": true
+   "state_returned": "ok"
   },
   {
    "via": "onclick",
@@ -698,11 +756,11 @@
    "widget": "tab_court_tutorial_uses_this",
    "file": "hud.gui",
    "point": [
-    1577,
+    1897,
     272
    ],
    "box": [
-    1555,
+    1875,
     250,
     45,
     45
@@ -712,7 +770,7 @@
     "court_window"
    ],
    "found_in": "the screen",
-   "state_returned": true
+   "state_returned": "ok"
   },
   {
    "via": "onclick",
@@ -720,11 +778,11 @@
    "widget": "tab_decisions",
    "file": "hud.gui",
    "point": [
-    1577,
+    1897,
     422
    ],
    "box": [
-    1555,
+    1875,
     400,
     45,
     45
@@ -734,7 +792,7 @@
     "decisions_view"
    ],
    "found_in": "the screen",
-   "state_returned": true
+   "state_returned": "ok"
   },
   {
    "via": "onclick",
@@ -742,11 +800,11 @@
    "widget": "tab_factions",
    "file": "hud.gui",
    "point": [
-    1577,
+    1897,
     362
    ],
    "box": [
-    1555,
+    1875,
     340,
     45,
     45
@@ -756,7 +814,7 @@
     "factions_window"
    ],
    "found_in": "the screen",
-   "state_returned": true
+   "state_returned": "ok"
   },
   {
    "via": "onclick",
@@ -773,11 +831,11 @@
    "widget": "tab_intrigue",
    "file": "hud.gui",
    "point": [
-    1577,
+    1897,
     317
    ],
    "box": [
-    1555,
+    1875,
     295,
     45,
     45
@@ -787,7 +845,7 @@
     "intrigue_window"
    ],
    "found_in": "the screen",
-   "state_returned": true
+   "state_returned": "ok"
   },
   {
    "via": "onclick",
@@ -795,11 +853,11 @@
    "widget": "tab_military_tutorial_uses_this",
    "file": "hud.gui",
    "point": [
-    1577,
+    1897,
     167
    ],
    "box": [
-    1555,
+    1875,
     145,
     45,
     45
@@ -809,7 +867,7 @@
     "military_view"
    ],
    "found_in": "the screen",
-   "state_returned": true
+   "state_returned": "ok"
   },
   {
    "via": "onclick",
@@ -817,11 +875,11 @@
    "widget": "tab_my_realm_tutorial_uses_this",
    "file": "hud.gui",
    "point": [
-    1577,
+    1897,
     122
    ],
    "box": [
-    1555,
+    1875,
     100,
     45,
     45
@@ -831,7 +889,7 @@
     "my_realm_window"
    ],
    "found_in": "the screen",
-   "state_returned": true
+   "state_returned": "ok"
   },
   {
    "via": "onclick",
@@ -839,11 +897,11 @@
    "widget": "tab_situation",
    "file": "hud.gui",
    "point": [
-    1577,
+    1897,
     512
    ],
    "box": [
-    1555,
+    1875,
     490,
     45,
     45
@@ -853,7 +911,7 @@
     "window_situation_list"
    ],
    "found_in": "the screen",
-   "state_returned": true
+   "state_returned": "ok"
   },
   {
    "via": "onclick",
@@ -861,19 +919,21 @@
    "widget": "tab_tax_jurisdiction",
    "file": "hud.gui",
    "point": [
-    1577,
-    647
+    1897,
+    557
    ],
    "box": [
-    1555,
-    625,
+    1875,
+    535,
     45,
     45
    ],
    "reason": null,
-   "opens": [],
+   "opens": [
+    "window_manage_tax_slots"
+   ],
    "found_in": "the screen",
-   "state_returned": true
+   "state_returned": "ok"
   },
   {
    "via": "onclick",
@@ -882,6 +942,23 @@
    "file": "map_icon_layer.gui",
    "under": true,
    "reason": "not in the tree from a neutral state",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "decision_detail",
+   "widget": "tehocratic_lowborn_button",
+   "file": "hud.gui",
+   "reason": "off screen",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "title_appointment",
+   "widget": "title_appointment",
+   "file": "window_title.gui",
+   "under": true,
+   "reason": "4 widgets carry this name and 0 of them are on screen",
    "opens": null
   },
   {
@@ -906,7 +983,7 @@
    "target": "decision_detail",
    "widget": "visit_local_settlement_decision",
    "file": "map_icon_layer.gui",
-   "reason": "63 widgets carry this name and 0 of them are on screen",
+   "reason": "6 widgets carry this name and 0 of them are on screen",
    "opens": null
   }
  ]
