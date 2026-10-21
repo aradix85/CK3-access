@@ -49,7 +49,6 @@ user32.GetAsyncKeyState.restype = ctypes.c_short
 VK_LSHIFT, VK_F1, VK_ESCAPE = 0xA0, 0x70, 0x1B
 # Left shift, left ctrl and left alt, the keys a keyboard reports, each with the generic key
 # Windows has to hold down along with it.
-MODIFIERS = {'shift': 0xA0, 'ctrl': 0xA2, 'alt': 0xA4}
 GENERIC = {0xA0: 0x10, 0xA2: 0x11, 0xA4: 0x12}
 KEYEVENTF_KEYUP, INPUT_KEYBOARD = 0x0002, 1
 
@@ -207,9 +206,11 @@ def main(pid: int) -> None:
             raise SystemExit('after shift+F1 the state did not come back')
     finally:
         keys.release()
-        if hers and user32.IsWindow(hers):
-            bring(hers)
-        speech.output('the key test is done, the foreground is yours again')
+        if hers and user32.IsWindow(hers) and not bring(hers):
+            speech.failure('the key test', 'it could not give your window the foreground back',
+                           'switch to it yourself with Alt+Tab')
+        else:
+            speech.output('the key test is done, the foreground is yours again')
     for name, numbers in results.items():
         print(f"{name!s:<20} {', '.join(f'{key} {count}' for key, count in numbers.items() if count) or 'nothing counted'}")
     print('clock standing:', paused(game))

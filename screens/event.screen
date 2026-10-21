@@ -8,7 +8,7 @@
 # every index, and a reader that counts would quietly read the wrong field.
 #
 # The format is the game's own: key = value, blocks, # for a comment.
-# Check it with: python tools\ck3\screens.py
+# Check it with: python -m tools.ck3.screens
 #
 # **What of this file the reader actually applies, as of 20 September 2026.** `order` decides
 # which lines come first. `key` is said once, against the line that counts the options, because

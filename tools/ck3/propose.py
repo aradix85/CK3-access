@@ -8,7 +8,7 @@ correcting a draft instead of by starting at an empty file two hundred times.
 
 What it proposes, and why each part is mechanical:
   - the reading order is the order of the gui file, which is the designer's own grouping;
-  - a repeated container is a list, so it says its size first and its end afterwards;
+  - a repeated container is a list, whose size and end the reading rule says by itself;
   - the subject of a text is the data context it inherits, since a widget hardly names its own.
 Beside each line it writes what the text will say, or the data function that will fill it, as a
 comment - that is the part a human reads to decide.
@@ -31,11 +31,10 @@ TEXT_KEYS = ('text', 'raw_text')
 
 
 class Text(TypedDict):
-    """One text of a window: what it holds, the data contexts above it, its list, its widget name."""
+    """One text of a window: what it holds, the data contexts above it, and its list."""
     text: str
     context: tuple[str, ...]
     list: str | None
-    name: str | None
 
 
 def texts(node: guimap.Node, context: tuple[str, ...] = (), inside: str | None = None,
@@ -55,8 +54,7 @@ def texts(node: guimap.Node, context: tuple[str, ...] = (), inside: str | None =
     for key in TEXT_KEYS:
         value = guimap.attribute(node, key)
         if value:
-            out.append({'text': value, 'context': below, 'list': model,
-                        'name': guimap.attribute(node, 'name')})
+            out.append({'text': value, 'context': below, 'list': model})
             break
     for child in node['children']:
         texts(child, below, model, out)
@@ -75,7 +73,7 @@ def says(value: str, localization: dict[str, str]) -> str:
 def draft(window: str, table: guimap.Table, local: guimap.LocalTable, known: guimap.Known,
           localization: dict[str, str]) -> tuple[str, list[Text]]:
     """One window as a screen file to correct."""
-    tree, _ = guimap.window(window, table, local, known)
+    tree = guimap.window(window, table, local, known)
     found = texts(tree)
 
     lines = [f'# A draft for {window}, written from the gui files. None of it is a judgement yet.',
@@ -98,12 +96,11 @@ def draft(window: str, table: guimap.Table, local: guimap.LocalTable, known: gui
                                                                     subject)))
         lines += ['\t}', '']
 
-    for model in ordered_models(found):
+    # The data models in the order they first appear, because a set would shuffle them.
+    for model in dict.fromkeys(one['list'] for one in found if one['list']):
         rows = [one for one in found if one['list'] == model]
         lines += ['\tlist = {',
                   f'\t\tof = "{model}"',
-                  '\t\tcount = before',
-                  '\t\tclose = after',
                   '\t\titem = {']
         for one in rows:
             lines.append('\t\t\tread = "{}"{}'.format(one['text'],
@@ -119,14 +116,6 @@ def comment(sentence: str, subject: str) -> str:
     text = ' '.join(text.split())
     return '\t# ' + (text[:90] + '...' if len(text) > 90 else text)
 
-
-def ordered_models(found: list[Text]) -> list[str]:
-    """The data models in the order they first appear, because a set would shuffle them."""
-    out: list[str] = []
-    for one in found:
-        if one['list'] and one['list'] not in out:
-            out.append(one['list'])
-    return out
 
 
 def main() -> None:

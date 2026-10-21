@@ -248,6 +248,13 @@ def flags_for(addresses: Iterable[int]) -> dict[int, int]:
     return field_for(addresses, _visibility_offset('flag'))
 
 
+def alphas_for(addresses: Iterable[int]) -> dict[int, float]:
+    """The alpha of many objects, the way `flags_for` reads the state byte. One that cannot be read
+    is missing from the answer."""
+    return {address: struct.unpack('<f', value.to_bytes(4, 'little'))[0]
+            for address, value in field_for(addresses, _visibility_offset('alpha'), 4).items()}
+
+
 def shown(nodes: Nodes, addresses: Iterable[int]) -> dict[int, int]:
     """Of `addresses`, the ones nothing hides, each with its own state byte.
 

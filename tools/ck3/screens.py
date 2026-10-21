@@ -45,8 +45,8 @@ def references(nodes: list[guimap.Entry]) -> tuple[list[str], set[str], set[str]
             continue
         if entry['key'] == 'window':
             windows.append(value)
-        elif entry['key'] == 'widget':
-            names.add(value)
+        elif entry['key'] == 'read' and not FUNCTION.search(value):
+            names.add(value)            # a widget named by its name rather than by what fills it
         functions.update(FUNCTION.findall(value))
     return windows, functions, names
 
@@ -79,7 +79,7 @@ def check(folder: str = SCREENS) -> int:
             if window not in known:
                 missing.append('the window ' + window)
                 continue
-            tree, _ = guimap.window(window, table, local, known)
+            tree = guimap.window(window, table, local, known)
             window_contents(tree, text, present)
         blob = '\n'.join(text)
 

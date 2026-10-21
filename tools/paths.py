@@ -73,6 +73,7 @@ SETTINGS = os.path.join(DOCS, 'pdx_settings.txt') if DOCS else None
 SAVES = os.path.join(DOCS, 'save games') if DOCS else None
 ERROR_LOG = os.path.join(DOCS, 'logs', 'error.log') if DOCS else None
 REPORTS = os.path.join(PROJECT, 'reports')
+HARVEST = os.path.join(PROJECT, 'harvest')
 DLL = os.path.join(PROJECT, 'dll', 'channel.dll')
 
 

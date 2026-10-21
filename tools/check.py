@@ -190,7 +190,7 @@ def ledger_buildings(what: str) -> int:
             yield from walk(child)
 
     if not _LEDGER:
-        tree, _ = guimap.window('ledger_window')
+        tree = guimap.window('ledger_window')
         boxes = [n for n in walk(tree) if n['type'] == 'widget_building_item_ledger']
         acting = 0
         reaching = 0
@@ -304,9 +304,9 @@ def unseen_texts(what: str) -> int:
     clipped inside a scroll area, under an ancestor at alpha zero, or under one carrying 0x08 in its
     state byte. That decides how much a window says to nobody.
     """
-    from tools.ck3 import derive, pairing, reading
+    from tools.ck3 import derive, reading
     texts = unseen = 0
-    for name in sorted(glob.glob(os.path.join(pairing.HARVEST, '*.json'))):
+    for name in sorted(glob.glob(os.path.join(paths.HARVEST, '*.json'))):
         record = json.loads(pathlib.Path(name).read_text(encoding='utf-8'))
         if not record['opened']:
             continue            # a refusal record: a reason and no window, so nothing to read

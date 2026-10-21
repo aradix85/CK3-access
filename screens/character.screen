@@ -6,7 +6,7 @@
 # Point at what the gui file says a widget shows - a data function or a name - never at a position
 # in the child list and never at a coordinate.
 #
-# Check it with: python tools\ck3\screens.py
+# Check it with: python -m tools.ck3.screens
 
 screen = {
 	name = "character"

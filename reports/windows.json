@@ -6,7 +6,7 @@
    "console": false,
    "created": null,
    "file": "gui/multiplayer_types.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -14,7 +14,7 @@
    "console": false,
    "created": null,
    "file": "gui/multiplayer_types.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -34,7 +34,7 @@
    "console": false,
    "created": null,
    "file": "gui/multiplayer_types.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -174,7 +174,7 @@
    "console": false,
    "created": null,
    "file": "gui/activity_planner_widgets/activity_planner_tenet_doctrine_selection.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -182,7 +182,7 @@
    "console": false,
    "created": null,
    "file": "gui/activity_planner_widgets/activity_planner_tenet_doctrine_selection.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -214,7 +214,7 @@
    "console": false,
    "created": null,
    "file": "gui/social/add_friend_window_base.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -294,7 +294,7 @@
    "console": false,
    "created": null,
    "file": "gui/window_court_position_appoint.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -314,7 +314,7 @@
    "console": false,
    "created": null,
    "file": "gui/window_appoint_tax_collector.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -370,7 +370,7 @@
    "console": false,
    "created": null,
    "file": "gui/window_kill_list.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -402,7 +402,7 @@
    "console": false,
    "created": null,
    "file": "gui/shared/dialogs.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -410,7 +410,7 @@
    "console": false,
    "created": null,
    "file": "gui/shared/dialogs.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -418,7 +418,7 @@
    "console": false,
    "created": null,
    "file": "gui/shared/dialogs.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -426,7 +426,7 @@
    "console": false,
    "created": null,
    "file": "gui/shared/dialogs.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -446,7 +446,7 @@
    "console": false,
    "created": null,
    "file": "gui/event_windows/big_event_window.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -502,7 +502,7 @@
    "console": false,
    "created": null,
    "file": "gui/window_pam_christian_church.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -510,7 +510,7 @@
    "console": false,
    "created": null,
    "file": "gui/window_faith.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -562,7 +562,7 @@
    "console": false,
    "created": null,
    "file": "gui/window_character_filter.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -570,7 +570,7 @@
    "console": false,
    "created": null,
    "file": "gui/window_character_filter.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": "C"
   },
@@ -650,7 +650,7 @@
    "console": false,
    "created": null,
    "file": "gui/window_barbershop.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -682,7 +682,7 @@
    "console": false,
    "created": null,
    "file": "gui/social/chat_window_base.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -690,7 +690,7 @@
    "console": false,
    "created": null,
    "file": "gui/window_pam_christian_church.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -710,7 +710,7 @@
    "console": false,
    "created": null,
    "file": "gui/window_barbershop.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -718,7 +718,7 @@
    "console": false,
    "created": null,
    "file": "gui/shared/color_picker.gui",
-   "reason": "declared as a nested window block, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a nested window block inside a types block, where GUI.CreateWidget does not look",
    "shape": "nested window block",
    "shortcut": null
   },
@@ -750,7 +750,7 @@
    "console": false,
    "created": null,
    "file": "gui/node_editor/node_editor.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -806,7 +806,7 @@
    "console": false,
    "created": null,
    "file": "gui/window_character.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -814,7 +814,7 @@
    "console": false,
    "created": null,
    "file": "gui/window_court_scene_editor.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -882,7 +882,7 @@
    "console": false,
    "created": null,
    "file": "gui/pdx_account/create_social_profile_window_base.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -902,7 +902,7 @@
    "console": false,
    "created": null,
    "file": "gui/node_editor/node_editor.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -910,7 +910,7 @@
    "console": false,
    "created": null,
    "file": "gui/window_message_settings.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -966,7 +966,7 @@
    "console": false,
    "created": null,
    "file": "gui/node_editor/search_list_window.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -1046,7 +1046,7 @@
    "console": false,
    "created": null,
    "file": "gui/window_tgp_dynastic_cycle.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -1054,7 +1054,7 @@
    "console": false,
    "created": null,
    "file": "gui/window_tgp_dynastic_cycle.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -1122,7 +1122,7 @@
    "console": false,
    "created": null,
    "file": "gui/window_dynasty_legacy.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -1142,7 +1142,7 @@
    "console": false,
    "created": null,
    "file": "gui/particle_editor/particle_nodes.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -1210,7 +1210,7 @@
    "console": false,
    "created": null,
    "file": "gui/interaction_marriage.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -1254,7 +1254,7 @@
    "console": false,
    "created": null,
    "file": "gui/social/friend_list_window_base.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -1286,7 +1286,7 @@
    "console": false,
    "created": null,
    "file": "gui/game_rules.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -1330,7 +1330,7 @@
    "console": false,
    "created": null,
    "file": "gui/node_editor/node_editor.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -1362,7 +1362,7 @@
    "console": false,
    "created": null,
    "file": "gui/window_the_great_steppe.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -1578,7 +1578,7 @@
    "console": false,
    "created": null,
    "file": "gui/settings/setting_types.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -1586,7 +1586,7 @@
    "console": false,
    "created": null,
    "file": "gui/window_kill_list.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -1646,7 +1646,7 @@
    "console": false,
    "created": null,
    "file": "gui/window_ledger.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -1666,7 +1666,7 @@
    "console": false,
    "created": null,
    "file": "gui/pdx_account/legal_docs_viewer.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -1758,7 +1758,7 @@
    "console": false,
    "created": null,
    "file": "gui/pdx_account/login_window.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -1766,7 +1766,7 @@
    "console": false,
    "created": null,
    "file": "gui/window_faith.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -1858,7 +1858,7 @@
    "console": false,
    "created": null,
    "file": "gui/window_government_administration.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -1866,7 +1866,7 @@
    "console": false,
    "created": null,
    "file": "gui/window_migration.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -1898,7 +1898,7 @@
    "console": false,
    "created": null,
    "file": "gui/multiplayer_types.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -1906,7 +1906,7 @@
    "console": false,
    "created": null,
    "file": "gui/multiplayer_types.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -1926,7 +1926,7 @@
    "console": false,
    "created": null,
    "file": "gui/node_editor/node_editor.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -1958,7 +1958,7 @@
    "console": false,
    "created": null,
    "file": "gui/window_barbershop.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -2014,7 +2014,7 @@
    "console": false,
    "created": null,
    "file": "gui/node_editor/node_editor.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -2070,7 +2070,7 @@
    "console": false,
    "created": null,
    "file": "gui/window_faith.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -2078,7 +2078,7 @@
    "console": false,
    "created": null,
    "file": "gui/social/remove_friend_confirm_window_base.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -2086,7 +2086,7 @@
    "console": false,
    "created": null,
    "file": "gui/shared/dialogs.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -2130,7 +2130,7 @@
    "console": false,
    "created": null,
    "file": "gui/window_faith.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -2186,7 +2186,7 @@
    "console": false,
    "created": null,
    "file": "gui/event_windows/scheme_conclusion_event_no_header.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -2194,7 +2194,7 @@
    "console": false,
    "created": null,
    "file": "gui/event_windows/scheme_failed_event.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -2214,7 +2214,7 @@
    "console": false,
    "created": null,
    "file": "gui/event_windows/scheme_successful_event.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -2270,7 +2270,7 @@
    "console": false,
    "created": null,
    "file": "gui/window_silk_road.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -2278,7 +2278,7 @@
    "console": false,
    "created": null,
    "file": "gui/window_tgp_dynastic_cycle.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -2286,7 +2286,7 @@
    "console": false,
    "created": null,
    "file": "gui/window_tgp_dynastic_cycle.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -2306,7 +2306,7 @@
    "console": false,
    "created": null,
    "file": "gui/social/social_chat_notification_window_base.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -2314,7 +2314,7 @@
    "console": false,
    "created": null,
    "file": "gui/social/social_widget.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -2322,7 +2322,7 @@
    "console": false,
    "created": null,
    "file": "gui/pdx_account/status_widget.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -2354,7 +2354,7 @@
    "console": false,
    "created": null,
    "file": "gui/window_character.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -2410,7 +2410,7 @@
    "console": false,
    "created": null,
    "file": "gui/window_tax_slot_vassals.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -2418,7 +2418,7 @@
    "console": false,
    "created": null,
    "file": "gui/window_tax_slot_vassals.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -2438,7 +2438,7 @@
    "console": false,
    "created": null,
    "file": "gui/node_editor/node_editor.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -2550,7 +2550,7 @@
    "console": false,
    "created": null,
    "file": "gui/window_travel_planner.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -2594,7 +2594,7 @@
    "console": false,
    "created": null,
    "file": "gui/window_tutorial.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -2614,7 +2614,7 @@
    "console": false,
    "created": null,
    "file": "gui/particle_editor/particle_nodes.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -2622,7 +2622,7 @@
    "console": false,
    "created": null,
    "file": "gui/particle_editor/particle_nodes.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -2630,7 +2630,7 @@
    "console": false,
    "created": null,
    "file": "gui/window_character.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -2638,7 +2638,7 @@
    "console": false,
    "created": null,
    "file": "gui/event_windows/visit_settlement_window.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -2730,7 +2730,7 @@
    "console": false,
    "created": null,
    "file": "gui/window_war_overview.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -2834,7 +2834,7 @@
    "console": false,
    "created": null,
    "file": "gui/window_tgp_natural_disaster.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },
@@ -2926,7 +2926,7 @@
    "console": false,
    "created": null,
    "file": "gui/window_situation.gui",
-   "reason": "declared as a type definition, so GUI.CreateWidget cannot find it - it looks only at the top level of a file",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
    "shape": "type definition",
    "shortcut": null
   },

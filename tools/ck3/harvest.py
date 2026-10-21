@@ -9,10 +9,10 @@ and check that the state before it returns.
 understanding, and a second pass would need the game running again. Numbers are cheap to store and
 expensive to re-measure.
 
-**Five stop conditions, all measurable**, because a round of two hundred windows that goes wrong in
+**Four stop conditions, all measurable**, because a round of two hundred windows that goes wrong in
 the middle is worse than one that stops: too little free memory, a channel that stops answering, a
-window that will not open after three tries, a state that does not come back, and the player being
-moved to another character. The state one matters most - if something stays open, every later
+state that does not come back, and the player being moved to another character. A window that will
+not open is recorded with its reason, and the round goes on. The state one matters most - if something stays open, every later
 measurement is contaminated. The player one is the quiet one: a mod event can move the player
 mid-round, and nothing about the tree says so - the date is right, the windows are there, and
 every window after it is harvested from somebody else's game.
@@ -42,10 +42,8 @@ import json
 import os
 import pathlib
 import re
-import struct
 import sys
 import time
-from collections.abc import Iterable
 from typing import TYPE_CHECKING, Literal, TypedDict
 
 from tools import ocr, paths, terminal, windowgrab
@@ -55,7 +53,7 @@ if TYPE_CHECKING:
     # openers imports this module, so only the checker may see it.
     from tools.ck3 import openers
 
-OUT = os.path.join(paths.PROJECT, 'harvest')
+OUT = paths.HARVEST
 MAP = os.path.join(paths.REPORTS, 'windows.json')
 OPENERS = os.path.join(paths.REPORTS, 'openers.json')
 FREE_MEMORY_FLOOR = 2.0          # gigabytes; the game itself uses about 16
@@ -214,8 +212,8 @@ def widget_record(nodes: derive.Nodes, address: int, depth: int, index: int, sca
     _vtable, x, y, width, height, parent, name, text = nodes[address]
     screen_x, screen_y = derive.screen_pos(nodes, address, scales)
     drawn_width, drawn_height = derive.screen_size(nodes, address, scales)
-    own, above = scales.get(address, (1.0, 1.0))
-    kind = classes.get(address)
+    own, above = scales[address]
+    kind = classes[address]
     return {'address': f'{address:x}', 'parent': f'{parent:x}', 'depth': depth, 'index': index,
             'class': kind, 'name': name, 'text': text if kind in derive.TEXT_CLASSES else None,
             'own_rect': [x, y, width, height],
@@ -223,21 +221,6 @@ def widget_record(nodes: derive.Nodes, address: int, depth: int, index: int, sca
             'scale': [own, above], 'alpha': alphas.get(address),
             'state': flags.get(address),
             'clipped': derive.is_clipped(nodes, address, scales, classes)}
-
-
-def alphas_for(addresses: Iterable[int]) -> dict[int, float]:
-    """Alpha of many widgets in as few channel questions as possible, the way flags_for does it."""
-    out: dict[int, float] = {}
-    items = sorted(addresses)
-    offset = derive._visibility_offset('alpha')
-    for start in range(0, len(items), 400):
-        part = items[start:start + 400]
-        ask = 'readmany 4 ' + ' '.join('%x' % (a + offset) for a in part)
-        for line in channel.ask(ask, timeout=120).split('\n'):
-            d = line.split('\t')
-            if d[0] == 'l' and len(d) > 2 and d[2] != 'unreadable':
-                out[int(d[1], 16) - offset] = struct.unpack('<f', bytes.fromhex(d[2]))[0]
-    return out
 
 
 def capture(pid: int, name: str) -> Capture:
@@ -289,15 +272,15 @@ def confirmed(tree: list[pairing.Harvested], lines: list[Recognised],
         if not want or width <= 0 or height <= 0:
             continue
         # 0x08 in the state byte is the game hiding a widget while its alpha stays up, and a hidden
-        # box is no more a miss than one at alpha zero. Records from before 20 September carry no
-        # state, so for them this changes nothing.
-        alpha, hidden, steps = 1.0, False, 0
+        # box is no more a miss than one at alpha zero. A byte that could not be read counts as not
+        # drawn, as in `derive.shown`.
+        alpha, hidden = 1.0, False
         node: pairing.Harvested | None = w
-        while node is not None and steps < 40:
-            alpha *= node['alpha'] if node['alpha'] is not None else 1.0
-            hidden = hidden or bool((node.get('state') or 0) & 0x08)
+        while node is not None:
+            state = node['state']
+            alpha *= node['alpha'] or 0.0
+            hidden = hidden or state is None or bool(state & derive.HIDDEN)
             node = by_address.get(node['parent'])
-            steps += 1
         if alpha <= 0.0 or hidden:
             continue
         if x < 0 or y < 0 or x + width > width_limit or y + height > height_limit:
@@ -330,9 +313,9 @@ def click_routes(windows: dict[str, windowmap.Route]) -> dict[str, windowmap.Rou
     buttons: list[openers.Button] = json.loads(pathlib.Path(OPENERS).read_text(encoding='utf-8'))['buttons']
     for row in buttons:
         for name in row.get('opens') or ():
-            if name in out or 'point' not in row:
+            if name in out:
                 continue
-            route: windowmap.Route = {'click': row['point'], 'button': row['widget'],
+            route: windowmap.Route = {'click': True, 'button': row['widget'],
                                       'file': windows.get(name, {}).get('file'), 'drawn': True}
             if row['found_in'].startswith('in '):
                 inside = row['found_in'][3:]
@@ -482,7 +465,7 @@ def record_window(game: windowmap.Game, name: str, nodes: derive.Nodes, header: 
     # Over three windows and 6906 widgets no widget carried those bits without the gui file
     # putting an `enabled` condition on it or on an ancestor.
     flags = derive.flags_for(addresses)
-    alphas = alphas_for(addresses)
+    alphas = derive.alphas_for(addresses)
     seconds = round(time.time() - started, 1)
     tree = [widget_record(nodes, a, d, i, scales, classes, flags, alphas) for a, d, i in family]
     # The console is how most of these windows were opened, and it is drawn over the left third
@@ -529,8 +512,7 @@ def stop_checks(pid: int, player: int, player_name: str | None, before: str) -> 
     """The three conditions asked before every window: memory, the channel, and the player."""
     if free_memory() < FREE_MEMORY_FLOOR:
         raise SystemExit(f'stopping: {free_memory():.1f} GB free, below the floor of {FREE_MEMORY_FLOOR:.1f}')
-    if 'channel' not in channel.ask('hello'):
-        raise SystemExit('stopping: the channel no longer answers')
+    channel.ask('hello')            # a channel that no longer answers stops the round here
     # The fifth stop condition. Cheap enough to ask every window - six four-byte reads in one
     # question - and it is the only thing that catches a state that has been moved to another
     # character. Measured 29 August 2026: a mod event did exactly that in the middle of a round

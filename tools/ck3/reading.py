@@ -32,18 +32,11 @@ import os
 import re
 import sys
 import time
-from typing import TYPE_CHECKING, TypedDict
+from typing import TypedDict
 
 from tools import paths
-from tools.ck3 import derive, guimap, pairing
+from tools.ck3 import derive, guimap, pairing, windowmap
 from tools.nvda import speech
-
-if TYPE_CHECKING:
-    # `live` imports it where it runs, because it brings openers and the harvest along and the
-    # harvested half of this module runs without them. Only the checker sees it here.
-    from tools.ck3 import windowmap
-
-HARVEST = os.path.join(paths.PROJECT, 'harvest')
 
 
 class Unit(TypedDict):
@@ -256,7 +249,7 @@ def expansion(window: str, table: guimap.Table, local: guimap.LocalTable,
     a read takes, so a reader that opens the same window twice paid it twice.
     """
     if window not in EXPANDED:
-        EXPANDED[window] = guimap.window(window, table, local, known)[0]
+        EXPANDED[window] = guimap.window(window, table, local, known)
     return EXPANDED[window]
 
 
@@ -286,9 +279,9 @@ def explanation(address: str, by_address: dict[str, pairing.Harvested],
     ancestor, two hundred of those one single level up. Asking only the unit's own widget reaches
     three per cent of the screen; walking up reaches twenty-two.
 
-    Returns the sentence when it is whole, and the key when it is not - because a tooltip with
-    gaps in it is the game's own sum, and reading a skeleton full of holes is worse than saying
-    that the build-up is missing. Of the 350 that have one, 190 resolve to a sentence and 32 of
+    Returns the sentence when it is whole, and None when it has gaps or no widget up the chain has
+    a tooltip - because a tooltip with gaps in it is the game's own sum, and reading a skeleton
+    full of holes is worse than saying that the build-up is missing. Of the 350 that have one, 190 resolve to a sentence and 32 of
     those have no gap at all; the rest is what taak 10 subtaak f has to rebuild.
 
     **These are harvest numbers and so a floor**: most of that round was opened through the
@@ -301,7 +294,7 @@ def explanation(address: str, by_address: dict[str, pairing.Harvested],
         attrs: dict[str | None, str | None] = dict(source['attrs']) if source else {}
         key = attrs.get('tooltip') or attrs.get('tooltip_text')
         if key:
-            sentence = localization.get(key.strip('"[] '))
+            sentence = localization.get(key)
             if sentence and not GAP.search(sentence):
                 return guimap.strip_style(sentence).strip()
             return None
@@ -539,7 +532,7 @@ def joined(found: list[Unit]) -> list[Unit]:
     return out
 
 
-def sentences(found: list[Unit], window: str | None = None) -> list[Line]:
+def sentences(found: list[Unit], window: str) -> list[Line]:
     """The units as the lines a player hears: each one what it says, and what explains it.
 
     **A line is a pair and not a string, since 20 September 2026.** The explain key needs the
@@ -557,8 +550,8 @@ def sentences(found: list[Unit], window: str | None = None) -> list[Line]:
     tree orders them; one that comes before any row becomes a row itself. A list of one row is that
     row, unless the screen file puts a key on the list - then the announcement carries the key.
     """
-    found = in_order(window, joined(found)) if window else joined(found)
-    rule = screen_rules().get(window) if window else None
+    found = in_order(window, joined(found))
+    rule = screen_rules().get(window)
     keys = rule['keys'] if rule else {}
 
     def row_at(unit: Unit, depth: int) -> str:
@@ -627,16 +620,16 @@ def read(window: str, tables: guimap.Tables | None = None) -> list[Line]:
     A window the harvest could not open has a record without widgets, and that is said rather than
     read as an empty window.
     """
-    with open(os.path.join(HARVEST, window + '.json'), encoding='utf-8') as handle:
+    with open(os.path.join(paths.HARVEST, window + '.json'), encoding='utf-8') as handle:
         loaded = json.load(handle)
-    if not loaded.get('opened'):
+    if not loaded['opened']:
         raise SystemExit(f'{window} was not opened in the harvest, so there is nothing to read')
     record: Harvest = loaded
     width, height = record['size']
     return sentences(units(window, tables or guimap.tables(), record, (width, height)), window)
 
 
-def live(pid: int, window: str | None = None, game: 'windowmap.Game | None' = None,
+def live(pid: int, window: str | None = None, game: windowmap.Game | None = None,
          tables: guimap.Tables | None = None) -> tuple[str | None, list[Line]]:
     """The window that is on top in the running game, as the lines it says.
 
@@ -649,7 +642,7 @@ def live(pid: int, window: str | None = None, game: 'windowmap.Game | None' = No
     seconds - a field check and a walk to the root, and the templates of some six hundred gui files - and
     neither changes while the game runs.
     """
-    from tools.ck3 import openers, windowmap
+    from tools.ck3 import openers
 
     if game is None:
         game = windowmap.Game(pid)
@@ -709,7 +702,7 @@ def main() -> None:
         pid = int(windows[0])
         name, lines = live(pid, windows[1] if len(windows) > 1 else None)
         if name is None:
-            print('no window is drawn; this is the main menu, and that is panels and not windows')
+            print('no window is drawn')
             return
         print(f'{name}, {len(lines)} lines')
         for line in lines:

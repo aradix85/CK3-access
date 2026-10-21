@@ -11,7 +11,6 @@ about them.
 **Read every file as `utf-8-sig`.** Forty-one of them start with a byte order mark right before
 the first line, and a plain `utf-8` read swallows that line without a word.
 """
-import collections
 import os
 import pathlib
 import re
@@ -63,9 +62,10 @@ Tables = tuple[Table, LocalTable, Known, Root]
 
 
 class GuiError(Exception):
-    """Raised where a file does not fit the grammar. Never swallowed: a file this reader cannot
-    read is a hole in the meaning of some window, and a hole that reports itself is worth more
-    than a tree that quietly misses a branch."""
+    """Raised where a file does not fit the grammar. Swallowed nowhere but in
+    `pairing`, where a decision without a gui file of its own is counted as a live widget the files
+    do not describe: a file this reader cannot read is a hole in the meaning of some window, and a
+    hole that reports itself is worth more than a tree that quietly misses a branch."""
 
 
 TOKEN = re.compile(r'''
@@ -297,12 +297,6 @@ class Templates:
 
     def __init__(self, table: Table, local: LocalTable, virtual: str) -> None:
         self.table, self.local, self.virtual = table, local, virtual
-        self.truncated = 0
-        self.nested_tooltips = 0
-        self.unknown_using: collections.Counter[str] = collections.Counter()
-        self.slots_default = self.slots_filled = 0
-        self.used: collections.Counter[str | None] = collections.Counter()
-        self.declared: collections.Counter[str | None] = collections.Counter()
 
     def look_up(self, name: str) -> Definition | None:
         return self.local.get((self.virtual, name)) or self.table.get(name)
@@ -338,12 +332,15 @@ def _inline_using(nodes: list[Entry], templates: Templates, depth: int,
             continue
         name = entry['value']
         found = templates.look_up(name)
+        # **Both cases below are holes, and they are silent.** Measured 21 October 2026 on 1.20.1.2:
+        # a raise here and in `build` stopped five of 282 windows - `era_innov_blockers` is a
+        # `local_template` of cooltip.gui, a form this reader does not take in and a scope it looks
+        # up in the window's file rather than the definition's, in culture_window,
+        # hybridize_culture_window and ledger_window; dynasty_tree_view and struggle_window go past
+        # MAX_DEPTH. Until local scope is read properly they keep the expansion going.
         if found is None:
-            templates.unknown_using[name] += 1
             out.append(entry)
-        elif name in seen or depth >= MAX_DEPTH:
-            templates.truncated += 1
-        else:
+        elif name not in seen and depth < MAX_DEPTH:
             out += _inline_using(found['body'], templates, depth + 1, seen | {name})
     return out
 
@@ -354,7 +351,8 @@ def _fill_blocks(nodes: list[Entry], overrides: Overrides, templates: Templates,
 
     `seen` holds the slots being filled right now. Content written for a slot can declare a slot
     of the same name again, and then filling it means filling it forever - measured on 39 of the
-    196 windows, which ran Python out of stack before anything said why."""
+    196 windows, which ran Python out of stack before anything said why. The engine fills it once,
+    so the repeat is left out."""
     out: list[Entry] = []
     for entry in nodes:
         if entry['key'] == 'blockoverride':
@@ -363,14 +361,8 @@ def _fill_blocks(nodes: list[Entry], overrides: Overrides, templates: Templates,
             out.append(entry)
             continue
         if entry['arg'] in seen:
-            templates.truncated += 1
             continue
         replacement = overrides.get(entry['arg'])
-        if replacement is None:
-            templates.slots_default += 1
-        else:
-            templates.slots_filled += 1
-            templates.used[entry['arg']] += 1
         content = replacement if replacement is not None else (entry['body'] or [])
         content = _inline_using(content, templates, depth, frozenset())
         out += _fill_blocks(content, overrides, templates, depth + 1, seen | {entry['arg']})
@@ -392,11 +384,10 @@ def build(key: str | None, body: list[Entry], templates: Templates, overrides: O
     engine builds a tooltip only when the pointer arrives, so on disk the definition is allowed to
     be circular. Expanding it anyway turned one window into three and a half million nodes.
 
-    A widget deeper than MAX_DEPTH stops and says so through `templates.truncated`, because a
-    boundary that gives up silently makes "this is not in the file" untrustworthy.
+    A widget deeper than MAX_DEPTH is cut off and marked `truncated`; see `_inline_using` for the
+    two windows where that happens and why it is still silent.
     """
     if depth >= MAX_DEPTH:
-        templates.truncated += 1
         return {'type': key, 'attrs': [], 'children': [], 'truncated': True}
 
     nodes: list[Entry] = []
@@ -409,7 +400,6 @@ def build(key: str | None, body: list[Entry], templates: Templates, overrides: O
     for entry in nodes:
         if entry['key'] == 'blockoverride':
             effective[entry['arg']] = entry['body'] or []
-            templates.declared[entry['arg']] += 1
     flat = _fill_blocks(nodes, effective, templates, depth)
 
     node: Node = {'type': key, 'attrs': [], 'children': [], 'truncated': False}
@@ -417,7 +407,7 @@ def build(key: str | None, body: list[Entry], templates: Templates, overrides: O
         if entry['body'] is None:
             node['attrs'].append((entry['key'], entry['value']))
         elif entry['key'] == 'tooltipwidget' and in_tooltip:
-            templates.nested_tooltips += 1
+            continue
         else:
             node['children'].append(build(entry['key'], entry['body'], templates, effective,
                                           depth + 1,
@@ -532,8 +522,8 @@ def tables() -> Tables:
 
 
 def window(name: str, table: Table | None = None, local: LocalTable | None = None,
-           known: Known | None = None) -> tuple[Node, Templates]:
-    """A window resolved into a widget tree, with a Templates carrying what went wrong.
+           known: Known | None = None) -> Node:
+    """A window resolved into a widget tree. A file that does not fit the grammar raises GuiError.
 
     **Build it under the key the block was written with, not under `window`.** A window declared
     through a type of its own inherits everything it is made of from that type, and building it as
@@ -555,15 +545,14 @@ def window(name: str, table: Table | None = None, local: LocalTable | None = Non
     if name not in known:
         raise GuiError(f'no window named {name!r} on disk')
     virtual, entry = known[name]
-    templates = Templates(table, local, virtual)
-    return build(entry['key'], entry['body'] or [], templates), templates
+    return build(entry['key'], entry['body'] or [], Templates(table, local, virtual))
 
 
 DECISION_WIDGETS = 'gui/decision_view_widgets/'
 
 
 def decision_widget(name: str, table: Table | None = None, local: LocalTable | None = None,
-                    rows: list[Row] | None = None) -> tuple[Node, Templates]:
+                    rows: list[Row] | None = None) -> Node:
     """The own gui of a decision, resolved into a widget tree like a window.
 
     A decision can name a gui file of its own with `widget = { gui = "..." }` in common\\decisions,
@@ -584,8 +573,7 @@ def decision_widget(name: str, table: Table | None = None, local: LocalTable | N
     for entry in read(full):
         if entry['body'] and any(inner['key'] == 'name' and inner['value'] == name
                                  for inner in entry['body']):
-            templates = Templates(table, local, virtual)
-            return build(entry['key'], entry['body'], templates), templates
+            return build(entry['key'], entry['body'], Templates(table, local, virtual))
     raise GuiError(f'{virtual} has no block named {name!r}')
 
 

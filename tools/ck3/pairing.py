@@ -22,8 +22,6 @@ from typing import NotRequired, TypedDict
 from tools import paths
 from tools.ck3 import derive, guimap
 
-HARVEST = os.path.join(paths.PROJECT, 'harvest')
-
 # One widget as the harvest writes it (`harvest.widget_record`): addresses in hex, rectangles as
 # x, y, width, height. `state` is missing from every widget harvested before 20 September 2026,
 # when it was still called `window_flag` and read for window objects only.
@@ -191,10 +189,10 @@ def pairs(window: str, table: guimap.Table, local: guimap.LocalTable, known: gui
     silently misses.
     """
     if record is None:
-        record = json.loads(pathlib.Path(os.path.join(HARVEST, window + '.json')).read_text(encoding='utf-8'))
+        record = json.loads(pathlib.Path(os.path.join(paths.HARVEST, window + '.json')).read_text(encoding='utf-8'))
     by_parent, top = live_tree(record)
     if disk_tree is None:
-        disk_tree, _ = guimap.window(window, table, local, known)
+        disk_tree = guimap.window(window, table, local, known)
 
     out: list[Paired] = []
     work: list[Paired] = [(disk_tree, top, ())]
@@ -229,7 +227,7 @@ def _decision_widget(name: str, table: guimap.Table, local: guimap.LocalTable) -
     name, because expanding means walking the file list, and a reader reads this window often."""
     if name not in _decision_widgets:
         try:
-            _decision_widgets[name] = guimap.decision_widget(name, table, local)[0]
+            _decision_widgets[name] = guimap.decision_widget(name, table, local)
         except guimap.GuiError:
             _decision_widgets[name] = None
     return _decision_widgets[name]
@@ -322,7 +320,7 @@ def sweep() -> tuple[collections.Counter[str], collections.Counter[str], collect
     count: collections.Counter[str] = collections.Counter()
     functions: collections.Counter[str] = collections.Counter()
     unplaced: collections.Counter[str] = collections.Counter()
-    for record_path in sorted(glob.glob(os.path.join(HARVEST, '*.json'))):
+    for record_path in sorted(glob.glob(os.path.join(paths.HARVEST, '*.json'))):
         window = os.path.basename(record_path)[:-5]
         record = json.loads(pathlib.Path(record_path).read_text(encoding='utf-8'))
         if not record.get('opened') or window not in known:

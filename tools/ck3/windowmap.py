@@ -28,7 +28,7 @@ from collections.abc import Callable
 from typing import TypedDict
 
 from tools import paths, terminal
-from tools.ck3 import channel, derive, memory, vtablemap
+from tools.ck3 import channel, derive, guimap, memory, vtablemap
 
 OUT = os.path.join(paths.REPORTS, 'windows.json')
 # The keys a round presses on a bare screen. The F row, plus every binding in shortcuts.shortcuts
@@ -83,7 +83,6 @@ class Binding(TypedDict):
     """One shortcut a widget declares, filed under the window it sits in (`window_bindings`)."""
     binding: str
     keys: str | None
-    widget: str | None
     calls: list[str]
     view_only: bool
 
@@ -98,8 +97,8 @@ class OnDisk(TypedDict):
 class Route(TypedDict, total=False):
     """One window of `reports\\windows.json`, or a click route that `harvest.click_routes` builds
     from `reports\\openers.json`: what `harvest.open_window` and `close_window` go by. Phase 0 writes
-    the declaration, the shortcut and the console round; a click route carries the button, the
-    point it was found at, and the window to open first with the key that opens it."""
+    the declaration, the shortcut and the console round; a click route carries the button and the
+    window to open first with the key that opens it."""
     file: str | None
     shape: str
     console: bool
@@ -111,7 +110,7 @@ class Route(TypedDict, total=False):
     nodes_added: int
     seconds: float
     reason: str
-    click: list[int] | bool
+    click: bool
     button: str
     first: tuple[str, str]
 
@@ -147,7 +146,6 @@ def window_bindings() -> dict[str, list[Binding]]:
     Every row says `view_only`: True when every onclick of the widget is a call `VIEW_ONLY` lets
     through, so a round can press it without changing the game.
     """
-    from tools.ck3 import guimap
     bound = shortcut_file()
     table, local, known, _root = guimap.tables()
     out: collections.defaultdict[str, list[Binding]] = collections.defaultdict(list)
@@ -155,22 +153,20 @@ def window_bindings() -> dict[str, list[Binding]]:
     def walk(node: guimap.Node, window: str, top: bool) -> None:
         if node['type'] == 'tooltipwidget':
             return
-        names = [v.strip('"') for k, v in node['attrs'] if k == 'name' and v is not None]
+        names = [v for k, v in node['attrs'] if k == 'name' and v is not None]
         if names and names[0] in known and not top:
             window = names[0]
         clicks = [v for k, v in node['attrs'] if k == 'onclick' and v is not None]
-        calls = [m.group(1) for m in (re.match(r'\s*"?\[\s*([A-Za-z_][\w.]*)', c) for c in clicks) if m]
+        calls = [m.group(1) for m in (re.match(r'\s*\[\s*([A-Za-z_][\w.]*)', c) for c in clicks) if m]
         for key, value in node['attrs']:
             if key == 'shortcut' and value is not None:
-                binding = value.strip('"')
-                out[window].append({'binding': binding, 'keys': bound.get(binding),
-                                    'widget': names[0] if names else None, 'calls': calls,
+                out[window].append({'binding': value, 'keys': bound.get(value), 'calls': calls,
                                     'view_only': bool(calls) and all(VIEW_ONLY.match(c) for c in calls)})
         for child in node['children']:
             walk(child, window, False)
 
     for window in sorted(known):
-        tree, _ = guimap.window(window, table, local, known)
+        tree = guimap.window(window, table, local, known)
         walk(tree, window, True)
     return dict(out)
 
@@ -326,16 +322,16 @@ def window_keys_round(game: 'Game', names: list[str]) -> dict[str, str | list[tu
 
 def modified_keys() -> dict[str, tuple[str, list[int], int]]:
     """Binding -> (spelling, modifier keys, key) for every name in `MODIFIED`, as the file binds it."""
-    from tools.ck3 import modifiers
     bound = shortcut_file()
     out = {}
     for name in MODIFIED:
         *held, key = bound[name].lower().split('+')
-        code = 0x6F + int(key[1:]) if re.fullmatch(r'f\d{1,2}', key) else ord(key.upper())
-        out[name] = ('+'.join(held + [key.upper()]), [modifiers.MODIFIERS[m] for m in held], code)
+        out[name] = ('+'.join(held + [key.upper()]), [MODIFIERS[m] for m in held], key_of(key))
     return out
 
 
+# The modifiers `combo` holds, by the name the shortcut file gives them: the left-hand keys.
+MODIFIERS = {'shift': 0xA0, 'ctrl': 0xA2, 'alt': 0xA4}
 # Keys the shortcut file spells by name, as virtual keys. A letter, a digit and F1 to F24 follow
 # from their spelling; these do not.
 NAMED_KEYS = {'TAB': 9, 'BACKSPACE': 8, 'RETURN': 13, 'ESCAPE': 27, 'SPACE': 32, 'HOME': 36,
@@ -361,11 +357,10 @@ def press(spelling: str) -> None:
     posted key alone carries no modifier state. Since 2 October 2026 the map carries six windows
     whose only key is a combination, and pressing those as a plain key was a lookup that failed.
     """
-    from tools.ck3 import modifiers
     *held, key = spelling.lower().split('+')
     code = key_of(key)
     if held:
-        channel.ask(f"combo {int(COMBO_PAUSE)} {' '.join(str(c) for c in [modifiers.MODIFIERS[m] for m in held] + [code])}")
+        channel.ask(f"combo {int(COMBO_PAUSE)} {' '.join(str(c) for c in [MODIFIERS[m] for m in held] + [code])}")
     else:
         channel.ask(f'sendkey {int(code)}')
 
@@ -393,7 +388,6 @@ def windows_on_disk() -> dict[str, OnDisk]:
     find description", without it the window comes up. `guimap` already hands over that virtual
     path, so nothing has to be stripped here.
     """
-    from tools.ck3 import guimap
 
     def name_of(entry: guimap.Entry) -> str | None:
         return next((inner['value'] for inner in entry['body'] or [] if inner['key'] == 'name'), None)
@@ -480,10 +474,7 @@ class Game:
         The writing test first did this with a full tree walk, and at 83,000 nodes that cost over
         two seconds per attempt, four times per window. This way it is one read.
         """
-        chunk = derive.read(address, derive.CHUNK)
-        if chunk is None:
-            return ''
-        return derive._cstring(chunk, self.fields['text']) or ''
+        return derive._cstring(derive.read_known(address, derive.CHUNK), self.fields['text']) or ''
 
     def set_console(self, on: bool, nodes: derive.Nodes | None = None) -> derive.Nodes:
         """Open or close the console, and prove it with the flag byte before typing anything.
@@ -693,7 +684,6 @@ def unmapped(pid: int, game: Game | None = None) -> tuple[list[str], collections
     Returns (missing, live names, names the map has that this state did not build). That third one
     is not a fault: a window for another government or another era simply is not there.
     """
-    from tools.ck3 import guimap
     game = game or Game(pid)
     nodes = game.tree()
     live = collections.Counter(node[6] for node in nodes.values()
@@ -791,8 +781,8 @@ def main() -> None:
         elif not row['console']:
             # Not a failure and not written down as one: the route does not exist for this shape.
             out['created'] = None
-            out['reason'] = ('declared as a {}, so GUI.CreateWidget cannot find it - '
-                             'it looks only at the top level of a file'.format(row['shape']))
+            out['reason'] = ('declared as a {} inside a types block, where GUI.CreateWidget '
+                             'does not look'.format(row['shape']))
         mapped[name] = out
     result: WindowMap = {'measured': time.strftime('%Y-%m-%d %H:%M'), 'exe': derive.build_key(), 'windows': mapped}
     target = os.path.abspath(OUT if not (chosen or limit) else os.path.join(paths.WORK, 'windows_trial.json'))
