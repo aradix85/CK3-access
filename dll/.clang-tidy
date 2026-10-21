@@ -1,4 +1,4 @@
-# The checks tests/test_channel.py runs on channel.cpp, and every finding fails it. Nothing is
+# The checks tests/test_channel.py runs on the DLL's sources, and every finding fails it. Nothing is
 # switched off here: an exception is made on the line it concerns, with its reason beside it.
 #
 # Beyond the analyzer, bugprone and performance, the maintainer's rules for code (21 October
@@ -31,3 +31,5 @@ ExtraArgs:
   - -Wunused-member-function
   - -Wunused-template
 WarningsAsErrors: '*'
+# The header the two sources share is checked with them.
+HeaderFilterRegex: 'channel\.h'

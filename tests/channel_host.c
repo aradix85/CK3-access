@@ -63,6 +63,7 @@ int main(int argc, char** argv)
     *(u64*)combined = 0x1111;
     memcpy(combined + 8, "WCWC", 4);
     for (int i = 0; i < 300; i++) memcpy(many + 4 * i, "CK3!", 4);
+    memcpy(many + 4096 - 4, "END!", 4);                         // a match that ends with the region
     memset(long_text, 'x', sizeof(long_text));
 
     unsigned char* A = widget(page + 0x000, 0x1111, "root", 0);

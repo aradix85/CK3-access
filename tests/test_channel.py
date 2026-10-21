@@ -89,7 +89,8 @@ def host(request: pytest.FixtureRequest, tmp_path_factory: pytest.TempPathFactor
     if request.param == 'asan':
         dll = str(work / 'channel.dll')
         sanitize = '/Zi /fsanitize=address'
-        lines += ['cl /nologo /Od {} /LD "{}" user32.lib /Fe:channel.dll || exit /b 1'.format(sanitize, os.path.join(ROOT, 'dll', 'channel.cpp')),
+        sources = ' '.join(f'"{os.path.join(ROOT, "dll", name)}"' for name in ('channel.cpp', 'input.cpp'))
+        lines += [f'cl /nologo /Od {sanitize} /LD {sources} user32.lib /Fe:channel.dll || exit /b 1',
                   'copy /y "%VCToolsInstallDir%bin\\Hostx64\\x64\\clang_rt.asan_dynamic-x86_64.dll" . || exit /b 1']
     lines.append(f'cl /nologo /Od {sanitize} "{SOURCE}" user32.lib /Fe:host.exe || exit /b 1')
     (work / 'build.bat').write_text('\r\n'.join(lines) + '\r\n')
@@ -205,8 +206,7 @@ def test_every_command(host: Host) -> None:
           and 'not widgets\t1' in ls and ls[-1] == 'done\t7' and not any(line.startswith('error') for line in ls))
     check('tree ' + h(A), 'the fields of one widget', lambda ls: any(
         row[1:] == [h(B), '1111', '1.0', '2.0', '3.0', '4.0', h(A), 'child', 'Hello'] for row in kind(ls, 'w')))
-    check(f'tree {h(A)} 2', 'a limit says so', lambda ls: any(line.startswith('limit hit\t') for line in ls))
-    check(f'tree {h(A)} 2 x', 'refused', refused)
+    check(f'tree {h(A)} 2', 'refused', refused)
     check(f'scan {h(PAGE)} {h(PAGE + 4096)}', 'up to the last eight bytes of a region',
           lambda ls: addresses(ls, 'w') == {A, B, E, F, G, PAGE + 4088} and ls[-1] == 'done\t6\tskipped\t0')
     check('scan 1', 'refused', refused)
@@ -255,8 +255,12 @@ def test_every_command(host: Host) -> None:
           lambda ls: [row[1] for row in kind(ls, 't')] == [h(A + 0x20)])
     check(f'findin {h(MANY)} {h(MANY + 4096)} 43 4b 33 21', 'more than 200 hits is an error',
           lambda ls: len(kind(ls, 't')) == 200 and error('300 hits and only the first 200')(ls))
+    check(f'findin {h(MANY)} {h(MANY + 4096)} 45 4e 44 21', 'a match that ends with the stretch',
+          lambda ls: [row[1] for row in kind(ls, 't')] == [h(MANY + 4092)])
+    check(f'findin {h(MANY)} {h(MANY + 65536)} 45 4e 44 21', 'a match that ends with the region',
+          lambda ls: [row[1] for row in kind(ls, 't')] == [h(MANY + 4092)])
     check(f'findin {h(PAGE)} {h(PAGE + 64)} 43 4', 'one hex digit refused', error('not a hex byte'))
-    check('find ?? 4b', 'a wildcard first refused', error('first byte cannot be a wildcard'))
+    check('find ?? 4b', 'no wildcard', error('not a hex byte'))
 
     arrives('sendkey 112', ['key sent\t112'], ['down 70 0 0 0 0', 'up 70 0 0 0 0'])
     arrives('combo 50 160 112', ['combo sent\t160\t112'],
@@ -280,9 +284,11 @@ def test_every_command(host: Host) -> None:
         arrives(command, error(text), [])
     check('combo', 'refused', refused)
     arrives('sendchar 65', ['char sent\t65'], [])
-    arrives('mouse 5 5 0', ['mouse\t5\t5\t0'], [])
+    arrives('mouse 5 5', ['mouse\t5\t5'], [])
+    check('mouse 32768 5', 'a point past 16 bits refused', error('the point 32768 5 does not fit'))
+    check('sendkey 300', 'not a virtual key', error('key code 300'))
     check('keys on', 'hooks the window', lambda ls: ls == ['keys on'])
-    for command in ('sendkey 112 4', 'mouse 5 5', 'waitkey 10 5'):
+    for command in ('sendkey 112 4', 'mouse 5 5 1', 'waitkey 10 5'):
         check(command, 'refused', refused)
     check('swallow 38 40', 'two keys', lambda ls: ls == ['swallow\t2'])
     check('swallow 300', 'not a virtual key', error('key code 300'))
@@ -291,19 +297,18 @@ def test_every_command(host: Host) -> None:
     check('waitkey 10', 'nothing pressed', lambda ls: ls == [])
     check('keys off', 'puts the window back', lambda ls: ls == ['keys off'])
     check('keys off', 'unchanged', lambda ls: ls == ['keys unchanged'])
-    for command in ('childfield f0 fc', f'call {h(A)} 0', 'waitchange 1', 'count on'):
-        check(command, 'removed, so refused', refused)
 
     # A number is digits only, and fits its field. Measured on the sscanf reader, 3 October 2026: a
     # minus came out as the number counted down from the top (`sendkey -1` sent key 4294967295), and
     # a key code too big for 32 bits wrapped round silently - `combo 50 160 4294967408` sent shift+F1.
     for command in ('sendkey -1', 'sendkey +1', 'sendkey 4294967296', f'read {h(PAGE)} -8',
-                    'tree 1' + '0' * 16, 'mouse -5 5 0'):
+                    'tree 1' + '0' * 16, 'mouse -5 5'):
         check(command, 'refused', refused)
     check('swallow 38 -40', 'a sign refused', error('not a key code'))
     check('vtables 1 -2', 'a sign refused', error('not a vtable address'))
     check('combo 50 160 4294967408', 'too big for 32 bits', error('not a key code'))
-    check('find  ?? 4b', 'blanks before the pattern', error('first byte cannot be a wildcard'))
+    check(f'findin {h(PAGE)} {h(PAGE + 0x80)}   72 6f 6f 74', 'blanks before the pattern',
+          lambda ls: [row[1] for row in kind(ls, 't')] == [h(A + 0x20)])
 
     done.set()
     watcher.join()
@@ -342,9 +347,10 @@ def clang_tidy() -> str | None:
 
 
 def test_clang_tidy_finds_nothing() -> None:
-    """The checks in `dll\\.clang-tidy`, each finding an error; the MSVC analysis runs in the build."""
+    """The checks in `dll\\.clang-tidy` on both sources and their header, each finding an error; the
+    MSVC analysis runs in the build."""
     if not clang_tidy() or not msvc():
         missing('clang-tidy or MSVC is not installed')
-    done = subprocess.run(f'call "{VCVARS}" && "{clang_tidy()}" channel.cpp --quiet -- --driver-mode=cl /EHsc', shell=True, capture_output=True, check=False, text=True,
+    done = subprocess.run(f'call "{VCVARS}" && "{clang_tidy()}" channel.cpp input.cpp --quiet -- --driver-mode=cl /EHsc', shell=True, capture_output=True, check=False, text=True,
                           cwd=os.path.join(ROOT, 'dll'))
     assert done.returncode == 0, done.stdout + done.stderr

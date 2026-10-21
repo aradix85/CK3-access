@@ -635,7 +635,7 @@ def press(address: int, nodes: derive.Nodes, scales: derive.Scales, classes: dic
     if row is not None:
         row['point'] = [click_x, click_y]
         row['box'] = [round(x), round(y), round(width), round(height)]
-    channel.ask(f'mouse {int(click_x)} {int(click_y)} 1')
+    channel.ask(f'mouse {int(click_x)} {int(click_y)}')
     return None
 
 
@@ -880,7 +880,7 @@ def chain(pid: int, window: str, target: str, press_it: bool = True) -> list[Spo
         return spots
     spot, point = usable[0]
     print(f"pressing {spot['address']:x} at {int(point[0])},{int(point[1])}")
-    channel.ask(f'mouse {int(point[0])} {int(point[1])} 1')
+    channel.ask(f'mouse {int(point[0])} {int(point[1])}')
     for _ in range(6):
         time.sleep(SETTLE)
         _, _, drawn = game.state()

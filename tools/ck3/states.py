@@ -167,7 +167,7 @@ def _click_text(pid: int, wanted: str, tries: int) -> None:
     for _ in range(tries):
         for x, y, w, h, text in _screen(pid):
             if text.strip() == wanted:
-                channel.ask(f'mouse {int(x + w // 2)} {int(y + h // 2)} 1')
+                channel.ask(f'mouse {int(x + w // 2)} {int(y + h // 2)}')
                 return
         time.sleep(10)
     raise SystemExit(f'never saw {wanted!r} on the screen')

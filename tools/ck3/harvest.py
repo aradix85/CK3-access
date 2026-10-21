@@ -586,7 +586,7 @@ def chain_step(game: windowmap.Game, route: 'openers.ChainRoute', source: str,
             return None, (refused if close_window(game, back, baseline)
                           else 'state did not come back')
     else:
-        channel.ask(f'mouse {int(point[0])} {int(point[1])} 1')
+        channel.ask(f'mouse {int(point[0])} {int(point[1])}')
     opened: set[str] = set()
     for _ in range(6):
         time.sleep(1.0)

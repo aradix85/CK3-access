@@ -522,7 +522,7 @@ class Game:
             b, h = derive.screen_size(nodes, field, scales)
             self.pos = (int(x + b / 2), int(y + h / 2))
         click_x, click_y = self.pos
-        channel.ask(f'mouse {int(click_x)} {int(click_y)} 1')
+        channel.ask(f'mouse {int(click_x)} {int(click_y)}')
         time.sleep(0.4)
         channel.ask(f"sendchar {ord('#')}")
         time.sleep(0.4)

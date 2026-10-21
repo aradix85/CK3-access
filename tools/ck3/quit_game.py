@@ -66,7 +66,7 @@ def press(nodes: derive.Nodes, scales: derive.Scales, classes: dict[int, str | N
         if reason is None:
             x, y = derive.screen_pos(nodes, address, scales)
             width, height = derive.screen_size(nodes, address, scales)
-            channel.ask(f'mouse {int(x + width / 2)} {int(y + height / 2)} 1')
+            channel.ask(f'mouse {int(x + width / 2)} {int(y + height / 2)}')
             return None
         refused.append(reason)
     return f"{name} is in the tree {len(found)} time(s) and none of them can be clicked: {', '.join(sorted(set(refused)))}"
