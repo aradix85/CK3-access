@@ -12,9 +12,9 @@ seconds, a restart takes minutes. Skipped without a built DLL or a compiler, and
 runs, because both answer on the same pipe name.
 """
 import ctypes
+import functools
 import os
 import pathlib
-import re
 import subprocess
 import threading
 import time
@@ -34,6 +34,8 @@ Prediction = Callable[[list[str]], bool]
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 DLL = os.path.join(ROOT, 'dll', 'channel.dll')
+# Sets up MSVC, found through vswhere; the build calls the same script, so the derivation lives once.
+VCVARS = os.path.join(ROOT, 'dll', 'vcvars.bat')
 SOURCE = os.path.join(ROOT, 'tests', 'channel_host.c')
 # On the maintainer's machine a missing tool fails the run instead of skipping it: a green run must not
 # hide a check that never ran (her decision, 3 October 2026). The marker `.tools-required` is kept out
@@ -64,11 +66,10 @@ def physical_modifiers() -> set[str]:
     return {name for vk, name in PHYSICAL.items() if ctypes.windll.user32.GetAsyncKeyState(vk) & 0x8000}
 
 
-def vcvars() -> str | None:
-    """The compiler setup that `dll\\build_channel.bat` uses, so its path lives in one place."""
-    with open(os.path.join(ROOT, 'dll', 'build_channel.bat'), encoding='utf-8') as file:
-        found = re.search(r'call "([^"]+vcvars64\.bat)"', file.read())
-    return found.group(1) if found and os.path.exists(found.group(1)) else None
+@functools.cache
+def msvc() -> bool:
+    """Does `dll\\vcvars.bat` find a compiler? Asked once: setting it up takes seconds."""
+    return subprocess.run(['cmd', '/c', VCVARS], capture_output=True, check=False).returncode == 0
 
 
 @pytest.fixture(scope='module', params=['plain', 'asan'])
@@ -77,13 +78,13 @@ def host(request: pytest.FixtureRequest, tmp_path_factory: pytest.TempPathFactor
     AddressSanitizer around both, which aborts the target and says so on the first bad access."""
     if not os.path.exists(DLL):
         missing('dll\\channel.dll is not built')
-    if not vcvars():
+    if not msvc():
         missing('no MSVC to build the target with')
     if channel.alive():
         pytest.skip('the game is running, and it answers on the same pipe')
     work = tmp_path_factory.mktemp(request.param)
     dll = DLL
-    lines = ['@echo off', f'call "{vcvars()}" >nul']
+    lines = ['@echo off', f'call "{VCVARS}" || exit /b 1']
     sanitize = ''
     if request.param == 'asan':
         dll = str(work / 'channel.dll')
@@ -338,8 +339,8 @@ def clang_tidy() -> str | None:
 
 def test_clang_tidy_finds_nothing() -> None:
     """The checks in `dll\\.clang-tidy`, each finding an error; the MSVC analysis runs in the build."""
-    if not clang_tidy() or not vcvars():
+    if not clang_tidy() or not msvc():
         missing('clang-tidy or MSVC is not installed')
-    done = subprocess.run(f'call "{vcvars()}" >nul && "{clang_tidy()}" channel.cpp --quiet -- --driver-mode=cl /EHsc', shell=True, capture_output=True, check=False, text=True,
+    done = subprocess.run(f'call "{VCVARS}" && "{clang_tidy()}" channel.cpp --quiet -- --driver-mode=cl /EHsc', shell=True, capture_output=True, check=False, text=True,
                           cwd=os.path.join(ROOT, 'dll'))
     assert done.returncode == 0, done.stdout + done.stderr
