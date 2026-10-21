@@ -121,8 +121,7 @@ def _preprocess(cut: Image.Image, width: int) -> NDArray[numpy.float32]:
     return canvas[None]
 
 
-def read_box_conf(screenshot: Image.Image, x: int, y: int, width: int, height: int,
-                  margin: int = 0) -> tuple[str, float]:
+def read_box_conf(screenshot: Image.Image, x: int, y: int, width: int, height: int) -> tuple[str, float]:
     """Returns (text, confidence) of one box.
 
     The confidence is the mean of the highest probability per accepted character. It comes free
@@ -130,15 +129,14 @@ def read_box_conf(screenshot: Image.Image, x: int, y: int, width: int, height: i
     yields the pixels of another window reads itself wrong with high confidence, while a hard box
     comes out below 0.7. Use it as a filter, not as truth.
 
-    `margin` is 0 and that is measured, 29 July 2026, over 40 boxes that the screen reader
-    confirmed independently: 36 correct at margin 0, 34 at 2, 4 and 6, 27 at 8, 21 at 10. A margin
-    pulls in the neighbouring character - at margin 6 a `6` was read as `16`. The widget rectangle
-    is the text frame; nothing needs to be added.
+    No margin around the box, and that is measured, 29 July 2026, over 40 boxes that the screen
+    reader confirmed independently: 36 correct at margin 0, 34 at 2, 4 and 6, 27 at 8, 21 at 10. A
+    margin pulls in the neighbouring character - at margin 6 a `6` was read as `16`. The widget
+    rectangle is the text frame; nothing needs to be added.
     """
     if _core is None:
         warm_up()
-    cut = screenshot.convert('RGB').crop((max(0, x - margin), max(0, y - margin),
-                                      x + width + margin, y + height + margin))
+    cut = screenshot.convert('RGB').crop((max(0, x), max(0, y), x + width, y + height))
     scaled = cut.width * HEIGHT / cut.height
     box = BOX * int(numpy.ceil(scaled / BOX))
     output = next(iter(_request_for(box).infer([_preprocess(cut, box)]).values()))

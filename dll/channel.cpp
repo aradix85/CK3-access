@@ -24,9 +24,11 @@ static bool g_fields_set = false;
 static unsigned long long g_vtables[256];   // sorted, for binary search
 static int g_vtable_count = 0;
 
-// Page protections worth reading. Windows defines them as plain ints; these are the bit patterns.
+// Page protections. Windows defines them as plain ints; these are the bit patterns. READABLE is the
+// one definition of a page that may be read; WRITABLE is where scan looks for objects the game made.
 static const DWORD WRITABLE = DWORD{PAGE_READWRITE} | DWORD{PAGE_WRITECOPY};
-static const DWORD READABLE = WRITABLE | DWORD{PAGE_READONLY} | DWORD{PAGE_EXECUTE_READ};
+static const DWORD READABLE = WRITABLE | DWORD{PAGE_READONLY} | DWORD{PAGE_EXECUTE_READ} |
+                              DWORD{PAGE_EXECUTE_READWRITE} | DWORD{PAGE_EXECUTE_WRITECOPY};
 
 // --- the DLL's own stacks -----------------------------------------------------
 // A search through the game's memory must not find the DLL itself, and every session leaves what it
@@ -185,23 +187,9 @@ static bool readable(const void* address, SIZE_T count)
     if (!VirtualQuery(address, &info, sizeof(info))) return false;
     if (info.State != MEM_COMMIT) return false;
     if (info.Protect & PAGE_GUARD) return false;
-    const DWORD allowed = PAGE_READONLY | PAGE_READWRITE | PAGE_WRITECOPY |
-                      PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY;
-    if (!(info.Protect & allowed)) return false;
+    if (!(info.Protect & READABLE)) return false;
     const char* end_of = (const char*)info.BaseAddress + info.RegionSize;
     return (const char*)address + count <= end_of;
-}
-
-static unsigned long long read64(const void* address)
-{
-    if (!readable(address, 8)) return 0;
-    return *(const unsigned long long*)address;
-}
-
-static float read_float(const void* address)
-{
-    if (!readable(address, 4)) return 0.0f;
-    return *(const float*)address;
 }
 
 // MSVC string: 16 bytes of buffer or pointer, then length, then capacity.
@@ -320,20 +308,28 @@ static void cmd_scan(Span span)
 
 // tree: from a widget, walk the children, and their children, and so on - following pointers,
 // searching nothing. Whatever the walk loses it says on one kind of line, `missing <address> <why>`,
-// and derive.widgets speaks every one of them.
-static void emit_widget(const unsigned char* p, char* name, char* text, size_t space_name, size_t space_text)
+// and widgettree.widgets speaks every one of them.
+// A widget whose parent, position or size cannot be read is such a loss, not a widget at 0,0 under
+// no parent: a zero read for an unreadable field looks exactly like a measurement.
+static bool emit_widget(const unsigned char* p, char* name, char* text, size_t space_name, size_t space_text)
 {
+    if (!readable(p + f_parent, 8) || !readable(p + f_position, 8) || !readable(p + f_size, 8)) {
+        emit("missing\t%llx\tparent, position or size unreadable\n", (unsigned long long)p);
+        return false;
+    }
     size_t name_length = read_cstring(name, space_name, p, f_name);
     size_t text_length = read_cstring(text, space_text, p, f_text);
+    const float* position = (const float*)(p + f_position);
+    const float* size = (const float*)(p + f_size);
     emit("w\t%llx\t%llx\t%.1f\t%.1f\t%.1f\t%.1f\t%llx\t%s\t%s\n",
             (unsigned long long)p, *(const unsigned long long*)p,
-            read_float(p + f_position), read_float(p + f_position + 4),
-            read_float(p + f_size), read_float(p + f_size + 4),
-            read64(p + f_parent), name, text);
+            position[0], position[1], size[0], size[1],
+            *(const unsigned long long*)(p + f_parent), name, text);
     if (name_length >= space_name)
         emit("missing\t%llx\tname of %zu characters cut short\n", (unsigned long long)p, name_length);
     if (text_length >= space_text)
         emit("missing\t%llx\ttext of %zu characters cut short\n", (unsigned long long)p, text_length);
+    return true;
 }
 
 static void cmd_tree(const unsigned char* root)
@@ -356,7 +352,7 @@ static void cmd_tree(const unsigned char* root)
             if (!readable(p, 8)) { emit("missing\t%llx\tunreadable\n", (unsigned long long)p); continue; }
             // A root that is no widget is how derive.to_root finds the top, so only children count.
             if (!is_widget(*(const unsigned long long*)p)) { if (done > 1) foreign++; continue; }
-            emit_widget(p, name, text, sizeof(name), sizeof(text));
+            if (!emit_widget(p, name, text, sizeof(name), sizeof(text))) continue;
 
             // An object cut off by a page before its child fields would read as "no children".
             if (!readable(p + f_children, 8) || !readable(p + f_count, 4)) {

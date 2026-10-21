@@ -46,12 +46,10 @@ from typing import NotRequired, TypedDict
 from tools import paths, terminal
 from tools.ck3 import (
     channel,
-    derive,
     guimap,
     harvest,
     onscreen,
     pairing,
-    vtablemap,
     widgettree,
     windowmap,
 )
@@ -464,14 +462,14 @@ def lands_on(buttons: list[Clickable], point: tuple[int, int]) -> pairing.Harves
     return best
 
 
-def reachable_point(buttons: list[Clickable], widget_address: int, rect: list[float],
-                    step: int = 6) -> tuple[int, int] | None:
+def reachable_point(buttons: list[Clickable], widget_address: int, rect: list[float]) -> tuple[int, int] | None:
     """A point on this widget that a click really reaches, or None if it is covered everywhere.
 
     The middle of a widget is the obvious place to click and it is often the wrong one, so this
     walks the rectangle instead of trusting its centre. The step is small because the gaps between
     the buttons a row is tiled with are small.
     """
+    step: int = 6
     x, y, width, height = rect
     for offset_y in range(2, int(height) - 1, step):
         for offset_x in range(2, int(width) - 1, step):
@@ -722,10 +720,6 @@ def main() -> None:
     if len(sys.argv) < 2:
         raise SystemExit(USAGE)
     pid = int(sys.argv[1])
-    vtablemap.configure(pid)
-    fields, why = derive.fields_for(pid)
-    derive.configure_channel(fields)
-    onscreen.use_fields(fields.get('alpha'), fields.get('flag'))
     game = windowmap.Game(pid)
     global game_classes
     game_classes = game.window_classes
@@ -748,7 +742,7 @@ def main() -> None:
         raise SystemExit('these are open before the round starts: {}. Close them first, or every '
                          'window this round sees will be attributed to a click that did not open it'.format(', '.join(sorted(baseline))))
     date = game_date(nodes)
-    print(f'{len(rows)} buttons on disk open nothing but a view; fields {why}, date {date}, free memory {free_memory():.1f} GB')
+    print(f'{len(rows)} buttons on disk open nothing but a view; fields {game.why}, date {date}, free memory {free_memory():.1f} GB')
 
     by_name: dict[str, list[int]] = {}
     for address, k in nodes.items():

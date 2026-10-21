@@ -21,7 +21,7 @@ import sys
 import time
 
 from tools import paths
-from tools.ck3 import channel, derive, onscreen, openers, vtablemap, widgettree
+from tools.ck3 import channel, derive, onscreen, openers, widgettree
 
 PAUSE_MENU, CONFIRMATION = 'ingame_pausemenu', 'ingame_resign_confirmation'
 # The game's own yes-or-no dialog, in shared/dialogs.gui. Escape on it says no.
@@ -38,14 +38,9 @@ def ready(pid: int) -> tuple[int, set[int]]:
     good derivation down and derives again for minutes (`tools/never_silent.py`), and leaving the
     game has to work there. Only a build without one derives it, and that needs a loaded game.
     """
-    fields = derive.stored() or derive.fields_for(pid)[0]
-    derive.configure_channel(fields)
-    onscreen.use_fields(fields.get('alpha'), fields.get('flag'))   # flags_for reads them from here
-    onscreen.use_screen(pid)        # on_screen asks the drawing area of this run, not a constant
-    vtablemap.configure(pid)
+    _, root, _ = derive.fields_for(pid, recheck=False)
     window_classes = derive.window_classes_of(pid)
     openers.game_classes = window_classes
-    root, _ = derive.quick_root(fields, pid)
     return root, window_classes
 
 
@@ -124,9 +119,10 @@ def exit_save_since(moment: float) -> bool:
     return os.path.exists(path) and os.path.getmtime(path) >= moment
 
 
-def gone(seconds: int = 40) -> bool:
+def gone() -> bool:
     """Wait until the channel stops answering, which is the game being gone. It asks `alive`,
     because here the link disappearing is what success looks like."""
+    seconds: int = 40
     for _ in range(seconds):
         if not channel.alive():
             channel.close()

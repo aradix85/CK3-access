@@ -51,6 +51,17 @@ def _sections(data: bytes) -> tuple[int, list[Section]]:
     return base, items
 
 
+def image_size() -> int:
+    """How far the exe reaches once it is loaded, from its own header (SizeOfImage): the end of
+    the module, and so of where a global of the game can sit. On 1.20.1.2 it is 0x61DA000, and the
+    0x6000000 guessed before it fell short of the last 1.9 MB."""
+    with open(paths.require('EXE'), 'rb') as exe:
+        head = exe.read(4096)
+    pe = struct.unpack_from('<I', head, 0x3C)[0]
+    size: int = struct.unpack_from('<I', head, pe + 24 + 56)[0]
+    return size
+
+
 def _offset(sections: list[Section], rva: int) -> int:
     """Where an RVA the exe's own type information points at sits in the file. No section holding it
     is a misread, not an answer."""

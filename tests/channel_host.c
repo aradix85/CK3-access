@@ -74,15 +74,16 @@ int main(int argc, char** argv)
     unsigned char* F = widget(page + 0x200, 0x1111, "absurd", (u64)A);
     unsigned char* G = page + 4096 - 0x20;                        // child fields past the page
     *(u64*)G = 0x1111;
+    unsigned char* H = page + 4096 - 8;                           // parent, position, size past it
     u64* list_a = (u64*)(page + 0x400);
     list_a[0] = (u64)B; list_a[1] = (u64)C; list_a[2] = (u64)D; list_a[3] = (u64)E; list_a[4] = (u64)F;
-    list_a[5] = (u64)G;
-    *(u64*)(A + 0x60) = (u64)list_a; *(unsigned*)(A + 0x68) = 6;
+    list_a[5] = (u64)G; list_a[6] = (u64)H;
+    *(u64*)(A + 0x60) = (u64)list_a; *(unsigned*)(A + 0x68) = 7;
     put_string(B, 0x40, "Hello", 5, NULL);
     *(u64*)(B + 0x60) = (u64)(gap + 0x100); *(unsigned*)(B + 0x68) = 2;   // child list unreadable
     put_string(E, 0x40, NULL, sizeof(long_text), long_text);
     *(u64*)(F + 0x60) = (u64)list_a; *(unsigned*)(F + 0x68) = 200000;   // not believable
-    *(u64*)(page + 4096 - 8) = 0x1111;                            // a vtable in the last eight bytes
+    *(u64*)H = 0x1111;                                            // a vtable in the last eight bytes
 
     printf("objects %llx %llx %llx %llx %llx %llx %llx %llx %llx %llx\n", (u64)A, (u64)B, (u64)C, (u64)D,
            (u64)E, (u64)F, (u64)G, (u64)page, (u64)many, (u64)combined);

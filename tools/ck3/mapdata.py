@@ -317,8 +317,9 @@ class Map:
         sign = ((east > 0) - (east < 0), (north > 0) - (north < 0))
         return COMPASS.get(sign)
 
-    def rings(self, county: str, depth: int = 3) -> list[set[str]]:
+    def rings(self, county: str) -> list[set[str]]:
         """Neighbours, neighbours of neighbours, and so on - each ring without the ones before."""
+        depth: int = 3
         seen, edge = {county}, {county}
         out: list[set[str]] = []
         for _ in range(depth):

@@ -31,7 +31,7 @@ import sys
 import time
 
 from tools import ocr, paths, terminal, windowgrab
-from tools.ck3 import channel, model, onscreen, savegame, widgettree
+from tools.ck3 import channel, model, savegame, widgettree, windowmap
 from tools.ck3.quit_game import PAUSE_MENU, escape_to, look, press, ready
 
 IN_GAME = re.compile(r'\bPaused\b|Domain Holdings|Pinned Characters')
@@ -44,9 +44,10 @@ def _screen(pid: int) -> list[ocr.Line]:
     return ocr.read_image(image)
 
 
-def wait(pid: int, timeout: int = 900) -> str:
+def wait(pid: int) -> str:
     """'game' once a game is on screen, 'menu' on the main menu, 'setup' on the setup screen of a
     bookmark (`-bookmark=<name>`); stops when the game is gone."""
+    timeout: int = 900
     import psutil
     start = time.time()
     while time.time() - start < timeout:
@@ -113,33 +114,14 @@ def save(pid: int, suffix: str = '') -> str:
     raise SystemExit('no new save appeared within a minute')
 
 
-def console(pid: int, command: str) -> None:
-    """Type one command into the console and shut it again. What the console answers is not read."""
-    root, classes_of_windows = ready(pid)
-
-    def is_open() -> tuple[bool, widgettree.Nodes, onscreen.Scales, dict[int, str | None]]:
-        nodes, scales, _, classes = look(root, pid, classes_of_windows)
-        found = [a for a, k in nodes.items() if k[6] == 'console_window']
-        return bool(found) and bool(onscreen.shown(nodes, found[:1])), nodes, scales, classes
-
-    opened, nodes, scales, classes = is_open()
-    if not opened:
-        channel.ask('sendkey 192')
-        time.sleep(2.0)
-        opened, nodes, scales, classes = is_open()
-    if not opened:
-        raise SystemExit('the console did not open; was the game started with -debug_mode?')
-    why = press(nodes, scales, classes, 'console_edit')
-    if why:
-        raise SystemExit(f'the console is open, but its input line: {why}')
-    for _ in range(60):
-        channel.ask('sendkey 8')
-    for ch in command:
-        channel.ask(f'sendchar {ord(ch)}')
-    channel.ask('sendkey 13')
-    time.sleep(2.0)
-    channel.ask('sendkey 192')
-    time.sleep(1.0)
+def console(pid: int, command: str) -> list[str]:
+    """Type one command into the console and shut it again, with the checks of
+    `windowmap.Game.command`: the console proven open, and the text proven in the field before Enter.
+    What error.log added afterwards comes back."""
+    game = windowmap.Game(pid)
+    said = game.command(command)
+    game.set_console(False)
+    return said
 
 
 def _click_text(pid: int, wanted: str, tries: int) -> None:
@@ -195,8 +177,8 @@ def main() -> None:
     elif what == 'save':
         print('written:', save(pid, sys.argv[3] if len(sys.argv) > 3 else ''))
     elif what == 'console' and len(sys.argv) > 3:
-        console(pid, ' '.join(sys.argv[3:]))
-        print('typed:', ' '.join(sys.argv[3:]))
+        said = console(pid, ' '.join(sys.argv[3:]))
+        print('typed:', ' '.join(sys.argv[3:]), '- error.log:', ' / '.join(said) or 'nothing')
     elif what == 'new' and len(sys.argv) > 3:
         first, second = new(pid, sys.argv[3])
         print('written:', first, 'and', second)

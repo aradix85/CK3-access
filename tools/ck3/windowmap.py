@@ -191,7 +191,7 @@ def window_keys_plan() -> None:
         print(f"  {int(count):3d} windows  {binding[:28]!s:<28} {keys!s:<12} {calls[:80]}")
 
 
-def presses_for(rows: list[Binding], bound: dict[str, str], numbers: int = 3) -> list[tuple[str, str]]:
+def presses_for(rows: list[Binding], bound: dict[str, str]) -> list[tuple[str, str]]:
     """(binding, keys) to press in one window: every view-only row, once.
 
     A computed name stands for a family - `[Concatenate('tab_', ...)]` reaches tab_1, tab_2 and on
@@ -199,6 +199,7 @@ def presses_for(rows: list[Binding], bound: dict[str, str], numbers: int = 3) ->
     A quoted piece that is a binding itself, as in `[Select_CString(..., 'tab_3', 'tab_2')]`, is
     taken as it is.
     """
+    numbers: int = 3
     out: list[tuple[str, str]] = []
     for row in rows:
         if not row['view_only']:
@@ -422,10 +423,8 @@ class Game:
 
     def __init__(self, pid: int) -> None:
         self.pid = pid
-        self.fields, _ = derive.fields_for(pid)
-        derive.configure_channel(self.fields)
+        self.fields, self.root, self.why = derive.fields_for(pid)
         self.window_classes = derive.window_classes_of(pid)
-        self.root, _ = derive.quick_root(self.fields, pid)
         self.field: int | None = None        # address of console_edit
         # The click point of that field; it does not change while the game runs.
         self.pos: tuple[int, int] | None = None
@@ -527,19 +526,11 @@ class Game:
         """
         if self.field is None:
             self.set_console(True, nodes)
-        for _ in range(len(self.field_text(self.input_field())) + 4):
-            channel.ask('sendkey 8')
-        for char in text:
-            channel.ask(f'sendchar {ord(char)}')
-        time.sleep(0.35)
-        present = self.field_text(self.input_field())
+        present = self._typed(text)
         if text[-14:] not in present:
             # Focus lost: establish it once more, and otherwise stop hard.
             self.set_console(True)
-            for char in text:
-                channel.ask(f'sendchar {ord(char)}')
-            time.sleep(0.35)
-            present = self.field_text(self.input_field())
+            present = self._typed(text)
             if text[-14:] not in present:
                 raise SystemExit(f'the console does not catch the input; field holds {present[:60]!r}')
         log = paths.require('ERROR_LOG')
@@ -550,6 +541,16 @@ class Game:
             file.seek(size)
             fresh = file.read().decode('utf-8', 'replace')
         return [r.strip() for r in fresh.splitlines() if r.strip()]
+
+    def _typed(self, text: str) -> str:
+        """Empty the input field, type `text`, and what the field holds then. Emptied every time:
+        a second attempt after lost focus used to type behind what the first had left."""
+        for _ in range(len(self.field_text(self.input_field())) + 4):
+            channel.ask('sendkey 8')
+        for char in text:
+            channel.ask(f'sendchar {ord(char)}')
+        time.sleep(0.35)
+        return self.field_text(self.input_field())
 
 
 def shortcut_round(game: Game, presses: list[Press] | None = None) -> dict[str, str]:

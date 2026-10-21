@@ -135,8 +135,7 @@ def find_objects(pid: int, name: str = CLASS,
     return found
 
 
-def derive_global(pid: int, name: str = CLASS, valid: Callable[[int], bool] = is_ref_database,
-                  tries: int = 4) -> tuple[int, int]:
+def derive_global(pid: int, name: str = CLASS, valid: Callable[[int], bool] = is_ref_database) -> tuple[int, int]:
     """The offset of the global variable pointing at one of those objects.
 
     Search for pointers holding the value of the object and keep the hit that falls inside the
@@ -148,7 +147,9 @@ def derive_global(pid: int, name: str = CLASS, valid: Callable[[int], bool] = is
     after twenty minutes. The hit then sits one byte past the pointer, so the eight bytes are read
     back to prove it really holds the address.
     """
+    tries: int = 4
     base = vtablemap.module_base(pid)
+    end = base + memory.image_size()
     left_out: list[derive.Skips] = []
     for address in find_objects(pid, name, valid)[:tries]:
         answer = channel.ask('find ' + struct.pack('<Q', address)[1:].hex(), timeout=900)
@@ -157,7 +158,7 @@ def derive_global(pid: int, name: str = CLASS, valid: Callable[[int], bool] = is
             if not line.startswith('t\t'):
                 continue
             where = int(line.split('\t')[1], 16) - 1
-            if not base <= where < base + 0x6000000:
+            if not base <= where < end:
                 continue
             held = channel.read(where, 8)
             if held is not None and struct.unpack('<Q', held)[0] == address:

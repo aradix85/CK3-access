@@ -148,9 +148,10 @@ def game_date(nodes: widgettree.Nodes) -> str | None:
     return None
 
 
-def paused(game: windowmap.Game, seconds: float = 6.0) -> bool:
+def paused(game: windowmap.Game) -> bool:
     """Is the clock standing still? Measured, not assumed - a running clock makes the round
     unrepeatable and can kill the character halfway through."""
+    seconds: float = 6.0
     first = game_date(game.tree())
     if first is None:
         raise SystemExit('no date widget in the tree: this needs a loaded game, and without it '
@@ -173,6 +174,9 @@ def subtree(nodes: widgettree.Nodes, root: int) -> list[tuple[int, int, int]]:
     out with their buttons in a different order, and a comparison against the gui files scored 69
     per cent where the truth is either near zero or near one hundred. Address order correlates with
     build order without being it, which is the worst kind of wrong - it looks like a result.
+
+    No depth limit: every widget has one parent and the walk starts at the window, so it ends by
+    itself, and a limit of 40 left anything deeper out without a word.
     """
     children: dict[int, list[int]] = {}
     for address, k in nodes.items():
@@ -182,9 +186,8 @@ def subtree(nodes: widgettree.Nodes, root: int) -> list[tuple[int, int, int]]:
     while todo:
         address, depth, index = todo.pop(0)
         out.append((address, depth, index))
-        if depth < 40:
-            todo.extend((child, depth + 1, position)
-                        for position, child in enumerate(children.get(address, [])))
+        todo.extend((child, depth + 1, position)
+                    for position, child in enumerate(children.get(address, [])))
     return out
 
 
@@ -404,9 +407,10 @@ def open_window(game: windowmap.Game, name: str, row: windowmap.Route,
     return None, tries
 
 
-def close_window(game: windowmap.Game, row: windowmap.Route, baseline: set[str], limit: int = 12) -> bool:
+def close_window(game: windowmap.Game, row: windowmap.Route, baseline: set[str]) -> bool:
     """Shut it again and wait until the state before it is back. Anything left open contaminates
     every window after this one, which is why this is a stop condition and not a warning."""
+    limit: int = 12
     shortcut = row.get('shortcut')
     for attempt in range(limit):
         # The shortcut once, and Escape after that. Pressing a toggle in every round reopens what

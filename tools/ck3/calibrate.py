@@ -100,9 +100,7 @@ def main(pid: int, count: int = 400, *, save: str | None = None) -> None:
     path = savegame.named(save) if save else savegame.newest_readable_save()
     print(f'answer key: {os.path.basename(path)}')
 
-    fields = derive.fields_for(pid)[0]
-    derive.configure_channel(fields)
-    root = derive.quick_root(fields, pid)[0]
+    _, root, _ = derive.fields_for(pid)
     nodes = widgettree.widgets(root)
     print(f'widget tree: {len(nodes)} nodes')
 

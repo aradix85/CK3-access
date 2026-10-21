@@ -67,12 +67,12 @@ def _gamestate(raw: bytes) -> str | None:
         return zip.read('gamestate').decode('utf-8', 'replace')
 
 
-def block(text: str, build_key: str, start_at: int = 0) -> str | None:
+def block(text: str, build_key: str) -> str | None:
     """The content between the braces of `key={ ... }`, with braces counted so that nested
     blocks do not close it early."""
-    pos = text.find(f'\n{build_key}={{', start_at)
+    pos = text.find(f'\n{build_key}={{')
     if pos < 0:
-        pos = text.find(f'{build_key}={{', start_at)
+        pos = text.find(f'{build_key}={{')
         if pos < 0:
             return None
     i = text.index('{', pos) + 1

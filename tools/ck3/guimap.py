@@ -569,8 +569,7 @@ def window(name: str, table: Table | None = None, local: LocalTable | None = Non
 DECISION_WIDGETS = 'gui/decision_view_widgets/'
 
 
-def decision_widget(name: str, table: Table | None = None, local: LocalTable | None = None,
-                    rows: list[Row] | None = None) -> Node:
+def decision_widget(name: str, table: Table, local: LocalTable) -> Node:
     """The own gui of a decision, resolved into a widget tree like a window.
 
     A decision can name a gui file of its own with `widget = { gui = "..." }` in common\\decisions,
@@ -580,9 +579,7 @@ def decision_widget(name: str, table: Table | None = None, local: LocalTable | N
     1.20: 91 such references to 15 files, and the top block of each file is a widget with exactly
     the file's name. The last file of that name in load order wins, as everywhere in the engine.
     """
-    rows = rows if rows is not None else files()
-    if table is None or local is None:
-        table, local = type_table(rows)
+    rows = files()
     wanted = DECISION_WIDGETS + name.lower() + '.gui'
     found = [(virtual, full) for _, virtual, full in rows if virtual.replace('\\', '/').lower() == wanted]
     if not found:
@@ -598,13 +595,14 @@ def decision_widget(name: str, table: Table | None = None, local: LocalTable | N
 LOCALIZATION = re.compile(r'^\s*([^\s:#][^\s:]*):\s*\d*\s*"(.*)"\s*$')
 
 
-def localization(language: str = 'english') -> dict[str, str]:
+def localization() -> dict[str, str]:
     """Key -> sentence, from the localization files of the game and of the active mods.
 
     This is the other half of the meaning: the gui file says which key a widget carries, and this
     says what that key reads as. A mod that ships a key of the same name replaces it, so the mods
     come last here as well.
     """
+    language: str = 'english'
     folders = [os.path.join(paths.require('GAME'), 'game', 'localization', language)]
     for folder in paths.mod_folders():
         folders.append(os.path.join(folder, 'localization', language))

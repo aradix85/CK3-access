@@ -201,9 +201,12 @@ def test_every_command(host: Host) -> None:
     check('vtables ' + ' '.join('%x' % (i + 1) for i in range(257)), '257 refused', error('more than 256 vtables'))
     check('vtables 1111', 'one set', lambda ls: ls == ['vtables set\t1'])
 
-    check('tree ' + h(A), 'five widgets, five losses, one stranger, seven visited',
-          lambda ls: addresses(ls, 'w') == {A, B, E, F, G} and addresses(ls, 'missing') == {D, D + 0x100, E, F, G}
-          and 'not widgets\t1' in ls and ls[-1] == 'done\t7' and not any(line.startswith('error') for line in ls))
+    check('tree ' + h(A), 'five widgets, six losses, one stranger, eight visited',
+          lambda ls: addresses(ls, 'w') == {A, B, E, F, G}
+          and addresses(ls, 'missing') == {D, D + 0x100, E, F, G, PAGE + 4088}
+          and 'not widgets\t1' in ls and ls[-1] == 'done\t8' and not any(line.startswith('error') for line in ls))
+    check('tree ' + h(A), 'a widget whose parent cannot be read is a loss, not one at 0,0 under no parent',
+          lambda ls: ['missing', h(PAGE + 4088), 'parent, position or size unreadable'] in kind(ls, 'missing'))
     check('tree ' + h(A), 'the fields of one widget', lambda ls: any(
         row[1:] == [h(B), '1111', '1.0', '2.0', '3.0', '4.0', h(A), 'child', 'Hello'] for row in kind(ls, 'w')))
     check(f'tree {h(A)} 2', 'refused', refused)

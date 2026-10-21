@@ -71,7 +71,7 @@ def read_image(screenshot: Image.Image) -> list[Line]:
     return lines
 
 
-def read_screen(box: tuple[int, int, int, int] | None = None) -> list[Line]:
+def read_screen() -> list[Line]:
     """Returns a list of (x, y, width, height, text) in screen points.
 
     This grabs the whole screen and therefore the foreground window. For the game,
@@ -79,10 +79,7 @@ def read_screen(box: tuple[int, int, int, int] | None = None) -> list[Line]:
     DPI aware first, so the screen comes in physical pixels.
     """
     ctypes.windll.user32.SetProcessDPIAware()
-    screenshot = ImageGrab.grab(bbox=box)
-    shift_x, shift_y = (box[0], box[1]) if box else (0, 0)
-    return [(x + shift_x, y + shift_y, b, h, text)
-            for x, y, b, h, text in read_image(screenshot)]
+    return read_image(ImageGrab.grab())
 
 
 if __name__ == '__main__':

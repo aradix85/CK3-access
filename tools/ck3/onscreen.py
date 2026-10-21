@@ -162,8 +162,7 @@ def _scale_of(scales: Scales, address: int) -> tuple[float, float]:
     return pair
 
 
-def screen_pos(nodes: widgettree.Nodes, address: int, scales: Scales,
-               anchors: Anchors | None = None) -> tuple[float, float]:
+def screen_pos(nodes: widgettree.Nodes, address: int, scales: Scales) -> tuple[float, float]:
     """The place on screen: the own position plus that of every parent, with the scale applied.
 
     Five of the 515 gui files scale a full-screen container. The arithmetic, measured 30 July and
@@ -182,8 +181,7 @@ def screen_pos(nodes: widgettree.Nodes, address: int, scales: Scales,
     and not blindly on left edges. Measured that way: main menu 24 words, median 0.5 points; pause
     menu 11 words, median 0.5 points.
     """
-    if anchors is None:
-        anchors = scale_anchors()
+    anchors = scale_anchors()
     x = y = 0.0
     first = True
     while address in nodes:

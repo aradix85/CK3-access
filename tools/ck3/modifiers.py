@@ -143,7 +143,8 @@ def counted() -> dict[str, int]:
     return out
 
 
-def drawn_after(game: windowmap.Game, wanted: str, seconds: float = 6.0) -> set[str]:
+def drawn_after(game: windowmap.Game, wanted: str) -> set[str]:
+    seconds: float = 6.0
     deadline = time.time() + seconds
     while True:
         _, _, now = game.state()

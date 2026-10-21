@@ -205,9 +205,10 @@ def _count_field(chunks: dict[int, bytes], children_of: dict[int, set[int]]) -> 
     return offset
 
 
-def _child_field(chunks: dict[int, bytes], children_of: dict[int, set[int]], samples: int = 20) -> int:
+def _child_field(chunks: dict[int, bytes], children_of: dict[int, set[int]]) -> int:
     """Prediction: a pointer to a block containing exactly the children that name this object as
     their parent. Equal, not overlapping."""
+    samples: int = 20
     probe = [o for o in sorted(children_of, key=lambda k: -len(children_of[k]))
              if o in chunks][:samples]
     best: tuple[int | None, int] = (None, 0)
@@ -233,6 +234,36 @@ def _child_field(chunks: dict[int, bytes], children_of: dict[int, set[int]], sam
     raise SystemExit(f'deriving failed on field: child list (best explained {int(best[1])} of {len(probe)} parents)')
 
 
+# The predictions a field is found by, and a stored derivation is checked against at every start,
+# with one threshold each, so that deriving and rechecking cannot drift apart.
+SPREAD = 100        # a position field holds at least this many places across the sample
+FAMILIES = 0.9      # and spreads the children of at least this share of the families
+GUI_NAMES = 0.6     # of at least twenty names, this share stands literally in the gui files
+
+
+def _in_proportion(width: float, height: float, window_width: int, window_height: int) -> bool:
+    """Does a root of this size span the whole gui space: the same scale on both axes against the
+    drawing area, and a scale a game could be set to?"""
+    if not (width >= 100.0 and height >= 100.0):
+        return False
+    scale_x, scale_y = window_width / width, window_height / height
+    return abs(scale_x - scale_y) < 0.005 and 0.4 <= scale_x <= 2.5
+
+
+def _gui_names(names: set[str], gui: str) -> int:
+    """How many of these names stand in the gui files, or 0 when that is not most of at least
+    twenty."""
+    hit = sum(1 for n in names if n in gui)
+    return hit if len(names) >= 20 and hit >= GUI_NAMES * len(names) else 0
+
+
+def _position_like(chunks: dict[int, bytes], f_parent: int, offset: int) -> tuple[bool, int, float | None]:
+    """(does it hold, distinct places, share of families spread) for a candidate position field."""
+    distinct = _spread(chunks, offset)
+    families = _siblings_spread(chunks, f_parent, offset) if distinct >= SPREAD else None
+    return families is not None and families >= FAMILIES, distinct, families
+
+
 def _size_field(chunks: dict[int, bytes], roots: list[int], window_width: int,
                 window_height: int) -> int:
     """Prediction: a root widget spans the entire GUI space.
@@ -247,12 +278,7 @@ def _size_field(chunks: dict[int, bytes], roots: list[int], window_width: int,
         for root in roots:
             if root not in chunks:
                 continue
-            width, height = _pair(chunks[root], offset)
-            if width < 100.0 or height < 100.0:
-                continue
-            scale_x = window_width / width
-            scale_y = window_height / height
-            if abs(scale_x - scale_y) < 0.005 and 0.4 <= scale_x <= 2.5:
+            if _in_proportion(*_pair(chunks[root], offset), window_width, window_height):
                 return offset
     raise SystemExit('deriving failed on field: size (no root in proportion with the '
                      f'drawing area of {int(window_width)}x{int(window_height)})')
@@ -267,8 +293,7 @@ def _spread(chunks: dict[int, bytes], offset: int) -> int:
     return len(values)
 
 
-def _siblings_spread(chunks: dict[int, bytes], f_parent: int, offset: int,
-                     families: int = 40) -> float | None:
+def _siblings_spread(chunks: dict[int, bytes], f_parent: int, offset: int) -> float | None:
     """Do the children of one parent sit in different places?
 
     This is what separates the position field from a field that is almost always (0,0). "Every
@@ -278,6 +303,7 @@ def _siblings_spread(chunks: dict[int, bytes], f_parent: int, offset: int,
     position field a family of four is not stacked in one spot. Measured 24 August 2026: +0x118
     spreads in nearly every family, +0x32C in none.
     """
+    families: int = 40
     children_of: dict[int, list[int]] = {}
     for address, b in chunks.items():
         parent = int.from_bytes(b[f_parent:f_parent + 8], 'little')
@@ -294,7 +320,7 @@ def _siblings_spread(chunks: dict[int, bytes], f_parent: int, offset: int,
     return spread / float(len(big))
 
 
-def _pos_field(chunks: dict[int, bytes], f_parent: int, f_size: int, spread_required: int = 100) -> int:
+def _pos_field(chunks: dict[int, bytes], f_parent: int, f_size: int) -> int:
     """Prediction: a position field fits inside its parent, spreads its siblings, and carries as
     many different values as there are places on the screen.
 
@@ -311,11 +337,8 @@ def _pos_field(chunks: dict[int, bytes], f_parent: int, f_size: int, spread_requ
     """
     rows: list[tuple[int, int, int, int]] = []
     for offset in range(0, CHUNK - 8, 4):
-        distinct = _spread(chunks, offset)
-        if distinct < spread_required:
-            continue
-        families = _siblings_spread(chunks, f_parent, offset)
-        if families is None or families < 0.9:
+        holds, distinct, _ = _position_like(chunks, f_parent, offset)
+        if not holds:
             continue
         ok = pairs = 0
         for b in chunks.values():
@@ -377,11 +400,8 @@ def _name_field(chunks: dict[int, bytes], gui: str) -> int:
     on disk and needs no eyesight."""
     best: tuple[int | None, int] = (None, 0)
     for offset in range(0, CHUNK - 32, 8):
-        names = {t for t in (_cstring(b, offset) for b in chunks.values()) if t}
-        if len(names) < 20:
-            continue
-        hit = sum(1 for n in names if n in gui)
-        if hit > best[1] and hit >= 0.6 * len(names):
+        hit = _gui_names({t for t in (_cstring(b, offset) for b in chunks.values()) if t}, gui)
+        if hit > best[1]:
             best = (offset, hit)
     if best[0] is None:
         raise SystemExit('deriving failed on field: name')
@@ -460,8 +480,21 @@ def all_in_scan(nodes: Iterable[int], scanned: set[int], left_out: str) -> None:
                          'start again, and otherwise the scan skips memory the game now uses')
 
 
-def visibility_fields(pid: int, fields: Fields, root: int, key: int = 112,
-                      subject: str = 'character_window', control: str = 'council_window') -> Fields:
+# The key that opens the subject (F1), the window it opens, and one that stays shut meanwhile.
+KEY, SUBJECT, CONTROL = 112, 'character_window', 'council_window'
+
+
+def _window_objects(pid: int, root: int) -> dict[str, int]:
+    """Name -> the first window object of that name in the tree."""
+    window_classes = window_classes_of(pid)
+    named: dict[str, int] = {}
+    for a, k in widgettree.widgets(root).items():
+        if k[0] in window_classes and k[6]:
+            named.setdefault(k[6], a)
+    return named
+
+
+def visibility_fields(fields: Fields, named: dict[str, int]) -> Fields:
     """Derive the two visibility offsets by toggling a window and watching what moves.
 
     Everything else here is derived from what one reading of memory looks like. These two cannot
@@ -479,16 +512,7 @@ def visibility_fields(pid: int, fields: Fields, root: int, key: int = 112,
 
     The counter is why the control matters: without it a field that simply ticks would pass.
     """
-    window_classes = window_classes_of(pid)
-    nodes = widgettree.widgets(root)
-    named: dict[str, int] = {}
-    for a, k in nodes.items():
-        if k[0] in window_classes and k[6]:
-            named.setdefault(k[6], a)
-    for name in (subject, control):
-        if name not in named:
-            raise SystemExit(f'deriving visibility failed: no window object called {name} in this tree; '
-                             'this derivation needs a loaded game, not the main menu')
+    subject, control = SUBJECT, CONTROL
 
     def snapshot() -> dict[str, bytes]:
         out: dict[str, bytes] = {}
@@ -500,7 +524,7 @@ def visibility_fields(pid: int, fields: Fields, root: int, key: int = 112,
         return out
 
     def toggle(before: dict[str, bytes], what: str) -> dict[str, bytes]:
-        channel.ask(f'sendkey {int(key)}')
+        channel.ask(f'sendkey {KEY}')
         for _ in range(20):
             time.sleep(0.5)
             after = snapshot()
@@ -544,7 +568,7 @@ def visibility_fields(pid: int, fields: Fields, root: int, key: int = 112,
     return out
 
 
-def position_from_tree(pid: int, fields: Fields, nodes: int = 1000) -> Fields:
+def position_from_tree(pid: int, fields: Fields) -> tuple[Fields, int, dict[int, int]]:
     """Derive the position field a second time, from the live tree instead of the scan.
 
     The scan finds every widget-shaped object in the process; the tree holds the ones the game is
@@ -559,17 +583,19 @@ def position_from_tree(pid: int, fields: Fields, nodes: int = 1000) -> Fields:
     live ones.
 
     This runs after the scan derivation, which is what makes the tree reachable in the first place:
-    walking it needs the parent and children offsets.
+    walking it needs the parent and children offsets. The root and the tree come back with it, so
+    the start does not search for them a second time.
     """
+    nodes: int = 1000
     configure_channel(fields)
-    _root, walked = quick_root(fields, pid)
+    root, walked = quick_root(fields, pid)
     chunks, _ = chunks_of(list(walked)[:nodes])
     from_tree = _pos_field(chunks, fields['parent'], fields['size'])
     if from_tree != fields['position']:
         print('position: the scan said +0x{:03X}, the tree says +0x{:03X}; the tree decides'.format(fields['position'], from_tree))
     out = fields.copy()
     out['position'] = from_tree
-    return out
+    return out, root, walked
 
 
 def store(fields: Fields) -> None:
@@ -709,8 +735,7 @@ def to_root(address: int, f_parent: int) -> tuple[int, dict[int, int]]:
     raise SystemExit('the parent chain does not end; is the parent field still right?')
 
 
-def quick_root(fields: Fields, pid: int, at_least: int = 500, ample: int = 1500,
-               samples: int = 40) -> tuple[int, dict[int, int]]:
+def quick_root(fields: Fields, pid: int) -> tuple[int, dict[int, int]]:
     """From seed widgets up to the roots, then return the largest tree.
 
     Two traps live here. A single hit is not a widget: there are loose places in memory that happen
@@ -726,6 +751,9 @@ def quick_root(fields: Fields, pid: int, at_least: int = 500, ample: int = 1500,
     orders of magnitude sit between those two, so any threshold in between points at the same tree.
     Repeat that measurement if the engine ever grows a second large root.
     """
+    samples: int = 40
+    ample: int = 1500
+    at_least: int = 500
     found: dict[int, dict[int, int]] = {}
     left_out: list[Skips] = []
     for group, skips_of_piece in seed_batches(pid):
@@ -744,8 +772,9 @@ def quick_root(fields: Fields, pid: int, at_least: int = 500, ample: int = 1500,
                      f'The scan {skipped(*left_out) or "skipped nothing"}')
 
 
-def _sample(nodes: Iterable[int], root: int, how_many: int = 200) -> list[int]:
+def _sample(nodes: Iterable[int], root: int) -> list[int]:
     """Spread across memory, so that one odd pool does not decide the outcome."""
+    how_many: int = 200
     addresses = sorted(nodes)
     step = max(1, len(addresses) // how_many)
     choice = addresses[::step][:how_many]
@@ -754,7 +783,7 @@ def _sample(nodes: Iterable[int], root: int, how_many: int = 200) -> list[int]:
     return choice
 
 
-def _child_check(fields: Fields, root: int, how_many: int = 20) -> tuple[int, int]:
+def _child_check(fields: Fields, root: int) -> tuple[int, int]:
     """From the root downwards: a parent's child list must contain exactly the widgets naming that
     parent as their parent. This tests the child field, the count and the parent field in one
     movement, and it need not cover the whole tree.
@@ -764,6 +793,7 @@ def _child_check(fields: Fields, root: int, how_many: int = 20) -> tuple[int, in
     `CHUNK` from it failed, nothing was tested, and the start turned a good derivation down, said
     so to the player and derived the same offsets again for three minutes.
     """
+    how_many: int = 20
     need = max(fields['children'] + 8, fields['count'] + 4)
     todo = [root]
     tested, misses = 0, 0
@@ -812,24 +842,21 @@ def verify(fields: Fields, root: int, nodes: dict[int, int], pid: int) -> list[s
     # The root is read for itself, with only the bytes this needs: in the sample it can fall out
     # unreadable, and this check then stood down without a word (4 October 2026, see _child_check).
     b, h = _pair(channel.read_known(root, fields['size'] + 8), fields['size'])
-    scale_x = window_width / b if b else 0.0
-    scale_y = window_height / h if h else 0.0
-    if not scale_x or abs(scale_x - scale_y) > 0.005:
+    if not _in_proportion(b, h, window_width, window_height):
         defects.append('the root is out of proportion with the drawing area '
                        f'({b:.0f}x{h:.0f} against window {int(window_width)}x{int(window_height)})')
 
-    gui = gui_text()
     names = {t for t in (_cstring(b, fields['name']) for b in chunks.values()) if t}
-    hit = sum(1 for n in names if n in gui)
-    if not names or hit < 0.6 * len(names):
-        defects.append(f'names do not appear in the gui files ({int(hit)} of {len(names)})')
+    if not _gui_names(names, gui_text()):
+        defects.append(f'fewer than {GUI_NAMES:.0%} of {len(names)} names appear in the gui files')
 
     defects.extend(_position_check(fields, nodes))
+    defects.extend(_scale_check(fields, chunks, nodes))
     defects.extend(_visibility_check(fields, chunks, nodes, pid))
     return defects
 
 
-def _position_check(fields: Fields, nodes: Iterable[int], how_many: int = 800) -> list[str]:
+def _position_check(fields: Fields, nodes: Iterable[int]) -> list[str]:
     """Is the stored position offset still a position?
 
     This check exists because its absence cost a whole afternoon: three times a derivation produced
@@ -843,14 +870,36 @@ def _position_check(fields: Fields, nodes: Iterable[int], how_many: int = 800) -
     for +0x280 over a thousand widgets), and children of one parent are not stacked on one spot
     (0.97 of families against 0.33).
     """
+    how_many: int = 800
     chunks, _ = chunks_of(list(nodes)[:how_many])
     if not chunks:
         return ['nothing could be read from the tree to check the position offset against']
-    distinct = _spread(chunks, fields['position'])
-    families = _siblings_spread(chunks, fields['parent'], fields['position'])
-    if distinct < 100 or families is None or families < 0.9:
+    holds, distinct, families = _position_like(chunks, fields['parent'], fields['position'])
+    if not holds:
         return [(f"position at +0x{fields['position']:03X} does not behave like one: {int(distinct)} distinct values, {'no' if families is None else f'{families:.2f}'} of families "
                  'spread their children')]
+    return []
+
+
+def _scale_check(fields: Fields, chunks: dict[int, bytes], nodes: dict[int, int]) -> list[str]:
+    """Is `onscreen.OWN_SCALE` still the own scale, with the scale from above beside it?
+
+    That offset is not derived, and this is what keeps it from going stale unseen. The scale from
+    above is the product of the own scales of every ancestor (`onscreen.scales_for`), so for every
+    widget of the sample whose parent is in the tree, the parent's own scale times the parent's
+    scale from above is the widget's scale from above. A field holding anything else - a pointer, a
+    count, a coordinate - breaks that at once. Not yet measured on a loaded game of 1.20.1.2.
+    """
+    parents = {a: int.from_bytes(b[fields['parent']:fields['parent'] + 8], 'little')
+               for a, b in chunks.items()}
+    parents = {a: p for a, p in parents.items() if p in nodes}
+    scales = onscreen.scales_for(set(parents) | set(parents.values()))
+    pairs = [(scales[a][1], scales[p][0] * scales[p][1]) for a, p in parents.items()
+             if a in scales and p in scales]
+    held = sum(1 for above, expected in pairs if abs(above - expected) < 1e-4)
+    if len(pairs) < 20 or held < 0.99 * len(pairs):
+        return [(f'the scale at +0x{onscreen.OWN_SCALE:03X} does not behave like one: the scale from '
+                 f"above is the product of the parent's in {held} of {len(pairs)} widgets")]
     return []
 
 
@@ -885,51 +934,60 @@ def _visibility_check(fields: Fields, chunks: dict[int, bytes], nodes: dict[int,
     return defects
 
 
-def fields_for(pid: int) -> tuple[Fields, str]:
-    """The path walked at every start.
+def fields_for(pid: int, recheck: bool = True) -> tuple[Fields, int, str]:
+    """The path walked at every start: the derivation, the root of the tree, and what happened.
 
     If there is a derivation for this exe and it holds up against the running game, that is the
     one. Otherwise it is derived again and written out. Nothing is assumed: a stored derivation
-    also has to prove itself every time.
+    also has to prove itself every time - except with `recheck` off, for leaving a game from a
+    menu, where the recheck turns a good derivation down and derives again for minutes.
+
+    When this returns, the channel walks with these offsets and `onscreen` knows the drawing area
+    and the two visibility offsets. The root comes back too: finding it again cost every caller a
+    seed search of up to ten seconds.
     """
     vtablemap.configure(pid)          # vtables first, or no scan finds anything
     onscreen.use_screen(pid)          # and the drawing area, which every geometric answer needs
     fields = stored()
     if fields:
         configure_channel(fields)               # the walk below runs on these, not on defaults
+        onscreen.use_fields(fields.get('alpha'), fields.get('flag'))
         root, nodes = quick_root(fields, pid)
+        if not recheck:
+            return fields, root, 'stored derivation, not rechecked'
         defects = verify(fields, root, nodes, pid)
         if not defects:
-            onscreen.use_fields(fields.get('alpha'), fields.get('flag'))
-            return fields, 'stored derivation holds'
+            return fields, root, 'stored derivation holds'
         reason = 'stored derivation fails: ' + '; '.join(defects)
         speech.failure('reading the game', 'the places it read this game at last time do not hold',
                        'it is working out the new places, which takes a few minutes')
     else:
         reason = 'no derivation for this version of the game'
     fields, scanned = derive_all(pid)
-    fields = position_from_tree(pid, fields)
-    root, nodes = quick_root(fields, pid)
+    fields, root, nodes = position_from_tree(pid, fields)
     all_in_scan(nodes, scanned, fields.get('skipped', ''))
     fields, note = _with_visibility(pid, fields, root)
     store(fields)
+    configure_channel(fields)
     onscreen.use_fields(fields.get('alpha'), fields.get('flag'))
     left_out = f"; the scan {fields['skipped']}" if fields.get('skipped') else ''
-    return fields, reason + ' - derived again' + note + left_out
+    return fields, root, reason + ' - derived again' + note + left_out
 
 
 def _with_visibility(pid: int, fields: Fields, root: int) -> tuple[Fields, str]:
-    """Add the two visibility offsets if this game state allows deriving them.
+    """Add the two visibility offsets where this game state has the windows to derive them with.
 
     They need a window that can be opened, and the main menu has none - its window objects are all
     dialogues nobody has opened. Deriving the other seven there is still useful, so the tree can be
     walked and read; what cannot be answered is what is visible, and `onscreen.use_fields` makes any
-    attempt to ask say so instead of guessing.
+    attempt to ask say so instead of guessing. Anything else that goes wrong stops: this used to
+    catch every failure along with the main menu's, so a loaded game could come out without
+    visibility and only a clause in a reason most callers threw away.
     """
-    try:
-        return visibility_fields(pid, fields, root), ''
-    except SystemExit as why:
-        return fields, f'; visibility not derived ({why})'
+    named = _window_objects(pid, root)
+    if SUBJECT not in named or CONTROL not in named:
+        return fields, f'; visibility not derived: no {SUBJECT} in this tree, as on the main menu'
+    return visibility_fields(fields, named), ''
 
 
 def configure_channel(fields: Fields) -> None:
@@ -940,7 +998,7 @@ def configure_channel(fields: Fields) -> None:
 
 
 def _start_block() -> None:
-    fields, why = fields_for(int(sys.argv[1]))
+    fields, _, why = fields_for(int(sys.argv[1]))
     print(why)
     for name in ('parent', 'children', 'count', 'position', 'size', 'name', 'text',
                  'alpha', 'flag'):
@@ -978,13 +1036,14 @@ def regions(pid: int) -> list[tuple[int, int]]:
     return items
 
 
-def seed_batches(pid: int, chunk: int = 0x4000000) -> Iterator[tuple[list[int], Skips]]:
+def seed_batches(pid: int) -> Iterator[tuple[list[int], Skips]]:
     """Per piece of memory the addresses found, and what the scan of that piece left out, until
     the caller finds a usable one.
 
     Scanning happens in chunks because `scan` walks a window to the end before answering: a roomy
     window costs the full scan time even when the first hit lands immediately.
     """
+    chunk: int = 0x4000000
     stack: list[tuple[int, int]] = []
     total = 0
     for base, size in regions(pid):

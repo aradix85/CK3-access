@@ -31,7 +31,7 @@ import time
 from typing import TypeVar
 
 from tools import terminal
-from tools.ck3 import anchor, channel, derive, savegame, vtablemap
+from tools.ck3 import anchor, channel, derive, memory, savegame, vtablemap
 
 FIXED = 100000
 STRING_IN_PLACE = 15
@@ -531,9 +531,6 @@ def character(pid: int, handle: int) -> Character:
     return values
 
 
-MODULE_SPAN = 0x6000000
-
-
 def derive_player(pid: int, number: int) -> list[int]:
     """Where the module keeps the handle of the character being played, derived against a save.
 
@@ -558,7 +555,7 @@ def derive_player(pid: int, number: int) -> list[int]:
     if pattern[:2] == '00':
         raise SystemExit(f'character {int(number)} begins with a zero byte, so it cannot lead a search; '
                          'derive against a state whose player has another number')
-    answer = channel.ask(f'findin {base:x} {base + MODULE_SPAN:x} {pattern}', timeout=900)
+    answer = channel.ask(f'findin {base:x} {base + memory.image_size():x} {pattern}', timeout=900)
     spots = [int(line.split('\t')[1], 16) - base
              for line in answer.split('\n') if line.startswith('t\t')]
     if not spots:
