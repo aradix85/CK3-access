@@ -26,7 +26,6 @@ dll/channel.dll
 # Not published: dumps from the game and from the executable.
 # This is Paradox's data. Generate it yourself with the game's debug commands.
 naslag/
-reports/rtti_typen.txt
 
 # Not published: the sweep's raw material - 51 MB of widget trees and window captures taken from
 # one game state on one machine. It is measurement, not source, and it is Paradox's interface.

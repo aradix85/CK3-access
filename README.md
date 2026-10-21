@@ -53,7 +53,6 @@ save directly. Paths come from the registry; override with `CK3_GAME`, `CK3_DOCS
     screens/    screen files: what the reader says first, and which key acts on a row
     tests/      pytest, including the DLL driven through its real pipe without the game
 
-`check_rtti.ps1` tells in seconds whether this approach could work for another Paradox executable.
 The NVDA controller client is not included (`tools/nvda/README.md`).
 
 See `ARCHITECTURE.md`, `CONTRIBUTING.md` and `CREDITS.md`.

@@ -17,19 +17,14 @@ from tools import paths
 
 SOURCE = os.path.join(paths.PROJECT, 'tools')
 OUT = os.path.join(paths.REPORTS, 'toolindex.md')
-SKIP = ('test_', 'overzicht.py',
-        # Reads the maintainer's working notes only, and .gitignore keeps it out of the repository.
-        # Listing it here would describe a tool a reader of this index does not have.
-        'docsearch.py')
+# Reads the maintainer's working notes only, and .gitignore keeps it out of the repository. Listing
+# it here would describe a tool a reader of this index does not have.
+SKIP = 'docsearch.py'
 
 
 def first_line(text: str | None) -> str:
-    if not text:
-        return ''
-    for line in text.strip().splitlines():
-        if line.strip():
-            return line.strip()
-    return ''
+    """The first line of a docstring, which `ast.get_docstring` has already cleaned."""
+    return text.splitlines()[0].strip() if text else ''
 
 
 def signature(node: ast.FunctionDef) -> str:
@@ -95,7 +90,7 @@ def files() -> Iterator[str]:
         for name in sorted(names):
             if not name.endswith('.py'):
                 continue
-            if any(name.startswith(p) or name == p for p in SKIP):
+            if name == SKIP:
                 continue
             yield os.path.join(map_, name)
 
@@ -125,7 +120,6 @@ def main() -> None:
                                                       first_line(ast.get_docstring(k)) or '-'))
         lines.append('')
 
-    os.makedirs(os.path.dirname(OUT), exist_ok=True)
     pathlib.Path(OUT).write_text('\n'.join(lines) + '\n', encoding='utf-8')
     print(f'{OUT} written, {int(len(lines) + 1)} lines')
 

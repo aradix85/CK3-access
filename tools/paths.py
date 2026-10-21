@@ -13,19 +13,16 @@ Anything can be overridden with an environment variable, for anyone whose game l
 """
 import json
 import os
+import pathlib
+import re
 import winreg
-
-
-def _from_env(name: str) -> str | None:
-    value = os.environ.get(name)
-    return value if value and os.path.isdir(value) else None
 
 
 def registry_value(branch: int, key: str, field: str, view: int = 0) -> str | None:
     """One value from the registry, or None when the key or the value is not there.
 
-    The registry is outside input, and there absence is an answer: Steam writes one of its two
-    keys, and an uninstall entry may lack a field. Any other refusal still breaks.
+    The registry is outside input, and there absence is an answer: Steam may not be installed, and
+    an uninstall entry may lack a field. Any other refusal still breaks.
     """
     try:
         with winreg.OpenKey(branch, key, 0, winreg.KEY_READ | view) as k:
@@ -35,58 +32,41 @@ def registry_value(branch: int, key: str, field: str, view: int = 0) -> str | No
         return None
 
 
-def _steam_libraries() -> list[str]:
-    """The Steam folders from the registry and from `libraryfolders.vdf`; a player may use
-    more than one drive."""
-    folders = [folder
-               for branch, key in ((winreg.HKEY_CURRENT_USER, r'Software\Valve\Steam'),
-                                   (winreg.HKEY_LOCAL_MACHINE, r'SOFTWARE\WOW6432Node\Valve\Steam'))
-               for field in ('SteamPath', 'InstallPath')
-               if (folder := registry_value(branch, key, field))]
-    out = []
-    for base in folders:
-        out.append(base)
-        vdf = os.path.join(base, 'steamapps', 'libraryfolders.vdf')
-        if os.path.exists(vdf):
-            with open(vdf, encoding='utf-8', errors='replace') as file:
-                for line in file:
-                    if '"path"' in line:
-                        part = line.split('"')
-                        if len(part) > 3:
-                            out.append(part[3].replace('\\\\', '\\'))
-    return out
-
-
 def _find_game() -> str | None:
-    candidates = [os.path.join(b, 'steamapps', 'common', 'Crusader Kings III')
-                  for b in _steam_libraries()]
-    for path in candidates:
+    """The install folder, through the Steam client: its own folder from the registry, its libraries
+    from `libraryfolders.vdf`, which lists that folder too; a player may use more than one drive.
+
+    Measured 21 October 2026: the client writes `SteamPath` under the user's key, and that is where
+    it is read; the installer's `InstallPath` under the machine's names the same folder.
+    """
+    steam = registry_value(winreg.HKEY_CURRENT_USER, r'Software\Valve\Steam', 'SteamPath')
+    vdf = os.path.join(steam, 'steamapps', 'libraryfolders.vdf') if steam else None
+    if vdf is None or not os.path.exists(vdf):
+        return None
+    for library in re.findall(r'"path"\s+"([^"]+)"', pathlib.Path(vdf).read_text(encoding='utf-8')):
+        path = os.path.join(library.replace('\\\\', '\\'), 'steamapps', 'common', 'Crusader Kings III')
         if os.path.exists(os.path.join(path, 'binaries', 'ck3.exe')):
             return path
     return None
 
 
 def _find_docs() -> str | None:
-    """The Documents folder comes from the registry, because it can be moved or redirected
-    (OneDrive) and is named differently on a non-English Windows."""
+    """The Documents folder comes from the registry, because it can be moved or redirected to
+    OneDrive. A Dutch Windows shows it as Documenten, but the folder keeps its name."""
     personal = registry_value(winreg.HKEY_CURRENT_USER,
                               r'Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders',
                               'Personal')
-    base = os.path.expandvars(personal) if personal else None
-    for candidate in (base, os.path.join(os.path.expanduser('~'), 'Documents'),
-                      os.path.join(os.path.expanduser('~'), 'Documenten')):
-        if candidate:
-            path = os.path.join(candidate, 'Paradox Interactive', 'Crusader Kings III')
-            if os.path.isdir(path):
-                return path
-    return None
+    if personal is None:
+        return None
+    return os.path.join(os.path.expandvars(personal), 'Paradox Interactive', 'Crusader Kings III')
 
 
-GAME = _from_env('CK3_GAME') or _find_game()
-DOCS = _from_env('CK3_DOCS') or _find_docs()
+# An override is taken as given: one that points nowhere stops at `require` with its own path in
+# the sentence, rather than quietly giving way to another copy of the game.
+GAME = os.environ.get('CK3_GAME') or _find_game()
+DOCS = os.environ.get('CK3_DOCS') or _find_docs()
 PROJECT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-WORK = os.environ.get('CK3_WORK') or os.path.join(os.environ.get('TEMP', os.path.expanduser('~')),
-                                                  'ck3')
+WORK = os.environ.get('CK3_WORK') or os.path.join(os.environ['TEMP'], 'ck3')
 
 EXE = os.path.join(GAME, 'binaries', 'ck3.exe') if GAME else None
 SETTINGS = os.path.join(DOCS, 'pdx_settings.txt') if DOCS else None
@@ -134,7 +114,7 @@ def require(name: str) -> str:
     Stop hard at the site of the problem: a missing path that travels on as an empty string
     produces an error three layers away that has nothing to do with the cause.
     """
-    value: str | None = globals().get(name)
+    value: str | None = globals()[name]
     if not value or not os.path.exists(value):
         raise SystemExit(
             f'{name} not found ({value!r}). Set the environment variable CK3_GAME or CK3_DOCS, '

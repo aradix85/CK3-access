@@ -9,19 +9,10 @@
   "counting_rule": "file size in bytes; changes with every game update and is the key under which fields and model are stored"
  },
  {
-  "name": "RTTI type names in the list on disk",
-  "claimed": 48006,
-  "measure": "lines",
-  "arguments": [
-   "<project>\\reports\\rtti_typen.txt"
-  ],
-  "counting_rule": "lines in the file check_rtti.ps1 produced, one per unique name, deduplicated case sensitively"
- },
- {
   "name": "RTTI type names according to memory.py",
   "claimed": 51058,
   "measure": "type_names",
-  "counting_rule": "memory.type_name_count() on the same exe; equal to check_rtti.ps1 since that script started deduplicating case sensitively on 30 July 2026"
+  "counting_rule": "memory.type_name_count() on the exe: unique MSVC RTTI type names, compared case sensitively"
  },
  {
   "name": "widget vtables in the exe",

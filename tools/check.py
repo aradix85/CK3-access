@@ -13,13 +13,11 @@ Usage:  python -m tools.check [--all]
 import ast
 import fnmatch
 import glob
-import io
 import json
 import os
 import pathlib
 import re
 import sys
-import zipfile
 from collections.abc import Callable, Iterator
 from typing import NotRequired, TypedDict
 
@@ -263,14 +261,6 @@ def cultures_numbered(save: str) -> int:
                if n < len(keys) and keys[n] == key)
 
 
-def gamestate_mb(part: str) -> float:
-    with open(_path(part), 'rb') as file:
-        raw = file.read()
-    start = raw.find(b'PK\x03\x04')
-    with zipfile.ZipFile(io.BytesIO(raw[start:])) as package:
-        return round(package.infolist()[0].file_size / 1048576.0, 1)
-
-
 _ignore_lines: list[str] | None = None
 
 
@@ -307,45 +297,25 @@ def repo_files() -> int:
 
 
 def unseen_texts(what: str) -> int:
-    """Texts in the harvest that are in the tree but not on the screen, counted per reason.
+    """Texts in the harvest that are in the tree but not on the screen.
 
-    The reading rule skips these, so the number decides how much a window says to nobody. Counted
-    over every harvested record: a text is what a text box holds once the markup is stripped, and
-    it is unseen when its rectangle falls outside the drawing area that record was taken at, or it
-    is clipped inside its scroll area, or an ancestor sits at alpha zero, or an ancestor carries
-    0x08 in its state byte - the game hiding it through a `visible` condition, which records carry
-    since 20 September 2026. `all` is the union, which is smaller than the sum because a text can
-    fail two of them at once.
+    `texts` counts what the text boxes hold once the markup is stripped, `all` how many of those the
+    reading rule skips (`reading.on_screen`): outside the drawing area the record was taken at,
+    clipped inside a scroll area, under an ancestor at alpha zero, or under one carrying 0x08 in its
+    state byte. That decides how much a window says to nobody.
     """
-    from tools.ck3 import derive
-    totals = {'texts': 0, 'clipped': 0, 'alpha': 0, 'outside': 0, 'hidden': 0, 'all': 0}
-    for name in sorted(glob.glob(os.path.join(_path('harvest'), '*.json'))):
-        with open(name, encoding='utf-8') as handle:
-            record = json.load(handle)
-        tree = record.get('tree') or []
-        if not tree:
+    from tools.ck3 import derive, pairing, reading
+    texts = unseen = 0
+    for name in sorted(glob.glob(os.path.join(pairing.HARVEST, '*.json'))):
+        record = json.loads(pathlib.Path(name).read_text(encoding='utf-8'))
+        if not record['opened']:
             continue            # a refusal record: a reason and no window, so nothing to read
-        by_address = {node['address']: node for node in tree}
-        width, height = record['size']
-        for node in tree:
-            if not derive.strip_markup(node.get('text') or '').strip():
-                continue
-            totals['texts'] += 1
-            x, y, w, h = node['screen_rect']
-            outside = x + w <= 0 or y + h <= 0 or x >= width or y >= height
-            faded, hidden, walk, seen = False, False, node, set()
-            while walk is not None and walk['address'] not in seen:
-                seen.add(walk['address'])
-                if (walk['alpha'] or 0) <= 0:
-                    faded = True
-                hidden = hidden or bool((walk.get('state') or 0) & 0x08)
-                walk = by_address.get(walk['parent'])
-            totals['clipped'] += bool(node['clipped'])
-            totals['alpha'] += faded
-            totals['outside'] += outside
-            totals['hidden'] += hidden
-            totals['all'] += bool(node['clipped']) or faded or outside or hidden
-    return totals[what]
+        by_address = {node['address']: node for node in record['tree']}
+        for node in record['tree']:
+            if derive.strip_markup(node['text'] or '').strip():
+                texts += 1
+                unseen += not reading.on_screen(node, by_address, record['size'])
+    return {'texts': texts, 'all': unseen}[what]
 
 
 def document_paths() -> tuple[int, list[tuple[str, int, str]]]:
@@ -417,14 +387,10 @@ def mod_windows(part: str) -> int:
     loaded: none of them defines a window at all, so this has to stay zero. If it ever is not, the
     map was regenerated with a mod that does replace or add screens.
     """
+    from tools.ck3 import guimap
     rows = json.loads(pathlib.Path(_path(part)).read_text(encoding='utf-8'))['windows']
-    count = 0
-    for row in rows.values():
-        rel = (row.get('file') or '').replace('/', os.sep)
-        if not any(os.path.exists(os.path.join(paths.require('GAME'), layer, rel))
-                   for layer in ('game', 'clausewitz', 'jomini')):
-            count += 1
-    return count
+    vanilla = {virtual for _, virtual, _ in guimap.files(with_mods=False)}
+    return sum(1 for row in rows.values() if row['file'] not in vanilla)
 
 
 def harvest_total(part: str, field: str) -> int:
@@ -501,8 +467,6 @@ def shortcuts(what: str) -> int:
     plain = [(n, k) for n, k in bound if not re.search(r'alt|ctrl|shift', k, re.IGNORECASE)]
     if what == 'bindings':
         return len(rows)
-    if what == 'generic':
-        return len(rows) - len(named)
     if what == 'named':
         return len(named)
     if what == 'unbound':
@@ -542,20 +506,13 @@ def shortcut_words(what: str) -> int:
 
     found: dict[str, list[tuple[str | None, str | None]]] = {}
 
-    def walk(nodes: list[guimap.Entry]) -> None:
-        for node in nodes:
-            body = node['body']
-            if not body:
-                continue
+    for _, _, full in guimap.files():
+        for node in guimap.walk(guimap.read(full)):
+            body = node['body'] or []
             for child in body:
                 value = child['value']
                 if child['key'] == 'shortcut' and value:
-                    found.setdefault(value.strip('"'), []).append(
-                        (value_of(body, 'text'), value_of(body, 'tooltip')))
-            walk(body)
-
-    for _, _, full in guimap.files():
-        walk(guimap.parse(pathlib.Path(full).read_text(encoding='utf-8-sig', errors='replace')))
+                    found.setdefault(value, []).append((value_of(body, 'text'), value_of(body, 'tooltip')))
     declared = bindings & set(found)
     if what == 'declared':
         return len(declared)
@@ -582,7 +539,7 @@ MEASURES: dict[str, Callable[..., object]] = {
             'bytes': bytes_of, 'lines': lines_of, 'files': files_in,
             'json_field': json_field, 'json_keys': json_keys,
             'type_names': type_names_in_exe, 'widget_vtables': widget_vtables,
-            'gamestate_mb': gamestate_mb, 'repo_files': repo_files,
+            'repo_files': repo_files,
             'mod_windows': mod_windows, 'harvest_total': harvest_total,
             'gui_merged': gui_merged, 'gui_templates': gui_templates,
             'gui_windows': gui_windows, 'gui_dlc': gui_dlc,
@@ -593,7 +550,7 @@ MEASURES: dict[str, Callable[..., object]] = {
 
 
 
-def quoted_numbers(claims: list[Claim]) -> tuple[list[str], int, int]:
+def quoted_numbers(claims: list[Claim], measured: dict[str, object]) -> tuple[list[str], int, int]:
     """Claims that a document repeats, checked against the file that repeats them.
 
     A number in `claims.json` is recomputed here, but a copy of it in `README.md` is not: it ages
@@ -621,11 +578,10 @@ def quoted_numbers(claims: list[Claim]) -> tuple[list[str], int, int]:
                 problems.append('{} quotes {}, which does not exist'.format(claim['name'], name))
                 continue
             seen += 1
-            measure = MEASURES[claim['measure']]
-            measured = str(measure(*claim.get('arguments', [])))
+            value = str(measured[claim['name']])
             text = pathlib.Path(path).read_text(encoding='utf-8')
-            if not re.search(rf'(?<![\d.]){re.escape(measured)}(?![\d])', text):
-                problems.append('{} says {}, and {} does not'.format(claim['name'], measured, name))
+            if not re.search(rf'(?<![\d.]){re.escape(value)}(?![\d])', text):
+                problems.append('{} says {}, and {} does not'.format(claim['name'], value, name))
     return problems, seen, absent
 
 
@@ -699,26 +655,8 @@ def loading_work(files: list[str]) -> list[str]:
 
 
 def main(all_of_them: bool) -> int:
-    claims: list[Claim] = json.loads(pathlib.Path(os.path.join(PROJ, 'reports', 'claims.json')).read_text(encoding='utf-8'))
-    drifted = []
-    for claim in claims:
-        measure = MEASURES[claim['measure']]
-        measured = measure(*claim.get('arguments', []))
-        matches = str(measured) == str(claim['claimed'])
-        if all_of_them or not matches:
-            print('{} {}: the document says {}, measured {}'.format('   ' if matches else 'DRIFTED', claim['name'],
-                     claim['claimed'], measured))
-            if not matches:
-                print('        counting rule: {}'.format(claim['counting_rule']))
-        if not matches:
-            drifted.append(claim['name'])
-
-    print()
-    if drifted:
-        print(f'{len(drifted)} of the {len(claims)} numbers no longer match the disk.')
-    else:
-        print(f'All {len(claims)} numbers match the disk.')
-
+    """The checks that need nothing but this repository first, then the claims, which stop at the
+    first input this machine lacks: the game, the Documents folder, a built DLL, a harvest."""
     seen, missing = document_paths()
     for doc, number, part in missing:
         print(f'GONE    {doc} line {int(number)} names {part}')
@@ -729,22 +667,35 @@ def main(all_of_them: bool) -> int:
         print(f'STALE   {problem}')
     print(f'{int(claimed - len(wrong))} of the {int(claimed)} channel commands named in the documents exist.')
 
-    quotes, counted, absent = quoted_numbers(claims)
-    for problem in quotes:
-        print(f'QUOTED  {problem}')
-    print(f"{int(counted - len(quotes))} of the {int(counted)} numbers a document quotes are still the measured ones.{'' if not absent else f' {int(absent)} more are quoted only in documents that are not in this repository, so they cannot be checked here.'}")
-
     runs, started = script_runs()
     for problem in runs:
         print(f'RUN     {problem}')
     print(f"{int(started - len([r for r in runs if 'does not exist' in r]))} of the {int(started)} script starts named in documents and code are modules that exist.")
 
-    files = scripts()
-    loads = loading_work(files)
-    for problem in loads:
-        print(f'LOADS   {problem}')
-    print(f'{len(files) - len({p.split(" line ")[0] for p in loads})} of the {len(files)} scripts only define when they are loaded.')
-    return 1 if drifted or missing or wrong or quotes or runs or loads else 0
+    claims: list[Claim] = json.loads(pathlib.Path(os.path.join(PROJ, 'reports', 'claims.json')).read_text(encoding='utf-8'))
+    drifted = []
+    measured: dict[str, object] = {}
+    for claim in claims:
+        measured[claim['name']] = value = MEASURES[claim['measure']](*claim.get('arguments', []))
+        matches = str(value) == str(claim['claimed'])
+        if all_of_them or not matches:
+            print('{} {}: the document says {}, measured {}'.format('   ' if matches else 'DRIFTED', claim['name'],
+                     claim['claimed'], value))
+            if not matches:
+                print('        counting rule: {}'.format(claim['counting_rule']))
+        if not matches:
+            drifted.append(claim['name'])
+    print()
+    if drifted:
+        print(f'{len(drifted)} of the {len(claims)} numbers no longer match the disk.')
+    else:
+        print(f'All {len(claims)} numbers match the disk.')
+
+    quotes, counted, absent = quoted_numbers(claims, measured)
+    for problem in quotes:
+        print(f'QUOTED  {problem}')
+    print(f"{int(counted - len(quotes))} of the {int(counted)} numbers a document quotes are still the measured ones.{'' if not absent else f' {int(absent)} more are quoted only in documents that are not in this repository, so they cannot be checked here.'}")
+    return 1 if drifted or missing or wrong or quotes or runs else 0
 
 
 if __name__ == '__main__':

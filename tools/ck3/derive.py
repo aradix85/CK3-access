@@ -993,7 +993,6 @@ def position_from_tree(pid: int, fields: Fields, nodes: int = 1000) -> Fields:
 
 
 def store(fields: Fields) -> None:
-    os.makedirs(os.path.dirname(STORED), exist_ok=True)
     with open(STORED, 'w') as file:
         json.dump(fields, file, indent=1)
 

@@ -32,16 +32,17 @@ The same for Python and C++:
 ## Checks that must pass
 
 `python -m tools.check`, `python -m pytest`, `python -m ruff check .` and `python -m mypy`. `check.py`
-recomputes every number in `reports/claims.json`, checks that every path the documents name exists,
-and reports a script that does work when it is loaded.
+checks that every path, channel command and script start the documents name exists, then recomputes
+every number in `reports/claims.json`; `tests/test_loading.py` reports a script that does work when
+it is loaded.
 A number that carries a decision belongs in `claims.json` with its counting rule.
 
 Don't name a script `test_*.py` unless pytest should collect it: scripts under `tools/` that are run by
 hand may speak through NVDA.
 
-On a fresh clone some claims read as drifted until you have built the DLL and have the game on disk,
-and claims over the harvest measure nothing until you run a harvest of your own. The maintainer's
-working notes are not part of the repository and nothing should depend on them.
+The claims stop at the first input your machine lacks: the game on disk, its Documents folder, a
+built DLL, the save one claim names, or a harvest of your own. The maintainer's working notes are
+not part of the repository and nothing should depend on them.
 
 ## Reporting a problem as a blind user
 
