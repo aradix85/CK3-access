@@ -1,9 +1,9 @@
 """The proof behind the beta gate: a failure speaks instead of falling silent.
 
-Run it before every beta with `python -m tools.never_silent`. It takes the link with the game
-away and it moves a field offset, and both have to produce a sentence. Two steps, both of them a
-real failure path in the product - there is nothing here that exercises the seam against handlers
-written to make it fire.
+Run it before every beta with `python -m tools.never_silent`, with a save loaded. It moves a field
+offset and lets the ordinary start path trip over it, and that has to produce a sentence: a real
+failure path in the product, not a handler written to make the seam fire. A link with the game that
+is not there is proved without a game, in `tests/test_ask_retry.py`.
 
 It puts a recorder in place of the NVDA client, so it needs no screen reader, talks over nobody,
 and can check that braille arrived beside every spoken sentence. That last one is the defect
@@ -51,24 +51,6 @@ def _silence_expected(step: str, work: Callable[[], object]) -> None:
                          'that is perfectly good. Load a save and run this again.')
 
 
-def link_taken_away() -> None:
-    """Ask the channel something over a pipe name that cannot exist.
-
-    Pointing at a name nobody opened is the same failure at the same place as a game that is not
-    running, and it does not care whether a game happens to be up - so this half of the proof
-    stays runnable while the other half needs a live game.
-    """
-    real = channel.PIPE
-    channel.PIPE = real + '_taken_away'
-    channel.close()
-    try:
-        if not _raises(lambda: channel.ask('hello'), OSError):
-            raise SystemExit('the channel answered on a pipe that nobody opened; this proof is broken')
-    finally:
-        channel.PIPE = real
-        channel.close()
-
-
 class _Enough(Exception):
     """Stops the run once the sentence is out."""
 
@@ -114,50 +96,26 @@ def field_moved(pid: int, fields: derive.Fields) -> None:
 
 
 def main() -> None:
-    """Ask for the game first, because that answer decides how honest the first step can be.
-
-    With no game running the link really is gone, and asking it anything is the first step
-    itself - no pretending needed. With a game running the pipe has to be pointed somewhere
-    nobody opened to reach the same place.
-    """
+    """The field step needs a game with the channel inside it, and a save loaded."""
     terminal.utf8()
+    if not channel.alive():
+        raise SystemExit('No game with the channel inside it is running. Start one, load a save and '
+                         'run this again.')
     speech._client = heard
-    said: dict[str, list[str | None]] = {}
-    try:
-        pid = int(channel.ask('hello').split('\t')[1])
-    except OSError as gone:
-        if not heard.spoken:
-            raise SystemExit('SILENT: the link with the game is gone and nothing said so. That is '
-                             'the whole point of this proof, so nothing else here matters until '
-                             'it speaks.') from gone
-        raise SystemExit('The link with the game is gone and it said so, which is the first step. '
-                         'The second needs a game with the channel inside it, so this proof is '
-                         'not finished. Start the game and run it again.') from gone
-
-    said['the link with the game taken away'] = _sentences_from(
-        'the link with the game taken away', link_taken_away)
-
+    pid = int(channel.ask('hello').split('\t')[1])
     fields = derive.stored()
     if not fields:
-        raise SystemExit('The first step spoke. There is no stored derivation to move an offset '
-                         'in, so the second cannot run. Let the game start once and run it again.')
+        raise SystemExit('There is no stored derivation to move an offset in. Let the game start '
+                         'once and run this again.')
     _silence_expected('the derivation left alone', lambda: derive.fields_for(pid))
-    said['a field offset moved'] = _sentences_from(
-        'a field offset moved', lambda: field_moved(pid, fields))
-
+    said = _sentences_from('a field offset moved', lambda: field_moved(pid, fields))
     if heard.brailled != heard.spoken:
         raise SystemExit('speech and braille came out different, so one of the two channels is '
                          f'dropping sentences:\nspoken:   {heard.spoken}\nbrailled: {heard.brailled}')
-
-    for step, sentences in said.items():
-        print(f'{step} spoke {len(sentences)} time(s):')
-        for sentence in sentences:
-            print('   ', sentence)
-
-    if len(set(heard.spoken)) < 2:
-        raise SystemExit('Both steps spoke, but with the same words, so a tester cannot tell them '
-                         'apart. That counts as a failure.')
-    print(f'\nTwo real failures, {len(set(heard.spoken))} different sentences, no silence, braille alongside every one.')
+    print(f'a field offset moved spoke {len(said)} time(s):')
+    for sentence in said:
+        print('   ', sentence)
+    print('\nA real failure, no silence, braille alongside every sentence.')
 
 
 if __name__ == '__main__':

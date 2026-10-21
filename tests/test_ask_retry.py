@@ -2,7 +2,8 @@
 
 A link that breaks during a question is closed and tried once more, so a pipe the DLL opened again
 answers. If it stays shut, the game has ended: `Gone`, without a word. A link that is not there to
-begin with is said once, and not tried twice.
+begin with is said once, and not tried twice. A reply that does not come in time is not asked again,
+because the command may still be running in the game.
 """
 import io
 
@@ -20,6 +21,21 @@ class BrokenLink:
 
     def fileno(self) -> int:
         raise OSError('the pipe is gone')
+
+    def close(self) -> None:
+        self.closed = True
+
+
+class SilentLink:
+    """A connection that takes a question and never answers it, like a DLL still busy with it."""
+
+    def __init__(self) -> None:
+        self.sent: list[bytes] = []
+        self.closed = False
+
+    def write(self, data: bytes) -> int:
+        self.sent.append(data)
+        return len(data)
 
     def close(self) -> None:
         self.closed = True
@@ -73,3 +89,14 @@ def test_a_link_that_is_not_there_is_said_once(monkeypatch: pytest.MonkeyPatch, 
     assert not isinstance(raised.value, channel.Gone)
     assert len(heard.spoken) == 1 and heard.brailled == heard.spoken
     assert len(attempts) == 1
+
+
+def test_a_late_reply_is_not_asked_twice(monkeypatch: pytest.MonkeyPatch) -> None:
+    link = SilentLink()
+    monkeypatch.setattr(channel, '_connection', link)
+    monkeypatch.setattr(channel, '_queue', lambda _file: 0)
+    monkeypatch.setattr(channel, '_connect', lambda: pytest.fail('connected again to ask twice'))
+    with pytest.raises(RuntimeError, match='no reply within the time'):
+        channel.ask('mouse 5 5', timeout=0.05)
+    assert link.sent == [b'mouse 5 5']
+    assert link.closed and channel._connection is None

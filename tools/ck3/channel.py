@@ -5,6 +5,10 @@ Three things keep this conversation on the rails:
   - every reply starts with its length, so a half reply is noticed;
   - leftovers from a previous reply are discarded before anything new is asked.
 
+**A question is sent once.** Only a link that breaks is opened again and the question asked anew; a
+reply that comes too late or makes no sense is an error, because the command may still be running in
+the game, and a click sent twice is two clicks.
+
 Reconnecting and waiting for a free instance is allowed here: this is the boundary with another
 process, and that is exactly where handling does belong.
 """
@@ -39,18 +43,14 @@ def _queue(file: io.FileIO) -> int:
     return ready.value
 
 
-def _drain(file: io.FileIO) -> int:
-    drained = 0
-    while True:
-        count = _queue(file)
-        if not count:
-            return drained
-        drained += len(file.read(count))
+def _drain(file: io.FileIO) -> None:
+    while count := _queue(file):
+        file.read(count)
 
 
-def _connect(attempts: int = 20) -> io.FileIO:
+def _connect() -> io.FileIO:
     """Open the pipe, waiting for a free instance. `ask` decides whether a shut pipe is said."""
-    for _ in range(attempts):
+    for _ in range(20):
         try:
             return open(PIPE, 'r+b', buffering=0)
         except OSError:
@@ -103,13 +103,8 @@ def _read_exact(file: io.FileIO, count: int, limit: float) -> bytes:
     data = b''
     while len(data) < count:
         if not _wait_for_data(file, limit):
-            break
-        part = file.read(min(_queue(file), count - len(data)))
-        if not part:
-            break
-        data += part
-    if len(data) != count:
-        raise OSError(f'reply arrived half: {len(data)} of {int(count)} bytes')
+            raise RuntimeError(f'reply arrived half within the time: {len(data)} of {int(count)} bytes')
+        data += file.read(min(_queue(file), count - len(data)))
     return data
 
 
@@ -117,11 +112,11 @@ def _read_header(file: io.FileIO, limit: float) -> int:
     header = b''
     while not header.endswith(b'\n'):
         if not _wait_for_data(file, limit):
-            raise OSError('no reply within the time (is the command still running in the DLL?)')
+            raise RuntimeError('no reply within the time (is the command still running in the DLL?)')
         header += file.read(1)
     parts = header.decode('utf-8', 'replace').strip().split('\t')
     if len(parts) != 2 or parts[0] != 'reply':
-        raise OSError(f'no usable header received: {header[:40]!r}')
+        raise RuntimeError(f'no usable header received: {header[:40]!r}')
     return int(parts[1])
 
 
@@ -169,6 +164,9 @@ def ask(command: str, timeout: float = 60.0, errors_ok: bool = False) -> str:
             if retried:
                 raise
             retried = True
+        except RuntimeError:
+            close()             # a late reply must not be read as the answer to the next question
+            raise
 
 
 if __name__ == '__main__':

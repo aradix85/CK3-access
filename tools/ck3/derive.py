@@ -1327,7 +1327,7 @@ def fields_for(pid: int) -> tuple[Fields, str]:
             use_fields(fields)
             return fields, 'stored derivation holds'
         reason = 'stored derivation fails: ' + '; '.join(defects)
-        speech.failure('reading the game', 'a field has moved after a game update',
+        speech.failure('reading the game', 'the places it read this game at last time do not hold',
                        'it is working out the new places, which takes a few minutes')
     else:
         reason = 'no derivation for this version of the game'

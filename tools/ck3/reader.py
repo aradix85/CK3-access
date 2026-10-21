@@ -160,6 +160,8 @@ class Reader:
         nothing to a player, and falling silent is worse, because the arrows are ours and the game
         will not answer them either.
         """
+        # Counted first: a window the reader cannot read is said once, not again every round.
+        self.counted = self.counts()
         try:
             window, lines = reading.live(self.pid, game=self.game, tables=self.tables)
         except guimap.GuiError as trouble:
@@ -168,7 +170,6 @@ class Reader:
                            'close it and open another screen, and report the name')
             return None
         self.lines, self.at = lines, 0
-        self.counted = self.counts()
         if window is None:
             if asked:
                 speech.failure('the reader', 'there is no window open for it to read',
