@@ -50,8 +50,8 @@ Anchors = dict[str, tuple[bool, bool]]
 
 class Fields(TypedDict):
     """A derivation, as `fields.json` keeps it: the build it holds for, the seven offsets the channel
-    walks with, three counts from the scan and what the scan skipped, and the two visibility offsets
-    a state with a window to open adds."""
+    walks with, three counts from the scan and what the scan skipped, the two visibility offsets
+    a state with a window to open adds, and the route to the tooltip root once it is asked for."""
     key: str
     parent: int
     children: int
@@ -66,6 +66,8 @@ class Fields(TypedDict):
     flag: NotRequired[int]
     alpha: NotRequired[int]
     skipped: NotRequired[str]
+    gui_global: NotRequired[int]     # from the exe base: a global holding the object with the layer roots
+    root_slot: NotRequired[int]      # in that object: the root of the tree, the tooltip root right after
 
 
 # What a search in the DLL left out, per kind: kind -> (regions, bytes).
@@ -992,6 +994,112 @@ def stored() -> Fields | None:
     with open(STORED) as file:
         fields: Fields = json.load(file)
     return fields if fields.get('key') == build_key() else None
+
+
+TOOLTIP_ROOT = '_tooltip_root_'     # the engine's own name for the root that holds the tooltip of now
+
+
+def tooltip_root(pid: int, fields: Fields, root: int) -> int:
+    """The root outside the tree that holds the tooltip being shown, found without a scan.
+
+    A tooltip's text never stands in the tree. It stands under `_tooltip_root_`, one of the roots
+    only a full scan finds (21 seconds). But the engine keeps its layer roots side by side in one
+    object - `_layer_`, the root of the tree, `_tooltip_root_`, `tools_layer` - and globals in the
+    exe point at that object: ten of them on 1.20.1.1, with the root of the tree 0xd0 bytes in
+    (measured 21 October 2026). So it is two reads from a global. Global and place are derived once
+    per build from the root a start already has, and checked at every call against what they must
+    lead to: the root of the tree, and a widget with the tooltip root's name beside it. A check
+    that fails derives again. Which text under the tooltip root is the tooltip of now, `shown` says;
+    the root keeps the text of its last tooltip.
+    """
+    base = vtablemap.module_base(pid)
+    if 'gui_global' in fields and 'root_slot' in fields:
+        found = _tooltip_through(base + fields['gui_global'], fields['root_slot'], root, fields['name'])
+        if found is not None:
+            return found
+    fields['gui_global'], fields['root_slot'] = _tooltip_route(pid, root, base, fields['name'])
+    store(fields)
+    found = _tooltip_through(base + fields['gui_global'], fields['root_slot'], root, fields['name'])
+    if found is None:
+        raise SystemExit('the route to the tooltip root, just derived, does not lead to it')
+    return found
+
+
+def _named(address: int, f_name: int) -> str | None:
+    b = read(address, f_name + 32)
+    return None if b is None else _cstring(b, f_name)
+
+
+def _tooltip_through(global_address: int, slot: int, root: int, f_name: int) -> int | None:
+    """The tooltip root along a stored route, or None when the route no longer leads there."""
+    holder = read(global_address, 8)
+    if holder is None:
+        return None
+    pair = read(int.from_bytes(holder, 'little') + slot, 16)
+    if pair is None or int.from_bytes(pair[:8], 'little') != root:
+        return None
+    candidate = int.from_bytes(pair[8:], 'little')
+    return candidate if _named(candidate, f_name) == TOOLTIP_ROOT else None
+
+
+def _tooltip_route(pid: int, root: int, base: int, f_name: int) -> tuple[int, int]:
+    """(global from the exe base, place of the root in the object it holds), derived.
+
+    The place: of every pointer to the root of the tree, the one with a widget called
+    `_tooltip_root_` right behind it - one on 1.20.1.1, among about twenty; that search took 6 to 12
+    seconds and the whole derivation 24. The global: a value in the exe's writable pages, 9.8 MB
+    read in a second, that points at most 4 kB before that place. Several
+    globals point at the one object; the object most of them point at wins, and of its globals the
+    lowest, so the choice is the same every time.
+    """
+    pattern = root.to_bytes(8, 'little')
+    zeros = next(i for i, b in enumerate(pattern) if b)        # a search may not start on a zero byte
+    answer = channel.ask(f'find {pattern[zeros:].hex()}', timeout=300)
+    pointers = [int(line.split('\t')[1], 16) - zeros for line in answer.split('\n') if line.startswith('t\t')]
+    slots = []
+    for at in pointers:
+        beside = read(at + 8, 8)
+        if beside is not None and _named(int.from_bytes(beside, 'little'), f_name) == TOOLTIP_ROOT:
+            slots.append(at)
+    if len(slots) != 1:
+        raise SystemExit(f'{len(slots)} places hold the root of the tree beside a tooltip root, among '
+                         f'{len(pointers)} pointers to it; the search {skipped(skips(answer)) or "skipped nothing"}')
+    holders: dict[int, list[int]] = {}
+    for start, data in _image_writable(pid, base):
+        for at in range(0, len(data) - 7, 8):
+            value = int.from_bytes(data[at:at + 8], 'little')
+            if slots[0] - 0x1000 <= value <= slots[0]:
+                holders.setdefault(value, []).append(start + at)
+    if not holders:
+        raise SystemExit('no global in the exe points at the object that lists the layer roots')
+    holder = max(holders, key=lambda value: (len(holders[value]), value))
+    return min(holders[holder]) - base, slots[0] - holder
+
+
+def _image_writable(pid: int, base: int) -> Iterator[tuple[int, bytes]]:
+    """The writable pages of the exe as the running game holds them: where its globals live."""
+    import ctypes
+    k32 = memory._k32
+    handle = k32.OpenProcess(0x0410, False, pid)
+    if not handle:
+        raise SystemExit(f'cannot open the game process: {int(pid)}')
+    info = memory.Region()
+    address = base
+    try:
+        while k32.VirtualQueryEx(handle, ctypes.c_void_p(address), ctypes.byref(info), ctypes.sizeof(info)):
+            start = info.BaseAddress or address
+            if info.AllocationBase != base:
+                return
+            if info.State == 0x1000 and info.Protect & 0x0C:        # committed, read-write or write-copy
+                buffer = ctypes.create_string_buffer(info.RegionSize)
+                got = ctypes.c_size_t()
+                if not k32.ReadProcessMemory(handle, ctypes.c_void_p(start), buffer, info.RegionSize,
+                                             ctypes.byref(got)):
+                    raise SystemExit(f'cannot read the writable page of the exe at {start:x}')
+                yield start, buffer.raw[:got.value]
+            address = start + info.RegionSize
+    finally:
+        k32.CloseHandle(handle)
 
 
 def to_root(address: int, f_parent: int) -> tuple[int, dict[int, int]]:

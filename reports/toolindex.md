@@ -193,6 +193,7 @@ returns a pair, passed on as one thing, costs a run.
 | `position_from_tree(pid, fields, nodes=1000)` | value | Derive the position field a second time, from the live tree instead of the scan. |
 | `store(fields)` | nothing | - |
 | `stored()` | NoneType of value | - |
+| `tooltip_root(pid, fields, root)` | value | The root outside the tree that holds the tooltip being shown, found without a scan. |
 | `to_root(address, f_parent)` | 2-tuple | Up until the parent is no longer a widget. `tree` on a non-widget returns nothing, and that |
 | `quick_root(fields, pid, at_least=500, ample=1500, samples=40)` | 2-tuple | From seed widgets up to the roots, then return the largest tree. |
 | `verify(fields, root, nodes, pid)` | value | Recheck the stored derivation against the game running right now. Three predictions, all |

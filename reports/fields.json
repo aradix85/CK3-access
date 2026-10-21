@@ -12,5 +12,7 @@
  "roots": 1627,
  "skipped": "skipped 1 region of the channel's own stack, 28 kB; skipped 103 regions of memory without a cache, 2947 MB",
  "flag": 208,
- "alpha": 264
+ "alpha": 264,
+ "gui_global": 96986088,
+ "root_slot": 208
 }

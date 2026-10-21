@@ -59,10 +59,11 @@ whatever lies underneath.
   checked against.
 - **Hovering:** the game shows the tooltip of whatever lies under its own hover point. That point
   follows the real pointer only while the game is in front, and then moving the pointer is enough;
-  posted mouse messages never move it. The tooltip's text stands in roots outside the widget tree
-  (`_tooltip_root_` and others), which keep their last text, so `derive.shown` decides which text is
-  current. The product may move the pointer to read a tooltip; until it does, tooltip text comes from
-  the gui files.
+  posted mouse messages never move it. The tooltip's text stands in `_tooltip_root_`, a root outside
+  the widget tree that keeps its last text, so `derive.shown` decides which text is current.
+  `derive.tooltip_root` reaches it without a scan, through the engine's own list of layer roots.
+  The product may move the pointer to read a tooltip; until it does, tooltip text comes from the
+  gui files.
 
 ## 5. Reading the game
 
