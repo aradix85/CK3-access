@@ -19,32 +19,18 @@ import json
 import math
 import os
 import pathlib
-import re
 import struct
 import sys
 import time
 from collections.abc import Iterable, Iterator
 from typing import NotRequired, TypedDict
 
-from tools import paths, windowgrab
-from tools.ck3 import channel, guimap, memory, vtablemap
+from tools import paths
+from tools.ck3 import channel, guimap, memory, onscreen, vtablemap, widgettree
 from tools.nvda import speech
 
 STORED = os.path.join(paths.REPORTS, 'fields.json')
 CHUNK = 0x420          # roomier than the largest widget object
-
-# One widget as the tree walk gives it: vtable, x and y relative to the parent, width, height,
-# parent address, name, text. The tree maps the address of each widget to this.
-Widget = tuple[int, float, float, float, float, int, str, str]
-Nodes = dict[int, Widget]
-# The classes whose text field is their own. On any other widget the same offset reads the
-# neighbour, because text boxes come out of one pool back to back - so filter on class before
-# believing a text.
-TEXT_CLASSES = ('Textbox', 'Editbox')
-# Per widget: its own scale, and the scale that reaches it from above.
-Scales = dict[int, tuple[float, float]]
-# Per window name: does the centring correction apply in x, and in y.
-Anchors = dict[str, tuple[bool, bool]]
 
 
 class Fields(TypedDict):
@@ -74,41 +60,10 @@ Skips = dict[str, tuple[int, int]]
 SKIP_WORDS = {'own stack': "the channel's own stack", 'uncached': 'memory without a cache'}
 
 
-def window_size(pid: int) -> tuple[int, int]:
-    """The drawing area of the game window, live from Windows.
-
-    Not from `pdx_settings.txt`: that file is only written on exit and therefore does not know the
-    GUI scale of this moment.
-    """
-    hwnd, _, _ = windowgrab.window_of(pid)
-    return windowgrab.client_size(hwnd)
-
-
 def build_key() -> str:
     """How you tell it is still the same build. If the exe changes, everything lapses."""
     st = os.stat(paths.require('EXE'))
     return f'{int(st.st_size)}-{int(st.st_mtime)}'
-
-
-def read(address: int, count: int) -> bytes | None:
-    """Raw bytes, or None where the game holds nothing readable. Any other refusal of the DLL - a
-    count over its limit, a command it does not know - is a fault and stops here."""
-    line = channel.ask(f'read {address:x} {int(count)}', timeout=20,
-                        errors_ok=True).split('\n')[0].strip()
-    if line == 'error: unreadable':
-        return None
-    if line.startswith('error'):
-        raise ValueError(f'{line} (read {address:x} {int(count)})')
-    return bytes.fromhex(line)
-
-
-def read_known(address: int, count: int) -> bytes:
-    """`read` for an address the caller knows the game holds: unreadable there is a fault, and it
-    stops here with the address rather than a line later on a value that is not there."""
-    found = read(address, count)
-    if found is None:
-        raise SystemExit(f'cannot read {int(count)} bytes at {address:x}, where the game should hold them')
-    return found
 
 
 def scan(from_address: int, to_address: int) -> tuple[dict[int, int], Skips]:
@@ -160,367 +115,12 @@ def tree(root: int) -> dict[int, int]:
     return found
 
 
-ALPHA: int | None = None
-WINDOW_FLAG: int | None = None
-DRAWING_AREA: tuple[int, int] | None = None
-
-
-def use_screen(pid: int) -> tuple[int, int]:
-    """Publish the drawing area of this run, because it is not a property of the build.
-
-    Asked once and remembered: it is fixed while the game runs - the size is set in
-    `pdx_settings.txt` while the game is shut - and `on_screen` asks for it per widget, one of
-    them 225 times in a single round. Like the two offsets above it starts as None and stays
-    loud when unset: a guessed screen size rejects perfectly good widgets with the words "off
-    screen", which reads exactly like a measurement and is not one. That is what 1600x900
-    written into `openers.on_screen` did once the drawing area became 1920x1200.
-    """
-    global DRAWING_AREA
-    DRAWING_AREA = window_size(pid)
-    return DRAWING_AREA
-
-
-def drawing_area() -> tuple[int, int]:
-    if DRAWING_AREA is None:
-        raise SystemExit('the drawing area is not known yet: call use_screen(pid) first, or '
-                         'fields_for(pid), which does it')
-    return DRAWING_AREA
-
-
-def use_fields(fields: Fields) -> None:
-    """Publish the two visibility offsets for this build.
-
-    `flags_for` and `is_visible` need an offset but are called per widget, so passing the field
-    dictionary down every call site would be noise. They read these two instead, and `fields_for`
-    sets them. They start as None on purpose: a wrong offset here reads as "nothing is visible",
-    which is indistinguishable from a game that has not drawn anything yet, so the failure has to
-    be loud and immediate rather than a plausible empty list.
-    """
-    global ALPHA, WINDOW_FLAG
-    ALPHA, WINDOW_FLAG = fields.get('alpha'), fields.get('flag')
-
-
-def _visibility_offset(which: str) -> int:
-    value = ALPHA if which == 'alpha' else WINDOW_FLAG
-    if value is None:
-        raise SystemExit(f'the {which} offset is not known yet: call fields_for(pid) first, which '
-                         'derives it or reads it back from the stored derivation')
-    return value
-
-
-def field_for(addresses: Iterable[int], offset: int, width: int = 1) -> dict[int, int]:
-    """One field of many objects, in as few channel questions as possible.
-
-    The bytes come back in the order they sit in memory, so they are read back little endian. For
-    one byte that is the same thing; for four it is not, and a child count read the other way
-    round comes out in the millions - which looks exactly like a field that has moved.
-
-    The DLL refuses a command that fills its 8192-byte buffer - it answers `error: command too
-    long`, measured 29 July 2026. Hence at most 400 addresses per question.
-    """
-    out: dict[int, int] = {}
-    items = sorted(addresses)
-    for start in range(0, len(items), 400):
-        part = items[start:start + 400]
-        ask = f'readmany {int(width)} ' + ' '.join('%x' % (a + offset) for a in part)
-        for line in channel.ask(ask, timeout=120).split('\n'):
-            d = line.split('\t')
-            if d[0] == 'l' and len(d) > 2 and d[2] != 'unreadable':
-                out[int(d[1], 16) - offset] = int.from_bytes(bytes.fromhex(d[2].strip()), 'little')
-    return out
-
-
-SWITCHED_OFF = 0x02     # `enabled` false on this widget or an ancestor
-HIDDEN = 0x08           # a `visible` condition that does not hold, on this widget
-PASSES_CLICKS = 0x20    # `alwaystransparent`, or the class default for icons and layouts
-
-
-def flags_for(addresses: Iterable[int]) -> dict[int, int]:
-    """The state byte of many objects. It is a bit pattern, and only `HIDDEN` decides what is drawn.
-
-    **Measured 3 October 2026 on 1.20.0.3, over all 294 named window objects and the gui files, on
-    two states with the same outcome;** the harvest of 1.19.0.6 shows the same pattern. The counts
-    below are from the first.
-    0x08 hides, on any widget, and 0x10 never occurs without it. 0x20 is not about being drawn: it
-    is the game letting the mouse through - 3052 of 3052 widgets with `alwaystransparent = yes`
-    carry it, 4393 of 4398 with `no` do not, and without the line it follows the class (icons and
-    layouts pass clicks, buttons and windows catch them). The root, every layer and the activity
-    planner carry it while drawn, which is why "zero is a drawn window" failed on them. 0x04 is
-    `enabled = no` on the widget itself (407 of 407), and 0x02 goes with it and is inherited by
-    everything below: 549 widgets where it starts all carry 0x04, the 140 that inherit it none.
-    0x01 never occurs; 0x40 sits on scroll areas, edit boxes and zoom areas and is not read here.
-    """
-    return field_for(addresses, _visibility_offset('flag'))
-
-
-def alphas_for(addresses: Iterable[int]) -> dict[int, float]:
-    """The alpha of many objects, the way `flags_for` reads the state byte. One that cannot be read
-    is missing from the answer."""
-    return {address: struct.unpack('<f', value.to_bytes(4, 'little'))[0]
-            for address, value in field_for(addresses, _visibility_offset('alpha'), 4).items()}
-
-
-def shown(nodes: Nodes, addresses: Iterable[int]) -> dict[int, int]:
-    """Of `addresses`, the ones nothing hides, each with its own state byte.
-
-    Hidden means 0x08 on the widget or on any ancestor; a byte that cannot be read is an object
-    that went away between the walk and this question, and counts as not shown. This is the one
-    place that says whether a window is drawn. Alpha, clipping and the drawing area are separate
-    questions (`is_visible`, `is_clipped`, `drawing_area`).
-    """
-    chains: dict[int, list[int]] = {}
-    for address in addresses:
-        chain: list[int] = []
-        node = address
-        while node in nodes:
-            chain.append(node)
-            node = nodes[node][5]
-        chains[address] = chain
-    flags = flags_for({a for chain in chains.values() for a in chain})
-    return {address: flags[address] for address, chain in chains.items()
-            if all(a in flags and not flags[a] & HIDDEN for a in chain)}
-
-
-def widgets(root: int) -> Nodes:
-    """The whole tree with fields attached: address -> (vtable, x, y, width, height, parent, name, text).
-
-    x and y are relative to the parent; use `screen_pos` for the place on screen. The text is only
-    valid on a text box - on other classes you are reading the neighbour from the same pool. So
-    filter on vtable before believing the text.
-
-    **The order of this dict is the engine's own child order, and it is the only copy of it.** The
-    DLL walks each widget's child list in index order and this keeps the lines as they arrive, so
-    the children of a parent come out in the order the game draws them - which is what decides
-    which of two drawn widgets lies on top. Nothing else records it: the parent offset says who the
-    parent is, never in which place. Rebuild children from this dict and do not sort them.
-    """
-    nodes: Nodes = {}
-    missing: list[tuple[str, str]] = []
-    for line in channel.ask(f'tree {root:x}', timeout=60).split('\n'):
-        d = line.split('\t')
-        if d[0] == 'w':
-            nodes[int(d[1], 16)] = (int(d[2], 16), float(d[3]), float(d[4]), float(d[5]),
-                                    float(d[6]), int(d[7], 16), d[8], d[9])
-        elif d[0] == 'missing':
-            missing.append((d[1], d[2]))
-    # Whatever the walk lost it says on a `missing` line - a node or child list it could not read,
-    # a child count nobody believes, a walk an exception broke off, a text cut short - so say so:
-    # on 1.20.0.3 a walk that skipped such nodes in silence lost the decisions window and its 526
-    # widgets. Spoken once per address, because the reader asks for the toast container every round
-    # and a node that stays unreadable would otherwise be said every 400 ms.
-    if missing:
-        print(f"tree from {root:x}: {len(missing)} places lost: {'; '.join(f'{address} {why}{_lost_where(nodes, int(address, 16))}' for address, why in missing[:5])}", file=sys.stderr, flush=True)
-        new = {address for address, _ in missing} - _MISSING_SAID
-        if new:
-            _MISSING_SAID.update(new)
-            speech.failure('reading the game', 'part of the screen could not be read and is left out',
-                           'so what you hear may be incomplete; report it with the game version')
-    return nodes
-
-
-# The addresses as the DLL writes them on a `missing` line, in hex text.
-_MISSING_SAID: set[str] = set()
-
-
-def _lost_where(nodes: Nodes, address: int) -> str:
-    """The names from a lost widget up towards its window, so a loss says where it is: the texts cut
-    short on 21 October 2026 could not be brought back that afternoon to see which they were."""
-    names: list[str] = []
-    while address in nodes and len(names) < 6:
-        names.append(nodes[address][6] or '-')
-        address = nodes[address][5]
-    return f" ({' < '.join(names)})" if names else ''
-
-
-OWN_SCALE = 0x110
-
-
-def scales_for(addresses: Iterable[int]) -> Scales:
-    """Per widget (own scale, scale from above). The two sit next to each other, so one read round.
-
-    Measured 23 August 2026 across all 2437 nodes of the main menu: +0x114 is exactly the product
-    of the own scales of every ancestor, no exceptions. So the engine already works that out for
-    us and the parent chain does not need multiplying.
-    """
-    out: Scales = {}
-    items = sorted(addresses)
-    for start in range(0, len(items), 400):
-        part = items[start:start + 400]
-        ask = 'readmany 8 ' + ' '.join('%x' % (a + OWN_SCALE) for a in part)
-        for line in channel.ask(ask, timeout=120).split('\n'):
-            d = line.split('\t')
-            if d[0] == 'l' and len(d) > 2 and d[2] != 'unreadable':
-                own, above = struct.unpack('<ff', bytes.fromhex(d[2])[:8])
-                out[int(d[1], 16) - OWN_SCALE] = (own, above)
-    return out
-
-
-def _scale_of(scales: Scales, address: int) -> tuple[float, float]:
-    """The scale pair of one node, or a hard stop.
-
-    A missing ancestor used to count as scale 1.0. That is silent and wrong: `screen_pos` walks the
-    parent chain, so asking `scales_for` for the text boxes alone leaves every container above them
-    at 1.0, the position of a scaled container is added unscaled, and its centring correction never
-    fires. Measured 24 August 2026 on the main menu: the frames of the six buttons under the 0.83
-    container came out 110 points too far left, the recogniser read half a word, and the score
-    looked like a recognition problem. Nothing reported anything. So: ask `scales_for` for the whole
-    tree, and if a node is missing, say so here rather than three layers on.
-    """
-    pair = scales.get(address)
-    if pair is None:
-        raise KeyError(f'no scale for {address:x}: ask scales_for for the whole tree, not only the widgets '
-                       'you are placing - screen_pos needs every parent as well')
-    return pair
-
-
-def screen_pos(nodes: Nodes, address: int, scales: Scales,
-               anchors: Anchors | None = None) -> tuple[float, float]:
-    """The place on screen: the own position plus that of every parent, with the scale applied.
-
-    Five of the 515 gui files scale a full-screen container. The arithmetic, measured 30 July and
-    23 August 2026: add up the position of every node times the scale that applies at that point
-    (+0x114), and for each scaled container above it add `size x (1 - own scale) / 2`. That is the
-    difference between shrinking around the centre and shrinking around the edge - and so it only
-    applies on an axis where the container hangs centred. Which axes those are comes from disk, via
-    `scale_anchors`; a scaled container it does not know is corrected on both axes, which is a
-    choice and not a measurement.
-
-    `scales` comes from `scales_for`; pass it in rather than fetching it per widget, because that
-    makes it one channel question per four hundred nodes instead of one per node.
-
-    What remains after this is alignment and not geometry: the recognised word sits centred or left
-    in its box, and which of the two differs per widget, so compare per widget on left or on centre
-    and not blindly on left edges. Measured that way: main menu 24 words, median 0.5 points; pause
-    menu 11 words, median 0.5 points.
-    """
-    if anchors is None:
-        anchors = scale_anchors()
-    x = y = 0.0
-    first = True
-    while address in nodes:
-        _, dx, dy, width, height, parent, _, _ = nodes[address]
-        own, combined = _scale_of(scales, address)
-        x += dx * combined
-        y += dy * combined
-        if not first and abs(own - 1.0) > 0.0001:
-            in_x, in_y = _anchor_for(nodes, address, anchors)
-            if in_x:
-                x += width * (1.0 - own) / 2.0 * combined
-            if in_y:
-                y += height * (1.0 - own) / 2.0 * combined
-        first = False
-        address = parent
-    return x, y
-
-
-def _anchor_for(nodes: Nodes, address: int, anchors: Anchors) -> tuple[bool, bool]:
-    """From a scaled container up to the window it hangs in."""
-    p, steps = address, 0
-    while p in nodes and steps < 24:
-        name = nodes[p][6]
-        if name in anchors:
-            return anchors[name]
-        p, steps = nodes[p][5], steps + 1
-    return True, True
-
-
-_ANCHORS: Anchors | None = None
-
-
-def _scaled(entries: list[guimap.Entry], named: str | None, anchors: Anchors) -> None:
-    """Every block that scales itself to fit, under its own name or the nearest name above it,
-    with the anchor it hangs on itself - not one a child a few lines further down carries."""
-    for entry in entries:
-        body = entry['body']
-        if not body:
-            continue
-        own = next((e['value'] for e in body if e['key'] == 'name' and e['value']), named)
-        if own and any(e['key'] == 'scale' and 'ScaleToFitElement' in (e['value'] or '') for e in body):
-            parts = set(next((e['value'] or '' for e in body if e['key'] == 'parentanchor'), '').split('|'))
-            anchors[own] = ('center' in parts or 'hcenter' in parts, 'center' in parts or 'vcenter' in parts)
-        _scaled(body, own, anchors)
-
-
-def scale_anchors() -> Anchors:
-    """Per scaled container, by its own name or the nearest name above it: does the centring
-    correction apply in x, and in y? Read from the gui files, through `guimap`.
-
-    No table of our own: the anchoring sits as `parentanchor` in the block that carries the `scale`
-    line, and that is the source that changes along with the game. Measured 23 August 2026 across
-    all gui files: five files really scale. The main menu and the bookmarks hang on `center` and
-    therefore correct on both axes; `ingame_pausemenu` hangs on `left|vcenter` and corrects only in
-    y; the ruler designer on `hcenter` and `bottom|hcenter` respectively, so only in x. In
-    `fullscreen_event.gui` the scale line is commented out, so the event window does not scale -
-    that is the hard requirement and it falls outside this. Read per block on 21 October 2026, the
-    barbershop scales three containers, and only its portrait hangs on `center`: the line reader
-    before it took the anchor of a child eight lines down for the whole window.
-    """
-    global _ANCHORS
-    if _ANCHORS is not None:
-        return _ANCHORS
-    anchors: Anchors = {}
-    for _, _, full in guimap.files():
-        text = pathlib.Path(full).read_text(encoding='utf-8-sig', errors='replace')
-        if 'ScaleToFitElement' not in text:
-            continue
-        _scaled(guimap.parse(text), None, anchors)
-    _ANCHORS = anchors
-    return anchors
-
-
-def screen_size(nodes: Nodes, address: int, scales: Scales) -> tuple[float, float]:
-    """The size as it is drawn: the own size times the own scale times the scale from above."""
-    _, _, _, width, height, _, _, _ = nodes[address]
-    own, combined = _scale_of(scales, address)
-    return width * own * combined, height * own * combined
-
-
-def is_visible(nodes: Nodes, address: int) -> bool:
-    """Alpha is a property of the whole parent chain: if one ancestor sits at 0 you see nothing,
-    while the child itself keeps reporting 1.0. An ancestor that can no longer be read went away
-    after the walk, and counts as not shown, as in `shown`."""
-    while address in nodes:
-        alpha = read(address + _visibility_offset('alpha'), 4)
-        if alpha is None or struct.unpack('<f', alpha)[0] == 0.0:
-            return False
-        address = nodes[address][5]
-    return True
-
-
-
-def is_clipped(nodes: Nodes, address: int, scales: Scales, classes: dict[int, str | None]) -> bool:
-    """Is this widget scrolled out of view inside a list?
-
-    A third mechanism next to the window flag and alpha, and it had to be measured because the
-    other two say nothing about it. Measured 24 August 2026 on the decisions view, a list longer
-    than its frame: seven rows sat below the box of their scroll area, down to y 2286 against a
-    frame ending at 855, and every one of them carried alpha 1.0. So alpha does not clip, and a
-    reader that trusts it reads out rows nobody can see.
-
-    What does decide it is geometry: the nearest ScrollArea above a widget has a box, and a row
-    outside that box is not on screen. `classes` is the class map, because the scroll area is
-    recognised by its class and not by its name.
-    """
-    x, y = screen_pos(nodes, address, scales)
-    width, height = screen_size(nodes, address, scales)
-    p, steps = nodes[address][5], 0
-    while p in nodes and steps < 30:
-        if 'Scroll' in (classes.get(p) or ''):
-            ax, ay = screen_pos(nodes, p, scales)
-            aw, ah = screen_size(nodes, p, scales)
-            if aw > 1 and ah > 1:
-                return not (ax - 1 <= x and ay - 1 <= y
-                            and x + width <= ax + aw + 1 and y + height <= ay + ah + 1)
-        p, steps = nodes[p][5], steps + 1
-    return False
-
-
 def chunks_of(addresses: Iterable[int]) -> tuple[dict[int, bytes], int]:
     """Raw bytes per object. Unreadable ones are skipped and counted, not hidden."""
     chunks: dict[int, bytes] = {}
     failed = 0
     for address in addresses:
-        b = read(address, CHUNK)
+        b = channel.read(address, CHUNK)
         if b is None:
             failed += 1
         else:
@@ -618,7 +218,7 @@ def _child_field(chunks: dict[int, bytes], children_of: dict[int, set[int]], sam
             pointer = int.from_bytes(chunks[parent][offset:offset + 8], 'little')
             if pointer < 0x10000 or len(children) > 500:
                 continue
-            b = read(pointer, len(children) * 8)
+            b = channel.read(pointer, len(children) * 8)
             if b is None:
                 continue
             block = {int.from_bytes(b[i:i + 8], 'little') for i in range(0, len(b), 8)}
@@ -757,7 +357,7 @@ def _cstring(chunk: bytes, offset: int) -> str | None:
     pointer = int.from_bytes(block[0:8], 'little')
     if pointer < 0x10000:
         return None
-    b = read(pointer, length)
+    b = channel.read(pointer, length)
     return None if b is None else b.decode('utf-8', 'replace')
 
 
@@ -788,27 +388,6 @@ def _name_field(chunks: dict[int, bytes], gui: str) -> int:
     return best[0]
 
 
-_MARKUP = re.compile('[\x15\x16][^ !]*[ !]?')
-
-
-def strip_markup(text: str) -> str:
-    """Strips the game's markup codes; those do not appear in the localization files.
-
-    Two bytes open a code: 0x15 for colour, tooltips and links, and 0x16 for an icon. Both end at
-    a space or an exclamation mark, and the pattern has to stop there instead of running on to the
-    next space. Measured 25 August 2026 over the 1466 texts in the harvest: running on eats the
-    separator between two codes standing back to back, which glued words together in 117 of them
-    (`SucceededIntent`) and swallowed a colon that is on screen (`Aspiration` for `Aspiration:`).
-    Both were written down as quirks of the game and were ours. Judged three ways: 179 texts found
-    literally in the localization against 175, 883 text boxes confirmed by the recogniser against
-    871, and no change at all on the 1296 texts that carry no two codes in a row.
-
-    An icon carries meaning - `warning_icon` heads the 53 texts that hold one - but here it is
-    markup like any other. The raw text keeps it for the presentation layer to turn into a word.
-    """
-    return re.sub(' {2,}', ' ', _MARKUP.sub('', text)).strip()
-
-
 def _text_field(chunks: dict[int, bytes], text_boxes: list[int], translation: str, f_name: int) -> int:
     """Prediction: most displayed texts appear in the localization files. Test on text boxes only -
     on another object you are reading the neighbour from the same pool here."""
@@ -816,8 +395,8 @@ def _text_field(chunks: dict[int, bytes], text_boxes: list[int], translation: st
     for offset in range(0, CHUNK - 32, 8):
         if offset == f_name:
             continue
-        texts = {strip_markup(t) for t in (_cstring(chunks[a], offset) for a in text_boxes
-                                     if a in chunks) if t}
+        texts = {widgettree.strip_markup(t)
+                 for t in (_cstring(chunks[a], offset) for a in text_boxes if a in chunks) if t}
         texts = {t for t in texts if t}
         if len(texts) < 5:
             continue
@@ -835,13 +414,6 @@ def window_classes_of(pid: int) -> set[int]:
     return {module + v for v in memory.vtables_by_name('Window')}
 
 
-def class_map(pid: int, addresses: dict[int, int]) -> dict[int, str | None]:
-    """Address -> class name, through the vtable. `addresses` is a dict {address: vtable}, not a list."""
-    base = vtablemap.module_base(pid)
-    names = {base + rva: name for rva, name in memory.widget_vtables().items()}
-    return {address: names.get(vtable) for address, vtable in addresses.items()}
-
-
 def derive_all(pid: int) -> tuple[Fields, set[int]]:
     """Derive every field from a full scan. Expensive, so once per build. The widgets the scan found
     come back with it, so the tree can be held against them."""
@@ -851,7 +423,7 @@ def derive_all(pid: int) -> tuple[Fields, set[int]]:
         raise SystemExit('the scan found no widget at all; is the game already showing a screen? '
                          f'It {left_out or "skipped nothing"}')
     chunks, failed = chunks_of(addresses)
-    width, height = window_size(pid)
+    width, height = onscreen.window_size(pid)
 
     f_parent = _parent_field(chunks, set(addresses))
     children_of = children_from_parents(chunks, f_parent, set(addresses))
@@ -862,7 +434,7 @@ def derive_all(pid: int) -> tuple[Fields, set[int]]:
     f_size = _size_field(chunks, roots, width, height)
     f_position = _pos_field(chunks, f_parent, f_size)
     f_name = _name_field(chunks, gui_text())
-    classes = class_map(pid, addresses)
+    classes = widgettree.class_map(pid, addresses)
     text_boxes = [a for a, k in classes.items() if k == 'Textbox']
     f_text = _text_field(chunks, text_boxes, localization_text(), f_name)
 
@@ -908,7 +480,7 @@ def visibility_fields(pid: int, fields: Fields, root: int, key: int = 112,
     The counter is why the control matters: without it a field that simply ticks would pass.
     """
     window_classes = window_classes_of(pid)
-    nodes = widgets(root)
+    nodes = widgettree.widgets(root)
     named: dict[str, int] = {}
     for a, k in nodes.items():
         if k[0] in window_classes and k[6]:
@@ -921,7 +493,7 @@ def visibility_fields(pid: int, fields: Fields, root: int, key: int = 112,
     def snapshot() -> dict[str, bytes]:
         out: dict[str, bytes] = {}
         for name in (subject, control):
-            chunk = read(named[name], CHUNK)
+            chunk = channel.read(named[name], CHUNK)
             if chunk is None:
                 raise SystemExit(f'deriving visibility failed: the {name} object can no longer be read')
             out[name] = chunk
@@ -1043,16 +615,16 @@ def tooltip_root(pid: int, fields: Fields, root: int) -> int:
 
 
 def _named(address: int, f_name: int) -> str | None:
-    b = read(address, f_name + 32)
+    b = channel.read(address, f_name + 32)
     return None if b is None else _cstring(b, f_name)
 
 
 def _tooltip_through(global_address: int, slot: int, root: int, f_name: int) -> int | None:
     """The tooltip root along a stored route, or None when the route no longer leads there."""
-    holder = read(global_address, 8)
+    holder = channel.read(global_address, 8)
     if holder is None:
         return None
-    pair = read(int.from_bytes(holder, 'little') + slot, 16)
+    pair = channel.read(int.from_bytes(holder, 'little') + slot, 16)
     if pair is None or int.from_bytes(pair[:8], 'little') != root:
         return None
     candidate = int.from_bytes(pair[8:], 'little')
@@ -1075,7 +647,7 @@ def _tooltip_route(pid: int, root: int, base: int, f_name: int) -> tuple[int, in
     pointers = [int(line.split('\t')[1], 16) - zeros for line in answer.split('\n') if line.startswith('t\t')]
     slots = []
     for at in pointers:
-        beside = read(at + 8, 8)
+        beside = channel.read(at + 8, 8)
         if beside is not None and _named(int.from_bytes(beside, 'little'), f_name) == TOOLTIP_ROOT:
             slots.append(at)
     if len(slots) != 1:
@@ -1124,7 +696,7 @@ def to_root(address: int, f_parent: int) -> tuple[int, dict[int, int]]:
     is the test right there."""
     p, nodes = address, tree(address)
     for _ in range(40):
-        b = read(p + f_parent, 8)
+        b = channel.read(p + f_parent, 8)
         if b is None:
             return p, nodes
         upper = int.from_bytes(b, 'little')
@@ -1197,20 +769,20 @@ def _child_check(fields: Fields, root: int, how_many: int = 20) -> tuple[int, in
     tested, misses = 0, 0
     while todo and tested < how_many:
         parent = todo.pop(0)
-        b = read(parent, need)
+        b = channel.read(parent, need)
         if b is None:
             continue
         items = int.from_bytes(b[fields['children']:fields['children'] + 8], 'little')
         count = int.from_bytes(b[fields['count']:fields['count'] + 4], 'little')
         if not items or count == 0 or count > 500:
             continue
-        block = read(items, count * 8)
+        block = channel.read(items, count * 8)
         if block is None:
             misses += 1
             continue
         children = [int.from_bytes(block[i:i + 8], 'little') for i in range(0, len(block), 8)]
         for child in children:
-            back = read(child + fields['parent'], 8)
+            back = channel.read(child + fields['parent'], 8)
             if back is None or int.from_bytes(back, 'little') != parent:
                 misses += 1
         todo.extend(children)
@@ -1228,7 +800,7 @@ def verify(fields: Fields, root: int, nodes: dict[int, int], pid: int) -> list[s
     nothing.
     """
     chunks, _ = chunks_of(_sample(nodes, root))
-    window_width, window_height = window_size(pid)
+    window_width, window_height = onscreen.window_size(pid)
     defects: list[str] = []
 
     tested, misses = _child_check(fields, root)
@@ -1239,7 +811,7 @@ def verify(fields: Fields, root: int, nodes: dict[int, int], pid: int) -> list[s
 
     # The root is read for itself, with only the bytes this needs: in the sample it can fall out
     # unreadable, and this check then stood down without a word (4 October 2026, see _child_check).
-    b, h = _pair(read_known(root, fields['size'] + 8), fields['size'])
+    b, h = _pair(channel.read_known(root, fields['size'] + 8), fields['size'])
     scale_x = window_width / b if b else 0.0
     scale_y = window_height / h if h else 0.0
     if not scale_x or abs(scale_x - scale_y) > 0.005:
@@ -1297,7 +869,7 @@ def _visibility_check(fields: Fields, chunks: dict[int, bytes], nodes: dict[int,
         return ['no visibility offsets in the stored derivation']
     # Publish the candidate before testing it: `flags_for` reads the offset from there, and this is
     # the one under test. If it turns out wrong, `fields_for` derives again and publishes that.
-    use_fields(fields)
+    onscreen.use_fields(fields.get('alpha'), fields.get('flag'))
     defects: list[str] = []
     alphas = [struct.unpack_from('<f', b, fields['alpha'])[0] for b in chunks.values()]
     if not alphas or any(a < 0.0 or a > 1.0 for a in alphas) or 1.0 not in alphas:
@@ -1305,7 +877,7 @@ def _visibility_check(fields: Fields, chunks: dict[int, bytes], nodes: dict[int,
 
     window_classes = window_classes_of(pid)
     windows = [a for a, vtable in nodes.items() if vtable in window_classes][:400]
-    values = list(flags_for(windows).values())
+    values = list(onscreen.flags_for(windows).values())
     if not values:
         defects.append('no window object could be read at +0x{:03X}'.format(fields['flag']))
     elif any(v & ~0x3F for v in values):
@@ -1321,14 +893,14 @@ def fields_for(pid: int) -> tuple[Fields, str]:
     also has to prove itself every time.
     """
     vtablemap.configure(pid)          # vtables first, or no scan finds anything
-    use_screen(pid)                   # and the drawing area, which every geometric answer needs
+    onscreen.use_screen(pid)          # and the drawing area, which every geometric answer needs
     fields = stored()
     if fields:
         configure_channel(fields)               # the walk below runs on these, not on defaults
         root, nodes = quick_root(fields, pid)
         defects = verify(fields, root, nodes, pid)
         if not defects:
-            use_fields(fields)
+            onscreen.use_fields(fields.get('alpha'), fields.get('flag'))
             return fields, 'stored derivation holds'
         reason = 'stored derivation fails: ' + '; '.join(defects)
         speech.failure('reading the game', 'the places it read this game at last time do not hold',
@@ -1341,7 +913,7 @@ def fields_for(pid: int) -> tuple[Fields, str]:
     all_in_scan(nodes, scanned, fields.get('skipped', ''))
     fields, note = _with_visibility(pid, fields, root)
     store(fields)
-    use_fields(fields)
+    onscreen.use_fields(fields.get('alpha'), fields.get('flag'))
     left_out = f"; the scan {fields['skipped']}" if fields.get('skipped') else ''
     return fields, reason + ' - derived again' + note + left_out
 
@@ -1351,8 +923,8 @@ def _with_visibility(pid: int, fields: Fields, root: int) -> tuple[Fields, str]:
 
     They need a window that can be opened, and the main menu has none - its window objects are all
     dialogues nobody has opened. Deriving the other seven there is still useful, so the tree can be
-    walked and read; what cannot be answered is what is visible, and `use_fields` makes any attempt
-    to ask say so instead of guessing.
+    walked and read; what cannot be answered is what is visible, and `onscreen.use_fields` makes any
+    attempt to ask say so instead of guessing.
     """
     try:
         return visibility_fields(pid, fields, root), ''

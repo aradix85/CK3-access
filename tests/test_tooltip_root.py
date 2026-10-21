@@ -7,7 +7,7 @@ dictionary here, laid out the way the game laid it out on 21 October 2026.
 """
 import pytest
 
-from tools.ck3 import derive, vtablemap
+from tools.ck3 import channel, derive, vtablemap
 
 BASE, HOLDER, ROOT, TIP, OTHER = 0x7FF700000000, 0x25A6F1B27B0, 0x25A6F22AD30, 0x25A6F1B2C90, 0x25A7425F460
 GLOBAL, SLOT, F_NAME = 0x5C7E3E8, 0xD0, 0x1B8
@@ -46,7 +46,7 @@ def use(monkeypatch: pytest.MonkeyPatch, laid_out: dict[int, bytes]) -> None:
             if start <= address and address + count <= start + len(data):
                 return data[address - start:address - start + count]
         return None
-    monkeypatch.setattr(derive, 'read', read)
+    monkeypatch.setattr(channel, 'read', read)
 
 
 def test_a_route_that_still_holds_is_used_without_deriving(

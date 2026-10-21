@@ -174,7 +174,7 @@ def ledger_buildings(what: str) -> int:
     kept only the last action per key, on three clicks that drew no
     `holding_view` - while a window counted as drawn only at state byte zero, and
     the open holding view carries 0x20. Whether the second call undoes the first
-    is measured with `derive.shown`, not read off the file.
+    is measured with `onscreen.shown`, not read off the file.
 
     `boxes` counts `widget_building_item_ledger` nodes in the expanded ledger.
     `acting` counts widgets inside those boxes carrying onclick, onrightclick,
@@ -305,7 +305,7 @@ def unseen_texts(what: str) -> int:
     clipped inside a scroll area, under an ancestor at alpha zero, or under one carrying 0x08 in its
     state byte. That decides how much a window says to nobody.
     """
-    from tools.ck3 import derive, reading
+    from tools.ck3 import reading, widgettree
     texts = unseen = 0
     for name in sorted(glob.glob(os.path.join(paths.HARVEST, '*.json'))):
         record = json.loads(pathlib.Path(name).read_text(encoding='utf-8'))
@@ -313,7 +313,7 @@ def unseen_texts(what: str) -> int:
             continue            # a refusal record: a reason and no window, so nothing to read
         by_address = {node['address']: node for node in record['tree']}
         for node in record['tree']:
-            if derive.strip_markup(node['text'] or '').strip():
+            if widgettree.strip_markup(node['text'] or '').strip():
                 texts += 1
                 unseen += not reading.on_screen(node, by_address, record['size'])
     return {'texts': texts, 'all': unseen}[what]

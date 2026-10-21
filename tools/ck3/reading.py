@@ -35,7 +35,7 @@ import time
 from typing import TypedDict
 
 from tools import paths
-from tools.ck3 import derive, guimap, pairing, windowmap
+from tools.ck3 import guimap, onscreen, pairing, widgettree, windowmap
 from tools.nvda import speech
 
 
@@ -228,7 +228,7 @@ def on_screen(node: pairing.Harvested, by_address: dict[str, pairing.Harvested],
         # - while alpha stays up. Measured 21 September 2026: 40 of 260 texts in seven windows sat
         # under it, all in the character finder, such as "No matching Characters for current filter"
         # while it listed characters. A record from before 20 September carries no state.
-        if (walk.get('state') or 0) & derive.HIDDEN:
+        if (walk.get('state') or 0) & onscreen.HIDDEN:
             return False
         walk = by_address.get(walk['parent'])
     return True
@@ -341,7 +341,7 @@ def units(window: str, tables: guimap.Tables, record: pairing.Record,
     by_parent, top = pairing.live_tree(record)
     out: list[Unit] = []
     for node in live_order(by_parent, top):
-        text = derive.strip_markup(node['text'] or '').strip()
+        text = widgettree.strip_markup(node['text'] or '').strip()
         if not text or not on_screen(node, by_address, area):
             continue
         source = source_of.get(id(node))
@@ -446,7 +446,7 @@ def state_word(state: int | None) -> str | None:
     """`unavailable` in front of a line whose button the game has switched off, or nothing.
 
     **A field rather than a rule per screen.** 0x02 in the state byte is `enabled` false on the
-    widget or on any ancestor, and the game copies it down the whole subtree (`derive.flags_for`),
+    widget or on any ancestor, and the game copies it down the whole subtree (`onscreen.flags_for`),
     so the text inside a switched-off button carries it itself. First seen 20 September 2026 on the
     save dialog: its save button went from 0x00 to 0x06 and back while the name field was emptied
     and typed into, and the cancel button beside it did not move.
@@ -454,7 +454,7 @@ def state_word(state: int | None) -> str | None:
     The word goes in front, because a state that arrives after the sentence arrives too late to
     act on.
     """
-    return 'unavailable' if (state or 0) & derive.SWITCHED_OFF else None
+    return 'unavailable' if (state or 0) & onscreen.SWITCHED_OFF else None
 
 
 def spoken(unit: Unit) -> str:
@@ -649,7 +649,7 @@ def live(pid: int, window: str | None = None, game: windowmap.Game | None = None
     openers.game_classes = game.window_classes      # live_record reads this module global
     nodes = game.tree()
     windows = [a for a, k in nodes.items() if k[0] in game.window_classes]
-    drawn = derive.shown(nodes, windows)
+    drawn = onscreen.shown(nodes, windows)
 
     index: dict[int, int] = {}
     seen: collections.Counter[int] = collections.Counter()
@@ -672,17 +672,17 @@ def live(pid: int, window: str | None = None, game: windowmap.Game | None = None
         while stack:
             below.append(stack.pop())
             stack.extend(children[below[-1]])
-        kinds = derive.class_map(pid, {a: nodes[a][0] for a in below})
+        kinds = widgettree.class_map(pid, {a: nodes[a][0] for a in below})
         texts = [a for a in below
-                 if kinds[a] in derive.TEXT_CLASSES and derive.strip_markup(nodes[a][7]).strip()]
-        return bool(derive.shown(nodes, texts))
+                 if kinds[a] in widgettree.TEXT_CLASSES and widgettree.strip_markup(nodes[a][7]).strip()]
+        return bool(onscreen.shown(nodes, texts))
 
     here: int | None = None
     if window is None:
         # A window that lets the mouse through is drawn without being a panel: `layer_window` and
         # `achievement_popup_window` stand on every screen that way, and the activity planner is
         # one too. So a panel goes first, and one of those counts only while it shows text.
-        solid = [a for a, flag in drawn.items() if not flag & derive.PASSES_CLICKS]
+        solid = [a for a, flag in drawn.items() if not flag & onscreen.PASSES_CLICKS]
         clear = [a for a in drawn if a not in solid and shows_text(a)]
         if not solid and not clear:
             return None, []
@@ -691,7 +691,7 @@ def live(pid: int, window: str | None = None, game: windowmap.Game | None = None
 
     record, _, _, _ = openers.live_record(game, pid, window, here, nodes)
     return window, sentences(units(window, tables or guimap.tables(), record,
-                                   derive.drawing_area()), window)
+                                   onscreen.drawing_area()), window)
 
 
 def main() -> None:

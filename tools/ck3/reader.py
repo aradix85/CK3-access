@@ -48,7 +48,7 @@ so a toast missed is not a toast lost.
 """
 import sys
 
-from tools.ck3 import channel, derive, guimap, memory, reading, windowmap
+from tools.ck3 import channel, guimap, memory, onscreen, reading, widgettree, windowmap
 from tools.nvda import speech
 
 UP, DOWN, TOGGLE, EXPLAIN = 38, 40, 123, 46
@@ -69,28 +69,28 @@ def gui_tables() -> guimap.Tables:
     return tables
 
 
-def toast_text(pid: int, containers: list[int], above: derive.Nodes) -> str | None:
+def toast_text(pid: int, containers: list[int], above: widgettree.Nodes) -> str | None:
     """The text of the toast that is showing now, or None when none is.
 
-    **Drawn is what `derive.shown` says, here as everywhere:** no 0x08 on the widget or on any
+    **Drawn is what `onscreen.shown` says, here as everywhere:** no 0x08 on the widget or on any
     ancestor up to the root, and a byte that cannot be read is an object that went away, so not
     drawn. `above` holds the containers and every ancestor of theirs, taken from the tree at the
     start; the subtree below a container is walked only while it shows. The same container holds a
     default, a contest and a contract variant, and only one of them is visible at a time.
 
-    **A text counts only on a text class** (`derive.TEXT_CLASSES`): on any other widget the text
+    **A text counts only on a text class** (`widgettree.TEXT_CLASSES`): on any other widget the text
     field is the neighbour's.
     """
-    showing = derive.shown(above, containers)
+    showing = onscreen.shown(above, containers)
     texts: list[str] = []
     for container in showing:
-        below = derive.widgets(container)
-        kinds = derive.class_map(pid, {a: n[0] for a, n in below.items()})
+        below = widgettree.widgets(container)
+        kinds = widgettree.class_map(pid, {a: n[0] for a, n in below.items()})
         candidates = [a for a, n in below.items()
-                      if kinds[a] in derive.TEXT_CLASSES and derive.strip_markup(n[7]).strip()]
-        drawn = derive.shown({**above, **below}, candidates)
+                      if kinds[a] in widgettree.TEXT_CLASSES and widgettree.strip_markup(n[7]).strip()]
+        drawn = onscreen.shown({**above, **below}, candidates)
         for address in candidates:
-            text = derive.strip_markup(below[address][7]).strip()
+            text = widgettree.strip_markup(below[address][7]).strip()
             if address in drawn and text not in texts:
                 texts.append(text)
     return ', '.join(texts) or None
@@ -106,12 +106,12 @@ class Reader:
         self.on = False
         self.lines: list[reading.Line] = []
         self.at = 0
-        tree = derive.widgets(self.game.root)
+        tree = widgettree.widgets(self.game.root)
         self.layers = {a: (n[6] or '-') for a, n in tree.items() if n[5] == self.game.root}
         self.counted = self.counts()
         self.toasts = [a for a, n in tree.items() if n[6] == 'toast_container_widget']
-        # Every toast container with its chain up to the root, so `derive.shown` can walk it.
-        self.above: derive.Nodes = {}
+        # Every toast container with its chain up to the root, so `onscreen.shown` can walk it.
+        self.above: widgettree.Nodes = {}
         for container in self.toasts:
             walk = container
             while walk in tree:
@@ -127,7 +127,7 @@ class Reader:
         but whatever it is added to counts its own children, in the very field the tree walk runs
         on. One of these layers is called `events` and stands empty until one arrives.
         """
-        return derive.field_for(self.layers, self.game.fields['count'], 4)
+        return channel.field_for(self.layers, self.game.fields['count'], 4)
 
     def toast(self) -> str | None:
         """The text of the toast that is showing now, or None when none is."""

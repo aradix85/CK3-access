@@ -4,9 +4,9 @@ Seven parts, split where a game patch is most likely to hit.
 
 | | Part | What it is for |
 |---|---|---|
-| 1 | **The channel** — `dll/channel.cpp`, `dll/input.cpp` | a few primitives over a pipe; knows nothing about the game |
+| 1 | **The channel** — `dll/channel.cpp`, `dll/input.cpp`, `tools/ck3/channel.py` | a few primitives over a pipe; knows nothing about the game |
 | 2 | **Derivation** — `tools/ck3/derive.py` | finds every memory offset again at each start |
-| 3 | **Visibility** | what of the tree is really on screen, and which window lies on top |
+| 3 | **Visibility** — `tools/ck3/widgettree.py`, `tools/ck3/onscreen.py` | the widget tree, what of it is really on screen, and which window lies on top |
 | 4 | **Input** | keys taken before the game sees them; clicks and keys posted inward |
 | 5 | **Reading the game** | five independent sources; their disagreement is the test |
 | 6 | **Presentation** — `screens/`, `tools/ck3/reading.py`, `tools/ck3/reader.py` | what gets said, in what order, on which key |
@@ -36,7 +36,7 @@ fails. Between 1.16 and 1.19 one offset moved; nothing downstream noticed.
 
 Every window is built up front and stays in the tree, so being in the tree says nothing. What decides
 whether something is drawn:
-- **A state byte**, along the parent chain: only 0x08 hides (`derive.shown`). 0x20 means the widget
+- **A state byte**, along the parent chain: only 0x08 hides (`onscreen.shown`). 0x20 means the widget
   lets the mouse through, so a drawn window carrying it never catches a click. 0x02 means switched
   off, inherited from where `enabled` is false.
 - **Alpha** along the parent chain.
@@ -60,7 +60,7 @@ whatever lies underneath.
 - **Hovering:** the game shows the tooltip of whatever lies under its own hover point. That point
   follows the real pointer only while the game is in front, and then moving the pointer is enough;
   posted mouse messages never move it. The tooltip's text stands in `_tooltip_root_`, a root outside
-  the widget tree that keeps its last text, so `derive.shown` decides which text is current.
+  the widget tree that keeps its last text, so `onscreen.shown` decides which text is current.
   `derive.tooltip_root` reaches it without a scan, through the engine's own list of layer roots.
   The product may move the pointer to read a tooltip; until it does, tooltip text comes from the
   gui files.

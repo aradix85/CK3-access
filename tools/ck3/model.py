@@ -124,28 +124,6 @@ def stored() -> anchor.Model | None:
     return model if model.get('key') == derive.build_key() else None
 
 
-def readmany(addresses: list[int], count: int) -> dict[int, bytes]:
-    """Raw bytes per address, in questions whose answer stays under 32 kB.
-
-    The command takes at most about 400 addresses; the answer has a limit too, and it is not
-    written down anywhere. A round asking for hundreds of kilobytes at a time is the one thing
-    suspected of taking the game down on 28 August 2026, so the answer is bounded here as well.
-    Both bounds have to hold at once: asking for 32 bytes each would otherwise put over a
-    thousand addresses in one command and the DLL refuses the command rather than trimming it.
-    """
-    out: dict[int, bytes] = {}
-    per_question = max(1, min(400, 32768 // count))
-    for start in range(0, len(addresses), per_question):
-        part = addresses[start:start + per_question]
-        answer = channel.ask(f"readmany {int(count)} {' '.join(f'{a:x}' for a in part)}",
-                             timeout=180)
-        for line in answer.split('\n'):
-            piece = line.split('\t')
-            if piece[0] == 'l' and len(piece) > 2 and piece[2] != 'unreadable':
-                out[int(piece[1], 16)] = bytes.fromhex(piece[2])
-    return out
-
-
 def _record_length(block_start: int, model: anchor.Model) -> int:
     """The record length of this build, measured: the stride at which a slot's own handle repeats.
 
@@ -154,7 +132,7 @@ def _record_length(block_start: int, model: anchor.Model) -> int:
     the old stride was somebody else's - so it is measured at each start instead.
     """
     at, mask = model['number_field_in_record'], model['number_mask']
-    data = derive.read_known(block_start, 40 * 1200)
+    data = channel.read_known(block_start, 40 * 1200)
     for stride in range(400, 1200, 8):
         hits = sum(1 for slot in range(1, 40)
                    if (struct.unpack_from('<I', data, slot * stride + at)[0] & mask) == slot)
@@ -182,10 +160,10 @@ BEHIND = 0x400                                  # how much is read behind a poin
 
 def block_table(address: int) -> tuple[tuple[int, ...], int]:
     """Where each block of a database starts, and how many of its slots are filled."""
-    head = derive.read_known(address, 64)
+    head = channel.read_known(address, 64)
     table, count = struct.unpack_from('<QI', head, HEAD['table'])
     filled: int = struct.unpack_from('<I', head, HEAD['count'])[0]
-    return struct.unpack(f'<{int(count)}Q', derive.read_known(table, count * 8)), filled
+    return struct.unpack(f'<{int(count)}Q', channel.read_known(table, count * 8)), filled
 
 
 def _layout(pid: int) -> tuple[anchor.Model, tuple[int, ...], int]:
@@ -214,7 +192,7 @@ def records_for(pid: int, handles: list[int]) -> tuple[dict[int, bytes], int]:
     length = model['record_length'] - model['number_field_in_record']
     where = {h: _record_address(starts, model, h & mask)
              for h in handles if (h & mask) // BLOCK < blocks}
-    raw = readmany(sorted(where.values()), length)
+    raw = channel.readmany(sorted(where.values()), length)
     good: dict[int, bytes] = {}
     for handle, address in where.items():
         chunk = raw.get(address)
@@ -297,7 +275,7 @@ def names_of(records: dict[int, bytes], offset: int) -> dict[int, str]:
             waiting[handle] = far
     if waiting:
         longest = max(length for _, length in waiting.values())
-        fetched = readmany(sorted({address for address, _ in waiting.values()}), longest)
+        fetched = channel.readmany(sorted({address for address, _ in waiting.values()}), longest)
         for handle, (address, length) in waiting.items():
             raw = fetched.get(address)
             if raw is not None:
@@ -377,7 +355,7 @@ def derive_all(pid: int, rows: dict[int, Row]) -> tuple[
     indirect: dict[tuple[str, int, int, str], int] = {}
     for pointer_offset in sorted(pointers):
         targets = {h: struct.unpack_from('<Q', c, pointer_offset)[0] for h, c in good.items()}
-        chunks = readmany(sorted(set(targets.values())), BEHIND)
+        chunks = channel.readmany(sorted(set(targets.values())), BEHIND)
         for handle in good:
             block = chunks.get(targets[handle])
             if block is None:
@@ -442,7 +420,7 @@ def sample_slots(pid: int, wanted: int = 200) -> tuple[anchor.Model, dict[int, b
     picked = list(range(0, slots, step))[:wanted]
     length = model['record_length'] - model['number_field_in_record']
     where = {slot: _record_address(starts, model, slot) for slot in picked}
-    raw = readmany(sorted(where.values()), length)
+    raw = channel.readmany(sorted(where.values()), length)
     out: dict[int, bytes] = {}
     for slot, address in where.items():
         chunk = raw.get(address)
@@ -493,7 +471,7 @@ def check(pid: int, wanted: int = 400) -> list[str]:
         if len(here) < 20:
             defects.append(f'only {len(here)} of {len(records)} records carry the pointer at +0x{pointer:03x}, too few to '
                            'check it against')
-        targets[pointer] = (here, readmany(sorted(set(here.values())), BEHIND))
+        targets[pointer] = (here, channel.readmany(sorted(set(here.values())), BEHIND))
 
     live: dict[int, dict[str, int | float]] = {}
     for slot in records:
@@ -546,7 +524,7 @@ def character(pid: int, handle: int) -> Character:
         values[field] = struct.unpack_from('<i', chunk, offset)[0]
     for pointer in {p['pointer'] for p in model.get('indirect', {}).values()}:
         address = struct.unpack_from('<Q', chunk, pointer)[0]
-        block = derive.read(address, BEHIND)
+        block = channel.read(address, BEHIND)
         for field, place in model.get('indirect', {}).items():
             if place['pointer'] == pointer and block is not None:
                 values[field] = value_of(block, place['offset'], place['form'])
@@ -625,7 +603,7 @@ def player(pid: int) -> tuple[int, str | None]:
                          'that save belongs to')
     base = vtablemap.module_base(pid)
     spots = [base + int(spot, 16) for spot in model['player_spots']]
-    raw = readmany(spots, 4)
+    raw = channel.readmany(spots, 4)
     missing = [s for s in spots if s not in raw]
     if missing:
         raise SystemExit(f'{len(missing)} of the {len(spots)} places the player is kept in cannot be read')
@@ -667,7 +645,7 @@ def compare(pid: int, save_path: str, count: int = 400) -> tuple[
     blocks_read: dict[int, tuple[dict[int, int], dict[int, bytes]]] = {}
     for pointer in pointers:
         targets = {h: struct.unpack_from('<Q', c, pointer)[0] for h, c in good.items()}
-        blocks_read[pointer] = (targets, readmany(sorted(set(targets.values())), BEHIND))
+        blocks_read[pointer] = (targets, channel.readmany(sorted(set(targets.values())), BEHIND))
 
     counters: dict[str, tuple[int, int]] = {}
     misses: list[str] = []

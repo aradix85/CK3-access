@@ -21,7 +21,7 @@ import sys
 import time
 
 from tools import paths
-from tools.ck3 import channel, derive, openers, vtablemap
+from tools.ck3 import channel, derive, onscreen, openers, vtablemap, widgettree
 
 PAUSE_MENU, CONFIRMATION = 'ingame_pausemenu', 'ingame_resign_confirmation'
 # The game's own yes-or-no dialog, in shared/dialogs.gui. Escape on it says no.
@@ -40,8 +40,8 @@ def ready(pid: int) -> tuple[int, set[int]]:
     """
     fields = derive.stored() or derive.fields_for(pid)[0]
     derive.configure_channel(fields)
-    derive.use_fields(fields)           # flags_for reads the offsets from here, not from the DLL
-    derive.use_screen(pid)              # on_screen asks the drawing area of this run, not a constant
+    onscreen.use_fields(fields.get('alpha'), fields.get('flag'))   # flags_for reads them from here
+    onscreen.use_screen(pid)        # on_screen asks the drawing area of this run, not a constant
     vtablemap.configure(pid)
     window_classes = derive.window_classes_of(pid)
     openers.game_classes = window_classes
@@ -49,17 +49,17 @@ def ready(pid: int) -> tuple[int, set[int]]:
     return root, window_classes
 
 
-def look(root: int, pid: int, window_classes: set[int]) -> tuple[derive.Nodes, derive.Scales, set[str],
+def look(root: int, pid: int, window_classes: set[int]) -> tuple[widgettree.Nodes, onscreen.Scales, set[str],
                                                                 dict[int, str | None]]:
     """The tree of this moment, with what is drawn, where it is, and what class each node is."""
-    nodes = derive.widgets(root)
+    nodes = widgettree.widgets(root)
     windows = [a for a, k in nodes.items() if k[0] in window_classes]
-    drawn = {nodes[a][6] for a in derive.shown(nodes, windows)}
-    classes = derive.class_map(pid, {a: k[0] for a, k in nodes.items()})
-    return nodes, derive.scales_for(list(nodes)), drawn, classes
+    drawn = {nodes[a][6] for a in onscreen.shown(nodes, windows)}
+    classes = widgettree.class_map(pid, {a: k[0] for a, k in nodes.items()})
+    return nodes, onscreen.scales_for(list(nodes)), drawn, classes
 
 
-def press(nodes: derive.Nodes, scales: derive.Scales, classes: dict[int, str | None], name: str) -> str | None:
+def press(nodes: widgettree.Nodes, scales: onscreen.Scales, classes: dict[int, str | None], name: str) -> str | None:
     """Click the widget with this name that is really on screen. Returns None, or why not.
 
     **Taking the first widget with the right name is what broke this.** Measured 20 September
@@ -93,7 +93,7 @@ def listed(drawn: set[str]) -> str:
 
 
 def escape_to(root: int, pid: int, window_classes: set[int], menus: set[str]
-              ) -> tuple[derive.Nodes, derive.Scales, set[str], dict[int, str | None]]:
+              ) -> tuple[widgettree.Nodes, onscreen.Scales, set[str], dict[int, str | None]]:
     """Escape until one of `menus` is drawn, and what is drawn then; stop if it does not come.
 
     Escape shuts one open window at a time and only opens the pause menu when nothing is open, so

@@ -47,7 +47,7 @@ import time
 from typing import TYPE_CHECKING, Literal, TypedDict
 
 from tools import ocr, paths, terminal, windowgrab
-from tools.ck3 import channel, derive, guimap, model, pairing, windowmap
+from tools.ck3 import channel, derive, guimap, model, onscreen, pairing, widgettree, windowmap
 
 if TYPE_CHECKING:
     # openers imports this module, so only the checker may see it.
@@ -135,7 +135,7 @@ def free_memory() -> float:
     return float(status.free / (1024.0 ** 3))
 
 
-def game_date(nodes: derive.Nodes) -> str | None:
+def game_date(nodes: widgettree.Nodes) -> str | None:
     """The date the game is showing, from the widget that carries it.
 
     The widget is called `date_text_sp`, measured 24 August 2026 by looking for the one text in the
@@ -144,7 +144,7 @@ def game_date(nodes: derive.Nodes) -> str | None:
     """
     for k in nodes.values():
         if k[6] == 'date_text_sp' and k[7]:
-            return derive.strip_markup(k[7])
+            return widgettree.strip_markup(k[7])
     return None
 
 
@@ -159,14 +159,14 @@ def paused(game: windowmap.Game, seconds: float = 6.0) -> bool:
     return first == game_date(game.tree())
 
 
-def subtree(nodes: derive.Nodes, root: int) -> list[tuple[int, int, int]]:
+def subtree(nodes: widgettree.Nodes, root: int) -> list[tuple[int, int, int]]:
     """Every widget below this window, breadth first, with the depth and the sibling index kept.
 
     **Do not sort the children.** The order the engine keeps them in is the draw order, and it is
     the only thing that says which of two drawn widgets lies on top - the rule that decides which
     of a stack of event windows is the one to read. It arrives here for free: the channel walks the
-    child list in the engine's own order and `derive.widgets` keeps the lines in that order, so the
-    children of a parent come out of `nodes` already sorted the way the game holds them.
+    child list in the engine's own order and `widgettree.widgets` keeps the lines in that order, so
+    the children of a parent come out of `nodes` already sorted the way the game holds them.
 
     This used to sort by address, which throws that away and replaces it with the order the objects
     happen to sit in memory. Measured 26 August 2026: two instances of the same header template came
@@ -188,7 +188,7 @@ def subtree(nodes: derive.Nodes, root: int) -> list[tuple[int, int, int]]:
     return out
 
 
-def widget_record(nodes: derive.Nodes, address: int, depth: int, index: int, scales: derive.Scales,
+def widget_record(nodes: widgettree.Nodes, address: int, depth: int, index: int, scales: onscreen.Scales,
                   classes: dict[int, str | None], flags: dict[int, int],
                   alphas: dict[int, float]) -> pairing.Harvested:
     """One widget, with every field this project can read - also the ones nothing uses yet.
@@ -210,17 +210,17 @@ def widget_record(nodes: derive.Nodes, address: int, depth: int, index: int, sca
     order of the records, so that a reader of this file cannot lose it by sorting.
     """
     _vtable, x, y, width, height, parent, name, text = nodes[address]
-    screen_x, screen_y = derive.screen_pos(nodes, address, scales)
-    drawn_width, drawn_height = derive.screen_size(nodes, address, scales)
+    screen_x, screen_y = onscreen.screen_pos(nodes, address, scales)
+    drawn_width, drawn_height = onscreen.screen_size(nodes, address, scales)
     own, above = scales[address]
     kind = classes[address]
     return {'address': f'{address:x}', 'parent': f'{parent:x}', 'depth': depth, 'index': index,
-            'class': kind, 'name': name, 'text': text if kind in derive.TEXT_CLASSES else None,
+            'class': kind, 'name': name, 'text': text if kind in widgettree.TEXT_CLASSES else None,
             'own_rect': [x, y, width, height],
             'screen_rect': [screen_x, screen_y, drawn_width, drawn_height],
             'scale': [own, above], 'alpha': alphas.get(address),
             'state': flags.get(address),
-            'clipped': derive.is_clipped(nodes, address, scales, classes)}
+            'clipped': onscreen.is_clipped(nodes, address, scales, classes)}
 
 
 def capture(pid: int, name: str) -> Capture:
@@ -265,21 +265,21 @@ def confirmed(tree: list[pairing.Harvested], lines: list[Recognised],
     by_address = {w['address']: w for w in tree}
     boxes = seen = offscreen = 0
     for w in tree:
-        if w['class'] not in derive.TEXT_CLASSES or not w['text'] or w['clipped']:
+        if w['class'] not in widgettree.TEXT_CLASSES or not w['text'] or w['clipped']:
             continue
-        want = _flat(derive.strip_markup(w['text']))
+        want = _flat(widgettree.strip_markup(w['text']))
         x, y, width, height = w['screen_rect']
         if not want or width <= 0 or height <= 0:
             continue
         # 0x08 in the state byte is the game hiding a widget while its alpha stays up, and a hidden
         # box is no more a miss than one at alpha zero. A byte that could not be read counts as not
-        # drawn, as in `derive.shown`.
+        # drawn, as in `onscreen.shown`.
         alpha, hidden = 1.0, False
         node: pairing.Harvested | None = w
         while node is not None:
             state = node['state']
             alpha *= node['alpha'] or 0.0
-            hidden = hidden or state is None or bool(state & derive.HIDDEN)
+            hidden = hidden or state is None or bool(state & onscreen.HIDDEN)
             node = by_address.get(node['parent'])
         if alpha <= 0.0 or hidden:
             continue
@@ -328,7 +328,7 @@ def click_routes(windows: dict[str, windowmap.Route]) -> dict[str, windowmap.Rou
 
 
 def open_window(game: windowmap.Game, name: str, row: windowmap.Route,
-                baseline: set[str]) -> tuple[derive.Nodes | None, int]:
+                baseline: set[str]) -> tuple[widgettree.Nodes | None, int]:
     """Open one window along the route phase 0 found for it, and prove it is drawn.
 
     Waits on the flag, never on the clock: a window fades in, so a fixed sleep either wastes time
@@ -362,7 +362,7 @@ def open_window(game: windowmap.Game, name: str, row: windowmap.Route,
             windowmap.press(shortcut)
             for _ in range(14):
                 time.sleep(0.6)
-                if derive.shown(nodes, candidates):
+                if onscreen.shown(nodes, candidates):
                     return game.tree(), attempt
         elif row.get('click'):
             # The parent window first, and only if it is not already standing: its shortcut is a
@@ -384,8 +384,8 @@ def open_window(game: windowmap.Game, name: str, row: windowmap.Route,
             # Imported here because openers imports this module, and quit_game imports openers.
             from tools.ck3 import quit_game
             nodes = game.tree()
-            classes = derive.class_map(game.pid, {a: k[0] for a, k in nodes.items()})
-            refused = quit_game.press(nodes, derive.scales_for(list(nodes)), classes, row['button'])
+            classes = widgettree.class_map(game.pid, {a: k[0] for a, k in nodes.items()})
+            refused = quit_game.press(nodes, onscreen.scales_for(list(nodes)), classes, row['button'])
             if refused:
                 print(f'   {name}: {refused}')
                 continue
@@ -427,7 +427,7 @@ def close_window(game: windowmap.Game, row: windowmap.Route, baseline: set[str],
     return False
 
 
-def drawn_one(nodes: derive.Nodes, candidates: list[int], name: str) -> int:
+def drawn_one(nodes: widgettree.Nodes, candidates: list[int], name: str) -> int:
     """Of several window objects carrying the same name, the one that is actually drawn.
 
     `GUI.CreateWidget` builds a *new* object while the parked one keeps its name, so the tree holds
@@ -436,11 +436,11 @@ def drawn_one(nodes: derive.Nodes, candidates: list[int], name: str) -> int:
     widgets; the parked one at flag 0x24 carried no text at all and the drawn one at flag 0x00
     carried Army, Always Raid and Commander. A whole round of 178 windows was taken from the wrong
     side of that fork before this was noticed. On 1.20.0.3 the parked one carries 0x18 with alpha
-    zero and the new one 0x00, measured 3 October 2026. Drawn is `derive.shown`.
+    zero and the new one 0x00, measured 3 October 2026. Drawn is `onscreen.shown`.
     """
     if len(candidates) == 1:
         return candidates[0]
-    drawn = list(derive.shown(nodes, candidates))
+    drawn = list(onscreen.shown(nodes, candidates))
     if len(drawn) == 1:
         return drawn[0]
     if not drawn:
@@ -449,7 +449,7 @@ def drawn_one(nodes: derive.Nodes, candidates: list[int], name: str) -> int:
                      'the content cannot be decided here')
 
 
-def record_window(game: windowmap.Game, name: str, nodes: derive.Nodes, header: Header, route: str,
+def record_window(game: windowmap.Game, name: str, nodes: widgettree.Nodes, header: Header, route: str,
                   attempts: int, file: str | None, started: float) -> Record:
     """Everything this project can read of one drawn window, plus a capture. It stays open."""
     windows = [a for a, k in nodes.items() if k[0] in game.window_classes]
@@ -457,15 +457,15 @@ def record_window(game: windowmap.Game, name: str, nodes: derive.Nodes, header: 
     address = drawn_one(nodes, named, name)
     family = subtree(nodes, address)
     addresses = [a for a, _, _ in family]
-    scales = derive.scales_for(list(nodes))
-    classes = derive.class_map(game.pid, {a: k[0] for a, k in nodes.items()})
+    scales = onscreen.scales_for(list(nodes))
+    classes = widgettree.class_map(game.pid, {a: k[0] for a, k in nodes.items()})
     # **The byte at that offset is asked of every widget and not only of the windows.**
     # Measured 20 September 2026: it is one state byte with more than one meaning - on a
     # window object zero means drawn, and on a button the low bits mean it cannot be used.
     # Over three windows and 6906 widgets no widget carried those bits without the gui file
     # putting an `enabled` condition on it or on an ancestor.
-    flags = derive.flags_for(addresses)
-    alphas = derive.alphas_for(addresses)
+    flags = onscreen.flags_for(addresses)
+    alphas = onscreen.alphas_for(addresses)
     seconds = round(time.time() - started, 1)
     tree = [widget_record(nodes, a, d, i, scales, classes, flags, alphas) for a, d, i in family]
     # The console is how most of these windows were opened, and it is drawn over the left third
@@ -561,8 +561,8 @@ def chain_step(game: windowmap.Game, route: 'openers.ChainRoute', source: str,
         # `filters` in the ledger: the aligned point opened nothing, this opened the filter window.
         from tools.ck3 import quit_game
         full = game.tree()
-        refused = quit_game.press(full, derive.scales_for(list(full)),
-                                  derive.class_map(game.pid, {a: k[0] for a, k in full.items()}),
+        refused = quit_game.press(full, onscreen.scales_for(list(full)),
+                                  widgettree.class_map(game.pid, {a: k[0] for a, k in full.items()}),
                                   spot['name'])
         if refused:
             return None, (refused if close_window(game, back, baseline)

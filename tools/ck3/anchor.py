@@ -96,7 +96,7 @@ def vtables(pid: int, name: str = CLASS) -> list[int]:
 def is_ref_database(address: int) -> bool:
     """Does this address carry a believable TPdxRefDatabase? A table, and counts that are not
     absurd. The stack copies fall away here by themselves: they have an empty table."""
-    b = derive.read(address, 24)
+    b = channel.read(address, 24)
     if b is None:
         return False
     table, count, capacity = struct.unpack_from('<QII', b, 8)
@@ -124,7 +124,7 @@ def find_objects(pid: int, name: str = CLASS,
             if not line.startswith('t\t'):
                 continue
             address = int(line.split('\t')[1], 16) - 1
-            head = derive.read(address, 8)
+            head = channel.read(address, 8)
             if head is None or struct.unpack('<Q', head)[0] != vt:
                 continue
             if valid(address) and address not in found:
@@ -159,7 +159,7 @@ def derive_global(pid: int, name: str = CLASS, valid: Callable[[int], bool] = is
             where = int(line.split('\t')[1], 16) - 1
             if not base <= where < base + 0x6000000:
                 continue
-            held = derive.read(where, 8)
+            held = channel.read(where, 8)
             if held is not None and struct.unpack('<Q', held)[0] == address:
                 return where - base, address
     raise SystemExit(f'no global pointing at {name}; only heap and stack copies, and the search '
@@ -178,7 +178,7 @@ def object_of(pid: int, name: str = CLASS, valid: Callable[[int], bool] = is_ref
     known = model.get('globals', {}) if model.get('key') == derive.build_key() else {}
     rva = known.get(name)
     if rva:
-        b = derive.read(base + rva, 8)
+        b = channel.read(base + rva, 8)
         if b is not None:
             address: int = struct.unpack('<Q', b)[0]
             if valid(address):

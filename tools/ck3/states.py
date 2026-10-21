@@ -31,7 +31,7 @@ import sys
 import time
 
 from tools import ocr, paths, terminal, windowgrab
-from tools.ck3 import channel, derive, model, savegame
+from tools.ck3 import channel, model, onscreen, savegame, widgettree
 from tools.ck3.quit_game import PAUSE_MENU, escape_to, look, press, ready
 
 IN_GAME = re.compile(r'\bPaused\b|Domain Holdings|Pinned Characters')
@@ -93,7 +93,7 @@ def save(pid: int, suffix: str = '') -> str:
             channel.ask(f'sendchar {ord(ch)}')
         time.sleep(1.0)
         nodes, scales, drawn, classes = look(root, pid, classes_of_windows)
-    named = [derive.strip_markup(k[7]) for k in nodes.values() if k[6] == 'save_name' and k[7]]
+    named = [widgettree.strip_markup(k[7]) for k in nodes.values() if k[6] == 'save_name' and k[7]]
     name = named[0] if named else None
     if not name or any(f.startswith(name) for f in before):
         channel.ask('sendkey 27')                     # leave the dialog and the pause menu as found
@@ -117,10 +117,10 @@ def console(pid: int, command: str) -> None:
     """Type one command into the console and shut it again. What the console answers is not read."""
     root, classes_of_windows = ready(pid)
 
-    def is_open() -> tuple[bool, derive.Nodes, derive.Scales, dict[int, str | None]]:
+    def is_open() -> tuple[bool, widgettree.Nodes, onscreen.Scales, dict[int, str | None]]:
         nodes, scales, _, classes = look(root, pid, classes_of_windows)
         found = [a for a, k in nodes.items() if k[6] == 'console_window']
-        return bool(found) and bool(derive.shown(nodes, found[:1])), nodes, scales, classes
+        return bool(found) and bool(onscreen.shown(nodes, found[:1])), nodes, scales, classes
 
     opened, nodes, scales, classes = is_open()
     if not opened:

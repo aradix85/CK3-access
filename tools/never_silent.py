@@ -18,7 +18,7 @@ from collections.abc import Callable
 from typing import NoReturn
 
 from tools import paths, terminal
-from tools.ck3 import channel, derive
+from tools.ck3 import channel, derive, onscreen
 from tools.nvda import speech
 
 # Takes the place of the NVDA client once `main` runs; importing this module changes nothing.
@@ -90,7 +90,7 @@ def field_moved(pid: int, fields: derive.Fields) -> None:
             raise SystemExit('a moved offset passed the check; the check is broken, not the offset')
     finally:
         derive.STORED, derive.derive_all = stored_at, derive_all
-        derive.use_fields(fields)
+        onscreen.use_fields(fields.get('alpha'), fields.get('flag'))
         derive.configure_channel(fields)        # the moved copy reached the DLL too; put it back
         os.remove(copy)
 

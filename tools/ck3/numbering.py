@@ -27,7 +27,7 @@ import sys
 from typing import TypeVar
 
 from tools import terminal
-from tools.ck3 import anchor, database, derive, mapdata, model
+from tools.ck3 import anchor, channel, database, derive, mapdata, model
 
 # Where the key sits in a record of one database: `record`, `key`, and `array` or `pointer`.
 Layout = dict[str, int]
@@ -93,7 +93,7 @@ def _is_array_database(address: int) -> bool:
     that, and no global points at a copy, so the derivation walked away empty. The array has to
     hold addresses that are addresses.
     """
-    head = derive.read(address, 256)
+    head = channel.read(address, 256)
     if head is None:
         return False
     return any(_members(found) for found in
@@ -111,7 +111,7 @@ def _array_at(head: bytes, at: int) -> tuple[int, int] | None:
 def _members(found: tuple[int, int], how_many: int = 8) -> list[int] | None:
     """The first few entries of that array, or None when they are not pointers at all."""
     where, count = found
-    raw = derive.read(where, min(count, how_many) * 8)
+    raw = channel.read(where, min(count, how_many) * 8)
     if not raw:
         return None
     entries = [struct.unpack_from('<Q', raw, i * 8)[0] for i in range(len(raw) // 8)]
@@ -134,19 +134,19 @@ def _places(pid: int, kind: str, layout: Layout) -> dict[int, int]:
     """
     address, shape = _object(pid, kind)
     if shape == 'array':
-        head = derive.read_known(address, 256)
+        head = channel.read_known(address, 256)
         found = _array_at(head, layout['array'])
         if found is None:
             raise SystemExit(f"the {kind} database no longer holds its array at +{layout['array']}")
         where, count = found
-        raw = derive.read_known(where, count * 8)
+        raw = channel.read_known(where, count * 8)
         return {n: struct.unpack_from('<Q', raw, n * 8)[0] + layout['key'] for n in range(count)}
     starts, count = model.block_table(address)
     records = {n: starts[n // model.BLOCK] + (n % model.BLOCK) * layout['record'] for n in range(count)}
     if shape == 'blocks':
         return {n: at + layout['key'] for n, at in records.items()}
     spots = {n: at + layout['pointer'] for n, at in records.items()}
-    held = model.readmany(sorted(spots.values()), 8)
+    held = channel.readmany(sorted(spots.values()), 8)
     out: dict[int, int] = {}
     for number, at in spots.items():
         chunk = held.get(at)
@@ -159,7 +159,7 @@ def _places(pid: int, kind: str, layout: Layout) -> dict[int, int]:
 
 def _read(pid: int, kind: str, layout: Layout) -> tuple[int, dict[int, str]]:
     places = _places(pid, kind, layout)
-    chunks = model.readmany(sorted(places.values()), STRING)
+    chunks = channel.readmany(sorted(places.values()), STRING)
     found = model.names_of({n: chunks[a] for n, a in places.items() if a in chunks}, 0)
     return len(places), found
 
@@ -274,7 +274,7 @@ def _derive_blocks(address: int, known: set[str]) -> Layout:
     them apart is the set of keys the files carry - one field matches it whole, the other partly.
     """
     starts, filled = model.block_table(address)
-    block = derive.read_known(starts[0], CHUNK)
+    block = channel.read_known(starts[0], CHUNK)
     # The spacing of keys the files carry, not of anything shaped like a key: on 1.20 a religion,
     # faith or rite record also holds strings that only look like one, and the commonest distance
     # between all of them was not the record (measured 2 October 2026 on a state begun in 1.20).
@@ -301,7 +301,7 @@ def _derive_array(address: int, known: set[str]) -> Layout:
     not enough: the object carries more than one array over the same things, and the first is not
     the one whose order is the numbering.
     """
-    head = derive.read_known(address, 256)
+    head = channel.read_known(address, 256)
     shaped = _key_test(known)
     scores: dict[tuple[int, int], int] = {}
     for at in range(0, 224, 8):
@@ -309,7 +309,7 @@ def _derive_array(address: int, known: set[str]) -> Layout:
         entries = _members(found, SAMPLE) if found else None
         if not entries:
             continue
-        chunks = model.readmany(entries, 512)
+        chunks = channel.readmany(entries, 512)
         if len(chunks) < len(entries):
             continue
         for inside in sorted({spot for one in chunks.values()
@@ -351,7 +351,7 @@ def _derive_indirect(address: int, known: set[str]) -> Layout:
     in means nothing has to remember it, and nothing here has to know what the object is.
     """
     starts, filled = model.block_table(address)
-    block = derive.read_known(starts[0], CHUNK)
+    block = channel.read_known(starts[0], CHUNK)
     spots = [at for at in range(0, len(block) - 8, 8)
              if model.POINTER[0] <= struct.unpack_from('<Q', block, at)[0] < model.POINTER[1]]
     shaped = _key_test(known)
@@ -362,7 +362,7 @@ def _derive_indirect(address: int, known: set[str]) -> Layout:
             targets = _pointers_at(block, at, rows, record)
             if not targets:
                 continue
-            chunks = model.readmany(sorted(set(targets.values())), 512)
+            chunks = channel.readmany(sorted(set(targets.values())), 512)
             by_slot = {n: chunks[where] for n, where in targets.items() if where in chunks}
             if len(by_slot) < rows:
                 continue

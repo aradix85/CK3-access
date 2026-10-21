@@ -3,6 +3,7 @@
 Outcomes, newest first. No release yet.
 
 ## 2026-10-21 — CK3 1.20.1.1 and 1.20.1.2
+- `derive.py` is three layers without a cycle: reading memory in `channel.py` (`read`, `readmany`, `field_for`, one loop where `model` had its own), the widget tree in `widgettree.py`, and what is drawn and where in `onscreen.py`; `derive.py` keeps the derivation.
 - `guimap` reads `local_template` and looks a local name up in the file it is written in, so the culture, hybridisation and ledger windows get their innovation tooltips.
 - `guimap` stops a widget that comes back inside itself with the same slots filled, instead of cutting the dynasty tree and the struggle window off at a fixed depth; a `using` nothing defines and a tree past that depth now stop with a GuiError.
 - A window declared as a type is expanded once instead of twice over.

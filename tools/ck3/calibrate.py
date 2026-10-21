@@ -21,10 +21,10 @@ import os
 import sys
 
 from tools import terminal
-from tools.ck3 import derive, model, savegame
+from tools.ck3 import derive, model, onscreen, savegame, widgettree
 
 
-def text_boxes(nodes: derive.Nodes) -> list[int]:
+def text_boxes(nodes: widgettree.Nodes) -> list[int]:
     """The addresses of the text boxes, found through the vtable that touches the localization files.
 
     The text field exists on every object but only makes sense on a text box; on the rest you read
@@ -34,7 +34,7 @@ def text_boxes(nodes: derive.Nodes) -> list[int]:
     translation = derive.localization_text()
     hit: dict[int, int] = {}
     for vtable, *_, text in nodes.values():
-        clean = derive.strip_markup(text)
+        clean = widgettree.strip_markup(text)
         if len(clean) > 3 and clean in translation:
             hit[vtable] = hit.get(vtable, 0) + 1
     if not hit:
@@ -48,7 +48,7 @@ def _flat(text: str) -> str:
     return ''.join(text.split()).lower()
 
 
-def test_ocr(pid: int, nodes: derive.Nodes, addresses: list[int]) -> tuple[int, int, int, list[str]]:
+def test_ocr(pid: int, nodes: widgettree.Nodes, addresses: list[int]) -> tuple[int, int, int, list[str]]:
     """Reads every text box actually on screen and puts it beside the widget text.
 
     Alpha is not enough to know whether a box is showing: the game builds all windows up front and
@@ -67,15 +67,15 @@ def test_ocr(pid: int, nodes: derive.Nodes, addresses: list[int]) -> tuple[int, 
 
     ok, total, covered = 0, 0, 0
     misses: list[str] = []
-    scales = derive.scales_for(list(nodes))
+    scales = onscreen.scales_for(list(nodes))
     for address in addresses:
         _vtable, _dx, _dy, width, height, _parent, _name, text = nodes[address]
-        if width < 4 or height < 4 or not derive.is_visible(nodes, address):
+        if width < 4 or height < 4 or not onscreen.is_visible(nodes, address):
             continue
-        x, y = derive.screen_pos(nodes, address, scales)
-        width, height = derive.screen_size(nodes, address, scales)
+        x, y = onscreen.screen_pos(nodes, address, scales)
+        width, height = onscreen.screen_size(nodes, address, scales)
         x, y, b, h = int(x), int(y), int(width), int(height)
-        truth = derive.strip_markup(text)
+        truth = widgettree.strip_markup(text)
         witness = [r for r in lines
                    if not (x + b < r[0] or r[0] + r[2] < x or y + h < r[1] or r[1] + r[3] < y)
                    and _flat(truth) in _flat(r[4])]
@@ -103,7 +103,7 @@ def main(pid: int, count: int = 400, *, save: str | None = None) -> None:
     fields = derive.fields_for(pid)[0]
     derive.configure_channel(fields)
     root = derive.quick_root(fields, pid)[0]
-    nodes = derive.widgets(root)
+    nodes = widgettree.widgets(root)
     print(f'widget tree: {len(nodes)} nodes')
 
     ok, total, covered, misses = test_ocr(pid, nodes, text_boxes(nodes))

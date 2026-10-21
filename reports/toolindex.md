@@ -140,6 +140,10 @@ returns a pair, passed on as one thing, costs a run.
 | `alive()` | bool | Is the link there? Asked without speaking, for a caller that expects it to be gone. |
 | `close()` | nothing | - |
 | `ask(command, timeout=60.0, errors_ok=False)` | value | Asks the channel one question and returns the answer as text. |
+| `read(address, count)` | NoneType of value | Raw bytes, or None where the game holds nothing readable. Any other refusal of the DLL - a |
+| `read_known(address, count)` | value | `read` for an address the caller knows the game holds: unreadable there is a fault, and it |
+| `readmany(addresses, count)` | value | Raw bytes per address, in as few questions as both limits allow; an address where the game |
+| `field_for(addresses, offset, width=1)` | dict | One field of many objects, as a whole number, keyed by the object. |
 
 ## ck3\database.py
 *Reads the game's own databases off disk: which key sits at which place, and what it is called.*
@@ -157,35 +161,16 @@ returns a pair, passed on as one thing, costs a run.
 
 | call | returns | does |
 |---|---|---|
-| `window_size(pid)` | value | The drawing area of the game window, live from Windows. |
 | `build_key()` | value | How you tell it is still the same build. If the exe changes, everything lapses. |
-| `read(address, count)` | NoneType of value | Raw bytes, or None where the game holds nothing readable. Any other refusal of the DLL - a |
-| `read_known(address, count)` | value | `read` for an address the caller knows the game holds: unreadable there is a fault, and it |
 | `scan(from_address, to_address)` | 2-tuple | Address -> vtable, and what the scan left out. Both come from the vtable comparison and do |
 | `skips(answer)` | value | What a scan or find left out. The DLL skips the stacks of its own threads, where copies of |
 | `skipped(*searches)` | value | What one or more searches left out, summed, as a clause; empty when nothing was. |
 | `tree(root)` | value | - |
-| `use_screen(pid)` | value | Publish the drawing area of this run, because it is not a property of the build. |
-| `drawing_area()` | value | - |
-| `use_fields(fields)` | nothing | Publish the two visibility offsets for this build. |
-| `field_for(addresses, offset, width=1)` | value | One field of many objects, in as few channel questions as possible. |
-| `flags_for(addresses)` | value | The state byte of many objects. It is a bit pattern, and only `HIDDEN` decides what is drawn. |
-| `alphas_for(addresses)` | dict | The alpha of many objects, the way `flags_for` reads the state byte. One that cannot be read |
-| `shown(nodes, addresses)` | dict | Of `addresses`, the ones nothing hides, each with its own state byte. |
-| `widgets(root)` | value | The whole tree with fields attached: address -> (vtable, x, y, width, height, parent, name, text). |
-| `scales_for(addresses)` | value | Per widget (own scale, scale from above). The two sit next to each other, so one read round. |
-| `screen_pos(nodes, address, scales, anchors=None)` | 2-tuple | The place on screen: the own position plus that of every parent, with the scale applied. |
-| `scale_anchors()` | value | Per scaled container, by its own name or the nearest name above it: does the centring |
-| `screen_size(nodes, address, scales)` | 2-tuple | The size as it is drawn: the own size times the own scale times the scale from above. |
-| `is_visible(nodes, address)` | bool | Alpha is a property of the whole parent chain: if one ancestor sits at 0 you see nothing, |
-| `is_clipped(nodes, address, scales, classes)` | value of bool | Is this widget scrolled out of view inside a list? |
 | `chunks_of(addresses)` | 2-tuple | Raw bytes per object. Unreadable ones are skipped and counted, not hidden. |
 | `children_from_parents(chunks, f_parent, addresses)` | value | - |
 | `gui_text()` | value | Every gui file the engine loads, as one text: what the name prediction looks names up in. |
 | `localization_text()` | value | Every sentence the localization gives, as one text: what the text prediction looks in. |
-| `strip_markup(text)` | value | Strips the game's markup codes; those do not appear in the localization files. |
 | `window_classes_of(pid)` | set | Where the vtables of every class with Window in its name are loaded in this run. |
-| `class_map(pid, addresses)` | dict | Address -> class name, through the vtable. `addresses` is a dict {address: vtable}, not a list. |
 | `derive_all(pid)` | 2-tuple | Derive every field from a full scan. Expensive, so once per build. The widgets the scan found |
 | `all_in_scan(nodes, scanned, left_out)` | nothing | Every widget of the tree has to be in the full scan, or the scan missed some. |
 | `visibility_fields(pid, fields, root, key=112, subject='character_window', control='council_window')` | value | Derive the two visibility offsets by toggling a window and watching what moves. |
@@ -285,7 +270,6 @@ returns a pair, passed on as one thing, costs a run.
 | `forms(text)` | value | Every byte form this value could be kept in, named. Six of them, and naming them is the |
 | `value_of(chunk, offset, form)` | value | - |
 | `stored()` | value | - |
-| `readmany(addresses, count)` | value | Raw bytes per address, in questions whose answer stays under 32 kB. |
 | `block_table(address)` | 2-tuple | Where each block of a database starts, and how many of its slots are filled. |
 | `records_for(pid, handles)` | 2-tuple | The bytes of each character's record, keyed by handle, with the wrong ones left out. |
 | `answer_key(save_path)` | value | What the save says about every landed character, as the text the save writes. |
@@ -323,6 +307,25 @@ returns a pair, passed on as one thing, costs a run.
 | `keys(pid, kind)` | value | Number -> key, from the running game. Disk is used to prove the reading, never to make it. |
 | `derive_layout(pid, kind)` | value | Where the key sits in a record of this database, kept under the key of this exe. |
 | `main(pid)` | nothing | - |
+
+## ck3\onscreen.py
+*What of the widget tree is on screen, and where: the state byte and alpha that decide whether a*
+
+| call | returns | does |
+|---|---|---|
+| `window_size(pid)` | value | The drawing area of the game window, live from Windows. |
+| `use_screen(pid)` | value | Publish the drawing area of this run, because it is not a property of the build. |
+| `drawing_area()` | value | - |
+| `use_fields(alpha, flag)` | nothing | Publish the two visibility offsets for this build, as the derivation holds them. |
+| `flags_for(addresses)` | value | The state byte of many objects. It is a bit pattern, and only `HIDDEN` decides what is drawn. |
+| `alphas_for(addresses)` | dict | The alpha of many objects, the way `flags_for` reads the state byte. One that cannot be read |
+| `shown(nodes, addresses)` | dict | Of `addresses`, the ones nothing hides, each with its own state byte. |
+| `scales_for(addresses)` | value | Per widget (own scale, scale from above). The two sit next to each other, so one read round. |
+| `screen_pos(nodes, address, scales, anchors=None)` | 2-tuple | The place on screen: the own position plus that of every parent, with the scale applied. |
+| `scale_anchors()` | value | Per scaled container, by its own name or the nearest name above it: does the centring |
+| `screen_size(nodes, address, scales)` | 2-tuple | The size as it is drawn: the own size times the own scale times the scale from above. |
+| `is_visible(nodes, address)` | bool | Alpha is a property of the whole parent chain: if one ancestor sits at 0 you see nothing, |
+| `is_clipped(nodes, address, scales, classes)` | value of bool | Is this widget scrolled out of view inside a list? |
 
 ## ck3\openers.py
 *Which button opens which window? Clicks them and writes `reports\openers.json`.*
@@ -487,6 +490,15 @@ returns a pair, passed on as one thing, costs a run.
 | `module_base(number)` | value | Where ck3.exe is loaded. The vtable addresses from the exe are relative to it. |
 | `vtables()` | value | Vtable RVAs of the widget classes, from the exe as it is on disk right now. |
 | `configure(number)` | 2-tuple | - |
+
+## ck3\widgettree.py
+*The widget tree of the running game, as the channel walks it: every widget with its place, its*
+
+| call | returns | does |
+|---|---|---|
+| `widgets(root)` | value | The whole tree with fields attached: address -> (vtable, x, y, width, height, parent, name, text). |
+| `strip_markup(text)` | value | Strips the game's markup codes; those do not appear in the localization files. |
+| `class_map(pid, addresses)` | dict | Address -> class name, through the vtable. `addresses` is a dict {address: vtable}, not a list. |
 
 ## ck3\windowmap.py
 *Phase 0 of the sweep: which window can be opened by which route?*

@@ -20,7 +20,7 @@ import re
 from typing import NotRequired, TypedDict
 
 from tools import paths
-from tools.ck3 import derive, guimap
+from tools.ck3 import guimap, widgettree
 
 # One widget as the harvest writes it (`harvest.widget_record`): addresses in hex, rectangles as
 # x, y, width, height. `state` is missing from every widget harvested before 20 September 2026,
@@ -304,7 +304,7 @@ def unexplained(count: collections.Counter[str], kind: str, context: tuple[str, 
         count['unexplained in developer windows'] += 1
         return
     count['unexplained in player windows'] += 1
-    if bare_number(derive.strip_markup(built['text'] or '').strip()):
+    if bare_number(widgettree.strip_markup(built['text'] or '').strip()):
         count['unexplained bare number in player windows'] += 1
 
 
@@ -361,7 +361,7 @@ def sweep() -> tuple[collections.Counter[str], collections.Counter[str], collect
                 for name in FUNCTION.findall(key):
                     functions[name] += 1
             if kind == 'plain key' and key is not None:
-                shown = derive.strip_markup(built['text'] or '').strip()
+                shown = widgettree.strip_markup(built['text'] or '').strip()
                 expected = ICON.sub('', guimap.strip_style(localization[key])).strip()
                 count['plain key agrees' if shown == expected else 'plain key differs'] += 1
         if seen != len(record['tree']):

@@ -28,7 +28,7 @@ from collections.abc import Callable
 from typing import TypedDict
 
 from tools import paths, terminal
-from tools.ck3 import channel, derive, guimap, memory, vtablemap
+from tools.ck3 import channel, derive, guimap, memory, onscreen, vtablemap, widgettree
 
 OUT = os.path.join(paths.REPORTS, 'windows.json')
 # The keys a round presses on a bare screen. The F row, plus every binding in shortcuts.shortcuts
@@ -223,23 +223,23 @@ def presses_for(rows: list[Binding], bound: dict[str, str], numbers: int = 3) ->
 def shown_texts(game: 'Game', name: str, text_classes: set[int]) -> tuple[str, ...] | None:
     """The texts of window `name` that are on the screen now, in draw order; None if it is not drawn.
 
-    A text counts when `derive.shown` says it is drawn: no 0x08 from it up to the root, the bit the
-    game sets on what a `visible` condition hides - and a tab hides its neighbours that way - and
+    A text counts when `onscreen.shown` says it is drawn: no 0x08 from it up to the root, the bit
+    the game sets on what a `visible` condition hides - and a tab hides its neighbours that way - and
     no byte on the way that cannot be read. Text is read only on a text class, because the text
     field of anything else reads its neighbour in memory.
     """
     from tools.ck3 import harvest
     nodes = game.tree()
     candidates = [a for a, k in nodes.items() if k[6] == name and k[0] in game.window_classes]
-    drawn = list(derive.shown(nodes, candidates))
+    drawn = list(onscreen.shown(nodes, candidates))
     if not drawn:
         return None
     if len(drawn) > 1:
         raise SystemExit(f'{len(drawn)} drawn windows are called {name}; which one to read is not decided')
     texts = [a for a, _, _ in harvest.subtree(nodes, drawn[0])
              if nodes[a][0] in text_classes and nodes[a][7]]
-    visible = derive.shown(nodes, texts)
-    return tuple(derive.strip_markup(nodes[a][7]) for a in texts if a in visible)
+    visible = onscreen.shown(nodes, texts)
+    return tuple(widgettree.strip_markup(nodes[a][7]) for a in texts if a in visible)
 
 
 def window_keys_round(game: 'Game', names: list[str]) -> dict[str, str | list[tuple[str, str, str]]]:
@@ -258,7 +258,7 @@ def window_keys_round(game: 'Game', names: list[str]) -> dict[str, str | list[tu
     bound = {n: k for n, k in shortcut_file().items() if k.strip()}
     plan = window_bindings()
     base = vtablemap.module_base(game.pid)
-    text_classes = {base + v for name in derive.TEXT_CLASSES
+    text_classes = {base + v for name in widgettree.TEXT_CLASSES
                     for v in memory.vtables_by_name(name)}
 
     def drawn_texts(name: str) -> tuple[str, ...]:
@@ -430,12 +430,12 @@ class Game:
         # The click point of that field; it does not change while the game runs.
         self.pos: tuple[int, int] | None = None
 
-    def tree(self) -> derive.Nodes:
+    def tree(self) -> widgettree.Nodes:
         """The root is looked up once. Looking it up every round cost fifty seconds per window
         on 23 August 2026; with the root remembered it is a few."""
-        return derive.widgets(self.root)
+        return widgettree.widgets(self.root)
 
-    def state(self, nodes: derive.Nodes | None = None) -> tuple[derive.Nodes, collections.Counter[str], set[str]]:
+    def state(self, nodes: widgettree.Nodes | None = None) -> tuple[widgettree.Nodes, collections.Counter[str], set[str]]:
         """(the tree, number of instances per widget name, names of what is drawn).
 
         Count all widgets and not just the window class: a created widget of another class
@@ -444,24 +444,25 @@ class Game:
         nodes = nodes if nodes is not None else self.tree()
         windows = [a for a, k in nodes.items() if k[0] in self.window_classes]
         counts = collections.Counter(k[6] for k in nodes.values() if k[6])
-        drawn = {nodes[a][6] for a in derive.shown(nodes, windows) if nodes[a][6]}
+        drawn = {nodes[a][6] for a in onscreen.shown(nodes, windows) if nodes[a][6]}
         return nodes, counts, drawn
 
-    def console_open(self, nodes: derive.Nodes | None = None) -> bool:
+    def console_open(self, nodes: widgettree.Nodes | None = None) -> bool:
         """Is the console on screen? From the flag byte of `console_window`.
 
         Measured 25 August 2026 by pressing the key twice with the recogniser watching: open, the
         window sits at 20,31 with a frame of 427x838 and its flag byte reads 0x00, and the screen
         carries the console's own output; shut, the frame is 0x0 and the byte reads 0x18. So the
-        ordinary rule decides it after all (`derive.shown`) - what does not work is asking `state()`,
-        because that only looks at widgets of the `Window` class and `console_window` is not one.
+        ordinary rule decides it after all (`onscreen.shown`) - what does not work is asking
+        `state()`, because that only looks at widgets of the `Window` class and `console_window` is
+        not one.
         That is the whole reason this used to be judged by typing into it.
         """
         nodes = nodes if nodes is not None else self.tree()
         address = next((a for a, k in nodes.items() if k[6] == 'console_window'), None)
         if address is None:
             return False
-        return bool(derive.shown(nodes, [address]))
+        return bool(onscreen.shown(nodes, [address]))
 
     def field_text(self, address: int) -> str:
         """The text of one widget, without walking the tree - a single channel question.
@@ -469,9 +470,9 @@ class Game:
         The writing test first did this with a full tree walk, and at 83,000 nodes that cost over
         two seconds per attempt, four times per window. This way it is one read.
         """
-        return derive._cstring(derive.read_known(address, derive.CHUNK), self.fields['text']) or ''
+        return derive._cstring(channel.read_known(address, derive.CHUNK), self.fields['text']) or ''
 
-    def set_console(self, on: bool, nodes: derive.Nodes | None = None) -> derive.Nodes:
+    def set_console(self, on: bool, nodes: widgettree.Nodes | None = None) -> widgettree.Nodes:
         """Open or close the console, and prove it with the flag byte before typing anything.
 
         The order matters and it cost a round to learn. This used to test by clicking into the
@@ -503,9 +504,9 @@ class Game:
         field = self.input_field()
         if self.pos is None:
             nodes = self.tree()
-            scales = derive.scales_for(list(nodes))
-            x, y = derive.screen_pos(nodes, field, scales)
-            b, h = derive.screen_size(nodes, field, scales)
+            scales = onscreen.scales_for(list(nodes))
+            x, y = onscreen.screen_pos(nodes, field, scales)
+            b, h = onscreen.screen_size(nodes, field, scales)
             self.pos = (int(x + b / 2), int(y + h / 2))
         click_x, click_y = self.pos
         channel.ask(f'mouse {int(click_x)} {int(click_y)}')
@@ -516,7 +517,7 @@ class Game:
         channel.ask('sendkey 8')
         return ok
 
-    def command(self, text: str, nodes: derive.Nodes | None = None) -> list[str]:
+    def command(self, text: str, nodes: widgettree.Nodes | None = None) -> list[str]:
         """Types a console command and returns whatever error.log added afterwards.
 
         **Check that the text really is in the input field before you send Enter.** Without that

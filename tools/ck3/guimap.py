@@ -632,8 +632,8 @@ PLACEHOLDER = 'DEFAULT_TEXT'
 def strip_style(text: str | None) -> str:
     """The style markup as it is written in the localization files: `#weak ... #!`.
 
-    A different thing from `derive.strip_markup`, which strips the byte codes the game has already
-    turned that into by the time the text sits in a widget. Comparing the two sides without this
-    makes every styled sentence look like a mismatch.
+    A different thing from `widgettree.strip_markup`, which strips the byte codes the game has
+    already turned that into by the time the text sits in a widget. Comparing the two sides without
+    this makes every styled sentence look like a mismatch.
     """
     return STYLE.sub('', text or '')

@@ -6,7 +6,7 @@ a minimised window itself with SW_SHOWNOACTIVATE, which makes the window draw ag
 taking the foreground away from whatever the user is reading.
 
 The image is a yardstick, not a product: what the mod reads aloud comes from the widget tree. The
-size of the drawing area is not - `derive.use_screen` asks `window_of` and `client_size` at every
+size of the drawing area is not - `onscreen.use_screen` asks `window_of` and `client_size` at every
 start, the reader's included.
 """
 import ctypes

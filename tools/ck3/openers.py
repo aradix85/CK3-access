@@ -44,7 +44,17 @@ import time
 from typing import NotRequired, TypedDict
 
 from tools import paths, terminal
-from tools.ck3 import channel, derive, guimap, harvest, pairing, vtablemap, windowmap
+from tools.ck3 import (
+    channel,
+    derive,
+    guimap,
+    harvest,
+    onscreen,
+    pairing,
+    vtablemap,
+    widgettree,
+    windowmap,
+)
 from tools.ck3.harvest import FREE_MEMORY_FLOOR, drawn_one, free_memory, game_date, paused
 
 OUT = os.path.join(paths.REPORTS, 'openers.json')
@@ -203,7 +213,7 @@ def _settle(entry: guimap.Entry, file: str, windows: set[str], found: dict[str, 
 
 
 def live_record(game: windowmap.Game, pid: int, window: str, address: int | None = None,
-                nodes: derive.Nodes | None = None) -> tuple[pairing.Record, derive.Nodes, derive.Scales,
+                nodes: widgettree.Nodes | None = None) -> tuple[pairing.Record, widgettree.Nodes, onscreen.Scales,
                                                              dict[int, str | None]]:
     """The widgets of the window that is drawn right now, in the shape the harvest writes them and
     the pairing reads them.
@@ -239,10 +249,10 @@ def live_record(game: windowmap.Game, pid: int, window: str, address: int | None
     while walk in nodes:
         needed.add(walk)
         walk = nodes[walk][5]
-    scales = derive.scales_for(needed)
-    classes = derive.class_map(pid, {a: nodes[a][0] for a in needed})
-    flags = derive.flags_for(addresses)      # every widget: it says drawn and it says usable
-    alphas = derive.alphas_for(addresses)
+    scales = onscreen.scales_for(needed)
+    classes = widgettree.class_map(pid, {a: nodes[a][0] for a in needed})
+    flags = onscreen.flags_for(addresses)      # every widget: it says drawn and it says usable
+    alphas = onscreen.alphas_for(addresses)
     tree = [harvest.widget_record(nodes, a, d, i, scales, classes, flags, alphas)
             for a, d, i in family]
     return {'tree': tree}, nodes, scales, classes
@@ -296,7 +306,7 @@ def fires_for(source: guimap.Node | None, goal: Goal) -> tuple[list[str], list[s
     """Every call this disk block fires, split into the ones that reach `goal` and the rest.
 
     **A click and a shortcut both fire every onclick of a block, in order.** Measured 21 October
-    2026 on 1.20.1.1 with `derive.shown` and the screen as witnesses: a click on "Go to Capital"
+    2026 on 1.20.1.1 with `onscreen.shown` and the screen as witnesses: a click on "Go to Capital"
     moved the camera and folded the menu it sits in, its two calls; the shortcuts L and Alt+S each
     did both of theirs, while a shortcut with one call left the menu standing. The rule that only
     the last one counts was read off clicks made while only a state byte of zero counted as drawn,
@@ -414,7 +424,7 @@ def clickable_map(record: pairing.Record, acting: set[str]) -> list[Clickable]:
     those made every row of the category that *is* on show look covered - the province pin came out
     as unreachable under six rows of categories nobody could see. Alpha is a property of the whole
     parent chain, so it is multiplied along it; an alpha that could not be read counts as not
-    drawn, as `derive.shown` counts a state byte that could not be read.
+    drawn, as `onscreen.shown` counts a state byte that could not be read.
     """
     order = draw_order(record)
     by_address = {widget['address']: widget for widget in record['tree']}
@@ -473,8 +483,8 @@ def reachable_point(buttons: list[Clickable], widget_address: int, rect: list[fl
 
 
 def spots_for_goal(game: windowmap.Game, pid: int, window: str, goal: Goal,
-                   tables: guimap.Tables) -> tuple[list[Spot], pairing.Record, set[str], derive.Nodes,
-                                                          derive.Scales, dict[int, str | None]]:
+                   tables: guimap.Tables) -> tuple[list[Spot], pairing.Record, set[str], widgettree.Nodes,
+                                                          onscreen.Scales, dict[int, str | None]]:
     """Every widget of an open window that the files say reaches `goal`, aligned rather than guessed.
 
     The trigger for a chain step is usually nameless and usually a row built from data, so it can
@@ -502,7 +512,7 @@ def spots_for_goal(game: windowmap.Game, pid: int, window: str, goal: Goal,
     return out, record, acting, nodes, scales, classes
 
 
-def trigger_spots(row: Button, named: list[int], nodes: derive.Nodes) -> list[int]:
+def trigger_spots(row: Button, named: list[int], nodes: widgettree.Nodes) -> list[int]:
     """Where the click for this row could land: the widget itself, or its nameless children.
 
     A trigger whose name sits one level up cannot be addressed by name at all. The namebearer can
@@ -517,7 +527,7 @@ def trigger_spots(row: Button, named: list[int], nodes: derive.Nodes) -> list[in
     return [a for a in nodes if nodes[a][5] in named and not nodes[a][6]]
 
 
-def on_screen(address: int, nodes: derive.Nodes, scales: derive.Scales,
+def on_screen(address: int, nodes: widgettree.Nodes, scales: onscreen.Scales,
               classes: dict[int, str | None]) -> str | None:
     """Why this widget cannot be clicked, or None when it can.
 
@@ -536,25 +546,25 @@ def on_screen(address: int, nodes: derive.Nodes, scales: derive.Scales,
     stood here as a constant. The drawing area became 1920x1200 that day, after which every
     widget past x1600 or y900 was turned down as "off screen" - a sentence that reads like a
     measurement while being an assumption. `load_button` on the front end sits at 845,931 and was
-    refused by it. `derive.drawing_area` asks Windows once per run instead.
+    refused by it. `onscreen.drawing_area` asks Windows once per run instead.
     """
-    if not derive.is_visible(nodes, address) or derive.is_clipped(nodes, address, scales, classes):
+    if not onscreen.is_visible(nodes, address) or onscreen.is_clipped(nodes, address, scales, classes):
         return 'not visible'
-    x, y = derive.screen_pos(nodes, address, scales)
-    width, height = derive.screen_size(nodes, address, scales)
+    x, y = onscreen.screen_pos(nodes, address, scales)
+    width, height = onscreen.screen_size(nodes, address, scales)
     if width <= 0 or height <= 0:
         return 'no size'
-    screen_width, screen_height = derive.drawing_area()
+    screen_width, screen_height = onscreen.drawing_area()
     if x < 0 or y < 0 or x + width > screen_width or y + height > screen_height:
         return 'off screen'
     # **The game hides a widget with 0x08 in its state byte, on itself or on an ancestor, and leaves
-    # alpha up** - a window as much as a button (`derive.flags_for`). One question for the chain.
+    # alpha up** - a window as much as a button (`onscreen.flags_for`). One question for the chain.
     chain = []
     node = address
     while node in nodes:
         chain.append(node)
         node = nodes[node][5]
-    if not derive.shown(nodes, [address]):
+    if not onscreen.shown(nodes, [address]):
         return 'hidden by the game'
     above = window_above(address, chain, nodes, scales)
     if above is not None:
@@ -567,7 +577,7 @@ def on_screen(address: int, nodes: derive.Nodes, scales: derive.Scales,
 _above: tuple[tuple[int, int], dict[int, int], list[int]] | None = None
 
 
-def window_above(address: int, chain: list[int], nodes: derive.Nodes, scales: derive.Scales) -> str | None:
+def window_above(address: int, chain: list[int], nodes: widgettree.Nodes, scales: onscreen.Scales) -> str | None:
     """A drawn window later in the tree whose rectangle holds this widget's middle, or None.
 
     **Later in the tree is drawn on top**: measured 21 September 2026 - of two event windows the
@@ -593,8 +603,8 @@ def window_above(address: int, chain: list[int], nodes: derive.Nodes, scales: de
             siblings[a] = counts.get(node[5], 0)
             counts[node[5]] = siblings[a] + 1
         windows = [a for a, node in nodes.items() if node[0] in game_classes]
-        catching = [a for a, flag in derive.shown(nodes, windows).items()
-                    if not flag & derive.PASSES_CLICKS]
+        catching = [a for a, flag in onscreen.shown(nodes, windows).items()
+                    if not flag & onscreen.PASSES_CLICKS]
         _above = (key, siblings, catching)
     _, index, drawn = _above
 
@@ -605,21 +615,21 @@ def window_above(address: int, chain: list[int], nodes: derive.Nodes, scales: de
             a = nodes[a][5]
         return tuple(reversed(out))
 
-    x, y = derive.screen_pos(nodes, address, scales)
-    width, height = derive.screen_size(nodes, address, scales)
+    x, y = onscreen.screen_pos(nodes, address, scales)
+    width, height = onscreen.screen_size(nodes, address, scales)
     px, py = x + width / 2, y + height / 2
     mine, own = path(address), set(chain)
     for win in drawn:
         if win in own or path(win) <= mine:
             continue
-        wx, wy = derive.screen_pos(nodes, win, scales)
-        ww, wh = derive.screen_size(nodes, win, scales)
+        wx, wy = onscreen.screen_pos(nodes, win, scales)
+        ww, wh = onscreen.screen_size(nodes, win, scales)
         if wx <= px < wx + ww and wy <= py < wy + wh:
             return nodes[win][6] or 'a window'
     return None
 
 
-def press(address: int, nodes: derive.Nodes, scales: derive.Scales, classes: dict[int, str | None],
+def press(address: int, nodes: widgettree.Nodes, scales: onscreen.Scales, classes: dict[int, str | None],
           row: Button | None = None) -> str | None:
     """Click the middle of a widget, but only if it is really on screen.
 
@@ -629,8 +639,8 @@ def press(address: int, nodes: derive.Nodes, scales: derive.Scales, classes: dic
     reason = on_screen(address, nodes, scales, classes)
     if reason:
         return reason
-    x, y = derive.screen_pos(nodes, address, scales)
-    width, height = derive.screen_size(nodes, address, scales)
+    x, y = onscreen.screen_pos(nodes, address, scales)
+    width, height = onscreen.screen_size(nodes, address, scales)
     click_x, click_y = int(x + width / 2), int(y + height / 2)
     if row is not None:
         row['point'] = [click_x, click_y]
@@ -649,7 +659,7 @@ def back_to(game: windowmap.Game, baseline: set[str], tries: int = 4) -> bool:
     return game.state()[2] == baseline
 
 
-def subtree_of(nodes: derive.Nodes, window: str) -> set[int]:
+def subtree_of(nodes: widgettree.Nodes, window: str) -> set[int]:
     """The addresses under the drawn window object of that name. Every window is built up front,
     so a name with no object at all is a fault.
 
@@ -674,8 +684,8 @@ def subtree_of(nodes: derive.Nodes, window: str) -> set[int]:
     return seen
 
 
-def try_button(game: windowmap.Game, row: Button, address: int, nodes: derive.Nodes,
-               scales: derive.Scales, classes: dict[int, str | None], floor: set[str],
+def try_button(game: windowmap.Game, row: Button, address: int, nodes: widgettree.Nodes,
+               scales: onscreen.Scales, classes: dict[int, str | None], floor: set[str],
                date: str | None, number: int, total: int, where: str,
                fallback: set[str] | None = None) -> str:
     """Press one button, record what opened, and put the state back.
@@ -715,7 +725,7 @@ def main() -> None:
     vtablemap.configure(pid)
     fields, why = derive.fields_for(pid)
     derive.configure_channel(fields)
-    derive.use_fields(fields)
+    onscreen.use_fields(fields.get('alpha'), fields.get('flag'))
     game = windowmap.Game(pid)
     global game_classes
     game_classes = game.window_classes
@@ -744,8 +754,8 @@ def main() -> None:
     for address, k in nodes.items():
         if k[6]:
             by_name.setdefault(k[6], []).append(address)
-    scales = derive.scales_for(list(nodes))
-    classes = derive.class_map(pid, {a: k[0] for a, k in nodes.items()})
+    scales = onscreen.scales_for(list(nodes))
+    classes = widgettree.class_map(pid, {a: k[0] for a, k in nodes.items()})
 
     print('\nphase one: what is reachable without opening anything first')
     for number, row in enumerate(rows, 1):
@@ -791,8 +801,8 @@ def main() -> None:
         inside_nodes = game.tree()
         floor = game.state(inside_nodes)[2]
         held = subtree_of(inside_nodes, window)
-        inside_scales = derive.scales_for(list(inside_nodes))
-        inside_classes = derive.class_map(pid, {a: k[0] for a, k in inside_nodes.items()})
+        inside_scales = onscreen.scales_for(list(inside_nodes))
+        inside_classes = widgettree.class_map(pid, {a: k[0] for a, k in inside_nodes.items()})
         found = 0
         for number, row in enumerate(waiting, 1):
             spots = trigger_spots(row, [a for a in held
@@ -816,8 +826,8 @@ def main() -> None:
             inside_nodes = game.tree()
             floor = game.state(inside_nodes)[2]
             held = subtree_of(inside_nodes, window)
-            inside_scales = derive.scales_for(list(inside_nodes))
-            inside_classes = derive.class_map(pid, {a: k[0] for a, k in inside_nodes.items()})
+            inside_scales = onscreen.scales_for(list(inside_nodes))
+            inside_classes = widgettree.class_map(pid, {a: k[0] for a, k in inside_nodes.items()})
 
         print(f'   {window!s:<28} {int(found)} of the {len(waiting)} still waiting were in it')
         if not back_to(game, baseline):

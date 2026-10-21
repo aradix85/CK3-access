@@ -17,6 +17,7 @@ import io
 import msvcrt
 import sys
 import time
+from collections.abc import Iterable
 from ctypes import wintypes
 
 from tools.nvda import speech
@@ -130,7 +131,7 @@ def ask(command: str, timeout: float = 60.0, errors_ok: bool = False) -> str:
     here as an exception, not as an empty list.
 
     `errors_ok=True` is for the single caller that treats an error as a valid answer, such as
-    `derive.read` on an unreadable address.
+    `read` on an unreadable address.
 
     **A link that is not there is said out loud; a link that breaks and stays shut is not.** With
     no link to begin with there is no game information either, so nothing further down can report
@@ -167,6 +168,60 @@ def ask(command: str, timeout: float = 60.0, errors_ok: bool = False) -> str:
         except RuntimeError:
             close()             # a late reply must not be read as the answer to the next question
             raise
+
+
+def read(address: int, count: int) -> bytes | None:
+    """Raw bytes, or None where the game holds nothing readable. Any other refusal of the DLL - a
+    count over its limit, a command it does not know - is a fault and stops here."""
+    line = ask(f'read {address:x} {int(count)}', timeout=20, errors_ok=True).split('\n')[0].strip()
+    if line == 'error: unreadable':
+        return None
+    if line.startswith('error'):
+        raise ValueError(f'{line} (read {address:x} {int(count)})')
+    return bytes.fromhex(line)
+
+
+def read_known(address: int, count: int) -> bytes:
+    """`read` for an address the caller knows the game holds: unreadable there is a fault, and it
+    stops here with the address rather than a line later on a value that is not there."""
+    found = read(address, count)
+    if found is None:
+        raise SystemExit(f'cannot read {int(count)} bytes at {address:x}, where the game should hold them')
+    return found
+
+
+def readmany(addresses: Iterable[int], count: int) -> dict[int, bytes]:
+    """Raw bytes per address, in as few questions as both limits allow; an address where the game
+    holds nothing readable is missing from the answer.
+
+    The DLL refuses a command that fills its 8192-byte buffer - it answers `error: command too
+    long`, measured 29 July 2026 - hence at most 400 addresses per question. The answer has a limit
+    too, and it is not written down anywhere: a round asking for hundreds of kilobytes at a time is
+    the one thing suspected of taking the game down on 28 August 2026, so each answer stays under
+    32 kB as well.
+    """
+    out: dict[int, bytes] = {}
+    items = sorted(addresses)
+    per_question = max(1, min(400, 32768 // count))
+    for start in range(0, len(items), per_question):
+        part = items[start:start + per_question]
+        answer = ask(f"readmany {int(count)} {' '.join(f'{a:x}' for a in part)}", timeout=180)
+        for line in answer.split('\n'):
+            piece = line.split('\t')
+            if piece[0] == 'l' and len(piece) > 2 and piece[2] != 'unreadable':
+                out[int(piece[1], 16)] = bytes.fromhex(piece[2])
+    return out
+
+
+def field_for(addresses: Iterable[int], offset: int, width: int = 1) -> dict[int, int]:
+    """One field of many objects, as a whole number, keyed by the object.
+
+    The bytes come back in the order they sit in memory, so they are read back little endian. For
+    one byte that is the same thing; for four it is not, and a child count read the other way
+    round comes out in the millions - which looks exactly like a field that has moved.
+    """
+    return {address - offset: int.from_bytes(value, 'little')
+            for address, value in readmany((a + offset for a in addresses), width).items()}
 
 
 if __name__ == '__main__':
