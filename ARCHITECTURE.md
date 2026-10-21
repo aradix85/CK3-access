@@ -78,8 +78,8 @@ whatever lies underneath.
 
 Text recognition (`tools/ocr.py`) is a witness, never the product.
 
-**Open a window the way a player does.** The console builds any window but hands over no data context,
-so it yields captions without values. **Check the window map against the game**, not the files:
+**Open a window the way a player does.** The console builds any window declared outside a `types`
+block, but hands over no data context, so it yields captions without values. **Check the window map against the game**, not the files:
 `windowmap.unmapped` lists what the engine built that the map lacks. **The chain** reaches windows that
 wait on a state: open one window, press what the files say reaches the target (`openers.chain`).
 
