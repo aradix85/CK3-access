@@ -1,7 +1,7 @@
 [
  {
   "name": "size of ck3.exe",
-  "claimed": 101123704,
+  "claimed": 101125752,
   "measure": "bytes",
   "arguments": [
    "<game>\\binaries\\ck3.exe"
@@ -402,7 +402,7 @@
  },
  {
   "name": "HasDlcFeature checks in the merged gui set",
-  "claimed": 47,
+  "claimed": 46,
   "measure": "gui_dlc",
   "arguments": [
    "checks"
