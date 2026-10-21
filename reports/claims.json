@@ -120,7 +120,7 @@
  },
  {
   "name": "channel.dll",
-  "claimed": 161280,
+  "claimed": 161792,
   "measure": "bytes",
   "arguments": [
    "<project>\\dll\\channel.dll"
@@ -232,7 +232,7 @@
  },
  {
   "name": "files that go into the repo",
-  "claimed": 83,
+  "claimed": 85,
   "measure": "repo_files",
   "counting_rule": "files under the project folder that .gitignore does not exclude, the same set git ls-files plus git ls-files --others --exclude-standard gives"
  },
