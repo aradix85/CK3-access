@@ -186,10 +186,8 @@ def fills(source: guimap.Node | None) -> str | None:
     """The data function the gui file puts in this widget, if it puts one there."""
     if source is None:
         return None
-    for key, value in source['attrs']:
-        if key == 'text' and value and '[' in value:
-            return value
-    return None
+    value = guimap.written(source)
+    return value if value and '[' in value else None
 
 
 def on_screen(node: pairing.Harvested, by_address: dict[str, pairing.Harvested],
@@ -209,8 +207,10 @@ def on_screen(node: pairing.Harvested, by_address: dict[str, pairing.Harvested],
 
     The so-called third state - content the game stacks under itself, alpha 1
     and unclipped, such as the ledger's eleven category tabs - is the hidden bit: in the ledger of
-    21 September 2026, 4087 of the 4088 widgets below the drawing area carry it. A record from
-    before 20 September carries no state byte, and there only the drawing-area test catches part.
+    21 September 2026, 4087 of the 4088 widgets below the drawing area carry it. Measured
+    21 September 2026 as well: 40 of 260 texts in seven windows sat under 0x08, all in the
+    character finder, such as "No matching Characters for current filter" while it listed
+    characters. Alpha and the state byte along the chain are `onscreen.shown_in_record`.
     """
     width, height = area
     x, y, w, h = node['screen_rect']
@@ -218,20 +218,7 @@ def on_screen(node: pairing.Harvested, by_address: dict[str, pairing.Harvested],
         return False
     if node['clipped']:
         return False
-    seen: set[str] = set()
-    walk: pairing.Harvested | None = node
-    while walk is not None and walk['address'] not in seen:
-        seen.add(walk['address'])
-        if (walk['alpha'] or 0) <= 0:
-            return False
-        # 0x08 in the state byte is the game hiding the widget - a `visible` condition that is false
-        # - while alpha stays up. Measured 21 September 2026: 40 of 260 texts in seven windows sat
-        # under it, all in the character finder, such as "No matching Characters for current filter"
-        # while it listed characters. A record from before 20 September carries no state.
-        if (walk.get('state') or 0) & onscreen.HIDDEN:
-            return False
-        walk = by_address.get(walk['parent'])
-    return True
+    return onscreen.shown_in_record(node, by_address)
 
 
 EXPANDED: dict[str, guimap.Node] = {}
@@ -342,7 +329,8 @@ def units(window: str, tables: guimap.Tables, record: pairing.Record,
     out: list[Unit] = []
     for node in live_order(by_parent, top):
         text = widgettree.strip_markup(node['text'] or '').strip()
-        if not text or not on_screen(node, by_address, area):
+        state = node['state']
+        if not text or state is None or not on_screen(node, by_address, area):
             continue
         source = source_of.get(id(node))
         chain = model_of.get(id(source), ()) if source else ()
@@ -350,7 +338,7 @@ def units(window: str, tables: guimap.Tables, record: pairing.Record,
                     'rows': rows_of(node, by_address, source_of),
                     'fills': fills(source),
                     'name': node['name'],
-                    'state': state_word(node.get('state')),
+                    'state': state_word(state),
                     'explain': explanation(node['address'], by_address, source_of, words),
                     'address': node['address'], 'parent': node['parent']})
     return out
@@ -442,7 +430,7 @@ def in_order(window: str, found: list[Unit]) -> list[Unit]:
     return sorted(found, key=place_of)
 
 
-def state_word(state: int | None) -> str | None:
+def state_word(state: int) -> str | None:
     """`unavailable` in front of a line whose button the game has switched off, or nothing.
 
     **A field rather than a rule per screen.** 0x02 in the state byte is `enabled` false on the
@@ -454,7 +442,7 @@ def state_word(state: int | None) -> str | None:
     The word goes in front, because a state that arrives after the sentence arrives too late to
     act on.
     """
-    return 'unavailable' if (state or 0) & onscreen.SWITCHED_OFF else None
+    return 'unavailable' if state & onscreen.SWITCHED_OFF else None
 
 
 def spoken(unit: Unit) -> str:

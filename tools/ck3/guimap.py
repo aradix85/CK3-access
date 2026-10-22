@@ -438,6 +438,18 @@ def attribute(node: Node, key: str) -> str | None:
     return None
 
 
+def written(node: Node) -> str | None:
+    """What the file puts in this widget as its text: `text`, a localization key, or else
+    `raw_text`, a sentence written in the file itself.
+
+    Counted 22 October 2026 over the merged files of 1.20.1.2: 7339 `text` against 1536 `raw_text`,
+    and 2888 `tooltip` against 588 `raw_tooltip`. 18 of the `raw_text` are a bare localization key,
+    and the one of those the harvest holds showed its sentence on screen, so a key is looked up
+    there too (`pairing.text_source`).
+    """
+    return attribute(node, 'text') or attribute(node, 'raw_text')
+
+
 def windows(rows: list[Row] | None = None, table: Table | None = None) -> Known:
     """Every window on disk, as name -> (virtual path, its entry).
 

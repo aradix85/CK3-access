@@ -418,11 +418,10 @@ def clickable_map(record: pairing.Record, acting: set[str]) -> list[Clickable]:
 
     **A widget that is not drawn takes no clicks either, and geometry alone will not tell you.**
     The ledger keeps all eleven of its categories in one tree, laid out on top of each other at the
-    same place; ten of them are switched off by alpha rather than moved away or clipped. Counting
-    those made every row of the category that *is* on show look covered - the province pin came out
-    as unreachable under six rows of categories nobody could see. Alpha is a property of the whole
-    parent chain, so it is multiplied along it; an alpha that could not be read counts as not
-    drawn, as `onscreen.shown` counts a state byte that could not be read.
+    same place; ten of them are switched off rather than moved away or clipped, by alpha on 1.19
+    and by the state byte on 1.20. Counting those made every row of the category that *is* on show
+    look covered - the province pin came out as unreachable under six rows of categories nobody
+    could see. Drawn is `onscreen.shown_in_record`, over the whole parent chain.
     """
     order = draw_order(record)
     by_address = {widget['address']: widget for widget in record['tree']}
@@ -436,12 +435,7 @@ def clickable_map(record: pairing.Record, acting: set[str]) -> list[Clickable]:
         x, y, width, height = widget['screen_rect']
         if width <= 0 or height <= 0 or widget['clipped']:
             continue
-        alpha = 1.0
-        node: pairing.Harvested | None = widget
-        while node is not None:
-            alpha *= node['alpha'] or 0.0
-            node = by_address.get(node['parent'])
-        if alpha <= 0.0:
+        if not onscreen.shown_in_record(widget, by_address):
             continue
         out.append((order[widget['address']], x, y, width, height, widget))
     out.sort(key=lambda row: row[0])

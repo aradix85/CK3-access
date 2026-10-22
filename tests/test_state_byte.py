@@ -15,7 +15,7 @@ from collections.abc import Callable, Iterable
 
 import pytest
 
-from tools.ck3 import onscreen, reader, reading, widgettree
+from tools.ck3 import onscreen, pairing, reader, reading, widgettree
 
 # address -> (vtable, x, y, width, height, parent, name, text), as `widgettree.widgets` returns it
 NODES: widgettree.Nodes = {
@@ -77,7 +77,28 @@ def test_switched_off_is_read_on_the_widget_itself() -> None:
     assert reading.state_word(0x06) == 'unavailable'      # where `enabled = no` sits
     assert reading.state_word(0x02) == 'unavailable'      # inherited by the text inside
     assert reading.state_word(0x20) is None
-    assert reading.state_word(None) is None
+
+
+def record_widget(address: str, parent: str, state: int | None, alpha: float | None) -> pairing.Harvested:
+    return {'address': address, 'parent': parent, 'depth': 0, 'index': 0, 'class': 'Textbox',
+            'name': address, 'text': address, 'own_rect': [0, 0, 10, 10], 'screen_rect': [0, 0, 10, 10],
+            'scale': [1.0, 1.0], 'alpha': alpha, 'state': state, 'clipped': False}
+
+
+def test_a_record_is_drawn_by_the_same_rule() -> None:
+    def drawn(**above: tuple[int | None, float | None]) -> bool:
+        window_state, window_alpha = above.get('window', (0x00, 1.0))
+        text_state, text_alpha = above.get('text', (0x00, 1.0))
+        tree = {'w': record_widget('w', 'root', window_state, window_alpha),
+                't': record_widget('t', 'w', text_state, text_alpha)}
+        return onscreen.shown_in_record(tree['t'], tree)
+
+    assert drawn(), 'nothing hides it'
+    assert drawn(window=(0x20, 1.0)), '0x20 lets the mouse through and hides nothing'
+    assert not drawn(window=(0x18, 1.0)), 'a shut window hides what is in it, alpha up or not'
+    assert not drawn(window=(0x00, 0.0)), 'alpha zero on an ancestor'
+    assert not drawn(text=(None, 1.0)), 'a byte that could not be read'
+    assert not drawn(window=(0x00, None)), 'an alpha that could not be read'
 
 
 def test_a_toast_says_only_its_drawn_text_boxes(monkeypatch: pytest.MonkeyPatch) -> None:

@@ -27,8 +27,6 @@ from typing import TypedDict
 from tools import paths
 from tools.ck3 import guimap
 
-TEXT_KEYS = ('text', 'raw_text')
-
 
 class Text(TypedDict):
     """One text of a window: what it holds, the data contexts above it, and its list."""
@@ -51,11 +49,9 @@ def texts(node: guimap.Node, context: tuple[str, ...] = (), inside: str | None =
     own = guimap.attribute(node, 'datacontext')
     below = context + ((own,) if own else ())
     model = guimap.attribute(node, 'datamodel') or inside
-    for key in TEXT_KEYS:
-        value = guimap.attribute(node, key)
-        if value:
-            out.append({'text': value, 'context': below, 'list': model})
-            break
+    value = guimap.written(node)
+    if value:
+        out.append({'text': value, 'context': below, 'list': model})
     for child in node['children']:
         texts(child, below, model, out)
     return out

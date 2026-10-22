@@ -270,17 +270,8 @@ def confirmed(tree: list[pairing.Harvested], lines: list[Recognised],
         x, y, width, height = w['screen_rect']
         if not want or width <= 0 or height <= 0:
             continue
-        # 0x08 in the state byte is the game hiding a widget while its alpha stays up, and a hidden
-        # box is no more a miss than one at alpha zero. A byte that could not be read counts as not
-        # drawn, as in `onscreen.shown`.
-        alpha, hidden = 1.0, False
-        node: pairing.Harvested | None = w
-        while node is not None:
-            state = node['state']
-            alpha *= node['alpha'] or 0.0
-            hidden = hidden or state is None or bool(state & onscreen.HIDDEN)
-            node = by_address.get(node['parent'])
-        if alpha <= 0.0 or hidden:
+        # A hidden box is no more a miss than one at alpha zero.
+        if not onscreen.shown_in_record(w, by_address):
             continue
         if x < 0 or y < 0 or x + width > width_limit or y + height > height_limit:
             offscreen += 1

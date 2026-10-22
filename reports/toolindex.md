@@ -201,6 +201,7 @@ returns a pair, passed on as one thing, costs a run.
 | `type_table(rows=None)` | 2-tuple | Every template the engine knows, as name -> definition. |
 | `build(key, body, scope, templates, overrides=None, depth=0, in_tooltip=False, above=())` | value | One widget, fully expanded: inherited defaults, mixed-in templates, slots filled. |
 | `attribute(node, key)` | value of NoneType | The value of the first attribute with this key, or None when the widget has none. |
+| `written(node)` | value | What the file puts in this widget as its text: `text`, a localization key, or else |
 | `windows(rows=None, table=None)` | value | Every window on disk, as name -> (virtual path, its entry). |
 | `root_finder(table)` | value | Type name -> the end of its inheritance chain, remembered, because the walk repeats itself |
 | `tables()` | 4-tuple | Everything a window is expanded with, built once. |
@@ -322,6 +323,7 @@ returns a pair, passed on as one thing, costs a run.
 | `flags_for(addresses)` | value | The state byte of many objects. It is a bit pattern, and only `HIDDEN` decides what is drawn. |
 | `alphas_for(addresses)` | dict | The alpha of many objects, the way `flags_for` reads the state byte. One that cannot be read |
 | `shown(nodes, addresses)` | dict | Of `addresses`, the ones nothing hides, each with its own state byte. |
+| `shown_in_record(node, by_address)` | bool | `shown` and `is_visible` together, for a widget as a record holds it: nothing up the chain |
 | `scales_for(addresses)` | value | Per widget (own scale, scale from above). The two sit next to each other, so one read round. |
 | `screen_pos(nodes, address, scales)` | 2-tuple | The place on screen: the own position plus that of every parent, with the scale applied. |
 | `scale_anchors()` | value | Per scaled container, by its own name or the nearest name above it: does the centring |
@@ -365,10 +367,10 @@ returns a pair, passed on as one thing, costs a run.
 | `align_row(disk, live, root)` | value | Two rows of children laid against each other on class and order alone. |
 | `live_tree(record)` | 2-tuple | The harvest is a flat list with an address and a parent address; this is it as a tree. |
 | `pairs(window, table, local, known, root, record=None, disk_tree=None)` | value | Every live widget of one window with its source on disk, and the data context it inherits. |
-| `text_source(source, localization)` | str of value | What fills this widget: a key, a data function, both, or a placeholder. |
+| `text_source(source, localization)` | str of value | What fills this widget: a key, a data function, both, a sentence written in the file, or a |
 | `developer_window(name, path)` | value | Is this window the developers' own tooling rather than something a player opens? |
 | `bare_number(text)` | bool of value | A text that is only a number. This is the case the origin question exists for: `150` |
-| `unexplained(count, kind, context, built, developer)` | nothing | The texts the gui files do not predict, split the way the decision needed them. |
+| `unexplained(count, kind, context, built, developer, drawn)` | nothing | The texts the gui files do not predict, split the way the decision needed them. |
 | `sweep()` | 3-tuple | Every harvested window paired, as one tally. About twenty seconds for 204 windows (measured |
 | `harvested_at()` | value | When the newest record in the harvest was measured: which harvest a report drawn from it |
 | `main()` | nothing | - |
@@ -428,7 +430,7 @@ returns a pair, passed on as one thing, costs a run.
 | `words_of(word)` | value | A name in the game's spelling as words: GetSoldierCount -> soldier count, MAACap -> MAA cap. |
 | `name_of(model)` | value | A data function as a word for the player: GetOptions -> options, GetGold|0 -> gold. |
 | `fills(source)` | NoneType of value | The data function the gui file puts in this widget, if it puts one there. |
-| `on_screen(node, by_address, area)` | bool | Is this widget actually drawn, or only present in the tree? |
+| `on_screen(node, by_address, area)` | bool of value | Is this widget actually drawn, or only present in the tree? |
 | `expansion(window, table, local, known)` | value | The window as the gui files describe it, expanded once and then kept. |
 | `words_table()` | value | The localisation, read once. Over a thousand files, so not per keystroke. |
 | `explanation(address, by_address, source_of, localization)` | value of NoneType | The tooltip the gui files predict here: the nearest one up the chain. |

@@ -17,18 +17,19 @@ import json
 import os
 import pathlib
 import re
-from typing import NotRequired, TypedDict
+from typing import TypedDict
 
 from tools import paths
 from tools.ck3 import guimap, widgettree
 
 # One widget as the harvest writes it (`harvest.widget_record`): addresses in hex, rectangles as
-# x, y, width, height. `state` is missing from every widget harvested before 20 September 2026,
-# when it was still called `window_flag` and read for window objects only.
+# x, y, width, height. `state` and `alpha` are None where they could not be read, which counts as
+# not drawn (`onscreen.shown_in_record`); all 91457 widgets of the harvest of 21 October 2026 carry
+# both. A harvest from before 20 September 2026 has no `state` and is not read.
 Harvested = TypedDict('Harvested', {
     'address': str, 'parent': str, 'depth': int, 'index': int, 'class': str | None, 'name': str,
     'text': str | None, 'own_rect': list[float], 'screen_rect': list[float], 'scale': list[float],
-    'alpha': float | None, 'state': NotRequired[int | None], 'clipped': bool})
+    'alpha': float | None, 'state': int | None, 'clipped': bool})
 
 
 class Record(TypedDict):
@@ -233,8 +234,14 @@ def _decision_widget(name: str, table: guimap.Table, local: guimap.LocalTable) -
     return _decision_widgets[name]
 
 
-def text_source(source: str | None, localization: dict[str, str]) -> str:
-    """What fills this widget: a key, a data function, both, or a placeholder.
+def text_source(source: guimap.Node, localization: dict[str, str]) -> str:
+    """What fills this widget: a key, a data function, both, a sentence written in the file, or a
+    placeholder.
+
+    **`raw_text` is the file writing the sentence itself**, with no key behind it
+    (`guimap.written`). Until 22 October 2026 only `text` was read here, and 74 harvested texts came
+    out as having no key on disk while the file spelled them out, such as the `+1` of further
+    defenders in a war row of the ledger.
 
     `DEFAULT_TEXT` is its own answer and not a failure. It is what the gui file carries where the
     code sets the text at run time, so for those widgets the files positively cannot tell you what
@@ -245,15 +252,18 @@ def text_source(source: str | None, localization: dict[str, str]) -> str:
     again: the sentence is fixed but not here, so reading this file alone gives you the wrong words
     - `DIARCHY_WINDOW_HEADER` is `$game_concept_diarchy$` on disk and "Power Sharing" on screen.
     """
-    if source is None:
+    key = guimap.written(source)
+    if not key:
         return 'no key on disk'
-    if source == guimap.PLACEHOLDER:
+    if not guimap.attribute(source, 'text') and key not in localization:
+        return 'data function' if '[' in key else 'sentence in the file'
+    if key == guimap.PLACEHOLDER:
         return 'placeholder, code fills it'
-    if '[' in source:
+    if '[' in key:
         return 'data function'
-    if source not in localization:
+    if key not in localization:
         return 'key not in localization'
-    value = localization[source]
+    value = localization[key]
     if '[' in value:
         return 'data function through key'
     return 'key quoting another key' if '$' in value else 'plain key'
@@ -287,13 +297,15 @@ def bare_number(text: str) -> bool:
 
 
 def unexplained(count: collections.Counter[str], kind: str, context: tuple[str, ...],
-                built: Harvested, developer: bool) -> None:
+                built: Harvested, developer: bool, drawn: bool) -> None:
     """The texts the gui files do not predict, split the way the decision needed them.
 
-    Three questions decide whether the missing origin costs anything: does the widget inherit a
+    Four questions decide whether the missing origin costs anything: does the widget inherit a
     data context, so that it is at least known what the text is about; does it sit in a window a
-    player ever opens; and is it a bare number, which is the only shape that cannot be read out
-    as it stands. Measured 1 September 2026 over the whole harvest.
+    player ever opens; is it a bare number, which is the only shape that cannot be read out as it
+    stands; and does the reading rule say it at all, in the state the harvest took. Measured
+    1 September 2026 over the whole harvest; the last question since 22 October 2026, when 3 of
+    the 403 bare numbers in player windows turned out to be drawn.
     """
     if kind not in UNEXPLAINED:
         return
@@ -304,8 +316,10 @@ def unexplained(count: collections.Counter[str], kind: str, context: tuple[str, 
         count['unexplained in developer windows'] += 1
         return
     count['unexplained in player windows'] += 1
+    count['unexplained in player windows, drawn'] += drawn
     if bare_number(widgettree.strip_markup(built['text'] or '').strip()):
         count['unexplained bare number in player windows'] += 1
+        count['unexplained bare number in player windows, drawn'] += drawn
 
 
 REPORT = os.path.join(paths.PROJECT, 'reports', 'pairing.json')
@@ -313,7 +327,12 @@ REPORT = os.path.join(paths.PROJECT, 'reports', 'pairing.json')
 
 def sweep() -> tuple[collections.Counter[str], collections.Counter[str], collections.Counter[str]]:
     """Every harvested window paired, as one tally. About twenty seconds for 204 windows (measured
-    4 October 2026)."""
+    4 October 2026).
+
+    **The names score the alignment**, because they never enter it: a live widget with a name
+    whose source on disk carries the same name was put in the right place.
+    """
+    from tools.ck3 import reading  # it imports this module
     table, local, known, root = guimap.tables()
     localization = guimap.localization()
 
@@ -329,12 +348,18 @@ def sweep() -> tuple[collections.Counter[str], collections.Counter[str], collect
         count['widgets in harvest'] += len(record['tree'])
         developer = developer_window(window, known[window][0])
         seen = 0
-        rows_here = pairs(window, table, local, known, root)
+        rows_here = pairs(window, table, local, known, root, record)
         by_address = {built['address']: source for source, built, _ in rows_here}
+        live = {built['address']: built for built in record['tree']}
         for source, built, context in rows_here:
             seen += 1
+            if built['name']:
+                count['named live widgets'] += 1
+                if source is not None and guimap.attribute(source, 'name') == built['name']:
+                    count['named live widgets on their own name'] += 1
             if not built['text']:
                 continue
+            drawn = reading.on_screen(built, live, record['size'])
             count['texts'] += 1
             if source is None:
                 # A button carries its caption itself and the engine hangs a text box under it to
@@ -342,28 +367,31 @@ def sweep() -> tuple[collections.Counter[str], collections.Counter[str], collect
                 # parent is paired and does carry the text. This is the widget above answering for
                 # it, not a guess: the check below compares the caption with what was on screen.
                 above = by_address.get(built['parent'])
-                if above is not None and guimap.attribute(above, 'text'):
+                if above is not None and guimap.written(above):
                     count['caption of the widget above'] += 1
                     source = above
                 else:
                     count['no source on disk'] += 1
                     unplaced[window] += 1
-                    unexplained(count, 'no source on disk', context, built, developer)
+                    unexplained(count, 'no source on disk', context, built, developer, drawn)
                     continue
             count['paired'] += 1
             if context:
                 count['with data context'] += 1
-            key = guimap.attribute(source, 'text')
-            kind = text_source(key, localization)
+            kind = text_source(source, localization)
             count[kind] += 1
-            unexplained(count, kind, context, built, developer)
+            unexplained(count, kind, context, built, developer, drawn)
+            key = guimap.written(source)
             if kind == 'data function' and key is not None:
                 for name in FUNCTION.findall(key):
                     functions[name] += 1
-            if kind == 'plain key' and key is not None:
+            if kind in ('plain key', 'sentence in the file') and key is not None:
+                # The check that can fail: the sentence the file promises against what was on
+                # screen. A sentence in the file is compared the same way, without the lookup.
                 shown = widgettree.strip_markup(built['text'] or '').strip()
-                expected = ICON.sub('', guimap.strip_style(localization[key])).strip()
-                count['plain key agrees' if shown == expected else 'plain key differs'] += 1
+                sentence = localization[key] if kind == 'plain key' else key
+                expected = ICON.sub('', guimap.strip_style(sentence)).strip()
+                count[f"{kind} {'agrees' if shown == expected else 'differs'}"] += 1
         if seen != len(record['tree']):
             raise AssertionError(f"{window}: the walk saw {int(seen)} of the {len(record['tree'])} harvested widgets - a share of "
                                  'texts is only worth anything against the whole tree')

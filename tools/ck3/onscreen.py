@@ -10,7 +10,7 @@ import struct
 from collections.abc import Iterable
 
 from tools import windowgrab
-from tools.ck3 import channel, guimap, widgettree
+from tools.ck3 import channel, guimap, pairing, widgettree
 
 # Per widget: its own scale, and the scale that reaches it from above.
 Scales = dict[int, tuple[float, float]]
@@ -125,6 +125,24 @@ def shown(nodes: widgettree.Nodes, addresses: Iterable[int]) -> dict[int, int]:
     flags = flags_for({a for chain in chains.values() for a in chain})
     return {address: flags[address] for address, chain in chains.items()
             if all(a in flags and not flags[a] & HIDDEN for a in chain)}
+
+
+def shown_in_record(node: pairing.Harvested, by_address: dict[str, pairing.Harvested]) -> bool:
+    """`shown` and `is_visible` together, for a widget as a record holds it: nothing up the chain
+    hides it or sits at alpha zero, and a byte or alpha that could not be read counts as not drawn.
+
+    The one walk up the parents of a record; the reading rule, the second witness of the harvest
+    and the click map ask it here. The click map used to multiply alpha alone, and on the harvest
+    of 21 October 2026 (1.20.1.2) that kept 6794 hidden buttons of 12250 as covering what lay
+    under them, 1127 in the ledger, whose categories 1.20 hides with the state byte.
+    """
+    walk: pairing.Harvested | None = node
+    while walk is not None:
+        state, alpha = walk['state'], walk['alpha']
+        if state is None or state & HIDDEN or alpha is None or alpha <= 0.0:
+            return False
+        walk = by_address.get(walk['parent'])
+    return True
 
 
 OWN_SCALE = 0x110
