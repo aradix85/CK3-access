@@ -9,7 +9,7 @@ The game keeps its interface in memory as a widget tree and ships full MSVC RTTI
 found and read directly. An injected DLL reads it; Python turns it into speech and braille through
 NVDA. No game files are copied or redistributed.
 
-## What works
+## 1. What works
 
 - **An injected research channel** reads the widget tree and posts mouse and key input, combinations
   included, from inside the process to map the interface — it never takes focus.
@@ -24,14 +24,14 @@ NVDA. No game files are copied or redistributed.
 
 Tested on Crusader Kings III 1.20.1.2 without mods, and NVDA 2026.2.
 
-## Requirements
+## 2. Requirements
 
 - Windows and the Steam version of Crusader Kings III
-- NVDA, with its controller client (below)
+- NVDA, with its controller client (section 3)
 - Python 3.11+ and `requirements.txt`
 - Visual Studio Build Tools (MSVC, x64); LLVM optional, for clang-tidy
 
-## NVDA
+## 3. NVDA
 
 **The controller client** is how the reader speaks and writes braille, and it is not in this
 repository. Download `nvda_<version>_controllerClient.zip` from `download.nvaccess.org/releases/stable/`
@@ -41,7 +41,7 @@ there. `tools/nvda/check_speech_by_ear.bat` then checks by ear that it speaks.
 If NVDA's own announcements get in the way in the game window, NVDA+Shift+S puts NVDA to sleep there;
 the reader keeps speaking through the controller client.
 
-## Running it
+## 4. Running it
 
 From the project folder; the tools are a package and start as modules.
 
@@ -57,7 +57,7 @@ reader, up and down step through the window, Delete explains the current line, a
 reader off and on. Paths come from the registry; override with `CK3_GAME`, `CK3_DOCS` or `CK3_WORK`.
 `reports/toolindex.md` lists every call. Your antivirus may object to the injector.
 
-## Reporting a problem
+## 5. Reporting a problem
 
 Open an issue on GitHub. Include the game version, your DLC and mods, your NVDA version and whether
 NVDA was in sleep mode, and what the tool said when it went wrong. If it fell silent
@@ -66,25 +66,25 @@ instead, say so — that is the most useful report there is.
 Only NVDA is supported, because the maintainer cannot test anything else. If you use another screen
 reader and can test, open an issue: adding Prism or SRAL behind the speech seam is a small change.
 
-## How it works
+## 6. How it works
 
-Seven parts, split where a game patch is most likely to hit.
+Seven parts, 6.1 to 6.7 below, split where a game patch is most likely to hit.
 
 | | Part | What it is for |
 |---|---|---|
-| 1 | **The channel** — `dll/channel.cpp`, `dll/input.cpp`, `dll/channel.h`, `tools/ck3/channel.py` | a few primitives over a pipe; knows nothing about the game |
-| 2 | **Derivation** — `tools/ck3/derive.py` | derives the memory offsets and rechecks them at each start |
-| 3 | **Visibility** — `tools/ck3/widgettree.py`, `tools/ck3/onscreen.py` | the widget tree, what of it is really on screen, and which window lies on top |
-| 4 | **Input** | keys taken before the game sees them; clicks and keys posted inward |
-| 5 | **Reading the game** | five independent sources; their disagreement is the test |
-| 6 | **Presentation** — `screens/`, `tools/ck3/reading.py`, `tools/ck3/reader.py` | what gets said, in what order, on which key |
-| 7 | **Speech** — `tools/nvda/speech.py` | one seam to NVDA, speech and braille together |
+| 6.1 | **The channel** — `dll/channel.cpp`, `dll/input.cpp`, `dll/channel.h`, `tools/ck3/channel.py` | a few primitives over a pipe; knows nothing about the game |
+| 6.2 | **Derivation** — `tools/ck3/derive.py` | derives the memory offsets and rechecks them at each start |
+| 6.3 | **Visibility** — `tools/ck3/widgettree.py`, `tools/ck3/onscreen.py` | the widget tree, what of it is really on screen, and which window lies on top |
+| 6.4 | **Input** | keys taken before the game sees them; clicks and keys posted inward |
+| 6.5 | **Reading the game** | five independent sources; their disagreement is the test |
+| 6.6 | **Presentation** — `screens/`, `tools/ck3/reading.py`, `tools/ck3/reader.py` | what gets said, in what order, on which key |
+| 6.7 | **Speech** — `tools/nvda/speech.py` | one seam to NVDA, speech and braille together |
 
 **Direction:** installing should end up as one DLL, the NVDA controller client and the screen files
 beside it, and a launch option — no Python. So logic moves into the DLL when a measurement says it
 pays. Speech and braille stay outside; receiving keys stays inside.
 
-### 1. The channel
+### 6.1 The channel
 
 An injected DLL exposing primitives over a named pipe: read memory, walk the widget tree, post a
 click, a key, a character or a key combination. It contains no game knowledge and no speech.
@@ -94,13 +94,13 @@ click, a key, a character or a key combination. It contains no game knowledge an
 - **The pipe is a workbench, not a product.** The player build will be compiled without it; the DLL
   never opens a network connection.
 
-### 2. Derivation
+### 6.2 Derivation
 
 No memory layout is hard-coded. Widget vtables come from the RTTI in the executable; nine field
 offsets are derived from the running game and rechecked at each start, and derived again if a check
 fails.
 
-### 3. Visibility
+### 6.3 Visibility
 
 Every window is built up front and stays in the tree, so being in the tree says nothing. What decides
 whether something is drawn:
@@ -115,7 +115,7 @@ whether something is drawn:
 Which drawn window is on top follows sibling draw order. A click needs all of this, or it lands on
 whatever lies underneath.
 
-### 4. Input
+### 6.4 Input
 
 - **Receiving:** the DLL hooks the game's window procedure and swallows the keys the reader owns.
 - **Sending:** mouse and key messages are posted into the process to map the interface, so the
@@ -131,7 +131,7 @@ whatever lies underneath.
   `derive.tooltip_root` reaches it without a scan, through the engine's own list of layer roots.
   For now the explain key reads the tooltip the gui files predict.
 
-### 5. Reading the game
+### 6.5 Reading the game
 
 - **The widget tree** — names, rectangles, text: what is on screen now.
 - **The game model** — the same values raw. `tools/ck3/anchor.py` reaches the databases,
@@ -154,7 +154,7 @@ lacks.
 widgets that show text have no name. `guimap` is the only gui reader and follows the engine's rules,
 among them that every `onclick` of a block fires, in order, on a click and on a shortcut alike.
 
-### 6. Presentation
+### 6.6 Presentation
 
 Not sorted by screen position; one keystroke gives one unit of speech plus braille.
 `tools/ck3/reader.py` claims up, down, F12 and Delete and gives every key back on the way out. An event
@@ -164,35 +164,35 @@ is noticed through the child count of the layer that holds events.
 name is read in gui-file order, so a stale file costs detail, never the screen. `tools/ck3/screens.py`
 checks every reference against the expanded gui tree. Two blocks are applied: `order` and `key`.
 
-### 7. Speech
+### 6.7 Speech
 
 Two functions: `output(text, mode, braille)` and `failure(where, what, remedy)`.
 - **Braille is never optional;** a different braille text needs a reason at the call site.
-- The official NVDA controller client, not Tolk, loaded as its own DLL (its licence under Credits).
+- The official NVDA controller client, not Tolk, loaded as its own DLL (its licence in section 8).
 - Two modes, replace and queue.
 - **Nothing speaks when there is nothing to say.** Only a real fault speaks, as one sentence a player
   can act on. `tools/never_silent.py` is the proof and the gate in front of a beta.
 - **The game ending is not a fault.** A link that breaks and stays shut is `channel.Gone`, and the
   reader stops on it without a word, whether the game was closed or crashed.
 
-### Deliberately not done
+### 6.8 Deliberately not done
 
 - No decompiling or rebuilding the engine; no redistribution of game files.
 - The product sends no keys or clicks, from inside or outside the process; the one thing it may move
   is the pointer, to read a tooltip. `tools/ck3/modifiers.py` presses real keys, as a measurement only.
 - No hard-coded addresses, offsets or click positions.
 
-## Contributing
+## 7. Contributing
 
 Contributions are welcome, including ones written with an AI assistant.
 
-### Bring the measurement
+### 7.1 Bring the measurement
 
 Don't write "this is faster" or "this fixes the offsets". Write what you measured, against what, and
 the number before and after — and the worst case beside the median. A negative result needs the same:
 say why your check could have seen the effect.
 
-### How the code is written
+### 7.2 How the code is written
 
 The same for Python and C++:
 - **KISS, lean, DRY, YAGNI.** No boilerplate, no fallbacks, no backwards compatibility.
@@ -201,7 +201,7 @@ The same for Python and C++:
 - **Modular:** what belongs together stays together, one file per group of functions.
 - **A script only defines when it is loaded;** its work starts under `if __name__ == '__main__':`.
 
-### Before you open a pull request
+### 7.3 Before you open a pull request
 
 - **Test small first, on hard cases.** A run without errors is not a result; a prediction that came
   true is.
@@ -211,11 +211,11 @@ The same for Python and C++:
 - **No game files**, ever.
 - **Bundle your C++:** the DLL only enters the game at injection. Do the Python first, build once, run
   `tests/test_channel.py`, then restart the game.
-- Update `CHANGELOG.md` in one line per change, at most 180 characters and twelve lines a day; this
-  file's How it works only when a part or a boundary moves.
+- Update `CHANGELOG.md` in one line per change, at most 180 characters and twelve lines a day; section 6
+  only when a part or a boundary moves.
 - After changing a tool, run `python -m tools.toolindex`, so `reports/toolindex.md` lists its calls.
 
-### Checks that must pass
+### 7.4 Checks that must pass
 
 `python -m tools.check`, `python -m pytest`, `python -m ruff check .` and `python -m mypy`. `check.py`
 checks that every path, channel command and script start named in the documents exists and that the
@@ -230,7 +230,7 @@ The claims stop at the first input your machine lacks: the game on disk, its Doc
 built DLL, the save one claim names, or a harvest of your own (`python -m tools.ck3.harvest <pid>`;
 its console route needs `-debug_mode`).
 
-### Layout
+### 7.5 Layout
 
     dll/        the injected channel (C++ source and build script)
     tools/      derivation, memory reading, gui parsing, input, speech, measurement
@@ -238,7 +238,7 @@ its console route needs `-debug_mode`).
     screens/    screen files: what the reader says first, and which key acts on a row
     tests/      pytest, including the DLL driven through its real pipe without the game
 
-## Credits
+## 8. Credits
 
 This project stands on other people's work and ideas.
 
