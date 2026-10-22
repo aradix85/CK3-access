@@ -388,9 +388,11 @@ def sweep() -> tuple[collections.Counter[str], collections.Counter[str], collect
             if kind in ('plain key', 'sentence in the file') and key is not None:
                 # The check that can fail: the sentence the file promises against what was on
                 # screen. A sentence in the file is compared the same way, without the lookup.
-                shown = widgettree.strip_markup(built['text'] or '').strip()
+                # White space is layout: a line break in the localization stands in memory as a
+                # space (measured 22 October 2026, the checksum warning of the load window).
+                shown = ' '.join(widgettree.strip_markup(built['text'] or '').split())
                 sentence = localization[key] if kind == 'plain key' else key
-                expected = ICON.sub('', guimap.strip_style(sentence)).strip()
+                expected = ' '.join(ICON.sub('', guimap.strip_style(sentence)).split())
                 count[f"{kind} {'agrees' if shown == expected else 'differs'}"] += 1
         if seen != len(record['tree']):
             raise AssertionError(f"{window}: the walk saw {int(seen)} of the {len(record['tree'])} harvested widgets - a share of "

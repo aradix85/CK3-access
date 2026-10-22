@@ -200,12 +200,13 @@ returns a pair, passed on as one thing, costs a run.
 | `walk(nodes)` | iterator | Every entry in a parsed file, at any depth. |
 | `type_table(rows=None)` | 2-tuple | Every template the engine knows, as name -> definition. |
 | `build(key, body, scope, templates, overrides=None, depth=0, in_tooltip=False, above=())` | value | One widget, fully expanded: inherited defaults, mixed-in templates, slots filled. |
-| `attribute(node, key)` | value of NoneType | The value of the first attribute with this key, or None when the widget has none. |
+| `attribute(node, key)` | value | The value of the last attribute with this key, or None when the widget has none. |
 | `written(node)` | value | What the file puts in this widget as its text: `text`, a localization key, or else |
 | `windows(rows=None, table=None)` | value | Every window on disk, as name -> (virtual path, its entry). |
 | `root_finder(table)` | value | Type name -> the end of its inheritance chain, remembered, because the walk repeats itself |
 | `tables()` | 4-tuple | Everything a window is expanded with, built once. |
 | `window(name, table=None, local=None, known=None)` | value | A window resolved into a widget tree. A file that does not fit the grammar raises GuiError. |
+| `window_attributes(name, tables)` | list | The attributes of the window itself, inherited and mixed in the way `window` expands it, |
 | `decision_widget(name, table, local)` | value | The own gui of a decision, resolved into a widget tree like a window. |
 | `localization()` | value | Key -> sentence, from the localization files of the game and of the active mods. |
 | `strip_style(text)` | value | The style markup as it is written in the localization files: `#weak ... #!`. |
@@ -341,7 +342,9 @@ returns a pair, passed on as one thing, costs a run.
 |---|---|---|
 | `buttons_on_disk()` | value | Every widget that opens a window when pressed, with how it does it. |
 | `live_record(game, pid, window, address=None, nodes=None)` | 4-tuple | The widgets of the window that is drawn right now, in the shape the harvest writes them and |
-| `goal_of(target, known)` | 3-tuple | What has to happen before `target` is drawn: a view opens, or a variable is set. |
+| `goal_of(target, tables)` | 3-tuple | What has to happen before `target` is drawn: a view opens, a variable is set, or a state |
+| `bare(expression)` | value | An expression without its whitespace, so that two spellings of one condition compare equal. |
+| `toggles(node, goal)` | value | Is this widget the button whose `down` state is the condition the goal waits on? |
 | `reaches(value, goal)` | value of bool | Does this onclick reach the goal? Setting a variable counts, clearing it does not. |
 | `fires_for(source, goal)` | 2-tuple | Every call this disk block fires, split into the ones that reach `goal` and the rest. |
 | `chain_routes(start, tables)` | value | Which windows can be reached by acting inside a window a player can already open. Disk only. |
@@ -516,7 +519,8 @@ returns a pair, passed on as one thing, costs a run.
 | call | returns | does |
 |---|---|---|
 | `shortcut_file()` | value | Binding -> its keys as `game/gui/shortcuts.shortcuts` spells them, empty for a binding |
-| `window_bindings()` | value | Window -> every shortcut its widgets declare, with what pressing it calls. Disk only. |
+| `window_bindings(only=None)` | value | Window -> every shortcut its widgets declare, with what pressing it calls. Disk only; |
+| `tab_keys(window)` | list | The keys of the tabs of one window, as the shortcut file spells them, in the order the files |
 | `window_keys_plan()` | nothing | Print what a key round inside the windows would press, and what it leaves to a person. |
 | `binding_names(binding, bound, numbers=None)` | list of value | The shortcut names one declared binding stands for. |
 | `presses_for(rows, bound)` | value | (binding, keys, toggles) to press in one window: every view-only row, once, the first three |

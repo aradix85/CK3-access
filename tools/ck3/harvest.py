@@ -545,11 +545,26 @@ def chain_press(game: windowmap.Game, source: str, goal: 'openers.Goal',
                 tables: guimap.Tables) -> tuple[widgettree.Nodes, set[str], 'openers.Spot | None', str | None]:
     """In `source`, standing open, press what reaches `goal` and wait for what comes up: the tree
     then, the windows the press brought up, the widget pressed, and why nothing was pressed. The
-    chain round and the key round both take a chain step here; the caller puts the state back."""
+    chain round and the key round both take a chain step here; the caller puts the state back.
+
+    **When nothing that reaches the goal can be pressed, the source's tabs are tried in turn**,
+    because the widget may sit on a tab that is not open: on Saru, 22 October 2026, the button
+    `filters` of the court window was hidden until Ctrl+2 opened the courtiers. A tab that shuts
+    the source ends the try.
+    """
     from tools.ck3 import openers  # openers imports this module
     nodes, _, before = game.state()
     _, spot, why = openers.press_toward(game, source, goal, tables)
     opened: set[str] = set()
+    for keys in [] if spot is not None else windowmap.tab_keys(source):
+        windowmap.press(keys)
+        time.sleep(1.4)
+        nodes, _, before = game.state()
+        if source not in before:
+            return nodes, opened, None, f'{why}; {keys} shut {source}'
+        _, spot, why = openers.press_toward(game, source, goal, tables)
+        if spot is not None:
+            break
     if spot is None:
         return nodes, opened, None, why
     for _ in range(6):

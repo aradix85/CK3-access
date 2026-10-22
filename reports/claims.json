@@ -218,7 +218,7 @@
  },
  {
   "name": "texts the reading rule says over the harvest",
-  "claimed": 5332,
+  "claimed": 5368,
   "measure": "unseen_texts",
   "arguments": ["texts"],
   "counting_rule": "every widget in a harvested record whose text is not empty once the game's markup is stripped, summed over the records that hold a window; refusal records carry no tree and do not count. The harvest on 1.20.1.2 of 21 October 2026, Ghur played, with three windows from Harold of 22 October 2026"
@@ -232,24 +232,24 @@
  },
  {
   "name": "files that go into the repo",
-  "claimed": 91,
+  "claimed": 92,
   "measure": "repo_files",
   "counting_rule": "files under the project folder that .gitignore does not exclude, the same set git ls-files plus git ls-files --others --exclude-standard gives"
  },
  {
   "name": "windows opened in the harvest round",
-  "claimed": 218,
+  "claimed": 220,
   "measure": "harvest_total",
   "arguments": [
    "<project>\\harvest",
    "windows"
   ],
-  "counting_rule": "records in harvest\\ with opened true: 175 opened by the console, 28 by a shortcut, 6 by a click, 7 by a chain and 2 by hand, on 1.20.1.2: Ghur played on 21 October 2026, and on Harold on 22 October 2026 the war overview, the college of cardinals and the royal court, whose console record went to harvest-2026-10-22-replaced; the same day 15 windows were taken again on Ghur played, once the harvest waited for the layout, and their earlier records went there too, as did those of the running activity, taken along Alt+A during a hunt, and of the activity planner, recorded by hand while a hunt was planned; on Andronikos the domicile and the administration window along Alt+D and Alt+F1, and on Saru the migration window by hand, through its button on the HUD. The 26 that refuse carry no tree; a window with no route at all is not tried, and what the bare screen draws is the baseline and is never harvested",
+  "counting_rule": "records in harvest\\ with opened true: 175 opened by the console, 28 by a shortcut, 6 by a click, 9 by a chain and 2 by hand, on 1.20.1.2: Ghur played on 21 October 2026, and on Harold on 22 October 2026 the war overview, the college of cardinals and the royal court, whose console record went to harvest-2026-10-22-replaced; the same day 15 windows were taken again on Ghur played, once the harvest waited for the layout, and their earlier records went there too, as did those of the running activity, taken along Alt+A during a hunt, and of the activity planner, recorded by hand while a hunt was planned; on Andronikos the domicile and the administration window along Alt+D and Alt+F1, and on Saru the migration window by hand, through its button on the HUD; on Saru the filter windows of the ledger and of the court along a chain, the second after a tab. The 24 that refuse carry no tree; a window with no route at all is not tried, and what the bare screen draws is the baseline and is never harvested",
   "quoted_in": ["README.md", "brief\\vensters.md"]
  },
  {
   "name": "text boxes in the harvest round",
-  "claimed": 2239,
+  "claimed": 2275,
   "measure": "harvest_total",
   "arguments": [
    "<project>\\harvest",
@@ -259,7 +259,7 @@
  },
  {
   "name": "text boxes the recogniser confirmed",
-  "claimed": 2086,
+  "claimed": 2116,
   "measure": "harvest_total",
   "arguments": [
    "<project>\\harvest",
@@ -333,27 +333,27 @@
  },
  {
   "name": "harvested widgets that carry text",
-  "claimed": 5363,
+  "claimed": 5399,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
    "texts"
   ],
-  "counting_rule": "every widget with a non-empty text in the 218 harvested trees, counted while walking, and the walk asserts it saw every widget of every record; a live subtree whose parent found no source used to be skipped, which shrank this denominator by dropping exactly the hard cases"
+  "counting_rule": "every widget with a non-empty text in the 220 harvested trees, counted while walking, and the walk asserts it saw every widget of every record; a live subtree whose parent found no source used to be skipped, which shrank this denominator by dropping exactly the hard cases"
  },
  {
   "name": "harvested texts paired with a place in a gui file",
-  "claimed": 4791,
+  "claimed": 4827,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
    "paired"
   ],
-  "counting_rule": "paired by class and child order only, never by name. 268 of them are a caption: a button carries its own text, in `text` or `raw_text`, and the engine hangs a text box under it to draw it, so the box is not in the file and the widget above answers for it. The remaining 572 are texts the files describe nowhere, spread over 25 windows; ruler_designer and title_customization_window hold 96 each. They are listed per window in reports\\pairing.json, so the share is recomputable rather than a number that ages"
+  "counting_rule": "paired by class and child order only, never by name. 272 of them are a caption: a button carries its own text, in `text` or `raw_text`, and the engine hangs a text box under it to draw it, so the box is not in the file and the widget above answers for it. The remaining 572 are texts the files describe nowhere, spread over 25 windows; ruler_designer and title_customization_window hold 96 each. They are listed per window in reports\\pairing.json, so the share is recomputable rather than a number that ages"
  },
  {
   "name": "harvested texts whose gui file names a plain localization key",
-  "claimed": 659,
+  "claimed": 806,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -363,13 +363,13 @@
  },
  {
   "name": "plain keys whose localization matches what was on screen",
-  "claimed": 659,
+  "claimed": 806,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
    "plain key agrees"
   ],
-  "counting_rule": "the check that can fail: game markup stripped from the screen text, style markup and icon tokens from the localization, then compared whole. All 659 agree, which is also what carries the caption model - had a button's caption not been the source of the box under it, those 268 would have disagreed. One of the 659 is a `raw_text` holding a bare key, which the screen showed as its sentence"
+  "counting_rule": "the check that can fail: game markup stripped from the screen text, style markup and icon tokens from the localization, then compared whole. All 806 agree, which is also what carries the caption model - had a button's caption not been the source of the box under it, those 272 would have disagreed. One of the 806 is a `raw_text` holding a bare key, which the screen showed as its sentence. A line break written as \\\\n in the localization stands in memory as a space, so white space is compared collapsed"
  },
  {
   "name": "harvested texts whose gui file writes the sentence out itself",
@@ -393,23 +393,23 @@
  },
  {
   "name": "harvested texts filled by a data function",
-  "claimed": 2252,
+  "claimed": 3678,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
    "data functions together"
   ],
-  "counting_rule": "1716 where the gui file carries the call itself, in `text` or `raw_text`, and 536 where it carries a key whose localization does; both need the data context of the ancestors to say who the sentence is about"
+  "counting_rule": "2974 where the gui file carries the call itself, in `text` or `raw_text`, and 704 where it carries a key whose localization does; both need the data context of the ancestors to say who the sentence is about"
  },
  {
   "name": "harvested texts the gui file leaves to code",
-  "claimed": 1577,
+  "claimed": 17,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
    "placeholder, code fills it"
   ],
-  "counting_rule": "the widget carries DEFAULT_TEXT, so the files positively cannot say what will stand there and only a running game can; this is an answer, not a gap"
+  "counting_rule": "the widget carries DEFAULT_TEXT as its last text, so the files positively cannot say what will stand there and only a running game can; this is an answer, not a gap. Until 22 October 2026 the first text was read, so a widget whose own entry overrides the DEFAULT_TEXT of its type counted here: 1577 then over 218 windows"
  },
  {
   "name": "HasDlcFeature checks in the merged gui set",
@@ -472,23 +472,23 @@
  },
  {
   "name": "harvested texts the gui files do not predict",
-  "claimed": 2314,
+  "claimed": 768,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
    "unexplained"
   ],
-  "counting_rule": "of the 5363 harvested texts, the three kinds the files cannot foretell: the gui file says the code sets it, or the widget has a place on disk but neither `text` nor `raw_text`, or the alignment finds it no place at all"
+  "counting_rule": "of the 5399 harvested texts, the three kinds the files cannot foretell: the gui file says the code sets it, or the widget has a place on disk but neither `text` nor `raw_text`, or the alignment finds it no place at all"
  },
  {
   "name": "unexplained texts that inherit a data context",
-  "claimed": 2127,
+  "claimed": 611,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
    "unexplained with data context"
   ],
-  "counting_rule": "of those 2314, the ones whose ancestors carry a datacontext, so that what the text is about is known even though where it comes from is not"
+  "counting_rule": "of those 768, the ones whose ancestors carry a datacontext, so that what the text is about is known even though where it comes from is not"
  },
  {
   "name": "unexplained texts in the developers' own windows",
@@ -498,69 +498,69 @@
    "<project>\\reports\\pairing.json",
    "unexplained in developer windows"
   ],
-  "counting_rule": "of those 2314, the ones in a window whose gui file sits under gui/debug/ or whose name carries the word debug; fourteen of the 218 harvested windows, and nobody reads them"
+  "counting_rule": "of those 768, the ones in a window whose gui file sits under gui/debug/ or whose name carries the word debug; fourteen of the 220 harvested windows, and nobody reads them"
  },
  {
   "name": "unexplained texts in windows a player opens",
-  "claimed": 2245,
+  "claimed": 699,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
    "unexplained in player windows"
   ],
-  "counting_rule": "the 2314 minus the developers' own windows"
+  "counting_rule": "the 768 minus the developers' own windows"
  },
  {
   "name": "unexplained bare numbers in windows a player opens",
-  "claimed": 403,
+  "claimed": 400,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
    "unexplained bare number in player windows"
   ],
-  "counting_rule": "of those 2245, the texts that are only digits and the punctuation a number carries, so that no word says what they are"
+  "counting_rule": "of those 699, the texts that are only digits and the punctuation a number carries, so that no word says what they are"
  },
  {
   "name": "unexplained texts in windows a player opens that the reading rule says",
-  "claimed": 522,
+  "claimed": 187,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
    "unexplained in player windows, drawn"
   ],
-  "counting_rule": "of those 2245, the ones `reading.on_screen` passes in the state the harvest took: inside the drawing area, not clipped, and nothing up the chain hidden or at alpha zero; jomini_encyclopedia holds 1136 of the 2245 and none of them is drawn",
+  "counting_rule": "of those 699, the ones `reading.on_screen` passes in the state the harvest took: inside the drawing area, not clipped, and nothing up the chain hidden or at alpha zero",
   "quoted_in": ["brief\\gui.md"]
  },
  {
   "name": "unexplained bare numbers in windows a player opens that the reading rule says",
-  "claimed": 3,
+  "claimed": 0,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
    "unexplained bare number in player windows, drawn"
   ],
-  "counting_rule": "of those 403, the ones `reading.on_screen` passes, as above: three times -5 175 in rite_creation_window, a cost whose icons are markup, said bare until the icons become words. Before `raw_text` was read there were three others: two +1 in the wars list of the ledger, now said with the function that fills them, and the supply limit in holding_view. The 400 others sit in parts that are not drawn, 96 each in ruler_designer and title_customization_window and 88 each in the two dynasty customisation windows"
+  "counting_rule": "of those 400, the ones `reading.on_screen` passes, as above: none since 22 October 2026, when the last text of a widget came to count and the three times -5 175 in rite_creation_window turned out to be filled by a data function; the 400 sit in parts that are not drawn"
  },
  {
   "name": "named live widgets in the harvest",
-  "claimed": 47494,
+  "claimed": 47768,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
    "named live widgets"
   ],
-  "counting_rule": "every live widget with a non-empty name in the 218 harvested trees, counted in the same walk as the texts",
+  "counting_rule": "every live widget with a non-empty name in the 220 harvested trees, counted in the same walk as the texts",
   "quoted_in": ["brief\\gui.md"]
  },
  {
   "name": "named live widgets the alignment puts on their own name",
-  "claimed": 43474,
+  "claimed": 43833,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
    "named live widgets on their own name"
   ],
-  "counting_rule": "of those 47494, the ones whose source on disk carries the same name, 0.915; it was 0.958 until the activity window came in with its data on 22 October 2026, where 1991 of its 2334 named widgets find no source. Names never enter the alignment, so this scores it. The same rule over the harvest of 1.19.0.6 against 1.20.1.2 on disk gave 27450 of 38181, 0.719 (recomputed 22 October 2026), so that gap was the version and not the alignment",
+  "counting_rule": "of those 47768, the ones whose source on disk carries the same name, 0.918, read as the last name a widget carries since 22 October 2026; it was 0.958 until the activity window came in with its data on 22 October 2026, where 1991 of its 2334 named widgets find no source. Names never enter the alignment, so this scores it. The same rule over the harvest of 1.19.0.6 against 1.20.1.2 on disk gave 27450 of 38181, 0.719 (recomputed 22 October 2026), so that gap was the version and not the alignment",
   "quoted_in": ["brief\\gui.md"]
  },
  {

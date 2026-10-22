@@ -15,6 +15,9 @@ Outcomes, newest first. No release yet.
 - The key round never presses a key that another widget of the same window acts on, and presses each key once: in the activity window and every event window Alt+1 to Alt+3 are sub-tabs and also choose an event option.
 - The activity window is harvested along Alt+A during a hunt, and the activity planner while one is planned.
 - The domicile and the administration window are harvested along Alt+D and Alt+F1 on an administrative ruler, and the migration window through its button on a nomad's bar.
+- A gui attribute is read as the last one a widget carries, as the game does: an instance's own name and text override its type's, and the texts the gui files do not explain fall from 2314 to 768.
+- A chain step reads a window's `visible` rule after inheritance, reaches a state a button declares as its `down`, and tries the source's tabs; the filter windows of the ledger and the court are harvested that way.
+- A line break in the localization is read as one, and the pairing compares white space collapsed.
 
 ## 2026-10-21 — CK3 1.20.1.1 and 1.20.1.2
 - The harvest is redone on 1.20.1.2: 212 windows along shortcuts, clicks, chains and the console, every widget with its state byte; 4534 of 5125 texts pair with a place in the `.gui` files.

@@ -88,8 +88,9 @@ class _Block(TypedDict):
     shortcut: str | None
 
 
-# What has to happen before a window is drawn: ('view', name, None), or ('variable', name, value)
-# with None for a value when the variable only has to exist.
+# What has to happen before a window is drawn: ('view', name, None), ('variable', name, value) with
+# None for a value when the variable only has to exist, or ('state', expression, window) when the
+# window's `visible` is a data function that a toggle button declares as its `down`.
 Goal = tuple[str, str, str | None]
 
 
@@ -261,22 +262,41 @@ SETS = re.compile(r"GetVariableSystem\.(Set|Toggle|Clear)\(\s*'([^']+)'(?:\s*,\s
 VIEW_CALL = re.compile(r"(?:Open|Toggle)GameView(?:Data)?\s*\(\s*'([^']+)'")
 
 
-def goal_of(target: str, known: guimap.Known) -> Goal:
-    """What has to happen before `target` is drawn: a view opens, or a variable is set.
+def goal_of(target: str, tables: guimap.Tables) -> Goal:
+    """What has to happen before `target` is drawn: a view opens, a variable is set, or a state
+    a button toggles comes on.
 
-    Read from the target's own `visible` line, because that is where the game states its own
-    condition, and both forms occur: `houses_list` waits on a variable holding a value,
-    `knight_permissions` on one merely existing. A target without such a condition is taken to be
-    a view that some button opens, which is what every chain step before 31 August 2026 was.
+    Read from the target's own `visible` line, the last one after inheritance
+    (`guimap.window_attributes`), because that is where the game states its own condition, and
+    both forms occur: `houses_list` waits on a variable holding a value, `knight_permissions` on
+    one merely existing. A target without such a condition is taken to be a view that some button
+    opens, which is what every chain step before 31 August 2026 was.
+
+    **A data function is the third form**, and the button that reaches it says so: the character
+    filter windows wait on `[CharacterSelectionList.FiltersShown]`, and the button `filters` in
+    `shared/lists.gui` declares exactly that as its `down` and toggles it with its click (read
+    22 October 2026; pressing it on Saru drew `court_character_filter_window`). Such a goal still
+    takes a view call carrying the window's name, as before.
     """
-    on_disk = known.get(target)
-    for item in (on_disk[1]['body'] if on_disk else None) or []:
-        value = item['value']
-        if item['key'] == 'visible' and value:
-            found = CONDITION.search(value)
-            if found:
-                return ('variable', found.group(2), found.group(3) or None)
-    return ('view', target, None)
+    visible = [value for key, value in guimap.window_attributes(target, tables)
+               if key == 'visible' and value]
+    if not visible:
+        return ('view', target, None)
+    found = CONDITION.search(visible[-1])
+    if found:
+        return ('variable', found.group(2), found.group(3) or None)
+    return ('state', bare(visible[-1]), target)
+
+
+def bare(expression: str) -> str:
+    """An expression without its whitespace, so that two spellings of one condition compare equal."""
+    return re.sub(r'\s+', '', expression)
+
+
+def toggles(node: guimap.Node, goal: Goal) -> bool:
+    """Is this widget the button whose `down` state is the condition the goal waits on?"""
+    down = guimap.attribute(node, 'down')
+    return goal[0] == 'state' and down is not None and bare(down) == goal[1]
 
 
 def reaches(value: str, goal: Goal) -> bool:
@@ -287,9 +307,9 @@ def reaches(value: str, goal: Goal) -> bool:
     They differ only in their visibility condition, so a rule that matched the variable name alone
     would offer both and press the wrong one half the time.
     """
-    if goal[0] == 'view':
+    if goal[0] in ('view', 'state'):
         found = VIEW_CALL.search(value)
-        return bool(found and found.group(1) == goal[1])
+        return bool(found and found.group(1) == (goal[1] if goal[0] == 'view' else goal[2]))
     for how, name, held in SETS.findall(value):
         if name != goal[1] or how == 'Clear':
             continue
@@ -322,10 +342,11 @@ def fires_for(source: guimap.Node | None, goal: Goal) -> tuple[list[str], list[s
         return [], []
     wanted: list[str] = []
     others: list[str] = []
+    toggle = toggles(source, goal)
     for key, value in source['attrs']:
         if key not in ('onclick', 'onrightclick') or not value:
             continue
-        if key == 'onclick' and reaches(value, goal):
+        if key == 'onclick' and (toggle or reaches(value, goal)):
             wanted.append(value)
         else:
             others.append(f'{key}: {value}')
@@ -343,28 +364,37 @@ def chain_routes(start: set[str], tables: guimap.Tables) -> list[ChainRoute]:
     One row per target or view, with every source that offers it, in sorted order: a call on disk
     can sit in a row the live window does not build, so the first source is not always the one
     that works - `culture_window` from the character finder was the case.
+
+    **A state is offered only for a target nested in the source.** One data function stands for
+    the filters of every character list, so a toggle reaches the filter window of its own window
+    and no other: on Saru the button in the court window drew the court's own filter window.
     """
     table, local, known, _root = tables
-    goals = {w: goal_of(w, known) for w in known}
+    goals = {w: goal_of(w, tables) for w in known}
     found: dict[str, ChainRoute] = {}
     for source in sorted(start):
         tree = guimap.window(source, table, local, known)
+        nodes: list[guimap.Node] = []
         stack = [tree]
         while stack:
             node = stack.pop()
             stack.extend(node['children'])
+            nodes.append(node)
+        inside = {guimap.attribute(node, 'name') for node in nodes} & known.keys()
+        here = {target: goal for target, goal in goals.items() if goal[0] != 'state' or target in inside}
+        for node in nodes:
             for key, value in node['attrs']:
                 if key != 'onclick' or not value:
                     continue
-                _offer(found, source, value, goals, start, known)
+                _offer(found, source, node, value, here, start, known)
     return sorted(found.values(), key=lambda row: (row['view'] or '', row['target'] or ''))
 
 
-def _offer(found: dict[str, ChainRoute], source: str, call: str, goals: dict[str, Goal],
-           start: set[str], known: guimap.Known) -> None:
-    """Every target and every unnamed view this one call brings up from `source`."""
+def _offer(found: dict[str, ChainRoute], source: str, node: guimap.Node, call: str,
+           goals: dict[str, Goal], start: set[str], known: guimap.Known) -> None:
+    """Every target and every unnamed view this one call of `node` brings up from `source`."""
     for target, goal in goals.items():
-        if target not in start and reaches(call, goal):
+        if target not in start and (toggles(node, goal) or reaches(call, goal)):
             row = found.setdefault(target, {'target': target, 'sources': [], 'goal': goal,
                                             'view': None})
             if source not in row['sources']:
@@ -893,9 +923,11 @@ def chain(pid: int, window: str, target: str) -> None:
     if window not in baseline:
         raise SystemExit(f'{window} is not open; open it first, this only does the step inside it')
     tables = guimap.tables()
-    goal = goal_of(target, tables[2])
+    goal = goal_of(target, tables)
     if goal[0] == 'view':
         print(f'{target} is reached by opening the view {goal[1]}')
+    elif goal[0] == 'state':
+        print(f'{target} is reached by the button whose down state is {goal[1]}')
     else:
         print('{} is reached by setting {} to {}'.format(target, goal[1], goal[2] if goal[2] is not None else 'anything'))
     spots, pressed, why = press_toward(game, window, goal, tables)

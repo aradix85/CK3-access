@@ -136,8 +136,9 @@ def shortcut_file() -> dict[str, str]:
     return dict(re.findall(r'^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"([^"]*)"', text, re.MULTILINE))
 
 
-def window_bindings() -> dict[str, list[Binding]]:
-    """Window -> every shortcut its widgets declare, with what pressing it calls. Disk only.
+def window_bindings(only: set[str] | None = None) -> dict[str, list[Binding]]:
+    """Window -> every shortcut its widgets declare, with what pressing it calls. Disk only;
+    `only` expands just those windows, which takes seconds where all of them take minutes.
 
     Each window is expanded the way `guimap.window` expands it, and a binding is filed under the
     innermost window it sits in, because a window inside another is an object of its own. What sits
@@ -168,10 +169,18 @@ def window_bindings() -> dict[str, list[Binding]]:
         for child in node['children']:
             walk(child, window, False)
 
-    for window in sorted(known):
+    for window in sorted(only if only is not None else known):
         tree = guimap.window(window, table, local, known)
         walk(tree, window, True)
     return dict(out)
+
+
+def tab_keys(window: str) -> list[str]:
+    """The keys of the tabs of one window, as the shortcut file spells them, in the order the files
+    give them: what a chain step presses when the widget it needs sits on a tab that is not open."""
+    bound = {n: k for n, k in shortcut_file().items() if k.strip()}
+    return [keys for name, keys, _ in presses_for(window_bindings({window}).get(window, []), bound)
+            if TAB.search(name) and not SUB_TAB.search(name)]
 
 
 def window_keys_plan() -> None:

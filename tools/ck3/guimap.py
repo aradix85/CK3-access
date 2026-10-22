@@ -372,6 +372,18 @@ def _fill_blocks(nodes: list[Scoped], overrides: Overrides, templates: Templates
     return out
 
 
+def _flattened(key: str | None, body: list[Entry], scope: str, templates: Templates,
+               overrides: Overrides | None) -> tuple[list[Scoped], Overrides]:
+    """The entries of one widget after inheritance, `using` and slots, with the slots in force."""
+    nodes = _inline_using(templates.inherited(key, scope) + [(entry, scope) for entry in body],
+                          templates)
+    effective: Overrides = dict(overrides or {})
+    for entry, where in nodes:
+        if entry['key'] == 'blockoverride':
+            effective[entry['arg']] = (entry, where)
+    return _fill_blocks(nodes, effective, templates), effective
+
+
 def build(key: str | None, body: list[Entry], scope: str, templates: Templates,
           overrides: Overrides | None = None, depth: int = 0, in_tooltip: bool = False,
           above: tuple[tuple[Entry, Overrides], ...] = ()) -> Node:
@@ -399,16 +411,7 @@ def build(key: str | None, body: list[Entry], scope: str, templates: Templates,
     """
     if depth >= MAX_DEPTH:
         raise GuiError(f'{scope}: {key} lies deeper than {MAX_DEPTH} widgets')
-
-    nodes = _inline_using(templates.inherited(key, scope) + [(entry, scope) for entry in body],
-                          templates)
-
-    effective: Overrides = dict(overrides or {})
-    for entry, where in nodes:
-        if entry['key'] == 'blockoverride':
-            effective[entry['arg']] = (entry, where)
-    flat = _fill_blocks(nodes, effective, templates)
-
+    flat, effective = _flattened(key, body, scope, templates, overrides)
     node: Node = {'type': key, 'attrs': [], 'children': []}
     for entry, where in flat:
         if entry['body'] is None:
@@ -431,11 +434,19 @@ def _same(one: Overrides, other: Overrides) -> bool:
 
 
 def attribute(node: Node, key: str) -> str | None:
-    """The value of the first attribute with this key, or None when the widget has none."""
+    """The value of the last attribute with this key, or None when the widget has none.
+
+    **The last, because an instance overrides what its type wrote first.** `window_character_filter
+    = { name = "court_character_filter_window" }` inherits `name = "character_filter_window"` from
+    its type, and the live tree carries the instance's name. Reading the first one cost 100 names
+    their own source over the harvest of 218 windows, and hid the filter windows from the chain
+    routes (measured 22 October 2026).
+    """
+    found = None
     for name, value in node['attrs']:
         if name == key:
-            return value
-    return None
+            found = value
+    return found
 
 
 def written(node: Node) -> str | None:
@@ -578,6 +589,21 @@ def window(name: str, table: Table | None = None, local: LocalTable | None = Non
     return build(entry['key'], entry['body'] or [], virtual, Templates(table, local))
 
 
+def window_attributes(name: str, tables: Tables) -> list[tuple[str | None, str | None]]:
+    """The attributes of the window itself, inherited and mixed in the way `window` expands it,
+    without building what is inside it: for a question asked of every window at once.
+
+    **A window's own entry can be empty.** One declared as a type stands in `windows` as an empty
+    instance of that type, and one written as an instance of a window type keeps the type's lines
+    in the type: on 22 October 2026 that hid the `visible` rule of `ledger_filter_window` and of the
+    filter windows from `openers.goal_of`, and with it every chain route to them.
+    """
+    table, local, known, _root = tables
+    virtual, entry = known[name]
+    flat, _ = _flattened(entry['key'], entry['body'] or [], virtual, Templates(table, local), None)
+    return [(inner['key'], inner['value']) for inner, _ in flat if inner['body'] is None]
+
+
 DECISION_WIDGETS = 'gui/decision_view_widgets/'
 
 
@@ -612,7 +638,7 @@ def localization() -> dict[str, str]:
 
     This is the other half of the meaning: the gui file says which key a widget carries, and this
     says what that key reads as. A mod that ships a key of the same name replaces it, so the mods
-    come last here as well.
+    come last here as well. The file writes a line break as `\\n`, and it comes out as one.
     """
     language: str = 'english'
     folders = [os.path.join(paths.require('GAME'), 'game', 'localization', language)]
@@ -631,7 +657,7 @@ def localization() -> dict[str, str]:
                     for line in file:
                         found = LOCALIZATION.match(line)
                         if found:
-                            out[found.group(1)] = found.group(2)
+                            out[found.group(1)] = found.group(2).replace('\\n', '\n')
     return out
 
 
