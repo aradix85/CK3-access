@@ -63,6 +63,8 @@ COMBO_PAUSE = 100
 # everything else is listed for a person to decide - an unknown call is never pressed by default.
 # The top-level calls below were read from the onclicks of every binding in every window on
 # 2 October 2026; each only switches a tab, a filter, a fold, a map mode, or opens or shuts a view.
+# CloseAllTooltips came in on 22 October 2026: it shares Escape with shutting the window in fourteen
+# windows, and `presses_for` leaves alone a key that any widget of the window acts on.
 VIEW_ONLY = re.compile(r'^(?:(?:Get)?VariableSystem\.(?:Set|Clear|Toggle|SetOrToggle)|SetMapMode'
                        r'|OpenGameView|ToggleGameView|CharacterWindow\.SetTab|MyRealmWindow\.SetActiveTab'
                        r'|MyRealmWindow\.ResetMapMode|SetContestInfoTab|\w+Window\.SetTraditionCategory'
@@ -77,7 +79,7 @@ VIEW_ONLY = re.compile(r'^(?:(?:Get)?VariableSystem\.(?:Set|Clear|Toggle|SetOrTo
                        r'|\w+\.(?:Set\w*Tab|SetActiveTab|Open\w*Tab|SetShow\w+)'
                        r'|BattleSummaryWindow\.(?:OnShow\w+|RestoreSort)|CultureWindow\.HideReformationMode'
                        r'|CharacterLifestyleWindow\.OpenLifestyle|EpidemicsWindow\.ClearFocusedEpidemic'
-                       r'|DiarchyWindow\.ToggleAvailableDiarchs)$')
+                       r'|DiarchyWindow\.ToggleAvailableDiarchs|CloseAllTooltips)$')
 
 
 class Binding(TypedDict):
@@ -200,35 +202,50 @@ SUB_TAB = re.compile(r'sub_?tab_\d+$')
 TAB = re.compile(r'(?:^|_)tab_\d+$')
 
 
-def presses_for(rows: list[Binding], bound: dict[str, str]) -> list[Key]:
-    """(binding, keys, toggles) to press in one window: every view-only row, once.
+def binding_names(binding: str, bound: dict[str, str], numbers: int | None = None) -> list[str]:
+    """The shortcut names one declared binding stands for.
 
     A computed name stands for a family - `[Concatenate('tab_', ...)]` reaches tab_1, tab_2 and on
-    as far as the live window has rows - so it becomes its first `numbers` bindings that have a key.
-    A quoted piece that is a binding itself, as in `[Select_CString(..., 'tab_3', 'tab_2')]`, is
-    taken as it is. A mouse button - `mb4`, the back button - is no key and is left out. A row
-    toggles when one of its calls is a toggle, such as the compact view on Alt+F.
+    as far as the live window has rows - so it becomes its first `numbers` bindings, or all of
+    them. A quoted piece that is a binding itself, as in `[Select_CString(..., 'tab_3', 'tab_2')]`,
+    is taken as it is.
+    """
+    if not binding.startswith('['):
+        return [binding]
+    names: list[str] = []
+    for piece in re.findall(r"'([A-Za-z_][A-Za-z0-9_]*)'", binding):
+        if piece in bound:
+            names.append(piece)
+        else:
+            family = sorted((int(n[len(piece):]), n) for n in bound
+                            if n.startswith(piece) and n[len(piece):].isdigit())
+            names += [n for _, n in family[:numbers]]
+    return names
+
+
+def presses_for(rows: list[Binding], bound: dict[str, str]) -> list[Key]:
+    """(binding, keys, toggles) to press in one window: every view-only row, once, the first three
+    of a computed family.
+
+    **A key that any widget of the window acts on is never pressed**, because a key fires every
+    widget that declares it, under whatever name: read on 22 October 2026, Alt+1 to Alt+3 are
+    sub-tabs and also choose an event option in the activity window and every event window, and
+    Enter in the title window hires mercenaries. For the same reason a key goes in once, under the
+    first name that declares it. A mouse button - `mb4`, the back button - is no key and is left
+    out. A row toggles when one of its calls is a toggle, such as the compact view on Alt+F.
     """
     numbers: int = 3
+    acting = {bound[name].lower() for row in rows if row['calls'] and not row['view_only']
+              for name in binding_names(row['binding'], bound) if name in bound}
     out: list[Key] = []
     for row in rows:
         if not row['view_only']:
             continue
-        if not row['binding'].startswith('['):
-            names = [row['binding']]
-        else:
-            names = []
-            for piece in re.findall(r"'([A-Za-z_][A-Za-z0-9_]*)'", row['binding']):
-                if piece in bound:
-                    names.append(piece)
-                else:
-                    family = sorted((int(n[len(piece):]), n) for n in bound
-                                    if n.startswith(piece) and n[len(piece):].isdigit())
-                    names += [n for _, n in family[:numbers]]
         toggles = any('Toggle' in call for call in row['calls'])
-        for name in names:
+        for name in binding_names(row['binding'], bound, numbers):
             keys = bound.get(name)
-            if keys and not keys.lower().startswith('mb') and all(k[0] != name for k in out):
+            if (keys and keys.lower() not in acting and not keys.lower().startswith('mb')
+                    and all(k[1].lower() != keys.lower() for k in out)):
                 out.append((name, keys, toggles))
     return out
 

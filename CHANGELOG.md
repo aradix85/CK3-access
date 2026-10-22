@@ -12,6 +12,8 @@ Outcomes, newest first. No release yet.
 - The key round inside windows goes along a key or a click only, because a window built by the console takes none of its own keys; it presses sub-tabs on every tab, presses a toggle twice, skips mouse buttons, and keeps its results in `reports/window_keys.json`.
 - A shut console forgets its input field, so the next console command opens it first.
 - The key round inside windows also opens a window along a chain, and measures every key against what stood once the window was open; against the bare screen a window opened inside another reported its parent as opened on every key.
+- The key round never presses a key that another widget of the same window acts on, and presses each key once: in the activity window and every event window Alt+1 to Alt+3 are sub-tabs and also choose an event option.
+- The activity window is harvested along Alt+A during a hunt, and the activity planner while one is planned.
 
 ## 2026-10-21 — CK3 1.20.1.1 and 1.20.1.2
 - The harvest is redone on 1.20.1.2: 212 windows along shortcuts, clicks, chains and the console, every widget with its state byte; 4534 of 5125 texts pair with a place in the `.gui` files.

@@ -28,6 +28,33 @@
   "measured": "2026-10-22 15:44",
   "player": "SU_rI_"
  },
+ "activity_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "event_tooltips",
+    "alt+e",
+    "changed the text: 11 lines, was 9"
+   ],
+   [
+    "close_tooltips",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "confirm",
+    "RETURN",
+    "nothing"
+   ],
+   [
+    "confirm_2",
+    "alt+c",
+    "nothing"
+   ]
+  ],
+  "measured": "2026-10-22 16:15",
+  "player": "SU_rI_"
+ },
  "cardinals_window": {
   "exe": "101125752-1792594002",
   "keys": [
