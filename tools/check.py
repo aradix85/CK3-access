@@ -6,7 +6,8 @@ is a matter of agreement and belongs in data, how it is measured is code and bel
 Every claim carries its own counting rule. A number without one is not a measurement but a
 memory, and that is exactly how this document drifted before.
 
-Besides the numbers it checks the names: every project path a document mentions has to exist.
+Besides the numbers it checks the names: every project path a document mentions has to exist. And it
+holds the changelog to one short line per change.
 
 Usage:  python -m tools.check [--all]
 """
@@ -655,6 +656,36 @@ def loading_work(files: list[str]) -> list[str]:
     return found
 
 
+CHANGELOG_LINE = 180    # characters in one entry of CHANGELOG.md: one change, said as its outcome
+CHANGELOG_DAY = 12      # entries under one date; a day with more is a day not yet summed up
+
+
+def changelog_size() -> list[str]:
+    """Entries of CHANGELOG.md that are too long, lines that are not one entry, and days with too many.
+
+    **Why this exists.** The changelog is one short line per outcome, and asking for that did not
+    hold: by 22 October 2026 it had 135 entries, the longest 331 characters and one day 51 of them.
+    """
+    problems = []
+    day: str | None = None
+    count = 0
+    text = pathlib.Path(os.path.join(PROJ, 'CHANGELOG.md')).read_text(encoding='utf-8')
+    for number, line in enumerate(text.splitlines(), 1):
+        if line.startswith('## '):
+            day, count = line[3:], 0
+        elif day is None or not line:
+            continue
+        elif not line.startswith('- '):
+            problems.append(f'CHANGELOG.md line {number} is not a date or a one-line entry')
+        else:
+            count += 1
+            if len(line) > CHANGELOG_LINE:
+                problems.append(f'CHANGELOG.md line {number} has {len(line)} characters, more than {CHANGELOG_LINE}')
+            if count == CHANGELOG_DAY + 1:
+                problems.append(f'CHANGELOG.md has more than {CHANGELOG_DAY} entries under {day}')
+    return problems
+
+
 def stale_reports() -> list[str]:
     """A report drawn from the harvest that describes another harvest than the one on disk.
 
@@ -696,6 +727,10 @@ def main(all_of_them: bool) -> int:
     for problem in stale:
         print(f'STALE   {problem}')
 
+    long = changelog_size()
+    for problem in long:
+        print(f'LONG    {problem}')
+
     claims: list[Claim] = json.loads(pathlib.Path(os.path.join(PROJ, 'reports', 'claims.json')).read_text(encoding='utf-8'))
     drifted = []
     measured: dict[str, object] = {}
@@ -719,7 +754,7 @@ def main(all_of_them: bool) -> int:
     for problem in quotes:
         print(f'QUOTED  {problem}')
     print(f"{int(counted - len(quotes))} of the {int(counted)} numbers a document quotes are still the measured ones.{'' if not absent else f' {int(absent)} more are quoted only in documents that are not in this repository, so they cannot be checked here.'}")
-    return 1 if drifted or missing or wrong or quotes or runs or stale else 0
+    return 1 if drifted or missing or wrong or quotes or runs or stale or long else 0
 
 
 if __name__ == '__main__':

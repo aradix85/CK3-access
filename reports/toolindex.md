@@ -47,6 +47,7 @@ returns a pair, passed on as one thing, costs a run.
 | `script_runs()` | 2-tuple | How the documents and the scripts themselves say to start a script, checked against the package. |
 | `scripts()` | value | Every Python file of the tools and the tests. |
 | `loading_work(files)` | value | Every statement at the top level of these files that does work as the file is loaded. |
+| `changelog_size()` | value | Entries of CHANGELOG.md that are too long, lines that are not one entry, and days with too many. |
 | `stale_reports()` | list | A report drawn from the harvest that describes another harvest than the one on disk. |
 | `main(all_of_them)` | value | The checks that need nothing but this repository first, then the claims, which stop at the |
 

@@ -4,17 +4,17 @@ Seven parts, split where a game patch is most likely to hit.
 
 | | Part | What it is for |
 |---|---|---|
-| 1 | **The channel** — `dll/channel.cpp`, `dll/input.cpp`, `tools/ck3/channel.py` | a few primitives over a pipe; knows nothing about the game |
-| 2 | **Derivation** — `tools/ck3/derive.py` | finds every memory offset again at each start |
+| 1 | **The channel** — `dll/channel.cpp`, `dll/input.cpp`, `dll/channel.h`, `tools/ck3/channel.py` | a few primitives over a pipe; knows nothing about the game |
+| 2 | **Derivation** — `tools/ck3/derive.py` | derives the memory offsets and rechecks them at each start |
 | 3 | **Visibility** — `tools/ck3/widgettree.py`, `tools/ck3/onscreen.py` | the widget tree, what of it is really on screen, and which window lies on top |
 | 4 | **Input** | keys taken before the game sees them; clicks and keys posted inward |
 | 5 | **Reading the game** | five independent sources; their disagreement is the test |
 | 6 | **Presentation** — `screens/`, `tools/ck3/reading.py`, `tools/ck3/reader.py` | what gets said, in what order, on which key |
 | 7 | **Speech** — `tools/nvda/speech.py` | one seam to NVDA, speech and braille together |
 
-**Direction:** installing should end up as one DLL, the NVDA controller client beside it, and a
-launch option — no Python. So logic moves into the DLL when a measurement says it pays. Speech and
-braille stay outside; receiving keys stays inside.
+**Direction:** installing should end up as one DLL, the NVDA controller client and the screen files
+beside it, and a launch option — no Python. So logic moves into the DLL when a measurement says it
+pays. Speech and braille stay outside; receiving keys stays inside.
 
 ## 1. The channel
 
@@ -23,14 +23,14 @@ click, a key, a character or a key combination. It contains no game knowledge an
 - Tested without the game: `tests/test_channel.py` drives every command through the real pipe
   against a fake widget tree, also under AddressSanitizer. The build stops on any warning.
 - A limit either grows or announces itself, never silently.
-- **The pipe is a workbench, not a product.** A released build is compiled without it; the DLL never
-  opens a network connection.
+- **The pipe is a workbench, not a product.** The player build will be compiled without it; the DLL
+  never opens a network connection.
 
 ## 2. Derivation
 
 No memory layout is hard-coded. Widget vtables come from the RTTI in the executable; nine field
 offsets are derived from the running game and rechecked at each start, and derived again if a check
-fails. Between 1.16 and 1.19 one offset moved; nothing downstream noticed.
+fails.
 
 ## 3. Visibility
 
@@ -41,8 +41,8 @@ whether something is drawn:
   off, inherited from where `enabled` is false.
 - **Alpha** along the parent chain.
 - **Clipping** by the nearest scroll area.
-- **Geometry:** some windows place drawn buttons outside the drawing area at any resolution, so the
-  product must say when a button cannot be reached.
+- **Geometry:** some windows place drawn buttons outside the drawing area at any resolution, where no
+  player can reach them, so the product must say so.
 
 Which drawn window is on top follows sibling draw order. A click needs all of this, or it lands on
 whatever lies underneath.
@@ -50,20 +50,18 @@ whatever lies underneath.
 ## 4. Input
 
 - **Receiving:** the DLL hooks the game's window procedure and swallows the keys the reader owns.
-- **Sending:** mouse and key messages are posted into the process, so the player's screen is never
-  taken. This is for mapping the interface; the product sends no keys or clicks.
+- **Sending:** mouse and key messages are posted into the process to map the interface, so the
+  player's screen is never taken.
 - **A posted click lands on what is topmost at that point.** A click is therefore a measurement: press,
   read what is drawn, put the state back (`tools/ck3/openers.py`).
 - **Modifiers:** a posted key carries no modifier state, so `combo` holds the modifier for the game
-  while the combination runs. `tools/ck3/modifiers.py` is the measurement with real keys it was
-  checked against.
+  while the combination runs.
 - **Hovering:** the game shows the tooltip of whatever lies under its own hover point. That point
   follows the real pointer only while the game is in front, and then moving the pointer is enough;
   posted mouse messages never move it. The tooltip's text stands in `_tooltip_root_`, a root outside
   the widget tree that keeps its last text, so `onscreen.shown` decides which text is current.
   `derive.tooltip_root` reaches it without a scan, through the engine's own list of layer roots.
-  The product may move the pointer to read a tooltip; until it does, tooltip text comes from the
-  gui files.
+  For now the explain key reads the tooltip the gui files predict.
 
 ## 5. Reading the game
 
@@ -78,20 +76,15 @@ whatever lies underneath.
 
 Text recognition (`tools/ocr.py`) is a witness, never the product.
 
-**Open a window the way a player does.** The console builds any window declared outside a `types`
-block, but hands over no data context, so it yields captions without values. **Check the window map
-against the game**, not the files: `windowmap.unmapped` lists what the engine built that the map lacks.
-**The chain** reaches windows that wait on a state: open one window, press what the files say reaches
-the target (`openers.chain`), from a window a key, a click or an earlier chain opens
-(`harvest.player_chains`). What no file routes is pressed by hand and recorded as such
-(`tools/ck3/hand.py`). Widgets the engine puts into a window by file name, the widget of a decision
-and those of an activity type, are paired by that name.
+**Open a window the way a player does.** The console builds a window without its data context, so it
+yields captions without values; a key, a click, a chain of presses the gui files describe
+(`openers.chain`), or presses named by hand (`tools/ck3/hand.py`) give the values. **Check the window
+map against the game**, not the files: `windowmap.unmapped` lists what the engine built that the map
+lacks.
 
 **The tree and the files are joined by structure, not by name** (`tools/ck3/pairing.py`), because most
-widgets that show text have no name. Things a line-based gui reader gets wrong: the last definition
-of a template wins, but every `onclick` of a block fires, in order, on a click and on a shortcut
-alike; `block "x"` and `block = "x"` both occur; tooltips nest without end; and a scroll area draws
-its scrollbar last whatever the file says.
+widgets that show text have no name. `guimap` is the only gui reader and follows the engine's rules,
+among them that every `onclick` of a block fires, in order, on a click and on a shortcut alike.
 
 ## 6. Presentation
 
@@ -107,7 +100,7 @@ checks every reference against the expanded gui tree. Two blocks are applied: `o
 
 Two functions: `output(text, mode, braille)` and `failure(where, what, remedy)`.
 - **Braille is never optional;** a different braille text needs a reason at the call site.
-- The official NVDA controller client, not Tolk. LGPL 2.1: link dynamically, ship unchanged.
+- The official NVDA controller client, not Tolk, loaded as its own DLL (licence: `CREDITS.md`).
 - Two modes, replace and queue.
 - **Nothing speaks when there is nothing to say.** Only a real fault speaks, as one sentence a player
   can act on. `tools/never_silent.py` is the proof and the gate in front of a beta.

@@ -1,6 +1,6 @@
 # CK3 Access
 
-Screen reader access for **Crusader Kings III**, without OCR.
+Screen reader access for **Crusader Kings III**, read from the game's memory rather than by OCR.
 
 > **Status: research.** The machinery works and a window can be stepped through with the arrow keys,
 > but there is no installable mod yet. MIT licence, no promise of support.
@@ -11,10 +11,10 @@ NVDA. No game files are copied or redistributed.
 
 ## What works
 
-- **An injected channel** reads the widget tree and posts mouse and key input, combinations included,
-  from inside the process — it never takes focus.
+- **An injected research channel** reads the widget tree and posts mouse and key input, combinations
+  included, from inside the process to map the interface — it never takes focus.
 - **It survives patches:** every memory offset is derived from the running game and rechecked at start.
-- **Events are read aloud live** and can be answered.
+- **Events are read aloud live**, with the key that answers them.
 - **282 windows are mapped**, checked against what the running game builds; 239 were harvested on
   1.20.1.2 and joined to the `.gui` files.
 - **A reader** hands out one unit per keystroke, speech and braille together. Switched-off buttons say
@@ -22,13 +22,13 @@ NVDA. No game files are copied or redistributed.
 - **A map layer from the files alone:** neighbours, de jure titles, distance, bearing, travel days.
 - **The game state is readable** without searching, checked against a save.
 
-Developed on 1.19.0.6, checked on 1.20.1.2. Every number that carries a decision is in
-`reports/claims.json` with its counting rule; `tools/check.py` recomputes them.
+Tested on Crusader Kings III 1.20.1.2 without mods, and NVDA 2026.2.
 
 ## Requirements
 
-- Windows and Crusader Kings III
-- NVDA, with the add-on in `tools/nvda/addon/` (it puts NVDA to sleep while the game has focus)
+- Windows and the Steam version of Crusader Kings III
+- NVDA, with the add-on in `tools/nvda/addon/` (it puts NVDA to sleep while the game has focus), and
+  NVDA's controller client beside `tools/nvda/speech.py` (`tools/nvda/README.md`)
 - Python 3.11+ and `requirements.txt`
 - Visual Studio Build Tools (MSVC, x64); LLVM optional, for clang-tidy
 
@@ -40,9 +40,12 @@ From the project folder; the tools are a package and start as modules.
     dll\build_channel.bat                       compiles dll\channel.dll
     python -m tools.paths                       prints where it found the game and your saves
     python -m tools.ck3.start_game              starts CK3 with the channel inside it
+    python -m tools.ck3.reader <pid>            the reader, on the game start_game started
 
-The channel answers within seconds; the game needs minutes more to load. `-loadsave=<save>` loads a
-save directly. Paths come from the registry; override with `CK3_GAME`, `CK3_DOCS` or `CK3_WORK`.
+The channel answers within seconds; the game needs minutes more to load. `start_game` passes its
+arguments to the game, so `-loadsave=<save>` loads a save directly, named without `.ck3`. In the
+reader, up and down step through the window, Delete explains the current line, and F12 turns the
+reader off and on. Paths come from the registry; override with `CK3_GAME`, `CK3_DOCS` or `CK3_WORK`.
 `reports/toolindex.md` lists every call. Your antivirus may object to the injector.
 
 ## Layout
@@ -53,6 +56,5 @@ save directly. Paths come from the registry; override with `CK3_GAME`, `CK3_DOCS
     screens/    screen files: what the reader says first, and which key acts on a row
     tests/      pytest, including the DLL driven through its real pipe without the game
 
-The NVDA controller client is not included (`tools/nvda/README.md`).
-
-See `ARCHITECTURE.md`, `CONTRIBUTING.md` and `CREDITS.md`.
+Report a problem as a GitHub issue; `CONTRIBUTING.md` says what helps. See also `ARCHITECTURE.md`
+and `CREDITS.md`.

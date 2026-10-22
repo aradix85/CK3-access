@@ -6,20 +6,15 @@ included in this repository**, to keep third-party binaries out of the source tr
 ## Getting it
 
 Download `nvda_<version>_controllerClient.zip` from `download.nvaccess.org/releases/stable/` and
-put the 64-bit `nvdaControllerClient.dll` next to `speech.py`, together with its licence file.
-
-The client is licensed LGPL 2.1. If you ship it in a release, ship its licence text with it.
+put the 64-bit `nvdaControllerClient.dll` next to `speech.py`; its licence is already there
+(`CREDITS.md`). `check_speech_by_ear.bat` then checks by ear that it speaks.
 
 ## Functions used
 
-`speakText`, `brailleMessage`, `cancelSpeech`, `testIfRunning`.
-
-`speakSsml` exists but is not used: its fourth parameter is `asynchronous`, and passing false
-blocks until the speech finishes and then returns error 1223.
+`speakText`, `brailleMessage`, `cancelSpeech`, `testIfRunning`. `speakSsml` is not used: called
+synchronously it blocks until the speech ends and then fails.
 
 ## One seam
 
-Everything above this layer goes through two functions: `output`, which takes text, braille text
-and a mode, and `failure`, which turns a fault into one sentence and hands it to `output`. Swapping
-NVDA for an abstraction layer such as Prism or SRAL means replacing the inside of `output` and
-nothing else — see `CONTRIBUTING.md`.
+Everything above this layer goes through `output` and `failure` (`ARCHITECTURE.md`, section 7); another
+screen reader goes behind them (`CONTRIBUTING.md`).

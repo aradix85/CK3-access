@@ -9,7 +9,7 @@ This project stands on other people's work and ideas.
   public map of where this game keeps things in memory, and the technique of reaching a global through
   a wildcard instruction search. Nothing from the table is copied.
 - **KeinNiemand** — LargePageInjectorMods (`github.com/KeinNiemand/LargePageInjectorMods`): loading a
-  DLL into a Paradox game through `launcher-settings.json`.
+  DLL into a Paradox game through `launcher-settings.json`, the route planned for the player version.
 - **The CK3 Wiki**, the Interface page for modders (`ck3.paradoxwikis.com/Interface`): draw order,
   layers, and what `alwaystransparent` and `allow_outside` do to a click.
 - **noxsidereum** (skyretk) and **d3dev** (`d3_tooltips`) — worked examples of reading RTTI and
@@ -17,8 +17,9 @@ This project stands on other people's work and ideas.
 - **Agami** (`github.com/Agamidae`) — the CK3 OCR-Support mod. Her choices about what each screen reads
   out, in what order, are the design reference here. Her mod carries no licence, so none of her code is
   used.
-- **NVDA** (`github.com/nvaccess/nvda`) and its controller client, LGPL 2.1; loaded, not
-  redistributed. The licence is in `tools/nvda/license_nvda_controllerclient.txt`.
+- **NVDA** (`github.com/nvaccess/nvda`) and its controller client, LGPL 2.1. Its header and licence
+  are in `tools/nvda/`, its DLL is not; a release ships the DLL unchanged, with
+  `tools/nvda/license_nvda_controllerclient.txt`.
 - **Paradox Interactive** — Crusader Kings III and its engine. No Paradox files are included.
 - **The Accessible Crusades Discord** and `github.com/Molitvan/blind-accessible-games-list`, where this
   work is found, tested and argued about — and where the line "read the game, never rebuild it" comes
