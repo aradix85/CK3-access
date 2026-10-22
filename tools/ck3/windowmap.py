@@ -28,9 +28,10 @@ from collections.abc import Callable
 from typing import TypedDict
 
 from tools import paths, terminal
-from tools.ck3 import channel, derive, guimap, memory, onscreen, vtablemap, widgettree
+from tools.ck3 import channel, derive, guimap, memory, model, onscreen, vtablemap, widgettree
 
 OUT = os.path.join(paths.REPORTS, 'windows.json')
+WINDOW_KEYS = os.path.join(paths.REPORTS, 'window_keys.json')
 # The keys a round presses on a bare screen. The F row, plus every binding in shortcuts.shortcuts
 # without a modifier whose name says it can bring something up there: situations 0, character
 # finder C, find title V, plagues P, legends L, message settings M, outliner Q, intent N, the action
@@ -707,6 +708,25 @@ def unmapped(pid: int, game: Game | None = None) -> tuple[list[str], collections
             sorted(n for n in known if n not in live))
 
 
+def store_window_keys(pid: int, found: dict[str, str | list[tuple[str, str, str]]]) -> None:
+    """Add a round of keys inside windows to `reports\\window_keys.json`, per window, with the
+    state it was measured on, beside the map rather than in it.
+
+    Which windows open depends on the state, so a window that did not open keeps what a round on
+    another state found; one that opened replaces its entry.
+    """
+    _, player = model.player(pid)
+    stand = {'measured': time.strftime('%Y-%m-%d %H:%M'), 'exe': derive.build_key(), 'player': player}
+    report = json.loads(pathlib.Path(WINDOW_KEYS).read_text(encoding='utf-8')) if os.path.exists(WINDOW_KEYS) else {}
+    for window, keys in found.items():
+        if isinstance(keys, str) and window in report:
+            continue
+        report[window] = {**stand, 'keys': keys}
+    pathlib.Path(WINDOW_KEYS).write_text(json.dumps(report, ensure_ascii=False, indent=1, sort_keys=True),
+                                         encoding='utf-8')
+    print(f'written: {WINDOW_KEYS}, {len(found)} windows from this round')
+
+
 def keys_only(pid: int, modified: bool = False) -> None:
     """Only the key round, and add what it finds to the map without touching anything else in it.
 
@@ -750,12 +770,7 @@ def main() -> None:
     pid = int(sys.argv[1])
     rest = sys.argv[2:]
     if rest[:1] == ['--window-keys']:
-        # A trial names its windows, and writes beside the map rather than into it.
-        found = window_keys_round(Game(pid), rest[1:])
-        target = os.path.join(paths.WORK, 'window_keys_trial.json')
-        with open(target, 'w', encoding='utf-8') as file:
-            json.dump(found, file, ensure_ascii=False, indent=1)
-        print(f'written: {target}')
+        store_window_keys(pid, window_keys_round(Game(pid), rest[1:]))
         return
     if rest == ['--keys']:
         keys_only(pid)

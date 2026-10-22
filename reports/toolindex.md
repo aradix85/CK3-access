@@ -526,6 +526,7 @@ returns a pair, passed on as one thing, costs a run.
 | `shortcut_round(game, presses=None)` | value | Which shortcut opens which window? One key per test, and every window shut again. |
 | `create_round(game, windows, limit=None)` | value | Try every window with GUI.CreateWidget, and clean up immediately. |
 | `unmapped(pid, game=None)` | 3-tuple | Which windows the running game built that the map on disk does not know. |
+| `store_window_keys(pid, found)` | nothing | Add a round of keys inside windows to `reports\window_keys.json`, per window, with the |
 | `keys_only(pid, modified=False)` | nothing | Only the key round, and add what it finds to the map without touching anything else in it. |
 | `main()` | nothing | - |
 

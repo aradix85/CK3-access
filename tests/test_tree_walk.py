@@ -20,10 +20,13 @@ WIDGET = 'w\t1000\t5\t0\t0\t10\t10\t0\troot\t'
 @pytest.fixture(autouse=True)
 def nothing_said_before(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(widgettree, '_MISSING_SAID', set())
+    # Game process 7, where vtable 5 is a text box and every other one is not.
+    monkeypatch.setattr(widgettree, '_TEXT_VTABLES', {7: {5}})
 
 
 def answer(monkeypatch: pytest.MonkeyPatch, *lines: str) -> None:
-    monkeypatch.setattr(channel, 'ask', lambda _command, **_keywords: '\n'.join(lines))
+    monkeypatch.setattr(channel, 'ask', lambda command, **_keywords: 'channel\t7\tbuilt today' if command == 'hello'
+                        else '\n'.join(lines))
 
 
 def test_a_whole_tree_says_nothing(heard: speech.Recorder, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -62,3 +65,13 @@ def test_a_text_cut_short_names_its_widget(heard: speech.Recorder, monkeypatch: 
     widgettree.widgets(0x1000)
     assert '(long_text < root)' in capsys.readouterr().err
     assert len(heard.spoken) == 1
+
+
+def test_a_text_cut_short_on_another_class_is_no_loss(heard: speech.Recorder, monkeypatch: pytest.MonkeyPatch,
+                                                     capsys: pytest.CaptureFixture[str]) -> None:
+    """The text field of a progress bar holds something else, and nothing believes it."""
+    answer(monkeypatch, WIDGET, 'w\t2000\t6\t0\t0\t10\t10\t1000\tconstruct_progressbar\tx',
+           'missing\t2000\ttext of 262148 characters cut short')
+    widgettree.widgets(0x1000)
+    assert capsys.readouterr().err == ''
+    assert heard.spoken == []

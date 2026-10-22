@@ -15,7 +15,7 @@ NVDA. No game files are copied or redistributed.
   from inside the process — it never takes focus.
 - **It survives patches:** every memory offset is derived from the running game and rechecked at start.
 - **Events are read aloud live** and can be answered.
-- **282 windows are mapped**, checked against what the running game builds; 212 were harvested on
+- **282 windows are mapped**, checked against what the running game builds; 214 were harvested on
   1.20.1.2 and joined to the `.gui` files.
 - **A reader** hands out one unit per keystroke, speech and braille together. Switched-off buttons say
   so, hidden widgets stay silent, and every failure is spoken.

@@ -42,6 +42,7 @@ def widgets(root: int) -> Nodes:
                                     float(d[6]), int(d[7], 16), d[8], d[9])
         elif d[0] == 'missing':
             missing.append((d[1], d[2]))
+    missing = [(address, why) for address, why in missing if not _foreign_text(nodes, address, why)]
     # Whatever the walk lost it says on a `missing` line - a node or child list it could not read,
     # a child count nobody believes, a walk an exception broke off, a text cut short - so say so:
     # on 1.20.0.3 a walk that skipped such nodes in silence lost the decisions window and its 526
@@ -59,6 +60,24 @@ def widgets(root: int) -> Nodes:
 
 # The addresses as the DLL writes them on a `missing` line, in hex text.
 _MISSING_SAID: set[str] = set()
+# Per game process, the vtables of `TEXT_CLASSES` where that process loaded them.
+_TEXT_VTABLES: dict[int, set[int]] = {}
+
+
+def _foreign_text(nodes: Nodes, address: str, why: str) -> bool:
+    """Is this a text cut short on a widget whose class has no text of its own? The DLL reads the
+    text field of every widget, and on another class that field holds something else: on
+    22 October 2026 on Harold the two texts of 262148 characters cut short were on
+    `construct_progressbar` and `building_progressbar`, and all 195 widgets of those names are a
+    `ProgressBar`. Nothing believes such a text, so its loss is no loss. Asked only when a text is
+    cut short, because finding the classes reads the exe."""
+    if not why.startswith('text of'):
+        return False
+    pid = int(channel.ask('hello').split('\t')[1])
+    if pid not in _TEXT_VTABLES:
+        base = vtablemap.module_base(pid)
+        _TEXT_VTABLES[pid] = {base + rva for name in TEXT_CLASSES for rva in memory.vtables_by_name(name)}
+    return nodes[int(address, 16)][0] not in _TEXT_VTABLES[pid]
 
 
 def _lost_where(nodes: Nodes, address: int) -> str:

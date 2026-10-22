@@ -2144,7 +2144,7 @@
    "nodes_added": 2,
    "seconds": 7.3,
    "shape": "top level",
-   "shortcut": null
+   "shortcut": "shift+F2"
   },
   "ruler_designer": {
    "cleaned_up": true,

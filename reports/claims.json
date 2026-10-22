@@ -218,38 +218,38 @@
  },
  {
   "name": "texts the reading rule says over the harvest",
-  "claimed": 5094,
+  "claimed": 5169,
   "measure": "unseen_texts",
   "arguments": ["texts"],
-  "counting_rule": "every widget in a harvested record whose text is not empty once the game's markup is stripped, summed over the records that hold a window; refusal records carry no tree and do not count. The harvest of 21 October 2026 on 1.20.1.2, Ghur played"
+  "counting_rule": "every widget in a harvested record whose text is not empty once the game's markup is stripped, summed over the records that hold a window; refusal records carry no tree and do not count. The harvest on 1.20.1.2 of 21 October 2026, Ghur played, with three windows from Harold of 22 October 2026"
  },
  {
   "name": "harvested texts that are in the tree but not on the screen",
-  "claimed": 2971,
+  "claimed": 2977,
   "measure": "unseen_texts",
   "arguments": ["all"],
   "counting_rule": "of those texts, the ones the reading rule skips: the rectangle falls outside the drawing area of that record, or it is clipped inside its scroll area, or an ancestor sits at alpha zero, or an ancestor carries 0x08 in its state byte - the game hiding it. The union is smaller than the sum because a text can fail two at once"
  },
  {
   "name": "files that go into the repo",
-  "claimed": 89,
+  "claimed": 90,
   "measure": "repo_files",
   "counting_rule": "files under the project folder that .gitignore does not exclude, the same set git ls-files plus git ls-files --others --exclude-standard gives"
  },
  {
   "name": "windows opened in the harvest round",
-  "claimed": 212,
+  "claimed": 214,
   "measure": "harvest_total",
   "arguments": [
    "<project>\\harvest",
    "windows"
   ],
-  "counting_rule": "records in harvest\\ with opened true: 177 opened by the console, 22 by a shortcut, 6 by a click and 7 by a chain, counted 21 October 2026 on 1.20.1.2. The 32 that refuse carry no tree; a window with no route at all is not tried, and what the bare screen draws is the baseline and is never harvested",
+  "counting_rule": "records in harvest\\ with opened true: 176 opened by the console, 25 by a shortcut, 6 by a click and 7 by a chain, on 1.20.1.2: Ghur played on 21 October 2026, and on Harold on 22 October 2026 the war overview, the college of cardinals and the royal court, whose console record went to harvest-2026-10-22-replaced. The 30 that refuse carry no tree; a window with no route at all is not tried, and what the bare screen draws is the baseline and is never harvested",
   "quoted_in": ["README.md", "brief\\vensters.md"]
  },
  {
   "name": "text boxes in the harvest round",
-  "claimed": 2086,
+  "claimed": 2153,
   "measure": "harvest_total",
   "arguments": [
    "<project>\\harvest",
@@ -259,7 +259,7 @@
  },
  {
   "name": "text boxes the recogniser confirmed",
-  "claimed": 1880,
+  "claimed": 1952,
   "measure": "harvest_total",
   "arguments": [
    "<project>\\harvest",
@@ -269,7 +269,7 @@
  },
  {
   "name": "text boxes outside the drawing area",
-  "claimed": 115,
+  "claimed": 118,
   "measure": "harvest_total",
   "arguments": [
    "<project>\\harvest",
@@ -333,27 +333,27 @@
  },
  {
   "name": "harvested widgets that carry text",
-  "claimed": 5125,
+  "claimed": 5200,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
    "texts"
   ],
-  "counting_rule": "every widget with a non-empty text in the 212 harvested trees, counted while walking, and the walk asserts it saw all 91457 widgets of every record; a live subtree whose parent found no source used to be skipped, which shrank this denominator by dropping exactly the hard cases"
+  "counting_rule": "every widget with a non-empty text in the 214 harvested trees, counted while walking, and the walk asserts it saw all 94237 widgets of every record; a live subtree whose parent found no source used to be skipped, which shrank this denominator by dropping exactly the hard cases"
  },
  {
   "name": "harvested texts paired with a place in a gui file",
-  "claimed": 4581,
+  "claimed": 4656,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
    "paired"
   ],
-  "counting_rule": "paired by class and child order only, never by name. 253 of them are a caption: a button carries its own text, in `text` or `raw_text`, and the engine hangs a text box under it to draw it, so the box is not in the file and the widget above answers for it. The remaining 544 are texts the files describe nowhere, spread over 23 windows; ruler_designer and title_customization_window hold 96 each. They are listed per window in reports\\pairing.json, so the share is recomputable rather than a number that ages"
+  "counting_rule": "paired by class and child order only, never by name. 254 of them are a caption: a button carries its own text, in `text` or `raw_text`, and the engine hangs a text box under it to draw it, so the box is not in the file and the widget above answers for it. The remaining 544 are texts the files describe nowhere, spread over 23 windows; ruler_designer and title_customization_window hold 96 each. They are listed per window in reports\\pairing.json, so the share is recomputable rather than a number that ages"
  },
  {
   "name": "harvested texts whose gui file names a plain localization key",
-  "claimed": 638,
+  "claimed": 654,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -363,17 +363,17 @@
  },
  {
   "name": "plain keys whose localization matches what was on screen",
-  "claimed": 638,
+  "claimed": 654,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
    "plain key agrees"
   ],
-  "counting_rule": "the check that can fail: game markup stripped from the screen text, style markup and icon tokens from the localization, then compared whole. All 638 agree, which is also what carries the caption model - had a button's caption not been the source of the box under it, those 253 would have disagreed. One of the 638 is a `raw_text` holding a bare key, which the screen showed as its sentence"
+  "counting_rule": "the check that can fail: game markup stripped from the screen text, style markup and icon tokens from the localization, then compared whole. All 654 agree, which is also what carries the caption model - had a button's caption not been the source of the box under it, those 254 would have disagreed. One of the 654 is a `raw_text` holding a bare key, which the screen showed as its sentence"
  },
  {
   "name": "harvested texts whose gui file writes the sentence out itself",
-  "claimed": 109,
+  "claimed": 110,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -383,27 +383,27 @@
  },
  {
   "name": "sentences written in the gui file that match what was on screen",
-  "claimed": 109,
+  "claimed": 110,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
    "sentence in the file agrees"
   ],
-  "counting_rule": "the same check as for plain keys, without the lookup: all 109 agree, so `raw_text` is what the screen shows"
+  "counting_rule": "the same check as for plain keys, without the lookup: all 110 agree, so `raw_text` is what the screen shows"
  },
  {
   "name": "harvested texts filled by a data function",
-  "claimed": 2106,
+  "claimed": 2161,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
    "data functions together"
   ],
-  "counting_rule": "1618 where the gui file carries the call itself, in `text` or `raw_text`, and 488 where it carries a key whose localization does; both need the data context of the ancestors to say who the sentence is about"
+  "counting_rule": "1655 where the gui file carries the call itself, in `text` or `raw_text`, and 506 where it carries a key whose localization does; both need the data context of the ancestors to say who the sentence is about"
  },
  {
   "name": "harvested texts the gui file leaves to code",
-  "claimed": 1545,
+  "claimed": 1551,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -472,23 +472,23 @@
  },
  {
   "name": "harvested texts the gui files do not predict",
-  "claimed": 2253,
+  "claimed": 2255,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
    "unexplained"
   ],
-  "counting_rule": "of the 5125 harvested texts, the three kinds the files cannot foretell: the gui file says the code sets it, or the widget has a place on disk but neither `text` nor `raw_text`, or the alignment finds it no place at all"
+  "counting_rule": "of the 5200 harvested texts, the three kinds the files cannot foretell: the gui file says the code sets it, or the widget has a place on disk but neither `text` nor `raw_text`, or the alignment finds it no place at all"
  },
  {
   "name": "unexplained texts that inherit a data context",
-  "claimed": 2066,
+  "claimed": 2068,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
    "unexplained with data context"
   ],
-  "counting_rule": "of those 2253, the ones whose ancestors carry a datacontext, so that what the text is about is known even though where it comes from is not"
+  "counting_rule": "of those 2255, the ones whose ancestors carry a datacontext, so that what the text is about is known even though where it comes from is not"
  },
  {
   "name": "unexplained texts in the developers' own windows",
@@ -498,17 +498,17 @@
    "<project>\\reports\\pairing.json",
    "unexplained in developer windows"
   ],
-  "counting_rule": "of those 2253, the ones in a window whose gui file sits under gui/debug/ or whose name carries the word debug; fourteen of the 212 harvested windows, and nobody reads them"
+  "counting_rule": "of those 2255, the ones in a window whose gui file sits under gui/debug/ or whose name carries the word debug; fourteen of the 214 harvested windows, and nobody reads them"
  },
  {
   "name": "unexplained texts in windows a player opens",
-  "claimed": 2184,
+  "claimed": 2186,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
    "unexplained in player windows"
   ],
-  "counting_rule": "the 2253 minus the developers' own windows"
+  "counting_rule": "the 2255 minus the developers' own windows"
  },
  {
   "name": "unexplained bare numbers in windows a player opens",
@@ -518,17 +518,17 @@
    "<project>\\reports\\pairing.json",
    "unexplained bare number in player windows"
   ],
-  "counting_rule": "of those 2184, the texts that are only digits and the punctuation a number carries, so that no word says what they are"
+  "counting_rule": "of those 2186, the texts that are only digits and the punctuation a number carries, so that no word says what they are"
  },
  {
   "name": "unexplained texts in windows a player opens that the reading rule says",
-  "claimed": 510,
+  "claimed": 512,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
    "unexplained in player windows, drawn"
   ],
-  "counting_rule": "of those 2184, the ones `reading.on_screen` passes in the state the harvest took: inside the drawing area, not clipped, and nothing up the chain hidden or at alpha zero; jomini_encyclopedia holds 1136 of the 2184 and none of them is drawn",
+  "counting_rule": "of those 2186, the ones `reading.on_screen` passes in the state the harvest took: inside the drawing area, not clipped, and nothing up the chain hidden or at alpha zero; jomini_encyclopedia holds 1136 of the 2186 and none of them is drawn",
   "quoted_in": ["brief\\gui.md"]
  },
  {
@@ -543,24 +543,24 @@
  },
  {
   "name": "named live widgets in the harvest",
-  "claimed": 42121,
+  "claimed": 43702,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
    "named live widgets"
   ],
-  "counting_rule": "every live widget with a non-empty name in the 212 harvested trees, counted in the same walk as the texts",
+  "counting_rule": "every live widget with a non-empty name in the 214 harvested trees, counted in the same walk as the texts",
   "quoted_in": ["brief\\gui.md"]
  },
  {
   "name": "named live widgets the alignment puts on their own name",
-  "claimed": 40316,
+  "claimed": 41895,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
    "named live widgets on their own name"
   ],
-  "counting_rule": "of those 42121, the ones whose source on disk carries the same name, 0.957; 255 land on another name and 1550 find no source. Names never enter the alignment, so this scores it. The same rule over the harvest of 1.19.0.6 against 1.20.1.2 on disk gave 27450 of 38181, 0.719 (recomputed 22 October 2026), so that gap was the version and not the alignment",
+  "counting_rule": "of those 43702, the ones whose source on disk carries the same name, 0.959; 257 land on another name and 1550 find no source. Names never enter the alignment, so this scores it. The same rule over the harvest of 1.19.0.6 against 1.20.1.2 on disk gave 27450 of 38181, 0.719 (recomputed 22 October 2026), so that gap was the version and not the alignment",
   "quoted_in": ["brief\\gui.md"]
  },
  {

@@ -1,0 +1,815 @@
+{
+ "activity_list": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "activity_shortcut",
+    "alt+a",
+    "nothing"
+   ]
+  ],
+  "measured": "2026-10-22 11:58",
+  "player": "Harold"
+ },
+ "cardinals_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-10-22 11:58",
+  "player": "Harold"
+ },
+ "character_finder_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "changed the text: 96 lines, was 140"
+   ]
+  ],
+  "measured": "2026-10-22 11:58",
+  "player": "Harold"
+ },
+ "character_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "go_back",
+    "B",
+    "shut the window"
+   ],
+   [
+    "go_back_2",
+    "BACKSPACE",
+    "shut the window"
+   ],
+   [
+    "go_back_3",
+    "mb4",
+    "no key code for this spelling"
+   ],
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "tab_1",
+    "ctrl+1",
+    "nothing"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "changed the text: 47 lines, was 57"
+   ],
+   [
+    "tab_3",
+    "ctrl+3",
+    "changed the text: 78 lines, was 47"
+   ],
+   [
+    "tab_4",
+    "ctrl+4",
+    "changed the text: 82 lines, was 78"
+   ],
+   [
+    "compact_subject_list_character",
+    "alt+f",
+    "changed the text: 93 lines, was 82"
+   ]
+  ],
+  "measured": "2026-10-22 11:58",
+  "player": "Harold"
+ },
+ "council_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "tab_1",
+    "ctrl+1",
+    "nothing"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "nothing"
+   ],
+   [
+    "tab_3",
+    "ctrl+3",
+    "nothing"
+   ]
+  ],
+  "measured": "2026-10-22 11:58",
+  "player": "Harold"
+ },
+ "court_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "tab_1",
+    "ctrl+1",
+    "nothing"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "changed the text: 66 lines, was 23"
+   ],
+   [
+    "tab_3",
+    "ctrl+3",
+    "changed the text: 7 lines, was 66"
+   ]
+  ],
+  "measured": "2026-10-22 11:58",
+  "player": "Harold"
+ },
+ "culture_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "go_back",
+    "B",
+    "shut the window"
+   ],
+   [
+    "go_back_2",
+    "BACKSPACE",
+    "shut the window"
+   ],
+   [
+    "go_back_3",
+    "mb4",
+    "no key code for this spelling"
+   ],
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "tab_1",
+    "ctrl+1",
+    "nothing"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "changed the text: 57 lines, was 20"
+   ]
+  ],
+  "measured": "2026-10-22 11:58",
+  "player": "Harold"
+ },
+ "decisions_view": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "tab_1",
+    "ctrl+1",
+    "nothing"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "changed the text: 8 lines, was 25"
+   ]
+  ],
+  "measured": "2026-10-22 11:58",
+  "player": "Harold"
+ },
+ "epidemics_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "go_back",
+    "B",
+    "nothing"
+   ],
+   [
+    "go_back_2",
+    "BACKSPACE",
+    "nothing"
+   ],
+   [
+    "go_back_3",
+    "mb4",
+    "no key code for this spelling"
+   ],
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "tab_1",
+    "ctrl+1",
+    "shut the window"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "shut the window"
+   ],
+   [
+    "tab_3",
+    "ctrl+3",
+    "nothing"
+   ]
+  ],
+  "measured": "2026-10-22 11:58",
+  "player": "Harold"
+ },
+ "factions_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "tab_1",
+    "ctrl+1",
+    "nothing"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "nothing"
+   ]
+  ],
+  "measured": "2026-10-22 11:58",
+  "player": "Harold"
+ },
+ "faith_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "go_back",
+    "B",
+    "shut the window"
+   ],
+   [
+    "go_back_2",
+    "BACKSPACE",
+    "shut the window"
+   ],
+   [
+    "go_back_3",
+    "mb4",
+    "no key code for this spelling"
+   ],
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "compact_faith_window",
+    "alt+f",
+    "changed the text: 60 lines, was 52"
+   ],
+   [
+    "faith_details",
+    "alt+d",
+    "opened mainline_rite_tenets_window"
+   ],
+   [
+    "tab_1",
+    "ctrl+1",
+    "nothing"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "changed the text: 69 lines, was 60"
+   ],
+   [
+    "tab_3",
+    "ctrl+3",
+    "changed the text: 51 lines, was 69"
+   ]
+  ],
+  "measured": "2026-10-22 11:58",
+  "player": "Harold"
+ },
+ "find_title_view": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-10-22 11:58",
+  "player": "Harold"
+ },
+ "holding_view": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "go_back",
+    "B",
+    "shut the window"
+   ],
+   [
+    "go_back_2",
+    "BACKSPACE",
+    "shut the window"
+   ],
+   [
+    "go_back_3",
+    "mb4",
+    "no key code for this spelling"
+   ],
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-10-22 11:58",
+  "player": "Harold"
+ },
+ "intrigue_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "tab_1",
+    "ctrl+1",
+    "nothing"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "changed the text: 21 lines, was 12"
+   ],
+   [
+    "tab_3",
+    "ctrl+3",
+    "changed the text: 27 lines, was 21"
+   ]
+  ],
+  "measured": "2026-10-22 11:58",
+  "player": "Harold"
+ },
+ "jomini_encyclopedia": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-10-22 11:58",
+  "player": "Harold"
+ },
+ "ledger_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "ledger_tab_1",
+    "ctrl+1",
+    "nothing"
+   ],
+   [
+    "ledger_tab_2",
+    "ctrl+2",
+    "changed the text: 58 lines, was 40"
+   ],
+   [
+    "ledger_tab_3",
+    "ctrl+3",
+    "changed the text: 101 lines, was 58"
+   ],
+   [
+    "ledger_tab_4",
+    "ctrl+4",
+    "changed the text: 129 lines, was 101"
+   ],
+   [
+    "ledger_tab_5",
+    "ctrl+5",
+    "changed the text: 137 lines, was 129"
+   ],
+   [
+    "ledger_tab_6",
+    "ctrl+6",
+    "changed the text: 160 lines, was 137"
+   ],
+   [
+    "ledger_tab_7",
+    "ctrl+7",
+    "changed the text: 150 lines, was 160"
+   ],
+   [
+    "ledger_tab_8",
+    "ctrl+8",
+    "changed the text: 146 lines, was 150"
+   ],
+   [
+    "ledger_tab_9",
+    "ctrl+9",
+    "changed the text: 119 lines, was 146"
+   ],
+   [
+    "ledger_tab_10",
+    "ctrl+0",
+    "changed the text: 67 lines, was 119"
+   ],
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "map_mode_9",
+    "shift+Q",
+    "nothing"
+   ],
+   [
+    "map_mode_10",
+    "shift+W",
+    "nothing"
+   ],
+   [
+    "map_mode_11",
+    "shift+E",
+    "nothing"
+   ],
+   [
+    "ledger_filters",
+    "f",
+    "nothing"
+   ],
+   [
+    "ledger_subtab_1",
+    "alt+1",
+    "nothing"
+   ],
+   [
+    "ledger_subtab_2",
+    "alt+2",
+    "nothing"
+   ],
+   [
+    "ledger_subtab_3",
+    "alt+3",
+    "nothing"
+   ],
+   [
+    "sub_tab_1",
+    "alt+1",
+    "nothing"
+   ],
+   [
+    "sub_tab_2",
+    "alt+2",
+    "nothing"
+   ],
+   [
+    "sub_tab_3",
+    "alt+3",
+    "nothing"
+   ],
+   [
+    "sub_tab_4",
+    "alt+4",
+    "nothing"
+   ],
+   [
+    "sub_tab_5",
+    "alt+5",
+    "nothing"
+   ],
+   [
+    "ledger_subtab_4",
+    "alt+4",
+    "nothing"
+   ]
+  ],
+  "measured": "2026-10-22 11:58",
+  "player": "Harold"
+ },
+ "legends_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "go_back",
+    "B",
+    "opened faith_window"
+   ],
+   [
+    "go_back_2",
+    "BACKSPACE",
+    "opened culture_window"
+   ],
+   [
+    "go_back_3",
+    "mb4",
+    "no key code for this spelling"
+   ],
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "tab_1",
+    "ctrl+1",
+    "shut the window"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "nothing"
+   ],
+   [
+    "tab_3",
+    "ctrl+3",
+    "shut the window"
+   ],
+   [
+    "sub_tab_1",
+    "alt+1",
+    "nothing"
+   ],
+   [
+    "sub_tab_2",
+    "alt+2",
+    "changed the text: 14 lines, was 37"
+   ],
+   [
+    "sub_tab_3",
+    "alt+3",
+    "changed the text: 11 lines, was 14"
+   ]
+  ],
+  "measured": "2026-10-22 11:58",
+  "player": "Harold"
+ },
+ "military_view": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "tab_1",
+    "ctrl+1",
+    "nothing"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "changed the text: 87 lines, was 32"
+   ],
+   [
+    "tab_3",
+    "ctrl+3",
+    "nothing"
+   ],
+   [
+    "sub_tab_1",
+    "alt+1",
+    "nothing"
+   ],
+   [
+    "sub_tab_2",
+    "alt+2",
+    "changed the text: 24 lines, was 87"
+   ],
+   [
+    "sub_tab_3",
+    "alt+3",
+    "changed the text: 12 lines, was 24"
+   ]
+  ],
+  "measured": "2026-10-22 11:58",
+  "player": "Harold"
+ },
+ "my_realm_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "tab_1",
+    "ctrl+1",
+    "nothing"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "changed the text: 95 lines, was 68"
+   ],
+   [
+    "tab_3",
+    "ctrl+3",
+    "changed the text: 23 lines, was 95"
+   ],
+   [
+    "tab_4",
+    "ctrl+4",
+    "changed the text: 29 lines, was 23"
+   ],
+   [
+    "mass_directives",
+    "alt+d",
+    "nothing"
+   ],
+   [
+    "compact_subject_list_realm",
+    "alt+f",
+    "nothing"
+   ]
+  ],
+  "measured": "2026-10-22 11:58",
+  "player": "Harold"
+ },
+ "royal_court_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "tab_1",
+    "ctrl+1",
+    "nothing"
+   ],
+   [
+    "tab_3",
+    "ctrl+3",
+    "changed the text: 46 lines, was 17"
+   ],
+   [
+    "all_court_artifacts",
+    "alt+a",
+    "nothing"
+   ],
+   [
+    "sub_tab_1",
+    "alt+1",
+    "nothing"
+   ],
+   [
+    "sub_tab_2",
+    "alt+2",
+    "nothing"
+   ],
+   [
+    "sub_tab_3",
+    "alt+3",
+    "nothing"
+   ],
+   [
+    "event_tooltips",
+    "alt+e",
+    "nothing"
+   ]
+  ],
+  "measured": "2026-10-22 11:58",
+  "player": "Harold"
+ },
+ "war_overview_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-10-22 11:58",
+  "player": "Harold"
+ },
+ "window_message_settings": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "compact_message_log",
+    "alt+f",
+    "nothing"
+   ],
+   [
+    "tab_1",
+    "ctrl+1",
+    "nothing"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "changed the text: 3 lines, was 67"
+   ]
+  ],
+  "measured": "2026-10-22 11:58",
+  "player": "Harold"
+ },
+ "window_personal_beliefs": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "tab_1",
+    "ctrl+1",
+    "nothing"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "changed the text: 222 lines, was 178"
+   ]
+  ],
+  "measured": "2026-10-22 11:58",
+  "player": "Harold"
+ },
+ "window_situation_list": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "tab_1",
+    "ctrl+1",
+    "nothing"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "shut the window"
+   ],
+   [
+    "tab_3",
+    "ctrl+3",
+    "shut the window"
+   ],
+   [
+    "sub_tab_1",
+    "alt+1",
+    "nothing"
+   ],
+   [
+    "sub_tab_2",
+    "alt+2",
+    "changed the text: 18 lines, was 10"
+   ],
+   [
+    "sub_tab_3",
+    "alt+3",
+    "nothing"
+   ]
+  ],
+  "measured": "2026-10-22 11:58",
+  "player": "Harold"
+ }
+}
