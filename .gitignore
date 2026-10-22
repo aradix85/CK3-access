@@ -1,6 +1,6 @@
 ﻿# Not published: the maintainer's working notes.
 # Dutch, written for AI sessions, and out of date within a day.
-# What the public needs from them is in ARCHITECTURE.md and CONTRIBUTING.md.
+# What the public needs from them is in README.md.
 brief/
 BRIEF.md
 .git-notes/
@@ -29,7 +29,7 @@ naslag/
 
 # Not published: the sweep's raw material - 51 MB of widget trees and window captures taken from
 # one game state on one machine. It is measurement, not source, and it is Paradox's interface.
-# Produce it yourself with tools/ck3/harvest.py; what was learned from it is in ARCHITECTURE.md.
+# Produce it yourself with tools/ck3/harvest.py; what was learned from it is in README.md.
 # The pattern also covers a parked round kept for comparison, such as harvest-2026-10-21-1.19.0.6.
 harvest*/
 

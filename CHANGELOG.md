@@ -14,7 +14,7 @@ Outcomes, newest day first. No release yet.
 - The keys inside 40 windows are measured and kept in `reports/window_keys.json`, each window opened along a key, a click or a chain and measured once open.
 - That round presses sub-tabs after every tab and a toggle twice, and never a mouse button or a key another widget of the window acts on.
 - The click map no longer counts hidden buttons as covering what lies under them; a cut text on a widget that is not a text box is no longer reported lost.
-- One README for the whole project, NVDA's client and add-on included; `check.py` holds this changelog to short lines and few a day.
+- One README holds the whole project, NVDA setup included; the NVDA add-on is gone; `check.py` keeps this changelog short.
 
 ## 2026-10-21 — CK3 1.20.1.1 and 1.20.1.2
 - Checked against 1.20.1.1 and 1.20.1.2 on disk and in the game: field offsets, game model, numbering and window map hold; moved globals derive again by themselves.

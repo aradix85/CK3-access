@@ -563,7 +563,7 @@ def quoted_numbers(claims: list[Claim], measured: dict[str, object]) -> tuple[li
     **A quoted document that `.gitignore` excludes may simply not be there, and that is not a
     problem.** The maintainer's working notes quote these numbers and stay out of the repo, so on
     anyone else's clone those files are absent by design - reporting them would hand a contributor
-    a page of failures about documents `CONTRIBUTING.md` tells them they are not missing. A file
+    a page of failures about documents they were never meant to have. A file
     that *should* be in the repo and is gone is still a problem.
 
     Returns (problems, how many quotes were checked, how many were not on this disk).
