@@ -230,6 +230,8 @@ returns a pair, passed on as one thing, costs a run.
 | `record_window(game, name, nodes, header, route, attempts, file, started)` | dict | Everything this project can read of one drawn window, plus a capture. It stays open. |
 | `harvest(game, name, row, baseline, header)` | 2-tuple | One window, from opening to the state coming back. Returns the record, or a reason. |
 | `stop_checks(pid, player, player_name, before)` | nothing | The three conditions asked before every window: memory, the channel, and the player. |
+| `chain_press(game, source, goal, tables)` | 4-tuple | In `source`, standing open, press what reaches `goal` and wait for what comes up: the tree |
+| `chains_to(names, direct, tables)` | value | Window -> the chain route that opens it, for each of `names` that no key or click in `direct` |
 | `chain_step(game, route, source, source_row, windows, baseline, header, tables)` | 2-tuple | One chain route from one of its sources: open the source along its own route, press what |
 | `chain_round(game, pid, windows, wanted, baseline, header, player, player_name)` | nothing | Every chain route the files offer from a window this round can open by itself. |
 | `main()` | nothing | - |

@@ -541,6 +541,51 @@ def stop_checks(pid: int, player: int, player_name: str | None, before: str) -> 
                          'reload the state and start the round again.')
 
 
+def chain_press(game: windowmap.Game, source: str, goal: 'openers.Goal',
+                tables: guimap.Tables) -> tuple[widgettree.Nodes, set[str], 'openers.Spot | None', str | None]:
+    """In `source`, standing open, press what reaches `goal` and wait for what comes up: the tree
+    then, the windows the press brought up, the widget pressed, and why nothing was pressed. The
+    chain round and the key round both take a chain step here; the caller puts the state back."""
+    from tools.ck3 import openers  # openers imports this module
+    nodes, _, before = game.state()
+    _, spot, why = openers.press_toward(game, source, goal, tables)
+    opened: set[str] = set()
+    if spot is None:
+        return nodes, opened, None, why
+    for _ in range(6):
+        time.sleep(1.0)
+        nodes, _, drawn = game.state()
+        opened = drawn - before
+        if opened:
+            break
+    return nodes, opened, spot, None
+
+
+def chains_to(names: list[str], direct: dict[str, windowmap.Route],
+              tables: guimap.Tables) -> dict[str, 'openers.ChainRoute']:
+    """Window -> the chain route that opens it, for each of `names` that no key or click in `direct`
+    opens. A view without a window name counts for the window the harvest measured behind it, the
+    `view` of that window's record: which window the engine puts behind such a view is not on disk.
+    """
+    from tools.ck3 import openers  # openers imports this module
+    routes = openers.chain_routes(set(direct), tables)
+    by_target = {r['target']: r for r in routes if r['target']}
+    by_view = {r['view']: r for r in routes if r['view']}
+    out: dict[str, openers.ChainRoute] = {}
+    for name in names:
+        if name in direct:
+            continue
+        if name in by_target:
+            out[name] = by_target[name]
+            continue
+        path = os.path.join(OUT, name + '.json')
+        if os.path.exists(path):
+            view = json.loads(pathlib.Path(path).read_text(encoding='utf-8')).get('view')
+            if view in by_view:
+                out[name] = by_view[view]
+    return out
+
+
 def chain_step(game: windowmap.Game, route: 'openers.ChainRoute', source: str,
                source_row: windowmap.Route, windows: dict[str, windowmap.Route], baseline: set[str],
                header: Header, tables: guimap.Tables) -> tuple[list[ChainRecord] | None, str | None]:
@@ -559,17 +604,9 @@ def chain_step(game: windowmap.Game, route: 'openers.ChainRoute', source: str,
     if nodes is None:
         return None, (f'source {source} did not open'
                       if close_window(game, back, baseline) else 'state did not come back')
-    _, _, before = game.state()
-    _, spot, why = openers.press_toward(game, source, route['goal'], tables)
+    nodes, opened, spot, why = chain_press(game, source, route['goal'], tables)
     if spot is None:
         return None, why if close_window(game, back, baseline) else 'state did not come back'
-    opened: set[str] = set()
-    for _ in range(6):
-        time.sleep(1.0)
-        nodes, _, drawn = game.state()
-        opened = drawn - before
-        if opened:
-            break
     # A view probe records every window the press brought up: `decision_detail` opens its detail
     # together with the decisions list, and which of the two is "the" window of that view is a
     # question neither the game nor the files answer. A window target has to be among them.

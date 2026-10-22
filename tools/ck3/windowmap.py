@@ -271,21 +271,31 @@ def window_keys_round(game: 'Game', names: list[str]) -> dict[str, str | list[tu
     sub-tab keys once. **A toggle is pressed a second time**, and the row says whether that put
     the text back, because the game keeps a view such as the compact one for the next opening.
 
-    **Only along a player route, a key or a click.** A window built by `GUI.CreateWidget` takes none
-    of its own keys: on Ghur played, 22 October 2026, every key in five such windows did nothing,
-    Escape included, while tabs, sub-tabs and the compact view worked in the same round in two
-    windows opened by their key.
+    **Only along a player route: a key, a click, or a chain** from a window a key or a click opens.
+    A window built by `GUI.CreateWidget` takes none of its own keys: on Ghur played, 22 October
+    2026, every key in five such windows did nothing, Escape included, while tabs, sub-tabs and the
+    compact view worked in the same round in two windows opened by their key.
+
+    **A key is measured against what stood once the window was open**, not against the bare screen:
+    a click route can open a window inside another, and a chain leaves its source standing. Against
+    the bare screen every key in the diarchy reported my_realm_window opened, which the click route
+    had opened first (22 October 2026). When the window, or one it stands in, shuts, the round goes
+    back to the bare screen and opens it again along its route.
     """
     from tools.ck3 import harvest, openers  # both import this module
     openers.game_classes = game.window_classes      # a click asks what lies over its button
     with open(OUT, encoding='utf-8') as file:
         on_disk: dict[str, Route] = json.load(file)['windows']
     windows = {**harvest.click_routes(on_disk), **{n: r for n, r in on_disk.items() if r.get('shortcut')}}
+    tables = guimap.tables()
+    chains = harvest.chains_to(names, windows, tables)
+    back: Route = {'click': True}       # shut on Escape until the bare screen is back
     bound = {n: k for n, k in shortcut_file().items() if k.strip()}
     plan = window_bindings()
     base = vtablemap.module_base(game.pid)
     text_classes = {base + v for name in widgettree.TEXT_CLASSES
                     for v in memory.vtables_by_name(name)}
+    baseline = game.bare()
 
     def drawn_texts(name: str) -> tuple[str, ...]:
         """The texts of a window that stands open: just opened, or still there after a key."""
@@ -294,20 +304,36 @@ def window_keys_round(game: 'Game', names: list[str]) -> dict[str, str | list[tu
             raise SystemExit(f'{name} stands open and is not drawn')
         return texts
 
-    baseline = game.bare()
+    def to_bare(why: str) -> None:
+        if not harvest.close_window(game, back, baseline):
+            raise SystemExit(f'{why}, and the bare screen did not come back; shut it by hand')
+
+    def open_along(name: str) -> bool:
+        """Open `name` along its player route; True once it is drawn, else the bare screen back."""
+        sources: list[str | None] = [None] if name in windows else list(chains[name]['sources'])
+        for source in sources:
+            if source is None:
+                drawn = harvest.open_window(game, name, windows[name], baseline)[0] is not None
+            else:
+                drawn = (harvest.open_window(game, source, windows[source], baseline)[0] is not None
+                         and name in harvest.chain_press(game, source, chains[name]['goal'], tables)[1])
+            if drawn:
+                return True
+            to_bare(f'{name} did not open')
+        return False
+
     out: dict[str, str | list[tuple[str, str, str]]] = {}
     for name in names:
-        if name not in windows:
+        if name not in windows and name not in chains:
             out[name] = 'no player route'
             print(f'{name}: no player route')
             continue
-        row = windows[name]
-        nodes, _ = harvest.open_window(game, name, row, baseline)
-        if nodes is None:
+        if not open_along(name):
             out[name] = 'did not open'
             print(f'{name}: did not open')
             continue
         time.sleep(1.0)
+        _, _, standing = game.state()
         before = drawn_texts(name)
         results: list[tuple[str, str, str]] = []
         presses = presses_for(plan.get(name, []), bound)
@@ -335,12 +361,13 @@ def window_keys_round(game: 'Game', names: list[str]) -> dict[str, str | list[tu
             time.sleep(1.4)
             _, _, drawn = game.state()
             after = shown_texts(game, name, text_classes)
-            opened = sorted(drawn - baseline - {name})
-            if after is None:
-                what = 'shut the window' + (', opened ' + ', '.join(opened) if opened else '')
-            elif opened:
-                what = 'opened ' + ', '.join(opened)
-            elif after != before:
+            opened = sorted(drawn - standing)
+            gone = sorted(standing - drawn - {name})
+            parts = ((['shut the window'] if after is None else []) + (['shut ' + ', '.join(gone)] if gone else [])
+                     + (['opened ' + ', '.join(opened)] if opened else []))
+            if parts:
+                what = ', '.join(parts)
+            elif after is not None and after != before:
                 what = f'changed the text: {len(after)} lines, was {len(before)}'
                 if toggles:
                     press(keys)
@@ -353,27 +380,27 @@ def window_keys_round(game: 'Game', names: list[str]) -> dict[str, str | list[tu
             results.append((label, keys, what))
             print(f'  {name[:24]!s:<24} {keys!s:<14} {label[:24]!s:<24} {what}')
             for _ in range(3):
-                if not drawn - baseline - {name}:
+                if not drawn - standing:
                     break
                 channel.ask('sendkey 27')
                 time.sleep(1.2)
                 _, _, drawn = game.state()
-            if drawn - baseline - {name} or baseline - drawn:
-                raise SystemExit(f'after {keys} in {name} the state did not come back: '
-                                 f"{', '.join(sorted(drawn - baseline - {name}))} still open, "
-                                 f"{', '.join(sorted(baseline - drawn)) or 'nothing'} gone from the bare screen")
-            if name not in drawn:
-                nodes, _ = harvest.open_window(game, name, row, baseline)
-                if nodes is None:
+            if drawn - standing:
+                raise SystemExit(f"after {keys} in {name}, {', '.join(sorted(drawn - standing))} stayed open")
+            if drawn != standing:
+                to_bare(f'after {keys} in {name}')
+                if not open_along(name):
                     raise SystemExit(f'{name} did not open again after {keys}')
                 time.sleep(1.0)
                 if on_tab is not None:
                     # It opens on its first tab, and the sub-tabs after this one belong on that tab.
                     press(next(k for b, k, _ in tabs if b == on_tab))
                     time.sleep(1.4)
+                if game.state()[2] != standing:
+                    raise SystemExit(f'after {keys} in {name} the state did not come back')
             before = drawn_texts(name)
         out[name] = results
-        if not harvest.close_window(game, row, baseline):
+        if not harvest.close_window(game, windows.get(name, back), baseline):
             raise SystemExit(f'after {name} the state did not come back; shut it by hand')
         if not harvest.paused(game):
             raise SystemExit(f'after {name} the clock is running; pause the game by hand')

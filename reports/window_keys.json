@@ -16,6 +16,18 @@
   "measured": "2026-10-22 11:58",
   "player": "Harold"
  },
+ "activity_list_detail_host": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-10-22 15:44",
+  "player": "SU_rI_"
+ },
  "cardinals_window": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -211,10 +223,10 @@
    [
     "close_window",
     "ESCAPE",
-    "shut the window, opened decisions_view"
+    "shut the window"
    ]
   ],
-  "measured": "2026-10-22 13:50",
+  "measured": "2026-10-22 15:44",
   "player": "SU_rI_"
  },
  "decisions_view": {
@@ -245,30 +257,30 @@
    [
     "close_window",
     "ESCAPE",
-    "shut the window, opened my_realm_window"
+    "shut the window"
    ],
    [
     "tab_1",
     "ctrl+1",
-    "opened my_realm_window"
+    "nothing"
    ],
    [
     "tab_2",
     "ctrl+2",
-    "opened my_realm_window"
+    "nothing"
    ],
    [
     "go_back",
     "B",
-    "opened my_realm_window"
+    "nothing"
    ],
    [
     "go_back_2",
     "BACKSPACE",
-    "opened my_realm_window"
+    "nothing"
    ]
   ],
-  "measured": "2026-10-22 13:50",
+  "measured": "2026-10-22 15:44",
   "player": "SU_rI_"
  },
  "epidemics_window": {
@@ -476,6 +488,18 @@
   ],
   "measured": "2026-10-22 11:58",
   "player": "Harold"
+ },
+ "kill_list": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-10-22 15:44",
+  "player": "SU_rI_"
  },
  "ledger_window": {
   "exe": "101125752-1792594002",
@@ -770,6 +794,28 @@
   "measured": "2026-10-22 11:58",
   "player": "Harold"
  },
+ "rite_creation_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "go_back",
+    "B",
+    "shut the window, opened faith_window"
+   ],
+   [
+    "go_back_2",
+    "BACKSPACE",
+    "shut the window, opened faith_window"
+   ],
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-10-22 15:44",
+  "player": "SU_rI_"
+ },
  "royal_court_window": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -816,6 +862,18 @@
   ],
   "measured": "2026-10-22 11:58",
   "player": "Harold"
+ },
+ "struggle_involvement_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-10-22 15:44",
+  "player": "SU_rI_"
  },
  "struggle_window": {
   "exe": "101125752-1792594002",
@@ -971,6 +1029,18 @@
   "measured": "2026-10-22 11:58",
   "player": "Harold"
  },
+ "window_appoint_tax_collector": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-10-22 15:44",
+  "player": "SU_rI_"
+ },
  "window_manage_tax_slots": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -1068,5 +1138,39 @@
   ],
   "measured": "2026-10-22 11:58",
   "player": "Harold"
+ },
+ "window_tax_slot_obligations": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-10-22 15:44",
+  "player": "SU_rI_"
+ },
+ "window_tax_slot_vassals": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "tab_1",
+    "ctrl+1",
+    "nothing"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "changed the text: 12 lines, was 18"
+   ]
+  ],
+  "measured": "2026-10-22 15:44",
+  "player": "SU_rI_"
  }
 }
