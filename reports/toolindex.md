@@ -226,6 +226,7 @@ returns a pair, passed on as one thing, costs a run.
 | `open_window(game, name, row, baseline)` | 2-tuple | Open one window along the route phase 0 found for it, and prove it is drawn. |
 | `close_window(game, row, baseline)` | bool | Shut it again and wait until the state before it is back. Anything left open contaminates |
 | `drawn_one(nodes, candidates, name)` | value | Of several window objects carrying the same name, the one that is actually drawn. |
+| `settled(game, nodes, address)` | value | The tree once the window below `address` has stopped moving: two reads half a second apart |
 | `record_window(game, name, nodes, header, route, attempts, file, started)` | dict | Everything this project can read of one drawn window, plus a capture. It stays open. |
 | `harvest(game, name, row, baseline, header)` | 2-tuple | One window, from opening to the state coming back. Returns the record, or a reason. |
 | `stop_checks(pid, player, player_name, before)` | nothing | The three conditions asked before every window: memory, the channel, and the player. |

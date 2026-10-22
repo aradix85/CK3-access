@@ -270,10 +270,17 @@ def window_keys_round(game: 'Game', names: list[str]) -> dict[str, str | list[tu
     tab stood open did nothing, nine of them in the ledger. A window with no tab key gets its
     sub-tab keys once. **A toggle is pressed a second time**, and the row says whether that put
     the text back, because the game keeps a view such as the compact one for the next opening.
+
+    **Only along a player route, a key or a click.** A window built by `GUI.CreateWidget` takes none
+    of its own keys: on Ghur played, 22 October 2026, every key in five such windows did nothing,
+    Escape included, while tabs, sub-tabs and the compact view worked in the same round in two
+    windows opened by their key.
     """
-    from tools.ck3 import harvest
+    from tools.ck3 import harvest, openers  # both import this module
+    openers.game_classes = game.window_classes      # a click asks what lies over its button
     with open(OUT, encoding='utf-8') as file:
-        windows: dict[str, Route] = json.load(file)['windows']
+        on_disk: dict[str, Route] = json.load(file)['windows']
+    windows = {**harvest.click_routes(on_disk), **{n: r for n, r in on_disk.items() if r.get('shortcut')}}
     bound = {n: k for n, k in shortcut_file().items() if k.strip()}
     plan = window_bindings()
     base = vtablemap.module_base(game.pid)
@@ -290,6 +297,10 @@ def window_keys_round(game: 'Game', names: list[str]) -> dict[str, str | list[tu
     baseline = game.bare()
     out: dict[str, str | list[tuple[str, str, str]]] = {}
     for name in names:
+        if name not in windows:
+            out[name] = 'no player route'
+            print(f'{name}: no player route')
+            continue
         row = windows[name]
         nodes, _ = harvest.open_window(game, name, row, baseline)
         if nodes is None:

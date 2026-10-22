@@ -40,23 +40,45 @@
   "measured": "2026-10-22 11:58",
   "player": "Harold"
  },
+ "character_lifestyle_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "tab_1",
+    "ctrl+1",
+    "changed the text: 49 lines, was 21"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "changed the text: 49 lines, was 49"
+   ],
+   [
+    "tab_3",
+    "ctrl+3",
+    "changed the text: 50 lines, was 49"
+   ]
+  ],
+  "measured": "2026-10-22 13:50",
+  "player": "SU_rI_"
+ },
  "character_window": {
   "exe": "101125752-1792594002",
   "keys": [
    [
     "go_back",
     "B",
-    "shut the window"
+    "shut the window, opened culture_window"
    ],
    [
     "go_back_2",
     "BACKSPACE",
-    "shut the window"
-   ],
-   [
-    "go_back_3",
-    "mb4",
-    "no key code for this spelling"
+    "shut the window, opened culture_window"
    ],
    [
     "close_window",
@@ -71,26 +93,26 @@
    [
     "tab_2",
     "ctrl+2",
-    "changed the text: 47 lines, was 57"
+    "changed the text: 42 lines, was 42"
    ],
    [
     "tab_3",
     "ctrl+3",
-    "changed the text: 78 lines, was 47"
+    "changed the text: 75 lines, was 42"
    ],
    [
     "tab_4",
     "ctrl+4",
-    "changed the text: 82 lines, was 78"
+    "changed the text: 58 lines, was 75"
    ],
    [
     "compact_subject_list_character",
     "alt+f",
-    "changed the text: 93 lines, was 82"
+    "changed the text: 45 lines, was 58; again: back"
    ]
   ],
-  "measured": "2026-10-22 11:58",
-  "player": "Harold"
+  "measured": "2026-10-22 13:28",
+  "player": "SU_rI_"
  },
  "council_window": {
   "exe": "101125752-1792594002",
@@ -183,6 +205,18 @@
   "measured": "2026-10-22 11:58",
   "player": "Harold"
  },
+ "decisiondetail_view": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window, opened decisions_view"
+   ]
+  ],
+  "measured": "2026-10-22 13:50",
+  "player": "SU_rI_"
+ },
  "decisions_view": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -204,6 +238,38 @@
   ],
   "measured": "2026-10-22 11:58",
   "player": "Harold"
+ },
+ "diarchy_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window, opened my_realm_window"
+   ],
+   [
+    "tab_1",
+    "ctrl+1",
+    "opened my_realm_window"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "opened my_realm_window"
+   ],
+   [
+    "go_back",
+    "B",
+    "opened my_realm_window"
+   ],
+   [
+    "go_back_2",
+    "BACKSPACE",
+    "opened my_realm_window"
+   ]
+  ],
+  "measured": "2026-10-22 13:50",
+  "player": "SU_rI_"
  },
  "epidemics_window": {
   "exe": "101125752-1792594002",
@@ -332,6 +398,18 @@
   ],
   "measured": "2026-10-22 11:58",
   "player": "Harold"
+ },
+ "geographical_regions_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-10-22 13:50",
+  "player": "SU_rI_"
  },
  "holding_view": {
   "exe": "101125752-1792594002",
@@ -532,17 +610,12 @@
    [
     "go_back",
     "B",
-    "opened faith_window"
+    "nothing"
    ],
    [
     "go_back_2",
     "BACKSPACE",
-    "opened culture_window"
-   ],
-   [
-    "go_back_3",
-    "mb4",
-    "no key code for this spelling"
+    "nothing"
    ],
    [
     "close_window",
@@ -552,7 +625,22 @@
    [
     "tab_1",
     "ctrl+1",
-    "shut the window"
+    "shut the window, opened window_situation_list"
+   ],
+   [
+    "sub_tab_1 on tab_1",
+    "alt+1",
+    "not pressed: its tab shut the window"
+   ],
+   [
+    "sub_tab_2 on tab_1",
+    "alt+2",
+    "not pressed: its tab shut the window"
+   ],
+   [
+    "sub_tab_3 on tab_1",
+    "alt+3",
+    "not pressed: its tab shut the window"
    ],
    [
     "tab_2",
@@ -560,28 +648,43 @@
     "nothing"
    ],
    [
-    "tab_3",
-    "ctrl+3",
-    "shut the window"
-   ],
-   [
-    "sub_tab_1",
+    "sub_tab_1 on tab_2",
     "alt+1",
     "nothing"
    ],
    [
-    "sub_tab_2",
+    "sub_tab_2 on tab_2",
     "alt+2",
-    "changed the text: 14 lines, was 37"
+    "changed the text: 14 lines, was 14"
    ],
    [
-    "sub_tab_3",
+    "sub_tab_3 on tab_2",
     "alt+3",
     "changed the text: 11 lines, was 14"
+   ],
+   [
+    "tab_3",
+    "ctrl+3",
+    "shut the window, opened epidemics_window"
+   ],
+   [
+    "sub_tab_1 on tab_3",
+    "alt+1",
+    "not pressed: its tab shut the window"
+   ],
+   [
+    "sub_tab_2 on tab_3",
+    "alt+2",
+    "not pressed: its tab shut the window"
+   ],
+   [
+    "sub_tab_3 on tab_3",
+    "alt+3",
+    "not pressed: its tab shut the window"
    ]
   ],
-  "measured": "2026-10-22 11:58",
-  "player": "Harold"
+  "measured": "2026-10-22 13:28",
+  "player": "SU_rI_"
  },
  "military_view": {
   "exe": "101125752-1792594002",
@@ -714,6 +817,148 @@
   "measured": "2026-10-22 11:58",
   "player": "Harold"
  },
+ "struggle_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "go_back",
+    "B",
+    "shut the window, opened window_situation_list"
+   ],
+   [
+    "go_back_2",
+    "BACKSPACE",
+    "shut the window, opened window_situation_list"
+   ],
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "confirm",
+    "RETURN",
+    "changed the text: 16 lines, was 75; again: back"
+   ],
+   [
+    "confirm_2",
+    "alt+c",
+    "changed the text: 16 lines, was 75; again: back"
+   ],
+   [
+    "map_mode_1",
+    "E",
+    "nothing"
+   ],
+   [
+    "map_mode_3",
+    "R",
+    "nothing"
+   ],
+   [
+    "map_mode_2",
+    "T",
+    "nothing"
+   ],
+   [
+    "map_mode_9",
+    "shift+Q",
+    "nothing"
+   ],
+   [
+    "map_mode_10",
+    "shift+W",
+    "nothing"
+   ],
+   [
+    "map_mode_11",
+    "shift+E",
+    "nothing"
+   ],
+   [
+    "map_mode_19",
+    "ctrl+C",
+    "nothing"
+   ],
+   [
+    "map_mode_terrain",
+    "ctrl+H",
+    "nothing"
+   ],
+   [
+    "map_mode_12",
+    "ctrl+G",
+    "nothing"
+   ],
+   [
+    "map_mode_8",
+    "ctrl+P",
+    "nothing"
+   ],
+   [
+    "map_mode_18",
+    "ctrl+R",
+    "nothing"
+   ],
+   [
+    "map_mode_confederations",
+    "shift+C",
+    "nothing"
+   ],
+   [
+    "map_mode_16",
+    "ctrl+E",
+    "nothing"
+   ],
+   [
+    "map_mode_17",
+    "ctrl+L",
+    "nothing"
+   ],
+   [
+    "map_mode_6",
+    "ctrl+A",
+    "nothing"
+   ],
+   [
+    "map_mode_20",
+    "shift+H",
+    "nothing"
+   ],
+   [
+    "map_mode_5",
+    "ctrl+Q",
+    "nothing"
+   ],
+   [
+    "map_mode_7",
+    "ctrl+W",
+    "nothing"
+   ],
+   [
+    "map_mode_13",
+    "ctrl+D",
+    "nothing"
+   ],
+   [
+    "map_mode_15",
+    "ctrl+F",
+    "nothing"
+   ],
+   [
+    "map_mode_14",
+    "ctrl+S",
+    "nothing"
+   ],
+   [
+    "map_mode_diplomatic_relations",
+    "shift+F",
+    "nothing"
+   ]
+  ],
+  "measured": "2026-10-22 13:50",
+  "player": "SU_rI_"
+ },
  "war_overview_window": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -725,6 +970,18 @@
   ],
   "measured": "2026-10-22 11:58",
   "player": "Harold"
+ },
+ "window_manage_tax_slots": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-10-22 13:50",
+  "player": "SU_rI_"
  },
  "window_message_settings": {
   "exe": "101125752-1792594002",

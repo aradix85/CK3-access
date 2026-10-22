@@ -385,15 +385,12 @@ def open_window(game: windowmap.Game, name: str, row: windowmap.Route,
                 if name in drawn - baseline:
                     return nodes, attempt
         else:
-            # The console is put back the way it stood: a round that presses keys inside the window
-            # needs them to reach the game and not the console's input field.
-            shut = not game.console_open()
             game.command('GUI.CreateWidget {} {}'.format(row['file'], name))
             for _ in range(5):
                 time.sleep(1.0)
                 nodes, _, drawn = game.state()
                 if name in drawn - baseline:
-                    return (game.set_console(False, nodes) if shut else nodes), attempt
+                    return nodes, attempt
     return None, tries
 
 
@@ -402,18 +399,14 @@ def close_window(game: windowmap.Game, row: windowmap.Route, baseline: set[str])
     every window after this one, which is why this is a stop condition and not a warning."""
     limit: int = 12
     shortcut = row.get('shortcut')
-    console_route = not shortcut and not row.get('click')
-    shut = console_route and not game.console_open()
     for attempt in range(limit):
         # The shortcut once, and Escape after that. Pressing a toggle in every round reopens what
         # Escape just shut - with a key that opens two windows at once the loop never ends.
         if shortcut:
             if attempt == 0:
                 windowmap.press(shortcut)
-        elif console_route:
+        elif not row.get('click'):
             game.command('GUI.ClearWidgets')
-            if shut:
-                game.set_console(False)
         # The click route closes on Escape alone, at the foot of this loop, and that key is only
         # ever sent while something is still standing - with nothing open Escape opens the pause
         # menu, which is the state it was meant to clear.
@@ -447,12 +440,38 @@ def drawn_one(nodes: widgettree.Nodes, candidates: list[int], name: str) -> int:
                      'the content cannot be decided here')
 
 
+def settled(game: windowmap.Game, nodes: widgettree.Nodes, address: int) -> widgettree.Nodes:
+    """The tree once the window below `address` has stopped moving: two reads half a second apart
+    that give every widget of it the same place and size.
+
+    **A window is drawn before its layout has run.** `rite_creation_window`, reached by its chain
+    on Ghur played, was recorded with "Marriage Doctrines" at y 389 where the screen had it at 914,
+    and the recogniser confirmed 2 of its 41 text boxes; a second later the tree put it at 911, and
+    it stayed there (measured 22 October 2026, twice).
+    """
+    tries: int = 10
+
+    def places(tree: widgettree.Nodes) -> dict[int, tuple[float, float, float, float]]:
+        return {a: tree[a][1:5] for a, _, _ in subtree(tree, address)}
+
+    before = places(nodes)
+    for _ in range(tries):
+        time.sleep(0.5)
+        nodes = game.tree()
+        now = places(nodes)
+        if now == before:
+            return nodes
+        before = now
+    raise SystemExit(f'{address:x} was still moving after {tries} reads')
+
+
 def record_window(game: windowmap.Game, name: str, nodes: widgettree.Nodes, header: Header, route: str,
                   attempts: int, file: str | None, started: float) -> Record:
     """Everything this project can read of one drawn window, plus a capture. It stays open."""
     windows = [a for a, k in nodes.items() if k[0] in game.window_classes]
     named = [a for a in windows if nodes[a][6] == name]
     address = drawn_one(nodes, named, name)
+    nodes = settled(game, nodes, address)
     family = subtree(nodes, address)
     addresses = [a for a, _, _ in family]
     scales = onscreen.scales_for(list(nodes))
