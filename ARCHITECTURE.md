@@ -82,7 +82,10 @@ Text recognition (`tools/ocr.py`) is a witness, never the product.
 block, but hands over no data context, so it yields captions without values. **Check the window map
 against the game**, not the files: `windowmap.unmapped` lists what the engine built that the map lacks.
 **The chain** reaches windows that wait on a state: open one window, press what the files say reaches
-the target (`openers.chain`).
+the target (`openers.chain`), from a window a key, a click or an earlier chain opens
+(`harvest.player_chains`). What no file routes is pressed by hand and recorded as such
+(`tools/ck3/hand.py`). Widgets the engine puts into a window by file name, the widget of a decision
+and those of an activity type, are paired by that name.
 
 **The tree and the files are joined by structure, not by name** (`tools/ck3/pairing.py`), because most
 widgets that show text have no name. Things a line-based gui reader gets wrong: the last definition

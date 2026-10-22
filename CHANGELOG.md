@@ -21,6 +21,12 @@ Outcomes, newest first. No release yet.
 - Where one window holds several lists, a chain step picks the filter button by the data context of the filter window; the vassal filter is harvested that way.
 - A chain step shows a hidden trigger by pressing the button that declares the hiding condition as its `down`, a tab, instead of trying tab keys; the religious subordinates' filter, behind the one tab of the character window without a key, is harvested that way.
 - The filter presets window and the settings window are harvested by hand; one bare number the reader says, a slider value in the settings, stands beside its label rather than under it.
+- The window map counts an instance of a window type outside a types block as a window the console can make: thirty windows the map had marked as unreachable, twelve of them never tried, among them the rename dialog, three scheme event windows and the tutorial.
+- A window type used in one place takes its conditions from that place, so the subwindows of the faith window, the planner and the war overview get their `visible` rule; a call that opens on the object such a rule asks about reaches it, and a variable under a Not is not a goal.
+- The chain round also starts from a window that itself opens along a chain; the filters of the tax collector and the tax slot vassals are harvested that way.
+- The widgets an activity type puts into the activity window and the planner are paired by the name of their file, as the decision widgets were: in the activity window 2322 of 2334 named widgets now land on their own name, against 343.
+- A chain step clicks the point of a button nearest its middle that a click reaches; the corner of a court position card opened nothing, its middle opened the appointment.
+- `tools/ck3/hand.py` records a window along presses no chain on disk reaches; the court appointment and its filter are harvested that way. The harvest counts 239 windows.
 
 ## 2026-10-21 — CK3 1.20.1.1 and 1.20.1.2
 - The harvest is redone on 1.20.1.2: 212 windows along shortcuts, clicks, chains and the console, every widget with its state byte; 4534 of 5125 texts pair with a place in the `.gui` files.

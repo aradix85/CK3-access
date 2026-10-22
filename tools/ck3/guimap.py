@@ -611,23 +611,26 @@ def window_attributes(name: str, tables: Tables) -> list[tuple[str | None, str |
 
 
 DECISION_WIDGETS = 'gui/decision_view_widgets/'
+ACTIVITY_WIDGETS = 'gui/activity_window_widgets/'
 
 
-def decision_widget(name: str, table: Table, local: LocalTable) -> Node:
-    """The own gui of a decision, resolved into a widget tree like a window.
+def plugin_widget(folder: str, name: str, table: Table, local: LocalTable) -> Node:
+    """A widget the engine puts into a window by the name of its file, resolved like a window.
 
     A decision can name a gui file of its own with `widget = { gui = "..." }` in common\\decisions,
-    and the engine puts that file's widget into `custom_widgets_container` of the decision window.
-    Which one depends on the decision that is open, so the files of the window cannot say it and
-    the live tree can: the child there carries the name of its file. Measured 1 October 2026 on
-    1.20: 91 such references to 15 files, and the top block of each file is a widget with exactly
-    the file's name. The last file of that name in load order wins, as everywhere in the engine.
+    and the engine puts that file's widget into `custom_widgets_container` of the decision window;
+    an activity type names widgets of `gui/activity_window_widgets` for containers of the activity
+    window and the planner. Which ones depends on what is open, so the files of the window cannot
+    say it and the live tree can: the child there carries the name of its file. Measured 1 October
+    2026 on 1.20: 91 decision references to 15 files, and the top block of each file is a widget
+    with exactly the file's name; the same for the activity widgets, 22 October 2026. The last file
+    of that name in load order wins, as everywhere in the engine.
     """
     rows = files()
-    wanted = DECISION_WIDGETS + name.lower() + '.gui'
+    wanted = folder + name.lower() + '.gui'
     found = [(virtual, full) for _, virtual, full in rows if virtual.replace('\\', '/').lower() == wanted]
     if not found:
-        raise GuiError(f'no decision widget {name!r} on disk')
+        raise GuiError(f'no widget {name!r} in {folder}')
     virtual, full = found[-1]
     for entry in read(full):
         if entry['body'] and any(inner['key'] == 'name' and inner['value'] == name

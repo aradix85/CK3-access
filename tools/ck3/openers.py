@@ -92,7 +92,8 @@ class Goal(NamedTuple):
     """What has to happen before a window is drawn: a view opens (`name` the view), a variable is
     set (`name` the variable, `value` None when it only has to exist), or a state comes on (`name`
     the data function a toggle button declares as its `down`, `value` the window, `context` the
-    data context of the window, which the button has to sit in)."""
+    data context of the window, which the button has to sit in). A fourth kind, `call`, is a press by
+    hand: `name` a piece of an onclick, for a step no goal on disk reaches (`tools.ck3.hand`)."""
     kind: str
     name: str
     value: str | None = None
@@ -337,6 +338,8 @@ def reaches(value: str, goal: Goal) -> bool:
     presets on `IsFilterPresetsShown` and the button calls `ShowFilterPresets` (read 22 October
     2026). A route it offers is a measurement to make: the chain step says what came up.
     """
+    if goal.kind == 'call':
+        return goal.name in value
     if goal.kind == 'state' and opens_state(value, goal.name):
         return True
     if goal.kind in ('view', 'state'):
@@ -573,16 +576,22 @@ def reachable_point(buttons: list[Clickable], widget_address: int, rect: list[fl
 
     The middle of a widget is the obvious place to click and it is often the wrong one, so this
     walks the rectangle instead of trusting its centre. The step is small because the gaps between
-    the buttons a row is tiled with are small.
+    the buttons a row is tiled with are small. **Of the points a click reaches, the one nearest the
+    middle wins:** what the click map leaves out - a text or an icon with a tooltip - can still
+    catch a click near the edge. Measured 22 October 2026 on Ghur played: the top left corner of a
+    vacant court position opened nothing, its middle opened `appoint_court_position_view`.
     """
     step: int = 6
     x, y, width, height = rect
-    for offset_y in range(2, int(height) - 1, step):
-        for offset_x in range(2, int(width) - 1, step):
-            point = (int(x + offset_x), int(y + offset_y))
-            top = lands_on(buttons, point)
-            if top is not None and int(top['address'], 16) == widget_address:
-                return point
+    middle = (x + width / 2, y + height / 2)
+    points = sorted(((int(x + offset_x), int(y + offset_y))
+                     for offset_y in range(2, int(height) - 1, step)
+                     for offset_x in range(2, int(width) - 1, step)),
+                    key=lambda p: (p[0] - middle[0]) ** 2 + (p[1] - middle[1]) ** 2)
+    for point in points:
+        top = lands_on(buttons, point)
+        if top is not None and int(top['address'], 16) == widget_address:
+            return point
     return None
 
 

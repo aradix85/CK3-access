@@ -7,7 +7,7 @@ the button `filters` in the court window on Saru drew the court's own filter win
 """
 import pathlib
 
-from tools.ck3 import guimap, openers
+from tools.ck3 import guimap, openers, pairing
 
 TYPES = ('types T {'
          ' type list_filter = window { name = "list_filter" visible = "[List.FiltersShown]" }'
@@ -95,3 +95,22 @@ def test_a_call_opens_the_state_its_object_is_asked_about() -> None:
     assert openers.opens_state('[TenetWindow.Toggle]', '[TenetWindow.IsVisible]')
     assert not openers.opens_state('[TenetWindow.Close]', '[TenetWindow.IsVisible]')
     assert not openers.opens_state('[RiteWindow.Toggle]', '[TenetWindow.IsVisible]')
+    by_hand = openers.Goal('call', 'OpenAppointWindow')
+    assert openers.reaches('[CourtPositionType.OpenAppointWindow( CourtPositionsWindow.CourtOwner.Self )]', by_hand)
+    assert not openers.reaches('[CourtPositionType.Close]', by_hand)
+
+
+def test_a_click_lands_as_near_the_middle_as_it_can() -> None:
+    def button(address: str, rect: list[float]) -> openers.Clickable:
+        widget: pairing.Harvested = {
+            'address': address, 'parent': '0', 'depth': 1, 'index': 0, 'class': 'PushButton',
+            'name': '', 'text': None, 'own_rect': rect, 'screen_rect': rect, 'scale': [1.0, 1.0],
+            'alpha': 1.0, 'state': 0, 'clipped': False}
+        return ((0,), rect[0], rect[1], rect[2], rect[3], widget)
+    card = [100.0, 100.0, 168.0, 220.0]
+    point = openers.reachable_point([button('a', card)], 0xa, card)
+    assert point is not None and abs(point[0] - 184) <= 6 and abs(point[1] - 210) <= 6
+    # A later button over the middle takes it there; the nearest point still the card's own wins.
+    covered = openers.reachable_point([button('a', card), button('b', [150.0, 180.0, 68.0, 60.0])], 0xa, card)
+    assert covered is not None and not (150 <= covered[0] < 218 and 180 <= covered[1] < 240)
+    assert abs(covered[0] - 184) + abs(covered[1] - 210) < 60

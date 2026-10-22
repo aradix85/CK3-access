@@ -20,7 +20,7 @@ import re
 from typing import TypedDict
 
 from tools import paths
-from tools.ck3 import guimap, widgettree
+from tools.ck3 import database, guimap, widgettree
 
 # One widget as the harvest writes it (`harvest.widget_record`): addresses in hex, rectangles as
 # x, y, width, height. `state` and `alpha` are None where they could not be read, which counts as
@@ -207,31 +207,62 @@ def pairs(window: str, table: guimap.Table, local: guimap.LocalTable, known: gui
         own = guimap.attribute(source, 'datacontext')
         here = context + ((own,) if own else ())
         out.append((source, built, here))
-        if guimap.attribute(source, 'name') == CUSTOM_WIDGETS:
-            # Empty on disk; the decision that is open decides what goes in, by file name.
-            for child in by_parent.get(built['address'], []):
-                work.append((_decision_widget(child['name'], table, local), child, here))
-            continue
-        for child_source, child_built in align_row(widget_children(source, root),
-                                                   by_parent.get(built['address'], []), root):
+        children = by_parent.get(built['address'], [])
+        folder = insertion_folders().get(guimap.attribute(source, 'name') or '')
+        if folder:
+            # What the engine put in by file name is paired by name; the rest is aligned as always.
+            plugged = {c['address']: _plugin(folder, c['name'], table, local) for c in children}
+            work += [(plugged[c['address']], c, here) for c in children if plugged[c['address']]]
+            children = [c for c in children if not plugged[c['address']]]
+        for child_source, child_built in align_row(widget_children(source, root), children, root):
             work.append((child_source, child_built, here))
     return out
 
 
+_plugins: dict[tuple[str, str], guimap.Node | None] = {}
+_insertions: dict[str, str] = {}
+
+
+def insertion_folders() -> dict[str, str]:
+    """Container -> the folder whose widgets the engine puts into it, each under its file's name:
+    the open decision's own widget into `custom_widgets_container`, and into every container that
+    common/activities names under `activity_window_widgets` or `activity_planner_widgets` the
+    widgets of every activity type, one of each, in the load order of the activity files and after
+    the container's own children (measured 22 October 2026 on the hunt and the planner: nine
+    containers, 21 widgets, all in that order). Read once; the files do not change while it runs.
+    """
+    if not _insertions:
+        _insertions[CUSTOM_WIDGETS] = guimap.DECISION_WIDGETS
+        for _, _, full in database.files('activities/activity_types'):
+            # Script, not gui: lists without `=` that the gui grammar refuses, so a plain match on
+            # the two flat blocks, `widget = "container"` per line.
+            text = pathlib.Path(full).read_text(encoding='utf-8-sig')
+            for block in INSERTED.finditer(text):
+                for _, container in re.findall(r'(\w+)\s*=\s*"?(\w+)"?', block.group(1)):
+                    _insertions[container] = guimap.ACTIVITY_WIDGETS
+    return _insertions
+
+
+INSERTED = re.compile(r'activity_(?:window|planner)_widgets\s*=\s*\{([^}]*)\}')
+
+
 CUSTOM_WIDGETS = 'custom_widgets_container'
-_decision_widgets: dict[str, guimap.Node | None] = {}
 
 
-def _decision_widget(name: str, table: guimap.Table, local: guimap.LocalTable) -> guimap.Node | None:
-    """The own gui of a decision on disk, or None when no file carries that name - which the tally
-    then reports as a live widget the files do not describe, the same as anywhere else. Kept per
-    name, because expanding means walking the file list, and a reader reads this window often."""
-    if name not in _decision_widgets:
+def _plugin(folder: str, name: str | None, table: guimap.Table,
+            local: guimap.LocalTable) -> guimap.Node | None:
+    """The widget of that name in that folder on disk, or None when no file carries the name - which
+    the tally then reports as a live widget the files do not describe, the same as anywhere else.
+    Kept per name, because expanding means walking the file list, and a reader reads these windows
+    often."""
+    if not name:
+        return None
+    if (folder, name) not in _plugins:
         try:
-            _decision_widgets[name] = guimap.decision_widget(name, table, local)
+            _plugins[folder, name] = guimap.plugin_widget(folder, name, table, local)
         except guimap.GuiError:
-            _decision_widgets[name] = None
-    return _decision_widgets[name]
+            _plugins[folder, name] = None
+    return _plugins[folder, name]
 
 
 def text_source(source: guimap.Node, localization: dict[str, str]) -> str:

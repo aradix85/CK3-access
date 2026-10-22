@@ -207,9 +207,16 @@ returns a pair, passed on as one thing, costs a run.
 | `tables()` | 4-tuple | Everything a window is expanded with, built once. |
 | `window(name, table=None, local=None, known=None)` | value | A window resolved into a widget tree. A file that does not fit the grammar raises GuiError. |
 | `window_attributes(name, tables)` | list | The attributes of the window itself, inherited and mixed in the way `window` expands it, |
-| `decision_widget(name, table, local)` | value | The own gui of a decision, resolved into a widget tree like a window. |
+| `plugin_widget(folder, name, table, local)` | value | A widget the engine puts into a window by the name of its file, resolved like a window. |
 | `localization()` | value | Key -> sentence, from the localization files of the game and of the active mods. |
 | `strip_style(text)` | value | The style markup as it is written in the localization files: `#weak ... #!`. |
+
+## ck3\hand.py
+*Windows by hand, along presses the files cannot route.*
+
+| call | returns | does |
+|---|---|---|
+| `main()` | nothing | - |
 
 ## ck3\harvest.py
 *Phase 1 of the sweep: harvest one window at a time, raw.*
@@ -346,7 +353,7 @@ returns a pair, passed on as one thing, costs a run.
 | `goal_of(target, tables)` | value | What has to happen before `target` is drawn: a view opens, a variable is set, or a state |
 | `bare(expression)` | value | An expression without its whitespace, so that two spellings of one condition compare equal. |
 | `toggles(node, goal, context)` | value | Is this widget the button whose `down` state is the condition the goal waits on, inside the |
-| `reaches(value, goal)` | bool of value | Does this onclick reach the goal? Setting a variable counts, clearing it does not. |
+| `reaches(value, goal)` | value of bool | Does this onclick reach the goal? Setting a variable counts, clearing it does not. |
 | `opens_state(call, state)` | bool | Does `call` open what `state` asks about? The same object, a verb that opens - Toggle, Open, |
 | `fires_for(source, goal, context)` | 2-tuple | Every call this disk block fires, split into the ones that reach `goal` and the rest; |
 | `unhiding(source, goal, tables)` | list | The states that show a hidden trigger: every `visible` condition above a block of `source` |
@@ -376,6 +383,7 @@ returns a pair, passed on as one thing, costs a run.
 | `align_row(disk, live, root)` | value | Two rows of children laid against each other on class and order alone. |
 | `live_tree(record)` | 2-tuple | The harvest is a flat list with an address and a parent address; this is it as a tree. |
 | `pairs(window, table, local, known, root, record=None, disk_tree=None)` | value | Every live widget of one window with its source on disk, and the data context it inherits. |
+| `insertion_folders()` | value | Container -> the folder whose widgets the engine puts into it, each under its file's name: |
 | `text_source(source, localization)` | str of value | What fills this widget: a key, a data function, both, a sentence written in the file, or a |
 | `developer_window(name, path)` | value | Is this window the developers' own tooling rather than something a player opens? |
 | `bare_number(text)` | bool of value | A text that is only a number. This is the case the origin question exists for: `150` |
