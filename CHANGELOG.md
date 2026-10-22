@@ -2,6 +2,16 @@
 
 Outcomes, newest first. No release yet.
 
+## 2026-10-22
+- The pairing reads `raw_text` as well as `text`: the merged `.gui` files write 1536 texts that way, and the 110 harvested ones all match the screen.
+- The pairing counts its own name score, 0.958 over the harvest, and which texts the files do not predict the reader actually says.
+- One function says whether a harvested widget is drawn; the click map no longer counts hidden buttons as covering what lies under them.
+- A text cut short on a widget that is not a text box, such as a progress bar, is no longer reported as lost.
+- The harvest waits until a window's layout has settled before reading it; the rite creation window went from 2 to 41 of 43 text boxes confirmed.
+- The war overview, the college of cardinals and the royal court are harvested along their keys; Shift+F2 for the royal court is in the window map.
+- The key round inside windows goes along a key or a click only, because a window built by the console takes none of its own keys; it presses sub-tabs on every tab, presses a toggle twice, skips mouse buttons, and keeps its results in `reports/window_keys.json`.
+- A shut console forgets its input field, so the next console command opens it first.
+
 ## 2026-10-21 — CK3 1.20.1.1 and 1.20.1.2
 - The harvest is redone on 1.20.1.2: 212 windows along shortcuts, clicks, chains and the console, every widget with its state byte; 4534 of 5125 texts pair with a place in the `.gui` files.
 - The harvest no longer tries a window that has no route at all, and `check.py` reports a pairing report that is older than the harvest.
