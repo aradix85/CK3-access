@@ -27,10 +27,21 @@ Tested on Crusader Kings III 1.20.1.2 without mods, and NVDA 2026.2.
 ## Requirements
 
 - Windows and the Steam version of Crusader Kings III
-- NVDA, with the add-on in `tools/nvda/addon/` (it puts NVDA to sleep while the game has focus), and
-  NVDA's controller client beside `tools/nvda/speech.py` (`tools/nvda/README.md`)
+- NVDA, with its controller client and the add-on (below)
 - Python 3.11+ and `requirements.txt`
 - Visual Studio Build Tools (MSVC, x64); LLVM optional, for clang-tidy
+
+## NVDA
+
+**The controller client** is how the reader speaks and writes braille, and it is not in this
+repository. Download `nvda_<version>_controllerClient.zip` from `download.nvaccess.org/releases/stable/`
+and put the 64-bit `nvdaControllerClient.dll` next to `tools/nvda/speech.py`; its licence is already
+there. `tools/nvda/check_speech_by_ear.bat` then checks by ear that it speaks.
+
+**The add-on** in `tools/nvda/addon/` puts NVDA to sleep while the game has focus, so NVDA does not
+report the game window as well; the reader keeps speaking. Copy that folder to
+`%APPDATA%\nvda\addons\ck3Access\`, or to `userConfig\addons\ck3Access\` of a portable NVDA, and
+restart NVDA. NVDA+Shift+S switches sleep mode by hand.
 
 ## Running it
 
