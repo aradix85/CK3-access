@@ -385,12 +385,15 @@ def open_window(game: windowmap.Game, name: str, row: windowmap.Route,
                 if name in drawn - baseline:
                     return nodes, attempt
         else:
+            # The console is put back the way it stood: a round that presses keys inside the window
+            # needs them to reach the game and not the console's input field.
+            shut = not game.console_open()
             game.command('GUI.CreateWidget {} {}'.format(row['file'], name))
             for _ in range(5):
                 time.sleep(1.0)
                 nodes, _, drawn = game.state()
                 if name in drawn - baseline:
-                    return nodes, attempt
+                    return (game.set_console(False, nodes) if shut else nodes), attempt
     return None, tries
 
 
@@ -399,14 +402,18 @@ def close_window(game: windowmap.Game, row: windowmap.Route, baseline: set[str])
     every window after this one, which is why this is a stop condition and not a warning."""
     limit: int = 12
     shortcut = row.get('shortcut')
+    console_route = not shortcut and not row.get('click')
+    shut = console_route and not game.console_open()
     for attempt in range(limit):
         # The shortcut once, and Escape after that. Pressing a toggle in every round reopens what
         # Escape just shut - with a key that opens two windows at once the loop never ends.
         if shortcut:
             if attempt == 0:
                 windowmap.press(shortcut)
-        elif not row.get('click'):
+        elif console_route:
             game.command('GUI.ClearWidgets')
+            if shut:
+                game.set_console(False)
         # The click route closes on Escape alone, at the foot of this loop, and that key is only
         # ever sent while something is still standing - with nothing open Escape opens the pause
         # menu, which is the state it was meant to clear.

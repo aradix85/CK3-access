@@ -515,7 +515,7 @@ returns a pair, passed on as one thing, costs a run.
 | `shortcut_file()` | value | Binding -> its keys as `game/gui/shortcuts.shortcuts` spells them, empty for a binding |
 | `window_bindings()` | value | Window -> every shortcut its widgets declare, with what pressing it calls. Disk only. |
 | `window_keys_plan()` | nothing | Print what a key round inside the windows would press, and what it leaves to a person. |
-| `presses_for(rows, bound)` | value | (binding, keys) to press in one window: every view-only row, once. |
+| `presses_for(rows, bound)` | value | (binding, keys, toggles) to press in one window: every view-only row, once. |
 | `shown_texts(game, name, text_classes)` | NoneType of value | The texts of window `name` that are on the screen now, in draw order; None if it is not drawn. |
 | `window_keys_round(game, names)` | value | Open each window along its route, press every key in it that only changes the view, and say |
 | `modified_keys()` | value | Binding -> (spelling, modifier keys, key) for every name in `MODIFIED`, as the file binds it. |

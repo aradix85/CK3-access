@@ -192,16 +192,25 @@ def window_keys_plan() -> None:
         print(f"  {int(count):3d} windows  {binding[:28]!s:<28} {keys!s:<12} {calls[:80]}")
 
 
-def presses_for(rows: list[Binding], bound: dict[str, str]) -> list[tuple[str, str]]:
-    """(binding, keys) to press in one window: every view-only row, once.
+# One key to press inside a window: its binding, its keys, and whether it toggles - a second press
+# puts back what the first changed.
+Key = tuple[str, str, bool]
+# A tab and a sub-tab as the shortcut file names them: tab_2, ledger_tab_2; sub_tab_2, ledger_subtab_2.
+SUB_TAB = re.compile(r'sub_?tab_\d+$')
+TAB = re.compile(r'(?:^|_)tab_\d+$')
+
+
+def presses_for(rows: list[Binding], bound: dict[str, str]) -> list[Key]:
+    """(binding, keys, toggles) to press in one window: every view-only row, once.
 
     A computed name stands for a family - `[Concatenate('tab_', ...)]` reaches tab_1, tab_2 and on
     as far as the live window has rows - so it becomes its first `numbers` bindings that have a key.
     A quoted piece that is a binding itself, as in `[Select_CString(..., 'tab_3', 'tab_2')]`, is
-    taken as it is.
+    taken as it is. A mouse button - `mb4`, the back button - is no key and is left out. A row
+    toggles when one of its calls is a toggle, such as the compact view on Alt+F.
     """
     numbers: int = 3
-    out: list[tuple[str, str]] = []
+    out: list[Key] = []
     for row in rows:
         if not row['view_only']:
             continue
@@ -216,9 +225,11 @@ def presses_for(rows: list[Binding], bound: dict[str, str]) -> list[tuple[str, s
                     family = sorted((int(n[len(piece):]), n) for n in bound
                                     if n.startswith(piece) and n[len(piece):].isdigit())
                     names += [n for _, n in family[:numbers]]
+        toggles = any('Toggle' in call for call in row['calls'])
         for name in names:
-            if bound.get(name) and (name, bound[name]) not in out:
-                out.append((name, bound[name]))
+            keys = bound.get(name)
+            if keys and not keys.lower().startswith('mb') and all(k[0] != name for k in out):
+                out.append((name, keys, toggles))
     return out
 
 
@@ -253,6 +264,12 @@ def window_keys_round(game: 'Game', names: list[str]) -> dict[str, str | list[tu
     nothing - a round that watched windows only would call every tab key dead. A key that leaves
     the text unchanged may still act (a fold that hides no text, a map mode behind the window), so
     `nothing` here means no text moved, not that the key is unbound.
+
+    **A sub-tab lives on a tab**, so every sub-tab key is pressed again after each tab key, and
+    its row says on which: on Harold, 22 October 2026, 17 of 23 sub-tab keys pressed on whatever
+    tab stood open did nothing, nine of them in the ledger. A window with no tab key gets its
+    sub-tab keys once. **A toggle is pressed a second time**, and the row says whether that put
+    the text back, because the game keeps a view such as the compact one for the next opening.
     """
     from tools.ck3 import harvest
     with open(OUT, encoding='utf-8') as file:
@@ -282,26 +299,48 @@ def window_keys_round(game: 'Game', names: list[str]) -> dict[str, str | list[tu
         time.sleep(1.0)
         before = drawn_texts(name)
         results: list[tuple[str, str, str]] = []
-        for binding, keys in presses_for(plan.get(name, []), bound):
+        presses = presses_for(plan.get(name, []), bound)
+        sub_tabs = [p for p in presses if SUB_TAB.search(p[0])]
+        tabs = [p for p in presses if TAB.search(p[0]) and p not in sub_tabs]
+        steps: list[tuple[Key, str | None]] = []
+        for one in presses:
+            if one in sub_tabs:
+                continue
+            steps.append((one, None))
+            steps += [(sub, one[0]) for sub in sub_tabs if one in tabs]
+        if not tabs:
+            steps += [(sub, None) for sub in sub_tabs]
+        shut_tab: str | None = None
+        for (binding, keys, toggles), on_tab in steps:
+            label = f'{binding} on {on_tab}' if on_tab else binding
+            if on_tab is not None and on_tab == shut_tab:
+                results.append((label, keys, 'not pressed: its tab shut the window'))
+                continue
             try:
                 press(keys)
             except KeyError:
-                results.append((binding, keys, 'no key code for this spelling'))
+                results.append((label, keys, 'no key code for this spelling'))
                 continue
             time.sleep(1.4)
             _, _, drawn = game.state()
             after = shown_texts(game, name, text_classes)
             opened = sorted(drawn - baseline - {name})
             if after is None:
-                what = 'shut the window'
+                what = 'shut the window' + (', opened ' + ', '.join(opened) if opened else '')
             elif opened:
                 what = 'opened ' + ', '.join(opened)
             elif after != before:
                 what = f'changed the text: {len(after)} lines, was {len(before)}'
+                if toggles:
+                    press(keys)
+                    time.sleep(1.4)
+                    what += '; again: back' if shown_texts(game, name, text_classes) == before else '; again: not back'
             else:
                 what = 'nothing'
-            results.append((binding, keys, what))
-            print(f'  {name[:24]!s:<24} {keys!s:<14} {binding[:16]!s:<16} {what}')
+            if TAB.search(binding) and not SUB_TAB.search(binding):
+                shut_tab = binding if after is None else None
+            results.append((label, keys, what))
+            print(f'  {name[:24]!s:<24} {keys!s:<14} {label[:24]!s:<24} {what}')
             for _ in range(3):
                 if not drawn - baseline - {name}:
                     break
@@ -317,6 +356,10 @@ def window_keys_round(game: 'Game', names: list[str]) -> dict[str, str | list[tu
                 if nodes is None:
                     raise SystemExit(f'{name} did not open again after {keys}')
                 time.sleep(1.0)
+                if on_tab is not None:
+                    # It opens on its first tab, and the sub-tabs after this one belong on that tab.
+                    press(next(k for b, k, _ in tabs if b == on_tab))
+                    time.sleep(1.4)
             before = drawn_texts(name)
         out[name] = results
         if not harvest.close_window(game, row, baseline):
@@ -514,6 +557,8 @@ class Game:
         self.field = next((a for a, k in nodes.items() if k[6] == 'console_edit'), None)
         for _ in range(3):
             if self.console_open(nodes) == on and (not on or self._captures_input()):
+                if not on:
+                    self.field = None       # so that the next command opens it first
                 return nodes
             channel.ask('sendkey 192')
             time.sleep(1.4)
