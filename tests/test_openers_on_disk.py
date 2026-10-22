@@ -54,4 +54,4 @@ def test_every_onclick_fires_not_only_the_last() -> None:
     first, second = "[ToggleGameView('ledger')]", "[GetVariableSystem.Clear( 'extra_buttons_expand' )]"
     source: guimap.Node = {'type': 'button_normal', 'children': [],
                            'attrs': [('name', 'ledger_shortcut'), ('onclick', first), ('onclick', second)]}
-    assert openers.fires_for(source, ('view', 'ledger', None)) == ([first], [f'onclick: {second}'])
+    assert openers.fires_for(source, openers.Goal('view', 'ledger'), ()) == ([first], [f'onclick: {second}'])

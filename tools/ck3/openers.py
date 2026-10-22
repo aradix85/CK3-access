@@ -41,7 +41,7 @@ import pathlib
 import re
 import sys
 import time
-from typing import NotRequired, TypedDict
+from typing import NamedTuple, NotRequired, TypedDict
 
 from tools import paths, terminal
 from tools.ck3 import (
@@ -88,10 +88,15 @@ class _Block(TypedDict):
     shortcut: str | None
 
 
-# What has to happen before a window is drawn: ('view', name, None), ('variable', name, value) with
-# None for a value when the variable only has to exist, or ('state', expression, window) when the
-# window's `visible` is a data function that a toggle button declares as its `down`.
-Goal = tuple[str, str, str | None]
+class Goal(NamedTuple):
+    """What has to happen before a window is drawn: a view opens (`name` the view), a variable is
+    set (`name` the variable, `value` None when it only has to exist), or a state comes on (`name`
+    the data function a toggle button declares as its `down`, `value` the window, `context` the
+    data context of the window, which the button has to sit in)."""
+    kind: str
+    name: str
+    value: str | None = None
+    context: str | None = None
 
 
 class ChainRoute(TypedDict):
@@ -277,15 +282,21 @@ def goal_of(target: str, tables: guimap.Tables) -> Goal:
     `shared/lists.gui` declares exactly that as its `down` and toggles it with its click (read
     22 October 2026; pressing it on Saru drew `court_character_filter_window`). Such a goal still
     takes a view call carrying the window's name, as before.
+
+    **The data context picks the button** where one window holds several lists: the court, the
+    vassals and the subordinates in the character window each have a filter button on the same
+    state, and each filter window carries the data context of its own list
+    (`[CharacterWindow.GetCourt]`, `GetVassals`, `GetReligiousSubordinates`; read 22 October 2026).
     """
-    visible = [value for key, value in guimap.window_attributes(target, tables)
-               if key == 'visible' and value]
+    attributes = guimap.window_attributes(target, tables)
+    visible = [value for key, value in attributes if key == 'visible' and value]
     if not visible:
-        return ('view', target, None)
+        return Goal('view', target)
     found = CONDITION.search(visible[-1])
     if found:
-        return ('variable', found.group(2), found.group(3) or None)
-    return ('state', bare(visible[-1]), target)
+        return Goal('variable', found.group(2), found.group(3) or None)
+    context = [value for key, value in attributes if key == 'datacontext' and value]
+    return Goal('state', bare(visible[-1]), target, bare(context[-1]) if context else None)
 
 
 def bare(expression: str) -> str:
@@ -293,10 +304,12 @@ def bare(expression: str) -> str:
     return re.sub(r'\s+', '', expression)
 
 
-def toggles(node: guimap.Node, goal: Goal) -> bool:
-    """Is this widget the button whose `down` state is the condition the goal waits on?"""
+def toggles(node: guimap.Node, goal: Goal, context: tuple[str, ...]) -> bool:
+    """Is this widget the button whose `down` state is the condition the goal waits on, inside the
+    data context of the target? `context` is the widget's own and inherited data contexts."""
     down = guimap.attribute(node, 'down')
-    return goal[0] == 'state' and down is not None and bare(down) == goal[1]
+    return (goal.kind == 'state' and down is not None and bare(down) == goal.name
+            and (goal.context is None or goal.context in {bare(c) for c in context}))
 
 
 def reaches(value: str, goal: Goal) -> bool:
@@ -307,9 +320,9 @@ def reaches(value: str, goal: Goal) -> bool:
     They differ only in their visibility condition, so a rule that matched the variable name alone
     would offer both and press the wrong one half the time.
     """
-    if goal[0] in ('view', 'state'):
+    if goal.kind in ('view', 'state'):
         found = VIEW_CALL.search(value)
-        return bool(found and found.group(1) == (goal[1] if goal[0] == 'view' else goal[2]))
+        return bool(found and found.group(1) == (goal.name if goal.kind == 'view' else goal.value))
     for how, name, held in SETS.findall(value):
         if name != goal[1] or how == 'Clear':
             continue
@@ -320,8 +333,10 @@ def reaches(value: str, goal: Goal) -> bool:
     return False
 
 
-def fires_for(source: guimap.Node | None, goal: Goal) -> tuple[list[str], list[str]]:
-    """Every call this disk block fires, split into the ones that reach `goal` and the rest.
+def fires_for(source: guimap.Node | None, goal: Goal,
+              context: tuple[str, ...]) -> tuple[list[str], list[str]]:
+    """Every call this disk block fires, split into the ones that reach `goal` and the rest;
+    `context` is the block's data contexts, as `pairing.pairs` hands them out.
 
     **A click and a shortcut both fire every onclick of a block, in order.** Measured 21 October
     2026 on 1.20.1.1 with `onscreen.shown` and the screen as witnesses: a click on "Go to Capital"
@@ -342,7 +357,7 @@ def fires_for(source: guimap.Node | None, goal: Goal) -> tuple[list[str], list[s
         return [], []
     wanted: list[str] = []
     others: list[str] = []
-    toggle = toggles(source, goal)
+    toggle = toggles(source, goal, context)
     for key, value in source['attrs']:
         if key not in ('onclick', 'onrightclick') or not value:
             continue
@@ -374,27 +389,29 @@ def chain_routes(start: set[str], tables: guimap.Tables) -> list[ChainRoute]:
     found: dict[str, ChainRoute] = {}
     for source in sorted(start):
         tree = guimap.window(source, table, local, known)
-        nodes: list[guimap.Node] = []
-        stack = [tree]
+        nodes: list[tuple[guimap.Node, tuple[str, ...]]] = []
+        stack: list[tuple[guimap.Node, tuple[str, ...]]] = [(tree, ())]
         while stack:
-            node = stack.pop()
-            stack.extend(node['children'])
-            nodes.append(node)
-        inside = {guimap.attribute(node, 'name') for node in nodes} & known.keys()
-        here = {target: goal for target, goal in goals.items() if goal[0] != 'state' or target in inside}
-        for node in nodes:
+            node, context = stack.pop()
+            own = guimap.attribute(node, 'datacontext')
+            context = context + ((own,) if own else ())
+            stack.extend((child, context) for child in node['children'])
+            nodes.append((node, context))
+        inside = {guimap.attribute(node, 'name') for node, _ in nodes} & known.keys()
+        here = {target: goal for target, goal in goals.items() if goal.kind != 'state' or target in inside}
+        for node, context in nodes:
             for key, value in node['attrs']:
                 if key != 'onclick' or not value:
                     continue
-                _offer(found, source, node, value, here, start, known)
+                _offer(found, source, node, context, value, here, start, known)
     return sorted(found.values(), key=lambda row: (row['view'] or '', row['target'] or ''))
 
 
-def _offer(found: dict[str, ChainRoute], source: str, node: guimap.Node, call: str,
-           goals: dict[str, Goal], start: set[str], known: guimap.Known) -> None:
+def _offer(found: dict[str, ChainRoute], source: str, node: guimap.Node, context: tuple[str, ...],
+           call: str, goals: dict[str, Goal], start: set[str], known: guimap.Known) -> None:
     """Every target and every unnamed view this one call of `node` brings up from `source`."""
     for target, goal in goals.items():
-        if target not in start and (toggles(node, goal) or reaches(call, goal)):
+        if target not in start and (toggles(node, goal, context) or reaches(call, goal)):
             row = found.setdefault(target, {'target': target, 'sources': [], 'goal': goal,
                                             'view': None})
             if source not in row['sources']:
@@ -402,7 +419,7 @@ def _offer(found: dict[str, ChainRoute], source: str, node: guimap.Node, call: s
     for view in VIEW_CALL.findall(call):
         if view not in known:
             row = found.setdefault(view, {'target': None, 'sources': [],
-                                          'goal': ('view', view, None), 'view': view})
+                                          'goal': Goal('view', view), 'view': view})
             if source not in row['sources']:
                 row['sources'].append(source)
 
@@ -519,11 +536,11 @@ def spots_for_goal(game: windowmap.Game, pid: int, window: str, goal: Goal,
     table, local, known, root = tables
     out: list[Spot] = []
     acting: set[str] = set()
-    for source, built, _ in pairing.pairs(window, table, local, known, root, record=record):
+    for source, built, context in pairing.pairs(window, table, local, known, root, record=record):
         if source is not None and any(key == 'onclick' and value
                                       for key, value in source['attrs']):
             acting.add(built['address'])
-        wanted, others = fires_for(source, goal)
+        wanted, others = fires_for(source, goal, context)
         if not wanted:
             continue
         address = int(built['address'], 16)

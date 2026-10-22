@@ -15,6 +15,11 @@ TYPES = ('types T {'
          ' type filter_button = button { down = "[ List.FiltersShown ]" onclick = "[List.OnToggleFilters]" } }')
 WINDOWS = ('window = { name = "court" filter_button = {} list_filter = { name = "court_filter" } }'
            ' window = { name = "finder" filter_button = {} list_filter = { name = "finder_filter" } }'
+           ' window = { name = "character"'
+           ' widget = { datacontext = "[W.GetCourt]" filter_button = { name = "court_button" } }'
+           ' widget = { datacontext = "[W.GetVassals]" filter_button = { name = "vassal_button" } }'
+           ' list_filter = { name = "its_court_filter" datacontext = "[W.GetCourt]" }'
+           ' list_filter = { name = "its_vassal_filter" datacontext = "[W.GetVassals]" } }'
            ' window = { name = "ledger" button = { onclick = "[GetVariableSystem.Toggle(\'filters\')]" } }')
 
 
@@ -29,11 +34,28 @@ def tables(tmp_path: pathlib.Path) -> guimap.Tables:
 def test_an_instance_carries_its_own_name_and_a_type_its_own_rule(tmp_path: pathlib.Path) -> None:
     found = tables(tmp_path)
     assert {'court_filter', 'finder_filter', 'ledger_filter'} <= found[2].keys()
-    assert openers.goal_of('ledger_filter', found) == ('variable', 'filters', None)
-    assert openers.goal_of('court_filter', found) == ('state', '[List.FiltersShown]', 'court_filter')
+    assert openers.goal_of('ledger_filter', found) == openers.Goal('variable', 'filters')
+    assert openers.goal_of('court_filter', found) == openers.Goal('state', '[List.FiltersShown]', 'court_filter')
 
 
 def test_a_toggle_reaches_only_the_filter_window_inside_its_own_window(tmp_path: pathlib.Path) -> None:
     routes = {r['target']: r['sources'] for r in openers.chain_routes({'court', 'finder', 'ledger'},
                                                                        tables(tmp_path))}
     assert routes == {'court_filter': ['court'], 'finder_filter': ['finder'], 'ledger_filter': ['ledger']}
+
+
+def test_the_data_context_picks_the_button_where_one_window_holds_two_lists(tmp_path: pathlib.Path) -> None:
+    found = tables(tmp_path)
+    goal = openers.goal_of('its_vassal_filter', found)
+    assert goal.context == '[W.GetVassals]'
+    tree = guimap.window('character', found[0], found[1], found[2])
+    pressed = []
+    stack: list[tuple[guimap.Node, tuple[str, ...]]] = [(tree, ())]
+    while stack:
+        node, context = stack.pop()
+        own = guimap.attribute(node, 'datacontext')
+        context = context + ((own,) if own else ())
+        stack.extend((child, context) for child in node['children'])
+        if openers.fires_for(node, goal, context)[0]:
+            pressed.append(guimap.attribute(node, 'name'))
+    assert pressed == ['vassal_button']
