@@ -493,6 +493,7 @@ def windows(rows: list[Row] | None = None, table: Table | None = None) -> Known:
         table, _ = type_table(rows)
     root = root_finder(table)
     out: Known = {}
+    unnamed: dict[str | None, list[tuple[str, Entry]]] = {}
     for _, virtual, full in rows:
         entries = read(full)
         for entry in walk(entries):
@@ -506,26 +507,31 @@ def windows(rows: list[Row] | None = None, table: Table | None = None) -> Known:
             if name:
                 out[name] = (virtual, entry)
         for entry in walk(entries):
-            if entry['key'] == 'window' or not entry['body']:
+            if entry['key'] == 'window' or entry['body'] is None:
                 continue
             if root(entry['key']) != 'window':
                 continue
-            for inner in entry['body']:
-                if inner['key'] == 'name' and inner['value']:
-                    out.setdefault(inner['value'], (virtual, entry))
-                    break
+            named = next((inner['value'] for inner in entry['body'] if inner['key'] == 'name'), None)
+            if named:
+                out.setdefault(named, (virtual, entry))
+            else:
+                unnamed.setdefault(entry['key'], []).append((virtual, entry))
     for type_name, found in table.items():
         if root(found['parent']) != 'window':
             continue
         for inner in found['body']:
             if inner['key'] == 'name' and inner['value']:
-                # An instance of the type with an empty body: `build` takes the type's own body
-                # from the table, and handing it in as well built these windows twice over
-                # (measured 21 October 2026: character_filter_window 6138 nodes against 3070).
-                out.setdefault(inner['value'], (found['file'],
-                                                {'key': type_name, 'arg': None,
-                                                 'value': found['parent'],
-                                                 'body': []}))
+                # **The one place the type is used carries its conditions**, `visible` above all:
+                # `window_religion_sub_window = { visible = "[ReligionWindow.IsVisible]" }` in the
+                # faith window, where the type says nothing (read 22 October 2026). Used in more
+                # than one place, no one use speaks for the window. An instance with an empty
+                # body: `build` takes the type's own body from the table, and handing it in as well
+                # built these windows twice over (measured 21 October 2026:
+                # character_filter_window 6138 nodes against 3070).
+                uses = unnamed.get(type_name, [])
+                out.setdefault(inner['value'], uses[0] if len(uses) == 1 else
+                               (found['file'], {'key': type_name, 'arg': None,
+                                                'value': found['parent'], 'body': []}))
                 break
     return out
 

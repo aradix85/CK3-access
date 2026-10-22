@@ -232,9 +232,10 @@ returns a pair, passed on as one thing, costs a run.
 | `harvest(game, name, row, baseline, header)` | 2-tuple | One window, from opening to the state coming back. Returns the record, or a reason. |
 | `stop_checks(pid, player, player_name, before)` | nothing | The three conditions asked before every window: memory, the channel, and the player. |
 | `chain_press(game, source, goal, tables)` | 4-tuple | In `source`, standing open, press what reaches `goal` and wait for what comes up: the tree |
-| `chains_to(names, direct, tables)` | value | Window -> the chain route that opens it, for each of `names` that no key or click in `direct` |
-| `chain_step(game, route, source, source_row, windows, baseline, header, tables)` | 2-tuple | One chain route from one of its sources: open the source along its own route, press what |
-| `chain_round(game, pid, windows, wanted, baseline, header, player, player_name)` | nothing | Every chain route the files offer from a window this round can open by itself. |
+| `player_chains(names, direct, tables)` | value | Window -> the chain route that opens it, for each of `names` that no key or click opens, as |
+| `open_along(game, name, direct, chained, baseline, tables)` | value of 2-tuple | Open `name` along a player route: its key or click, or the chain from a window that opens |
+| `chain_step(game, route, source, direct, chained, windows, baseline, header, tables)` | 2-tuple | One chain route from one of its sources: open the source along its own route, press what |
+| `chain_round(game, pid, windows, wanted, baseline, header, player, player_name)` | nothing | Every chain route the files offer from a window this round can open by itself: by a key, a |
 | `main()` | nothing | - |
 
 ## ck3\inject.py
@@ -345,7 +346,8 @@ returns a pair, passed on as one thing, costs a run.
 | `goal_of(target, tables)` | value | What has to happen before `target` is drawn: a view opens, a variable is set, or a state |
 | `bare(expression)` | value | An expression without its whitespace, so that two spellings of one condition compare equal. |
 | `toggles(node, goal, context)` | value | Is this widget the button whose `down` state is the condition the goal waits on, inside the |
-| `reaches(value, goal)` | value of bool | Does this onclick reach the goal? Setting a variable counts, clearing it does not. |
+| `reaches(value, goal)` | bool of value | Does this onclick reach the goal? Setting a variable counts, clearing it does not. |
+| `opens_state(call, state)` | bool | Does `call` open what `state` asks about? The same object, a verb that opens - Toggle, Open, |
 | `fires_for(source, goal, context)` | 2-tuple | Every call this disk block fires, split into the ones that reach `goal` and the rest; |
 | `unhiding(source, goal, tables)` | list | The states that show a hidden trigger: every `visible` condition above a block of `source` |
 | `chain_routes(start, tables)` | value | Which windows can be reached by acting inside a window a player can already open. Disk only. |

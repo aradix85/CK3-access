@@ -577,33 +577,63 @@ def chain_press(game: windowmap.Game, source: str, goal: 'openers.Goal',
     return nodes, opened, spot, None
 
 
-def chains_to(names: list[str], direct: dict[str, windowmap.Route],
-              tables: guimap.Tables) -> dict[str, 'openers.ChainRoute']:
-    """Window -> the chain route that opens it, for each of `names` that no key or click in `direct`
-    opens. A view without a window name counts for the window the harvest measured behind it, the
-    `view` of that window's record: which window the engine puts behind such a view is not on disk.
+def player_chains(names: list[str], direct: set[str],
+                  tables: guimap.Tables) -> dict[str, 'openers.ChainRoute']:
+    """Window -> the chain route that opens it, for each of `names` that no key or click opens, as
+    many steps deep as the files go: a window a chain opens is a source for the next step. The
+    filters of the tax collector and of the tax slot vassals sit in windows that open along a chain
+    from the tax slots, which a click opens (measured on Ghur played, 21 October 2026). Each step
+    only offers sources of an earlier one, so there is no loop.
+
+    A view without a window name counts for the window the harvest measured behind it, the `view`
+    of that window's record: which window the engine puts behind such a view is not on disk.
     """
     from tools.ck3 import openers  # openers imports this module
-    routes = openers.chain_routes(set(direct), tables)
-    by_target = {r['target']: r for r in routes if r['target']}
-    by_view = {r['view']: r for r in routes if r['view']}
-    out: dict[str, openers.ChainRoute] = {}
-    for name in names:
-        if name in direct:
-            continue
-        if name in by_target:
-            out[name] = by_target[name]
-            continue
-        path = os.path.join(OUT, name + '.json')
-        if os.path.exists(path):
-            view = json.loads(pathlib.Path(path).read_text(encoding='utf-8')).get('view')
-            if view in by_view:
-                out[name] = by_view[view]
-    return out
+    found: dict[str, openers.ChainRoute] = {}
+    while True:
+        routes = openers.chain_routes(direct | set(found), tables)
+        by_target = {r['target']: r for r in routes if r['target']}
+        by_view = {r['view']: r for r in routes if r['view']}
+        more: dict[str, openers.ChainRoute] = {}
+        for name in names:
+            if name in direct or name in found:
+                continue
+            if name in by_target:
+                more[name] = by_target[name]
+                continue
+            path = os.path.join(OUT, name + '.json')
+            if os.path.exists(path):
+                view = json.loads(pathlib.Path(path).read_text(encoding='utf-8')).get('view')
+                if view in by_view:
+                    more[name] = by_view[view]
+        if not more:
+            return found
+        found.update(more)
+
+
+def open_along(game: windowmap.Game, name: str, direct: dict[str, windowmap.Route],
+               chained: dict[str, 'openers.ChainRoute'], baseline: set[str],
+               tables: guimap.Tables) -> tuple[widgettree.Nodes | None, int]:
+    """Open `name` along a player route: its key or click, or the chain from a window that opens
+    along one itself. What stands open is left standing; a source that fails is shut again, and a
+    state that does not come back stops the round."""
+    if name in direct:
+        return open_window(game, name, direct[name], baseline)
+    route = chained[name]
+    for source in route['sources']:
+        nodes, attempts = open_along(game, source, direct, chained, baseline, tables)
+        if nodes is not None:
+            nodes, opened, _, _ = chain_press(game, source, route['goal'], tables)
+            if name in opened:
+                return nodes, attempts
+        if not close_window(game, {'click': True}, baseline):
+            raise SystemExit(f'opening {name} from {source}: the state did not come back')
+    return None, 0
 
 
 def chain_step(game: windowmap.Game, route: 'openers.ChainRoute', source: str,
-               source_row: windowmap.Route, windows: dict[str, windowmap.Route], baseline: set[str],
+               direct: dict[str, windowmap.Route], chained: dict[str, 'openers.ChainRoute'],
+               windows: dict[str, windowmap.Route], baseline: set[str],
                header: Header, tables: guimap.Tables) -> tuple[list[ChainRecord] | None, str | None]:
     """One chain route from one of its sources: open the source along its own route, press what
     reaches the goal inside it, record the window that comes up, and put the state back. Returns
@@ -616,7 +646,7 @@ def chain_step(game: windowmap.Game, route: 'openers.ChainRoute', source: str,
     openers.game_classes = game.window_classes
     started = time.time()
     back: windowmap.Route = {'click': True}         # close on Escape until the baseline is back
-    nodes, attempts = open_window(game, source, source_row, baseline)
+    nodes, attempts = open_along(game, source, direct, chained, baseline, tables)
     if nodes is None:
         return None, (f'source {source} did not open'
                       if close_window(game, back, baseline) else 'state did not come back')
@@ -651,7 +681,8 @@ def chain_step(game: windowmap.Game, route: 'openers.ChainRoute', source: str,
 
 def chain_round(game: windowmap.Game, pid: int, windows: dict[str, windowmap.Route], wanted: list[str],
                 baseline: set[str], header: Header, player: int, player_name: str | None) -> None:
-    """Every chain route the files offer from a window this round can open by itself.
+    """Every chain route the files offer from a window this round can open by itself: by a key, a
+    click, or a chain from such a window, as many steps deep as the files go (`player_chains`).
 
     A window that already has a record from a player route is left alone. One that has only a
     console record gets a new one, and the console record goes aside into a dated folder rather
@@ -663,7 +694,12 @@ def chain_round(game: windowmap.Game, pid: int, windows: dict[str, windowmap.Rou
     direct = click_routes(windows)
     direct.update({n: r for n, r in windows.items() if r.get('shortcut')})
     tables = guimap.tables()
-    routes = openers.chain_routes(set(direct), tables)
+    chained = player_chains(sorted(set(windows) - set(direct)), set(direct), tables)
+    # A window a chain opens is a source here and a target too: `chain_routes` leaves out the
+    # targets among its sources, so those rows come from `player_chains` itself.
+    rows = {r['target'] or r['view']: r for r in openers.chain_routes(set(direct) | set(chained), tables)}
+    rows.update({r['target'] or r['view']: r for r in chained.values()})
+    routes = sorted(rows.values(), key=lambda r: (r['view'] or '', r['target'] or ''))
     if wanted:
         routes = [r for r in routes if (r['target'] or r['view']) in wanted]
     aside = os.path.join(paths.PROJECT, 'harvest-{}-console-replaced'.format(time.strftime('%Y-%m-%d')))
@@ -685,7 +721,7 @@ def chain_round(game: windowmap.Game, pid: int, windows: dict[str, windowmap.Rou
         reason: str | None = None
         for source in route['sources']:
             stop_checks(pid, player, player_name, label)
-            records, reason = chain_step(game, route, source, direct[source], windows,
+            records, reason = chain_step(game, route, source, direct, chained, windows,
                                          baseline, header, tables)
             if reason == 'state did not come back' or records is not None:
                 break

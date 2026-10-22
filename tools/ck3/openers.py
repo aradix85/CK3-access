@@ -262,9 +262,15 @@ def live_record(game: windowmap.Game, pid: int, window: str, address: int | None
     return {'tree': tree}, nodes, scales, classes
 
 
-CONDITION = re.compile(r"GetVariableSystem\.(HasValue|Exists)\(\s*'([^']+)'(?:\s*,\s*'([^']*)')?")
-SETS = re.compile(r"GetVariableSystem\.(Set|Toggle|Clear)\(\s*'([^']+)'(?:\s*,\s*'([^']*)')?")
+CONDITION = re.compile(r"(?:Get)?VariableSystem\.(HasValue|Exists)\(\s*'([^']+)'(?:\s*,\s*'([^']*)')?")
+SETS = re.compile(r"(?:Get)?VariableSystem\.(Set|Toggle|Clear)\(\s*'([^']+)'(?:\s*,\s*'([^']*)')?")
 VIEW_CALL = re.compile(r"(?:Open|Toggle)GameView(?:Data)?\s*\(\s*'([^']+)'")
+# A state that is one question to one object, `[TenetWindow.IsVisible]`, and a call that opens
+# something on an object, `TenetWindow.Toggle`; both spelt out in words, `IsFilterPresetsShown`.
+QUESTION = re.compile(r'^\[(\w+)\.Is(\w*)\]$')
+OPENING = re.compile(r'(\w+)\.(?:Toggle|Open|Show)(\w*)')
+WORD = re.compile(r'[A-Z][a-z]*')
+STATE_WORDS = {'Shown', 'Visible', 'Open'}
 
 
 def goal_of(target: str, tables: guimap.Tables) -> Goal:
@@ -292,11 +298,15 @@ def goal_of(target: str, tables: guimap.Tables) -> Goal:
     visible = [value for key, value in attributes if key == 'visible' and value]
     if not visible:
         return Goal('view', target)
-    found = CONDITION.search(visible[-1])
+    # A variable under a Not is one the window waits to see cleared: the court scene editor shows
+    # while `royal_court_screenshot_window` does not exist, and setting it would hide the editor.
+    condition = bare(visible[-1])
+    found = next((m for m in CONDITION.finditer(condition)
+                  if not condition[:m.start()].endswith('Not(')), None)
     if found:
         return Goal('variable', found.group(2), found.group(3) or None)
     context = [value for key, value in attributes if key == 'datacontext' and value]
-    return Goal('state', bare(visible[-1]), target, bare(context[-1]) if context else None)
+    return Goal('state', condition, target, bare(context[-1]) if context else None)
 
 
 def bare(expression: str) -> str:
@@ -318,8 +328,17 @@ def reaches(value: str, goal: Goal) -> bool:
     The trap this exists for is a twin: next to the button that sets `dynasty_view_expand` to
     `houses` sits a nameless button with the same text and tooltip that sets it back to `none`.
     They differ only in their visibility condition, so a rule that matched the variable name alone
-    would offer both and press the wrong one half the time.
+    would offer both and press the wrong one half the time. The variable system is spelt with and
+    without `Get` in front; `VariableSystem.Toggle( 'situation_catalysts_window' )` is the second.
+
+    **A state with no button that declares it is reached by a call that opens on the same object**
+    (`opens_state`), which is the engine's naming and not a declaration: the subwindows of the faith
+    window wait on `[TenetWindow.IsVisible]` and the button calls `TenetWindow.Toggle`, the filter
+    presets on `IsFilterPresetsShown` and the button calls `ShowFilterPresets` (read 22 October
+    2026). A route it offers is a measurement to make: the chain step says what came up.
     """
+    if goal.kind == 'state' and opens_state(value, goal.name):
+        return True
     if goal.kind in ('view', 'state'):
         found = VIEW_CALL.search(value)
         return bool(found and found.group(1) == (goal.name if goal.kind == 'view' else goal.value))
@@ -329,6 +348,22 @@ def reaches(value: str, goal: Goal) -> bool:
         if goal[2] is None and how in ('Set', 'Toggle'):
             return True
         if goal[2] is not None and how == 'Set' and held == goal[2]:
+            return True
+    return False
+
+
+def opens_state(call: str, state: str) -> bool:
+    """Does `call` open what `state` asks about? The same object, a verb that opens - Toggle, Open,
+    Show - and the words after it shared with the words of the question, unless one side has none:
+    `OpenSelectionForTenetIndex` opens `IsSelectingTenet` and not `IsSelectingDoctrine`, and
+    `Toggle` opens `IsVisible`."""
+    question = QUESTION.match(state)
+    if not question:
+        return False
+    asked = set(WORD.findall(question.group(2))) - STATE_WORDS
+    for target, rest in OPENING.findall(call):
+        said = set(WORD.findall(rest))
+        if target == question.group(1) and (not asked or not said or asked & said):
             return True
     return False
 

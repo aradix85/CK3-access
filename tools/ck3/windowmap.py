@@ -289,7 +289,7 @@ def window_keys_round(game: 'Game', names: list[str]) -> dict[str, str | list[tu
     sub-tab keys once. **A toggle is pressed a second time**, and the row says whether that put
     the text back, because the game keeps a view such as the compact one for the next opening.
 
-    **Only along a player route: a key, a click, or a chain** from a window a key or a click opens.
+    **Only along a player route: a key, a click, or a chain** from a window that opens along one.
     A window built by `GUI.CreateWidget` takes none of its own keys: on Ghur played, 22 October
     2026, every key in five such windows did nothing, Escape included, while tabs, sub-tabs and the
     compact view worked in the same round in two windows opened by their key.
@@ -306,7 +306,7 @@ def window_keys_round(game: 'Game', names: list[str]) -> dict[str, str | list[tu
         on_disk: dict[str, Route] = json.load(file)['windows']
     windows = {**harvest.click_routes(on_disk), **{n: r for n, r in on_disk.items() if r.get('shortcut')}}
     tables = guimap.tables()
-    chains = harvest.chains_to(names, windows, tables)
+    chains = harvest.player_chains(names, set(windows), tables)
     back: Route = {'click': True}       # shut on Escape until the bare screen is back
     bound = {n: k for n, k in shortcut_file().items() if k.strip()}
     plan = window_bindings()
@@ -328,16 +328,9 @@ def window_keys_round(game: 'Game', names: list[str]) -> dict[str, str | list[tu
 
     def open_along(name: str) -> bool:
         """Open `name` along its player route; True once it is drawn, else the bare screen back."""
-        sources: list[str | None] = [None] if name in windows else list(chains[name]['sources'])
-        for source in sources:
-            if source is None:
-                drawn = harvest.open_window(game, name, windows[name], baseline)[0] is not None
-            else:
-                drawn = (harvest.open_window(game, source, windows[source], baseline)[0] is not None
-                         and name in harvest.chain_press(game, source, chains[name]['goal'], tables)[1])
-            if drawn:
-                return True
-            to_bare(f'{name} did not open')
+        if harvest.open_along(game, name, windows, chains, baseline, tables)[0] is not None:
+            return True
+        to_bare(f'{name} did not open')
         return False
 
     out: dict[str, str | list[tuple[str, str, str]]] = {}
@@ -487,6 +480,12 @@ def windows_on_disk() -> dict[str, OnDisk]:
     False` produces a map claiming a quarter of the windows do not exist. So a window without a
     console route is never tried.
 
+    **An instance of a window type counts as a window wherever a literal one would.** `base_dialog =
+    { name = "basic_info_popup" }` and `big_event_window = { ... }` outside a types block were made
+    by the console on 21 October 2026, while this function said they had no console route, because
+    it looked for the key `window` alone; twelve such windows were never tried, among them
+    `rename_popup` and three scheme event windows (read 22 October 2026).
+
     The engine merges the three layers into one virtual folder: `game/gui/x.gui`,
     `clausewitz/gui/x.gui` and `jomini/gui/x.gui` are all called `gui/x.gui` as far as the console
     is concerned. Measured 23 August 2026: with the layer name in front it fails with "could not
@@ -497,27 +496,33 @@ def windows_on_disk() -> dict[str, OnDisk]:
     def name_of(entry: guimap.Entry) -> str | None:
         return next((inner['value'] for inner in entry['body'] or [] if inner['key'] == 'name'), None)
 
+    rows = guimap.files()
+    table, _ = guimap.type_table(rows)
+    known = guimap.windows(rows, table)
+    root = guimap.root_finder(table)
+
+    def is_window(entry: guimap.Entry) -> bool:
+        return bool(entry['body']) and root(entry['key']) == 'window'
+
     def outside_types(entries: list[guimap.Entry], into: set[str | None]) -> None:
         for entry in entries:
             if entry['key'] == 'types' or not entry['body']:
                 continue
-            if entry['key'] == 'window':
+            if is_window(entry):
                 into.add(name_of(entry))
             outside_types(entry['body'], into)
 
-    rows = guimap.files()
-    known = guimap.windows(rows)
     top_level: set[str | None] = set()
     reachable: set[str | None] = set()
     for _, _, full in rows:
         entries = guimap.read(full)
-        top_level.update(name_of(entry) for entry in entries if entry['key'] == 'window')
+        top_level.update(name_of(entry) for entry in entries if is_window(entry))
         outside_types(entries, reachable)
     out: dict[str, OnDisk] = {}
-    for name, (virtual, entry) in known.items():
+    for name, (virtual, _entry) in known.items():
         shape = ('top level' if name in top_level else
-                 'type definition' if entry['key'] != 'window' else
-                 'nested window block')
+                 'nested window block' if name in reachable else
+                 'type definition')
         out[name] = {'file': virtual, 'shape': shape, 'console': name in reachable}
     return out
 

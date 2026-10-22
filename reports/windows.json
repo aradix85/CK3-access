@@ -291,11 +291,9 @@
    "shortcut": null
   },
   "appoint_court_character_filter_window": {
-   "console": false,
-   "created": null,
+   "console": true,
    "file": "gui/window_court_position_appoint.gui",
-   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
-   "shape": "type definition",
+   "shape": "nested window block",
    "shortcut": null
   },
   "appoint_court_position_view": {
@@ -311,11 +309,9 @@
    "shortcut": null
   },
   "appoint_tax_collector_filter_window": {
-   "console": false,
-   "created": null,
+   "console": true,
    "file": "gui/window_appoint_tax_collector.gui",
-   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
-   "shape": "type definition",
+   "shape": "nested window block",
    "shortcut": null
   },
   "army_automation_options_view": {
@@ -367,11 +363,9 @@
    "shortcut": null
   },
   "artifact_kill_list": {
-   "console": false,
-   "created": null,
+   "console": true,
    "file": "gui/window_kill_list.gui",
-   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
-   "shape": "type definition",
+   "shape": "top level",
    "shortcut": null
   },
   "attach_to_army_window": {
@@ -407,27 +401,21 @@
    "shortcut": null
   },
   "basic_confirmation_popup": {
-   "console": false,
-   "created": null,
+   "console": true,
    "file": "gui/shared/dialogs.gui",
-   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
-   "shape": "type definition",
+   "shape": "top level",
    "shortcut": null
   },
   "basic_image_info_popup": {
-   "console": false,
-   "created": null,
+   "console": true,
    "file": "gui/shared/dialogs.gui",
-   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
-   "shape": "type definition",
+   "shape": "top level",
    "shortcut": null
   },
   "basic_info_popup": {
-   "console": false,
-   "created": null,
+   "console": true,
    "file": "gui/shared/dialogs.gui",
-   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
-   "shape": "type definition",
+   "shape": "top level",
    "shortcut": null
   },
   "battle_summary": {
@@ -443,11 +431,9 @@
    "shortcut": null
   },
   "big_event_window": {
-   "console": false,
-   "created": null,
+   "console": true,
    "file": "gui/event_windows/big_event_window.gui",
-   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
-   "shape": "type definition",
+   "shape": "top level",
    "shortcut": null
   },
   "blackmail_interaction_window": {
@@ -718,8 +704,8 @@
    "console": false,
    "created": null,
    "file": "gui/shared/color_picker.gui",
-   "reason": "declared as a nested window block inside a types block, where GUI.CreateWidget does not look",
-   "shape": "nested window block",
+   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
+   "shape": "type definition",
    "shortcut": null
   },
   "combat_window": {
@@ -747,11 +733,9 @@
    "shortcut": null
   },
   "compound_node_window": {
-   "console": false,
-   "created": null,
+   "console": true,
    "file": "gui/node_editor/node_editor.gui",
-   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
-   "shape": "type definition",
+   "shape": "top level",
    "shortcut": null
   },
   "concubine_interaction_window": {
@@ -803,11 +787,9 @@
    "shortcut": "F4"
   },
   "court_character_filter_window": {
-   "console": false,
-   "created": null,
+   "console": true,
    "file": "gui/window_character.gui",
-   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
-   "shape": "type definition",
+   "shape": "nested window block",
    "shortcut": null
   },
   "court_scene_editor_window": {
@@ -899,11 +881,9 @@
    "shortcut": "alt+T"
   },
   "curvesampler_node_window": {
-   "console": false,
-   "created": null,
+   "console": true,
    "file": "gui/node_editor/node_editor.gui",
-   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
-   "shape": "type definition",
+   "shape": "top level",
    "shortcut": null
   },
   "custom_message_window": {
@@ -963,11 +943,9 @@
    "shortcut": null
   },
   "default_search_list_node": {
-   "console": false,
-   "created": null,
+   "console": true,
    "file": "gui/node_editor/search_list_window.gui",
-   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
-   "shape": "type definition",
+   "shape": "top level",
    "shortcut": null
   },
   "designate_heir": {
@@ -1119,11 +1097,9 @@
    "shortcut": null
   },
   "dynasty_perk_confirmation_popup": {
-   "console": false,
-   "created": null,
+   "console": true,
    "file": "gui/window_dynasty_legacy.gui",
-   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
-   "shape": "type definition",
+   "shape": "top level",
    "shortcut": null
   },
   "dynasty_tree_view": {
@@ -1139,11 +1115,9 @@
    "shortcut": null
   },
   "emitter_node_window": {
-   "console": false,
-   "created": null,
+   "console": true,
    "file": "gui/particle_editor/particle_nodes.gui",
-   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
-   "shape": "type definition",
+   "shape": "top level",
    "shortcut": null
   },
   "environment_debug_window": {
@@ -1207,11 +1181,9 @@
    "shortcut": "alt+R"
   },
   "filter_window": {
-   "console": false,
-   "created": null,
+   "console": true,
    "file": "gui/interaction_marriage.gui",
-   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
-   "shape": "type definition",
+   "shape": "nested window block",
    "shortcut": null
   },
   "find_title_view": {
@@ -1327,11 +1299,9 @@
    "shortcut": null
   },
   "graphinterface_node_window": {
-   "console": false,
-   "created": null,
+   "console": true,
    "file": "gui/node_editor/node_editor.gui",
-   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
-   "shape": "type definition",
+   "shape": "top level",
    "shortcut": null
   },
   "great_holy_war_window": {
@@ -1583,11 +1553,9 @@
    "shortcut": null
   },
   "kill_list": {
-   "console": false,
-   "created": null,
+   "console": true,
    "file": "gui/window_kill_list.gui",
-   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
-   "shape": "type definition",
+   "shape": "top level",
    "shortcut": null
   },
   "knight_permissions": {
@@ -2011,11 +1979,9 @@
    "shortcut": null
   },
   "property_node_window": {
-   "console": false,
-   "created": null,
+   "console": true,
    "file": "gui/node_editor/node_editor.gui",
-   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
-   "shape": "type definition",
+   "shape": "top level",
    "shortcut": null
   },
   "raid_intent_selection_window": {
@@ -2083,11 +2049,9 @@
    "shortcut": null
   },
   "rename_popup": {
-   "console": false,
-   "created": null,
+   "console": true,
    "file": "gui/shared/dialogs.gui",
-   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
-   "shape": "type definition",
+   "shape": "top level",
    "shortcut": null
   },
   "replace_pillar_window": {
@@ -2183,19 +2147,15 @@
    "shortcut": null
   },
   "scheme_conclusion_event_no_header": {
-   "console": false,
-   "created": null,
+   "console": true,
    "file": "gui/event_windows/scheme_conclusion_event_no_header.gui",
-   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
-   "shape": "type definition",
+   "shape": "top level",
    "shortcut": null
   },
   "scheme_failed_event": {
-   "console": false,
-   "created": null,
+   "console": true,
    "file": "gui/event_windows/scheme_failed_event.gui",
-   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
-   "shape": "type definition",
+   "shape": "top level",
    "shortcut": null
   },
   "scheme_preparations_event": {
@@ -2211,11 +2171,9 @@
    "shortcut": null
   },
   "scheme_successful_event": {
-   "console": false,
-   "created": null,
+   "console": true,
    "file": "gui/event_windows/scheme_successful_event.gui",
-   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
-   "shape": "type definition",
+   "shape": "top level",
    "shortcut": null
   },
   "search": {
@@ -2351,11 +2309,9 @@
    "shortcut": null
   },
   "subordinates_filter_window": {
-   "console": false,
-   "created": null,
+   "console": true,
    "file": "gui/window_character.gui",
-   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
-   "shape": "type definition",
+   "shape": "nested window block",
    "shortcut": null
   },
   "succession_event_window": {
@@ -2407,19 +2363,15 @@
    "shortcut": null
   },
   "tax_slot_assigned_vassals_filter_window": {
-   "console": false,
-   "created": null,
+   "console": true,
    "file": "gui/window_tax_slot_vassals.gui",
-   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
-   "shape": "type definition",
+   "shape": "nested window block",
    "shortcut": null
   },
   "tax_slot_unassigned_vassals_filter_window": {
-   "console": false,
-   "created": null,
+   "console": true,
    "file": "gui/window_tax_slot_vassals.gui",
-   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
-   "shape": "type definition",
+   "shape": "nested window block",
    "shortcut": null
   },
   "test_window": {
@@ -2435,11 +2387,9 @@
    "shortcut": null
   },
   "texture_node_window": {
-   "console": false,
-   "created": null,
+   "console": true,
    "file": "gui/node_editor/node_editor.gui",
-   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
-   "shape": "type definition",
+   "shape": "top level",
    "shortcut": null
   },
   "title_add_law_window": {
@@ -2591,11 +2541,9 @@
    "shortcut": null
   },
   "tutorial_window": {
-   "console": false,
-   "created": null,
+   "console": true,
    "file": "gui/window_tutorial.gui",
-   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
-   "shape": "type definition",
+   "shape": "top level",
    "shortcut": null
   },
   "unit_watch_window": {
@@ -2611,35 +2559,27 @@
    "shortcut": null
   },
   "userdata_node_input_window": {
-   "console": false,
-   "created": null,
+   "console": true,
    "file": "gui/particle_editor/particle_nodes.gui",
-   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
-   "shape": "type definition",
+   "shape": "top level",
    "shortcut": null
   },
   "userdata_node_output_window": {
-   "console": false,
-   "created": null,
+   "console": true,
    "file": "gui/particle_editor/particle_nodes.gui",
-   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
-   "shape": "type definition",
+   "shape": "top level",
    "shortcut": null
   },
   "vassal_filter_window": {
-   "console": false,
-   "created": null,
+   "console": true,
    "file": "gui/window_character.gui",
-   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
-   "shape": "type definition",
+   "shape": "nested window block",
    "shortcut": null
   },
   "visit_settlement_window": {
-   "console": false,
-   "created": null,
+   "console": true,
    "file": "gui/event_windows/visit_settlement_window.gui",
-   "reason": "declared as a type definition inside a types block, where GUI.CreateWidget does not look",
-   "shape": "type definition",
+   "shape": "top level",
    "shortcut": null
   },
   "war_declared_overview": {

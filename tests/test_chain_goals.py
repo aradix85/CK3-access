@@ -12,7 +12,10 @@ from tools.ck3 import guimap, openers
 TYPES = ('types T {'
          ' type list_filter = window { name = "list_filter" visible = "[List.FiltersShown]" }'
          ' type ledger_filter = window { name = "ledger_filter" visible = "[GetVariableSystem.Exists(\'filters\')]" }'
-         ' type filter_button = button { down = "[ List.FiltersShown ]" onclick = "[List.OnToggleFilters]" } }')
+         ' type filter_button = button { down = "[ List.FiltersShown ]" onclick = "[List.OnToggleFilters]" }'
+         ' type sub_window = window { name = "sub_window" }'
+         ' type editor = window { name = "editor"'
+         ' visible = "[And( Not(VariableSystem.Exists(\'shot\')), VariableSystem.Exists(\'editor\') )]" } }')
 WINDOWS = ('window = { name = "court" filter_button = {} list_filter = { name = "court_filter" } }'
            ' window = { name = "finder" filter_button = {} list_filter = { name = "finder_filter" } }'
            ' window = { name = "character"'
@@ -20,7 +23,9 @@ WINDOWS = ('window = { name = "court" filter_button = {} list_filter = { name = 
            ' widget = { datacontext = "[W.GetVassals]" filter_button = { name = "vassal_button" } }'
            ' list_filter = { name = "its_court_filter" datacontext = "[W.GetCourt]" }'
            ' list_filter = { name = "its_vassal_filter" datacontext = "[W.GetVassals]" } }'
-           ' window = { name = "ledger" button = { onclick = "[GetVariableSystem.Toggle(\'filters\')]" } }')
+           ' window = { name = "ledger" button = { onclick = "[GetVariableSystem.Toggle(\'filters\')]" } }'
+           ' window = { name = "holder" sub_window = { visible = "[ Sub.IsVisible ]" }'
+           ' button = { onclick = "[Sub.Close]" } button = { onclick = "[Sub.Toggle]" } }')
 # Two tabs without a key, and the filter button of the second list behind the second tab and behind
 # a condition that no button declares - the shape of the subordinates in the character window.
 TABBED = '''window = { name = "tabbed"
@@ -43,6 +48,7 @@ def test_an_instance_carries_its_own_name_and_a_type_its_own_rule(tmp_path: path
     found = tables(tmp_path)
     assert {'court_filter', 'finder_filter', 'ledger_filter'} <= found[2].keys()
     assert openers.goal_of('ledger_filter', found) == openers.Goal('variable', 'filters')
+    assert openers.goal_of('editor', found) == openers.Goal('variable', 'editor')
     assert openers.goal_of('court_filter', found) == openers.Goal('state', '[List.FiltersShown]', 'court_filter')
 
 
@@ -73,3 +79,19 @@ def test_a_hidden_trigger_is_shown_by_the_button_whose_down_hides_it(tmp_path: p
     found = tables(tmp_path)
     goal = openers.goal_of('its_b_filter', found)
     assert openers.unhiding('tabbed', goal, found) == [openers.Goal('state', "[W.IsTabShown('b')]")]
+
+
+def test_the_one_use_of_a_window_type_carries_its_condition(tmp_path: pathlib.Path) -> None:
+    found = tables(tmp_path)
+    assert openers.goal_of('sub_window', found) == openers.Goal('state', '[Sub.IsVisible]', 'sub_window')
+    routes = {r['target']: r['sources'] for r in openers.chain_routes({'holder'}, found)}
+    assert routes == {'sub_window': ['holder']}
+
+
+def test_a_call_opens_the_state_its_object_is_asked_about() -> None:
+    tenet, doctrine = '[ActivityPlanner.IsSelectingTenet]', '[ActivityPlanner.IsSelectingDoctrine]'
+    call = '[ActivityPlanner.OpenSelectionForTenetIndex( (int32)0 )]'
+    assert openers.opens_state(call, tenet) and not openers.opens_state(call, doctrine)
+    assert openers.opens_state('[TenetWindow.Toggle]', '[TenetWindow.IsVisible]')
+    assert not openers.opens_state('[TenetWindow.Close]', '[TenetWindow.IsVisible]')
+    assert not openers.opens_state('[RiteWindow.Toggle]', '[TenetWindow.IsVisible]')
