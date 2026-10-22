@@ -310,6 +310,33 @@
   "measured": "2026-10-22 15:44",
   "player": "SU_rI_"
  },
+ "domicile_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "tab_1",
+    "ctrl+1",
+    "changed the text: 46 lines, was 15; again: back"
+   ],
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "go_back",
+    "B",
+    "nothing"
+   ],
+   [
+    "go_back_2",
+    "BACKSPACE",
+    "nothing"
+   ]
+  ],
+  "measured": "2026-10-22 16:41",
+  "player": "Andronikos"
+ },
  "epidemics_window": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -449,6 +476,43 @@
   ],
   "measured": "2026-10-22 13:50",
   "player": "SU_rI_"
+ },
+ "government_administration_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "tab_1",
+    "ctrl+1",
+    "nothing"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "changed the text: 41 lines, was 47"
+   ],
+   [
+    "tab_3",
+    "ctrl+3",
+    "changed the text: 67 lines, was 41"
+   ],
+   [
+    "go_back",
+    "B",
+    "nothing"
+   ],
+   [
+    "go_back_2",
+    "BACKSPACE",
+    "nothing"
+   ]
+  ],
+  "measured": "2026-10-22 16:41",
+  "player": "Andronikos"
  },
  "holding_view": {
   "exe": "101125752-1792594002",
