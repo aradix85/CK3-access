@@ -347,6 +347,7 @@ returns a pair, passed on as one thing, costs a run.
 | `toggles(node, goal, context)` | value | Is this widget the button whose `down` state is the condition the goal waits on, inside the |
 | `reaches(value, goal)` | value of bool | Does this onclick reach the goal? Setting a variable counts, clearing it does not. |
 | `fires_for(source, goal, context)` | 2-tuple | Every call this disk block fires, split into the ones that reach `goal` and the rest; |
+| `unhiding(source, goal, tables)` | list | The states that show a hidden trigger: every `visible` condition above a block of `source` |
 | `chain_routes(start, tables)` | value | Which windows can be reached by acting inside a window a player can already open. Disk only. |
 | `draw_order(record)` | value | Address -> its path of sibling numbers from the window down, which is the drawing order. |
 | `clickable_map(record, acting)` | value | The buttons of a window that can handle a click, with their draw order. |
@@ -520,7 +521,6 @@ returns a pair, passed on as one thing, costs a run.
 |---|---|---|
 | `shortcut_file()` | value | Binding -> its keys as `game/gui/shortcuts.shortcuts` spells them, empty for a binding |
 | `window_bindings(only=None)` | value | Window -> every shortcut its widgets declare, with what pressing it calls. Disk only; |
-| `tab_keys(window)` | list | The keys of the tabs of one window, as the shortcut file spells them, in the order the files |
 | `window_keys_plan()` | nothing | Print what a key round inside the windows would press, and what it leaves to a person. |
 | `binding_names(binding, bound, numbers=None)` | list of value | The shortcut names one declared binding stands for. |
 | `presses_for(rows, bound)` | value | (binding, keys, toggles) to press in one window: every view-only row, once, the first three |

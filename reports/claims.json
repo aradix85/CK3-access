@@ -218,14 +218,14 @@
  },
  {
   "name": "texts the reading rule says over the harvest",
-  "claimed": 5396,
+  "claimed": 5480,
   "measure": "unseen_texts",
   "arguments": ["texts"],
   "counting_rule": "every widget in a harvested record whose text is not empty once the game's markup is stripped, summed over the records that hold a window; refusal records carry no tree and do not count. The harvest on 1.20.1.2 of 21 October 2026, Ghur played, with three windows from Harold of 22 October 2026"
  },
  {
   "name": "harvested texts that are in the tree but not on the screen",
-  "claimed": 3053,
+  "claimed": 3064,
   "measure": "unseen_texts",
   "arguments": ["all"],
   "counting_rule": "of those texts, the ones the reading rule skips: the rectangle falls outside the drawing area of that record, or it is clipped inside its scroll area, or an ancestor sits at alpha zero, or an ancestor carries 0x08 in its state byte - the game hiding it. The union is smaller than the sum because a text can fail two at once"
@@ -238,7 +238,7 @@
  },
  {
   "name": "windows opened in the harvest round",
-  "claimed": 221,
+  "claimed": 224,
   "measure": "harvest_total",
   "arguments": [
    "<project>\\harvest",
@@ -249,7 +249,7 @@
  },
  {
   "name": "text boxes in the harvest round",
-  "claimed": 2303,
+  "claimed": 2375,
   "measure": "harvest_total",
   "arguments": [
    "<project>\\harvest",
@@ -259,7 +259,7 @@
  },
  {
   "name": "text boxes the recogniser confirmed",
-  "claimed": 2142,
+  "claimed": 2210,
   "measure": "harvest_total",
   "arguments": [
    "<project>\\harvest",
@@ -333,7 +333,7 @@
  },
  {
   "name": "harvested widgets that carry text",
-  "claimed": 5427,
+  "claimed": 5511,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -343,7 +343,7 @@
  },
  {
   "name": "harvested texts paired with a place in a gui file",
-  "claimed": 4855,
+  "claimed": 4892,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -353,7 +353,7 @@
  },
  {
   "name": "harvested texts whose gui file names a plain localization key",
-  "claimed": 810,
+  "claimed": 818,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -363,7 +363,7 @@
  },
  {
   "name": "plain keys whose localization matches what was on screen",
-  "claimed": 810,
+  "claimed": 818,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -393,7 +393,7 @@
  },
  {
   "name": "harvested texts filled by a data function",
-  "claimed": 3691,
+  "claimed": 3707,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -472,7 +472,7 @@
  },
  {
   "name": "harvested texts the gui files do not predict",
-  "claimed": 779,
+  "claimed": 838,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -482,7 +482,7 @@
  },
  {
   "name": "unexplained texts that inherit a data context",
-  "claimed": 622,
+  "claimed": 633,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -502,7 +502,7 @@
  },
  {
   "name": "unexplained texts in windows a player opens",
-  "claimed": 710,
+  "claimed": 769,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -512,7 +512,7 @@
  },
  {
   "name": "unexplained bare numbers in windows a player opens",
-  "claimed": 400,
+  "claimed": 401,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -522,7 +522,7 @@
  },
  {
   "name": "unexplained texts in windows a player opens that the reading rule says",
-  "claimed": 198,
+  "claimed": 246,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -533,7 +533,7 @@
  },
  {
   "name": "unexplained bare numbers in windows a player opens that the reading rule says",
-  "claimed": 0,
+  "claimed": 1,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -543,7 +543,7 @@
  },
  {
   "name": "named live widgets in the harvest",
-  "claimed": 47850,
+  "claimed": 48106,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -554,7 +554,7 @@
  },
  {
   "name": "named live widgets the alignment puts on their own name",
-  "claimed": 43903,
+  "claimed": 44027,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",

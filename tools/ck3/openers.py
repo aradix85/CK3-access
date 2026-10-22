@@ -368,6 +368,36 @@ def fires_for(source: guimap.Node | None, goal: Goal,
     return wanted, others
 
 
+def unhiding(source: str, goal: Goal, tables: guimap.Tables) -> list[Goal]:
+    """The states that show a hidden trigger: every `visible` condition above a block of `source`
+    that reaches `goal`, nearest first, that a button of the same window declares as its `down`.
+
+    That is how a tab works, and it needs no key: the filter button of the religious subordinates
+    sits under `[CharacterWindow.IsTabShown('subordinates')]`, and the tab `subordinates_button`
+    declares exactly that as its `down`, the one tab of the character window without a key (read
+    22 October 2026; a round that tried the tab keys said "hidden by the game" on Saru and Rimbert).
+    A condition no button declares, such as `[CharacterWindow.AreNoneExpanded]`, is not offered.
+    """
+    table, local, known, _root = tables
+    downs: set[str] = set()
+    above: list[str] = []
+    stack: list[tuple[guimap.Node, tuple[str, ...], tuple[str, ...]]] = [
+        (guimap.window(source, table, local, known), (), ())]
+    while stack:
+        node, context, conditions = stack.pop()
+        own = guimap.attribute(node, 'datacontext')
+        context += (own,) if own else ()
+        visible = guimap.attribute(node, 'visible')
+        conditions += (bare(visible),) if visible else ()
+        down = guimap.attribute(node, 'down')
+        if down and any(key == 'onclick' and value for key, value in node['attrs']):
+            downs.add(bare(down))
+        if fires_for(node, goal, context)[0]:
+            above += [c for c in reversed(conditions) if c not in above]
+        stack.extend((child, context, conditions) for child in node['children'])
+    return [Goal('state', condition) for condition in above if condition in downs]
+
+
 def chain_routes(start: set[str], tables: guimap.Tables) -> list[ChainRoute]:
     """Which windows can be reached by acting inside a window a player can already open. Disk only.
 

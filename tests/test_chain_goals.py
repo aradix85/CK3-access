@@ -21,11 +21,19 @@ WINDOWS = ('window = { name = "court" filter_button = {} list_filter = { name = 
            ' list_filter = { name = "its_court_filter" datacontext = "[W.GetCourt]" }'
            ' list_filter = { name = "its_vassal_filter" datacontext = "[W.GetVassals]" } }'
            ' window = { name = "ledger" button = { onclick = "[GetVariableSystem.Toggle(\'filters\')]" } }')
+# Two tabs without a key, and the filter button of the second list behind the second tab and behind
+# a condition that no button declares - the shape of the subordinates in the character window.
+TABBED = '''window = { name = "tabbed"
+    button = { name = "tab_a" down = "[W.IsTabShown('a')]" onclick = "[W.SetTab('a')]" }
+    button = { name = "tab_b" down = "[W.IsTabShown('b')]" onclick = "[W.SetTab('b')]" }
+    widget = { visible = "[W.AreNoneExpanded]"
+        widget = { visible = "[ W.IsTabShown('b') ]" datacontext = "[W.GetSubordinates]" filter_button = {} }
+        list_filter = { name = "its_b_filter" datacontext = "[W.GetSubordinates]" } } }'''
 
 
 def tables(tmp_path: pathlib.Path) -> guimap.Tables:
     full = tmp_path / 'gui_windows.gui'
-    full.write_text(TYPES + ' ' + WINDOWS, encoding='utf-8')
+    full.write_text(TYPES + ' ' + WINDOWS + ' ' + TABBED, encoding='utf-8')
     rows: list[guimap.Row] = [('game', 'gui/windows.gui', str(full))]
     table, local = guimap.type_table(rows)
     return table, local, guimap.windows(rows, table), guimap.root_finder(table)
@@ -59,3 +67,9 @@ def test_the_data_context_picks_the_button_where_one_window_holds_two_lists(tmp_
         if openers.fires_for(node, goal, context)[0]:
             pressed.append(guimap.attribute(node, 'name'))
     assert pressed == ['vassal_button']
+
+
+def test_a_hidden_trigger_is_shown_by_the_button_whose_down_hides_it(tmp_path: pathlib.Path) -> None:
+    found = tables(tmp_path)
+    goal = openers.goal_of('its_b_filter', found)
+    assert openers.unhiding('tabbed', goal, found) == [openers.Goal('state', "[W.IsTabShown('b')]")]

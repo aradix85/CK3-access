@@ -19,6 +19,8 @@ Outcomes, newest first. No release yet.
 - A chain step reads a window's `visible` rule after inheritance, reaches a state a button declares as its `down`, and tries the source's tabs; the filter windows of the ledger and the court are harvested that way.
 - A line break in the localization is read as one, and the pairing compares white space collapsed.
 - Where one window holds several lists, a chain step picks the filter button by the data context of the filter window; the vassal filter is harvested that way.
+- A chain step shows a hidden trigger by pressing the button that declares the hiding condition as its `down`, a tab, instead of trying tab keys; the religious subordinates' filter, behind the one tab of the character window without a key, is harvested that way.
+- The filter presets window and the settings window are harvested by hand; one bare number the reader says, a slider value in the settings, stands beside its label rather than under it.
 
 ## 2026-10-21 — CK3 1.20.1.1 and 1.20.1.2
 - The harvest is redone on 1.20.1.2: 212 windows along shortcuts, clicks, chains and the console, every widget with its state byte; 4534 of 5125 texts pair with a place in the `.gui` files.

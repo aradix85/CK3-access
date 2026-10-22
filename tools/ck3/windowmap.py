@@ -175,14 +175,6 @@ def window_bindings(only: set[str] | None = None) -> dict[str, list[Binding]]:
     return dict(out)
 
 
-def tab_keys(window: str) -> list[str]:
-    """The keys of the tabs of one window, as the shortcut file spells them, in the order the files
-    give them: what a chain step presses when the widget it needs sits on a tab that is not open."""
-    bound = {n: k for n, k in shortcut_file().items() if k.strip()}
-    return [keys for name, keys, _ in presses_for(window_bindings({window}).get(window, []), bound)
-            if TAB.search(name) and not SUB_TAB.search(name)]
-
-
 def window_keys_plan() -> None:
     """Print what a key round inside the windows would press, and what it leaves to a person.
 
