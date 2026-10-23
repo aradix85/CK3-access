@@ -118,6 +118,8 @@ whatever lies underneath.
 ### 6.4 Input
 
 - **Receiving:** the DLL hooks the game's window procedure and swallows the keys the reader owns.
+- **Acting:** Enter on the line the reader stands on will click that widget, through the same checks
+  a research click passes (`openers.press_toward`); not built yet.
 - **Sending:** mouse and key messages are posted into the process to map the interface, so the
   player's screen is never taken.
 - **A posted click lands on what is topmost at that point.** A click is therefore a measurement: press,

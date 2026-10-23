@@ -11,6 +11,7 @@ Outcomes, newest day first. No release yet.
 - `tools/ck3/hand.py` picks a row by the text it shows (`call@text`) and keeps the record of a window on the way that a player route already made.
 - `windowmap --window-keys` takes a window's one press as `name=key` or `name=button:x`; a harvest says yes when the game asks whether a plan may go.
 - A window lying over the one being pressed has its own scale asked for before its rectangle is compared.
+- Design: the player's Enter will click the widget the reader stands on, only after checking it is still drawn, on top and switched on.
 
 ## 2026-10-22
 - The harvest holds 239 windows, along shortcuts, clicks, chains, the console and presses by hand (`tools/ck3/hand.py`), and waits until a window's layout has settled.
