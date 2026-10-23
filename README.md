@@ -178,8 +178,10 @@ Two functions: `output(text, mode, braille)` and `failure(where, what, remedy)`.
 ### 6.8 Deliberately not done
 
 - No decompiling or rebuilding the engine; no redistribution of game files.
-- The product sends no keys or clicks, from inside or outside the process; the one thing it may move
-  is the pointer, to read a tooltip. `tools/ck3/modifiers.py` presses real keys, as a measurement only.
+- The product sends no keys. It clicks only on the player's own Enter, on the widget the reader
+  stands on, after checking that the widget is still drawn, on top and switched on; it may move the
+  pointer, to read a tooltip or to point at a place on the map. `tools/ck3/modifiers.py` presses real
+  keys, as a measurement only.
 - No hard-coded addresses, offsets or click positions.
 
 ## 7. Contributing
