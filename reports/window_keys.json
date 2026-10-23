@@ -1166,6 +1166,33 @@
   "measured": "2026-10-22 11:58",
   "player": "Harold"
  },
+ "window_migration": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "tab_1",
+    "ctrl+1",
+    "nothing"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "nothing"
+   ],
+   [
+    "tab_3",
+    "ctrl+3",
+    "nothing"
+   ]
+  ],
+  "measured": "2026-10-23 14:48",
+  "player": "Saru"
+ },
  "window_personal_beliefs": {
   "exe": "101125752-1792594002",
   "keys": [

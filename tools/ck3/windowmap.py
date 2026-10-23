@@ -8,13 +8,16 @@ Usage:  python -m tools.ck3.windowmap <pid> [<count> | <window> <window> ...]
         python -m tools.ck3.windowmap <pid> --keys
         python -m tools.ck3.windowmap <pid> --modified-keys
         python -m tools.ck3.windowmap --window-keys
+        python -m tools.ck3.windowmap <pid> --window-keys <window>[=<key | button:name>] ...
 
 A count or a list of window names makes it a trial run, and a trial run writes its result beside
 the map instead of over it. `--keys` runs only the key round, needs no -debug_mode, and adds the
 windows it opens to the map as shortcut routes without changing anything else in it.
 `--modified-keys` does the same for the bindings with a modifier, posted through the channel's
 `combo`, so the foreground is never taken. `--window-keys` needs no game: it reads off disk which
-keys every window declares and which of them only change the view.
+keys every window declares and which of them only change the view. With a game it presses them;
+a window that no key, click or chain on disk opens is given the press that does, as `hand` takes
+it - the migration opens from `button:button_migrate`, whose onclick opens an interaction.
 """
 import collections
 import functools
@@ -127,6 +130,13 @@ class WindowMap(TypedDict):
 
 # One press of `shortcut_round`: its name, the action, and whether it goes in a second time.
 Press = tuple[str, Callable[[], object], bool]
+
+
+def pressed(how: str) -> Route:
+    """A route given by hand: a key, or `button:<name>` for a button on the bare screen."""
+    if how.startswith('button:'):
+        return {'click': True, 'button': how[len('button:'):], 'drawn': True}
+    return {'shortcut': how}
 
 
 def shortcut_file() -> dict[str, str]:
@@ -273,7 +283,8 @@ def shown_texts(game: 'Game', name: str, text_classes: set[int]) -> tuple[str, .
     return tuple(widgettree.strip_markup(nodes[a][7]) for a in texts if a in visible)
 
 
-def window_keys_round(game: 'Game', names: list[str]) -> dict[str, str | list[tuple[str, str, str]]]:
+def window_keys_round(game: 'Game', names: list[str],
+                      by_hand: dict[str, Route]) -> dict[str, str | list[tuple[str, str, str]]]:
     """Open each window along its route, press every key in it that only changes the view, and say
     per key what happened: the texts on screen changed, another window opened, the window shut, or
     nothing. The state is put back after every key and must come back after every window.
@@ -304,7 +315,8 @@ def window_keys_round(game: 'Game', names: list[str]) -> dict[str, str | list[tu
     openers.game_classes = game.window_classes      # a click asks what lies over its button
     with open(OUT, encoding='utf-8') as file:
         on_disk: dict[str, Route] = json.load(file)['windows']
-    windows = {**harvest.click_routes(on_disk), **{n: r for n, r in on_disk.items() if r.get('shortcut')}}
+    windows = {**harvest.click_routes(on_disk), **{n: r for n, r in on_disk.items() if r.get('shortcut')},
+               **by_hand}
     tables = guimap.tables()
     chains = harvest.player_chains(names, set(windows), tables)
     back: Route = {'click': True}       # shut on Escape until the bare screen is back
@@ -876,7 +888,9 @@ def main() -> None:
     pid = int(sys.argv[1])
     rest = sys.argv[2:]
     if rest[:1] == ['--window-keys']:
-        store_window_keys(pid, window_keys_round(Game(pid), rest[1:]))
+        given = [name.partition('=') for name in rest[1:]]
+        by_hand = {name: pressed(how) for name, _, how in given if how}
+        store_window_keys(pid, window_keys_round(Game(pid), [name for name, _, _ in given], by_hand))
         return
     if rest == ['--keys']:
         keys_only(pid)

@@ -239,10 +239,11 @@ returns a pair, passed on as one thing, costs a run.
 | `record_window(game, name, nodes, header, route, attempts, file, started)` | dict | Everything this project can read of one drawn window, plus a capture. It stays open. |
 | `harvest(game, name, row, baseline, header)` | 2-tuple | One window, from opening to the state coming back. Returns the record, or a reason. |
 | `stop_checks(pid, player, player_name, before)` | nothing | The three conditions asked before every window: memory, the channel, and the player. |
-| `chain_press(game, source, goal, tables)` | 4-tuple | In `source`, standing open, press what reaches `goal` and wait for what comes up: the tree |
+| `chain_press(game, source, goal, tables, showing=None)` | 4-tuple | In `source`, standing open, press what reaches `goal` and wait for what comes up: the tree |
 | `player_chains(names, direct, tables)` | value | Window -> the chain route that opens it, for each of `names` that no key or click opens, as |
 | `open_along(game, name, direct, chained, baseline, tables)` | value of 2-tuple | Open `name` along a player route: its key or click, or the chain from a window that opens |
 | `chain_step(game, route, source, direct, chained, windows, baseline, header, tables)` | 2-tuple | One chain route from one of its sources: open the source along its own route, press what |
+| `player_record(name)` | bool of value | Has `name` a record from a player route - a key, a click, a chain or a hand - and not only |
 | `chain_round(game, pid, windows, wanted, baseline, header, player, player_name)` | nothing | Every chain route the files offer from a window this round can open by itself: by a key, a |
 | `main()` | nothing | - |
 
@@ -364,7 +365,8 @@ returns a pair, passed on as one thing, costs a run.
 | `lands_on(buttons, point)` | value | Which widget handles a click at this point. |
 | `reachable_point(buttons, widget_address, rect)` | value of NoneType | A point on this widget that a click really reaches, or None if it is covered everywhere. |
 | `spots_for_goal(game, pid, window, goal, tables)` | 6-tuple | Every widget of an open window that the files say reaches `goal`, aligned rather than guessed. |
-| `press_toward(game, window, goal, tables)` | 3-tuple | In `window`, open, press the first widget that reaches `goal` and a click can reach. |
+| `shows(record, address, text)` | value | Does the widget at `address`, or one below it, show `text`? Case and markup do not count. |
+| `press_toward(game, window, goal, tables, showing=None)` | 3-tuple | In `window`, open, press the first widget that reaches `goal` and a click can reach; with |
 | `trigger_spots(row, named, nodes)` | value of list | Where the click for this row could land: the widget itself, or its nameless children. |
 | `on_screen(address, nodes, scales, classes)` | str of value of NoneType | Why this widget cannot be clicked, or None when it can. |
 | `window_above(address, chain, nodes, scales)` | value of NoneType | A drawn window later in the tree whose rectangle holds this widget's middle, or None. |
@@ -530,13 +532,14 @@ returns a pair, passed on as one thing, costs a run.
 
 | call | returns | does |
 |---|---|---|
+| `pressed(how)` | dict | A route given by hand: a key, or `button:<name>` for a button on the bare screen. |
 | `shortcut_file()` | value | Binding -> its keys as `game/gui/shortcuts.shortcuts` spells them, empty for a binding |
 | `window_bindings(only=None)` | value | Window -> every shortcut its widgets declare, with what pressing it calls. Disk only; |
 | `window_keys_plan()` | nothing | Print what a key round inside the windows would press, and what it leaves to a person. |
 | `binding_names(binding, bound, numbers=None)` | list of value | The shortcut names one declared binding stands for. |
 | `presses_for(rows, bound)` | value | (binding, keys, toggles) to press in one window: every view-only row, once, the first three |
 | `shown_texts(game, name, text_classes)` | NoneType of value | The texts of window `name` that are on the screen now, in draw order; None if it is not drawn. |
-| `window_keys_round(game, names)` | value | Open each window along its route, press every key in it that only changes the view, and say |
+| `window_keys_round(game, names, by_hand)` | value | Open each window along its route, press every key in it that only changes the view, and say |
 | `modified_keys()` | value | Binding -> (spelling, modifier keys, key) for every name in `MODIFIED`, as the file binds it. |
 | `key_of(key)` | value | The virtual key for one key as the shortcut file or the map spells it: F1, c, 0, BACKSPACE. |
 | `press(spelling)` | nothing | Press a key as the map spells it - `F1`, or a combination such as `shift+F1` - from inside. |

@@ -396,7 +396,12 @@ def open_window(game: windowmap.Game, name: str, row: windowmap.Route,
 
 def close_window(game: windowmap.Game, row: windowmap.Route, baseline: set[str]) -> bool:
     """Shut it again and wait until the state before it is back. Anything left open contaminates
-    every window after this one, which is why this is a stop condition and not a warning."""
+    every window after this one, which is why this is a stop condition and not a warning.
+
+    **A question of the game is answered yes**, as `quit_game.escape_to` does: the activity planner
+    asks whether its plan may go, and Escape says no and keeps it standing (Rimbert's council,
+    23 October 2026; her yes to answering while testing, the same day)."""
+    from tools.ck3 import quit_game  # it imports openers, which imports this module
     limit: int = 12
     shortcut = row.get('shortcut')
     for attempt in range(limit):
@@ -411,9 +416,13 @@ def close_window(game: windowmap.Game, row: windowmap.Route, baseline: set[str])
         # ever sent while something is still standing - with nothing open Escape opens the pause
         # menu, which is the state it was meant to clear.
         time.sleep(1.2)
-        _, _, drawn = game.state()
+        nodes, _, drawn = game.state()
         if drawn == baseline:
             return True
+        if quit_game.QUESTION in drawn:
+            classes = widgettree.class_map(game.pid, {a: k[0] for a, k in nodes.items()})
+            if quit_game.press(nodes, onscreen.scales_for(list(nodes)), classes, 'accept_button') is None:
+                continue
         channel.ask('sendkey 27')
     return False
 
@@ -541,8 +550,8 @@ def stop_checks(pid: int, player: int, player_name: str | None, before: str) -> 
                          'reload the state and start the round again.')
 
 
-def chain_press(game: windowmap.Game, source: str, goal: 'openers.Goal',
-                tables: guimap.Tables) -> tuple[widgettree.Nodes, set[str], 'openers.Spot | None', str | None]:
+def chain_press(game: windowmap.Game, source: str, goal: 'openers.Goal', tables: guimap.Tables,
+                showing: str | None = None) -> tuple[widgettree.Nodes, set[str], 'openers.Spot | None', str | None]:
     """In `source`, standing open, press what reaches `goal` and wait for what comes up: the tree
     then, the windows the press brought up, the widget pressed, and why nothing was pressed. The
     chain round and the key round both take a chain step here; the caller puts the state back.
@@ -554,7 +563,7 @@ def chain_press(game: windowmap.Game, source: str, goal: 'openers.Goal',
     """
     from tools.ck3 import openers  # openers imports this module
     nodes, _, before = game.state()
-    _, spot, why = openers.press_toward(game, source, goal, tables)
+    _, spot, why = openers.press_toward(game, source, goal, tables, showing)
     opened: set[str] = set()
     for hidden in [] if spot is not None else openers.unhiding(source, goal, tables):
         if openers.press_toward(game, source, hidden, tables)[1] is None:
@@ -563,7 +572,7 @@ def chain_press(game: windowmap.Game, source: str, goal: 'openers.Goal',
         nodes, _, before = game.state()
         if source not in before:
             return nodes, opened, None, f'{why}; showing {hidden.name} shut {source}'
-        _, spot, why = openers.press_toward(game, source, goal, tables)
+        _, spot, why = openers.press_toward(game, source, goal, tables, showing)
         if spot is not None:
             break
     if spot is None:
@@ -679,6 +688,16 @@ def chain_step(game: windowmap.Game, route: 'openers.ChainRoute', source: str,
     return records, None
 
 
+def player_record(name: str) -> bool:
+    """Has `name` a record from a player route - a key, a click, a chain or a hand - and not only
+    one the console made, or a refusal?"""
+    path = os.path.join(OUT, name + '.json')
+    if not os.path.exists(path):
+        return False
+    route: str = json.loads(pathlib.Path(path).read_text(encoding='utf-8')).get('route', 'GUI')
+    return not route.startswith('GUI')
+
+
 def chain_round(game: windowmap.Game, pid: int, windows: dict[str, windowmap.Route], wanted: list[str],
                 baseline: set[str], header: Header, player: int, player_name: str | None) -> None:
     """Every chain route the files offer from a window this round can open by itself: by a key, a
@@ -703,14 +722,6 @@ def chain_round(game: windowmap.Game, pid: int, windows: dict[str, windowmap.Rou
     if wanted:
         routes = [r for r in routes if (r['target'] or r['view']) in wanted]
     aside = os.path.join(paths.PROJECT, 'harvest-{}-console-replaced'.format(time.strftime('%Y-%m-%d')))
-
-    def player_record(name: str) -> bool:
-        path = os.path.join(OUT, name + '.json')
-        if not os.path.exists(path):
-            return False
-        route: str = json.loads(pathlib.Path(path).read_text(encoding='utf-8')).get('route', 'GUI')
-        return not route.startswith('GUI')
-
     done = failed = confirmed_only = 0
     for number, route in enumerate(routes, 1):
         label = route['target'] or f"view {route['view']}"

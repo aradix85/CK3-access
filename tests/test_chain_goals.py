@@ -102,6 +102,18 @@ def test_a_call_opens_the_state_its_object_is_asked_about() -> None:
     assert not openers.reaches('[CourtPositionType.Close]', by_hand)
 
 
+def test_a_row_is_told_from_its_siblings_by_what_it_shows() -> None:
+    def widget(address: str, parent: str, text: str | None) -> pairing.Harvested:
+        return {'address': address, 'parent': parent, 'depth': 1, 'index': 0, 'class': 'Textbox',
+                'name': '', 'text': text, 'own_rect': [0.0, 0.0, 1.0, 1.0],
+                'screen_rect': [0.0, 0.0, 1.0, 1.0], 'scale': [1.0, 1.0], 'alpha': 1.0, 'state': 0,
+                'clipped': False}
+    tree = [widget('a', '0', None), widget('c', '0', None), widget('b', 'a', 'Grand Wedding'),
+            widget('d', 'c', None), widget('e', 'd', 'Ecumenical Council')]
+    record: pairing.Record = {'tree': tree}
+    assert openers.shows(record, 0xc, 'council') and not openers.shows(record, 0xa, 'council')
+
+
 def test_a_click_lands_as_near_the_middle_as_it_can(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(onscreen, 'DRAWING_AREA', (1920, 1200))
     def button(address: str, rect: list[float]) -> openers.Clickable:

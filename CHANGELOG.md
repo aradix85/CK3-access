@@ -5,7 +5,12 @@ Outcomes, newest day first. No release yet.
 ## 2026-10-23
 - The hostage exchange is harvested on Harold, through the war overview's peace terms; `tools/ck3/hand.py` takes a step that only presses inside the open window.
 - A widget counts as on screen for a click when its middle is in the drawing area, and a named widget is pressed where the chain step found it, not as the first of its name.
-- The chain round on Harold adds the court scene editor, the title election and the title window; the harvest holds 241 windows.
+- The chain round on Harold adds the court scene editor, the title election and the title window.
+- Saru: the migration with a target and its list of those involved, and the Silk Road with its catalysts. Andronikos: the heir designation and the house aspiration.
+- Rimbert: the council's tenet and doctrine choice and the travel entourage. A new Chinese state gives the merit pool and the dynastic cycle's catalysts. 249 windows.
+- `tools/ck3/hand.py` picks a row by the text it shows (`call@text`) and keeps the record of a window on the way that a player route already made.
+- `windowmap --window-keys` takes a window's one press as `name=key` or `name=button:x`; a harvest says yes when the game asks whether a plan may go.
+- A window lying over the one being pressed has its own scale asked for before its rectangle is compared.
 
 ## 2026-10-22
 - The harvest holds 239 windows, along shortcuts, clicks, chains, the console and presses by hand (`tools/ck3/hand.py`), and waits until a window's layout has settled.

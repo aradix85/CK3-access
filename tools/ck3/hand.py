@@ -6,10 +6,14 @@ Usage:
 Opens `source` by its key, or by pressing a button by name, as the migration window opens from the
 nomad's bar. Then per step, written `<call>=<target>`: press inside the window standing open the
 first widget whose onclick carries `call`, or for `goal:<window>` what the files say reaches that
-window; wait for `target`, record it into the harvest, and go on from it. A step without `=target`
-only changes the window standing open, as a tab does: the hostage exchange sits in the war
-overview's peace terms, which the engine shows once a terms tab is pressed. A record it replaces
-goes aside into `harvest-<date>-replaced`. The state is put back, or nothing is written.
+window; `<call>@<text>` takes the first whose row shows that text, where rows share a call, as the
+activities do. Wait for `target`, record it into the harvest, and go on from it. A step without
+`=target` only changes the window standing open, as a tab does: the hostage exchange sits in the war
+overview's peace terms, which the engine shows once a terms tab is pressed. A window on the way
+that already has a record from a player route keeps it, as in the chain round; the last target is
+always recorded. A record it replaces goes aside into `harvest-<date>-replaced`, or into
+`harvest-<date>-console-replaced` when the console made it. The state is put back, or nothing is
+written.
 
 The route of every record says what was pressed, starting with `hand:`. Made on 22 October 2026,
 after the filter presets, the settings window and the court appointment with its filter had each
@@ -36,8 +40,7 @@ def main() -> None:
     if not harvest.paused(game):
         raise SystemExit('the clock is running: pause the game first')
     windows: dict[str, windowmap.Route] = json.loads(pathlib.Path(harvest.MAP).read_text(encoding='utf-8'))['windows']
-    row: windowmap.Route = ({'click': True, 'button': how[len('button:'):], 'drawn': True}
-                            if how.startswith('button:') else {'shortcut': how})
+    row = windowmap.pressed(how)
     baseline = game.bare()
     nodes = game.tree()
     player, player_name = model.player(pid)
@@ -54,28 +57,31 @@ def main() -> None:
         raise SystemExit(f'{source} did not open along {how}')
     route = f'hand: {how}'
     records: list[harvest.Record] = []
-    for call, target in steps:
+    for step, target in steps:
+        call, at, showing = step.partition('@')
         goal = (openers.goal_of(call[len('goal:'):], tables) if call.startswith('goal:')
                 else openers.Goal('call', call))
-        nodes, opened, spot, why = harvest.chain_press(game, source, goal, tables)
+        nodes, opened, spot, why = harvest.chain_press(game, source, goal, tables, showing if at else None)
         print(f"in {source} pressed {(spot['name'] or spot['class']) if spot else None}; "
               f"opened {', '.join(sorted(opened)) or 'nothing'}{'; ' + why if why else ''}")
         if not target and spot is not None:
-            route += f', {call} in {source}'
+            route += f', {step} in {source}'
             continue
         if target not in opened:
             break
-        route += f', {call} in {source}'
-        records.append(harvest.record_window(game, target, nodes, header, route, attempts,
-                                             (windows.get(target) or {}).get('file'), started))
+        route += f', {step} in {source}'
+        if (step, target) == steps[-1] or not harvest.player_record(target):
+            records.append(harvest.record_window(game, target, nodes, header, route, attempts,
+                                                 (windows.get(target) or {}).get('file'), started))
         source = target
     if not harvest.close_window(game, back, baseline):
         raise SystemExit('the state did not come back; nothing written')
-    aside = os.path.join(paths.PROJECT, 'harvest-{}-replaced'.format(time.strftime('%Y-%m-%d')))
     for record in records:
         record['seconds'] = round(time.time() - started, 1)
         path = os.path.join(harvest.OUT, record['window'] + '.json')
         if os.path.exists(path):
+            aside = os.path.join(paths.PROJECT, 'harvest-{}-{}replaced'.format(
+                time.strftime('%Y-%m-%d'), '' if harvest.player_record(record['window']) else 'console-'))
             os.makedirs(aside, exist_ok=True)
             os.replace(path, os.path.join(aside, record['window'] + '.json'))
         pathlib.Path(path).write_text(json.dumps(record, ensure_ascii=False, indent=1), encoding='utf-8')

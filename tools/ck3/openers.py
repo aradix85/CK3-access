@@ -628,9 +628,26 @@ def spots_for_goal(game: windowmap.Game, pid: int, window: str, goal: Goal,
     return out, record, acting, nodes, scales, classes
 
 
-def press_toward(game: windowmap.Game, window: str, goal: Goal,
-                 tables: guimap.Tables) -> tuple[list[Spot], Spot | None, str | None]:
-    """In `window`, open, press the first widget that reaches `goal` and a click can reach.
+def shows(record: pairing.Record, address: int, text: str) -> bool:
+    """Does the widget at `address`, or one below it, show `text`? Case and markup do not count.
+
+    How one row is told from its siblings, which all carry the same call: in Rimbert's activity
+    list the grand wedding comes before the ecumenical council in the tree, and both open the
+    detail view through one onclick (23 October 2026).
+    """
+    below = {address}
+    for widget in record['tree']:       # parents before children, breadth first
+        if int(widget['parent'], 16) in below:
+            below.add(int(widget['address'], 16))
+    wanted = text.lower()
+    return any(wanted in widgettree.strip_markup(widget['text'] or '').lower()
+               for widget in record['tree'] if int(widget['address'], 16) in below)
+
+
+def press_toward(game: windowmap.Game, window: str, goal: Goal, tables: guimap.Tables,
+                 showing: str | None = None) -> tuple[list[Spot], Spot | None, str | None]:
+    """In `window`, open, press the first widget that reaches `goal` and a click can reach; with
+    `showing`, the first whose row shows that text.
 
     A named one is pressed at its middle, with scale and class asked of the whole tree. Measured
     21 September 2026 on `filters` in the ledger: the aligned point opened nothing, and this opened
@@ -641,6 +658,8 @@ def press_toward(game: windowmap.Game, window: str, goal: Goal,
     or None, and why nothing was pressed. The chain round and the step by hand both press here.
     """
     spots, record, acting, _, _, _ = spots_for_goal(game, game.pid, window, goal, tables)
+    if showing is not None:
+        spots = [spot for spot in spots if shows(record, spot['address'], showing)]
     buttons = clickable_map(record, acting)
     reachable: list[tuple[Spot, tuple[int, int]]] = []
     for spot in spots:
@@ -735,7 +754,7 @@ def on_screen(address: int, nodes: widgettree.Nodes, scales: onscreen.Scales,
 
 # The drawn windows of one tree that catch clicks, and every widget's place among its siblings,
 # worked out once per tree: (which tree, sibling index, windows).
-_above: tuple[tuple[int, int], dict[int, int], list[int]] | None = None
+_above: tuple[tuple[int, int], dict[int, int], list[int], onscreen.Scales] | None = None
 
 
 def window_above(address: int, chain: list[int], nodes: widgettree.Nodes, scales: onscreen.Scales) -> str | None:
@@ -752,8 +771,10 @@ def window_above(address: int, chain: list[int], nodes: widgettree.Nodes, scales
     window, let one through. Its two blind spots: a see-through widget inside a window makes this
     refuse a click that would land, and a child outside a window with `allow_outside` that does
     catch is missed. A drawn window that lets the mouse through (0x20) never counts: the planner and
-    `layer_window` cover the whole screen that way. The drawn windows and the order are worked out
-    once per tree.
+    `layer_window` cover the whole screen that way. The drawn windows, the order and the scales of
+    those windows are worked out once per tree: the caller's scales cover the window it presses in,
+    and a window over it needs its own: with the steppe event standing over the administration
+    window, 23 October 2026, this stopped on a scale it had not asked for.
     """
     global _above
     key = (id(nodes), len(nodes))
@@ -766,8 +787,13 @@ def window_above(address: int, chain: list[int], nodes: widgettree.Nodes, scales
         windows = [a for a, node in nodes.items() if node[0] in game_classes]
         catching = [a for a, flag in onscreen.shown(nodes, windows).items()
                     if not flag & onscreen.PASSES_CLICKS]
-        _above = (key, siblings, catching)
-    _, index, drawn = _above
+        up: set[int] = set()
+        for a in catching:
+            while a in nodes:
+                up.add(a)
+                a = nodes[a][5]
+        _above = (key, siblings, catching, onscreen.scales_for(list(up)))
+    _, index, drawn, window_scales = _above
 
     def path(a: int) -> tuple[int, ...]:
         out = []
@@ -783,8 +809,8 @@ def window_above(address: int, chain: list[int], nodes: widgettree.Nodes, scales
     for win in drawn:
         if win in own or path(win) <= mine:
             continue
-        wx, wy = onscreen.screen_pos(nodes, win, scales)
-        ww, wh = onscreen.screen_size(nodes, win, scales)
+        wx, wy = onscreen.screen_pos(nodes, win, window_scales)
+        ww, wh = onscreen.screen_size(nodes, win, window_scales)
         if wx <= px < wx + ww and wy <= py < wy + wh:
             return nodes[win][6] or 'a window'
     return None
