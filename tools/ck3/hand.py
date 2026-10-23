@@ -6,8 +6,10 @@ Usage:
 Opens `source` by its key, or by pressing a button by name, as the migration window opens from the
 nomad's bar. Then per step, written `<call>=<target>`: press inside the window standing open the
 first widget whose onclick carries `call`, or for `goal:<window>` what the files say reaches that
-window; wait for `target`, record it into the harvest, and go on from it. A record it replaces goes
-aside into `harvest-<date>-replaced`. The state is put back, or nothing is written.
+window; wait for `target`, record it into the harvest, and go on from it. A step without `=target`
+only changes the window standing open, as a tab does: the hostage exchange sits in the war
+overview's peace terms, which the engine shows once a terms tab is pressed. A record it replaces
+goes aside into `harvest-<date>-replaced`. The state is put back, or nothing is written.
 
 The route of every record says what was pressed, starting with `hand:`. Made on 22 October 2026,
 after the filter presets, the settings window and the court appointment with its filter had each
@@ -28,7 +30,7 @@ def main() -> None:
     if len(sys.argv) < 5:
         raise SystemExit(__doc__)
     pid, source, how = int(sys.argv[1]), sys.argv[2], sys.argv[3]
-    steps = [step.split('=', 1) for step in sys.argv[4:]]
+    steps = [step.partition('=')[::2] for step in sys.argv[4:]]
     game = windowmap.Game(pid)
     openers.game_classes = game.window_classes
     if not harvest.paused(game):
@@ -58,6 +60,9 @@ def main() -> None:
         nodes, opened, spot, why = harvest.chain_press(game, source, goal, tables)
         print(f"in {source} pressed {(spot['name'] or spot['class']) if spot else None}; "
               f"opened {', '.join(sorted(opened)) or 'nothing'}{'; ' + why if why else ''}")
+        if not target and spot is not None:
+            route += f', {call} in {source}'
+            continue
         if target not in opened:
             break
         route += f', {call} in {source}'

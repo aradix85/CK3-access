@@ -2,6 +2,11 @@
 
 Outcomes, newest day first. No release yet.
 
+## 2026-10-23
+- The hostage exchange is harvested on Harold, through the war overview's peace terms; `tools/ck3/hand.py` takes a step that only presses inside the open window.
+- A widget counts as on screen for a click when its middle is in the drawing area, and a named widget is pressed where the chain step found it, not as the first of its name.
+- The chain round on Harold adds the court scene editor, the title election and the title window; the harvest holds 241 windows.
+
 ## 2026-10-22
 - The harvest holds 239 windows, along shortcuts, clicks, chains, the console and presses by hand (`tools/ck3/hand.py`), and waits until a window's layout has settled.
 - The war overview, the college of cardinals, the royal court (Shift+F2), the domicile and the administration window are harvested along their keys, the migration by hand.

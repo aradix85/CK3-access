@@ -579,14 +579,17 @@ def reachable_point(buttons: list[Clickable], widget_address: int, rect: list[fl
     the buttons a row is tiled with are small. **Of the points a click reaches, the one nearest the
     middle wins:** what the click map leaves out - a text or an icon with a tooltip - can still
     catch a click near the edge. Measured 22 October 2026 on Ghur played: the top left corner of a
-    vacant court position opened nothing, its middle opened `appoint_court_position_view`.
+    vacant court position opened nothing, its middle opened `appoint_court_position_view`. A point
+    past the drawing area reaches nothing, so it is never offered.
     """
     step: int = 6
     x, y, width, height = rect
+    screen_width, screen_height = onscreen.drawing_area()
     middle = (x + width / 2, y + height / 2)
     points = sorted(((int(x + offset_x), int(y + offset_y))
                      for offset_y in range(2, int(height) - 1, step)
-                     for offset_x in range(2, int(width) - 1, step)),
+                     for offset_x in range(2, int(width) - 1, step)
+                     if 0 <= x + offset_x < screen_width and 0 <= y + offset_y < screen_height),
                     key=lambda p: (p[0] - middle[0]) ** 2 + (p[1] - middle[1]) ** 2)
     for point in points:
         top = lands_on(buttons, point)
@@ -629,13 +632,14 @@ def press_toward(game: windowmap.Game, window: str, goal: Goal,
                  tables: guimap.Tables) -> tuple[list[Spot], Spot | None, str | None]:
     """In `window`, open, press the first widget that reaches `goal` and a click can reach.
 
-    A named one is pressed the way `quit_game.press` presses: the copy on screen, at its middle,
-    with scale and class asked of the whole tree. Measured 21 September 2026 on `filters` in the
-    ledger: the aligned point opened nothing, and this opened the filter window. A nameless one is
+    A named one is pressed at its middle, with scale and class asked of the whole tree. Measured
+    21 September 2026 on `filters` in the ledger: the aligned point opened nothing, and this opened
+    the filter window. **It is the widget found that is pressed, not the first of its name:** the
+    offer and the demand portrait of the hostage exchange share one name, and pressing by name
+    opened the offer for both (23 October 2026, Harold). A nameless one is
     pressed at a point a click reaches. Returns every widget that reaches the goal, the one pressed
     or None, and why nothing was pressed. The chain round and the step by hand both press here.
     """
-    from tools.ck3 import quit_game  # it imports this module
     spots, record, acting, _, _, _ = spots_for_goal(game, game.pid, window, goal, tables)
     buttons = clickable_map(record, acting)
     reachable: list[tuple[Spot, tuple[int, int]]] = []
@@ -657,9 +661,8 @@ def press_toward(game: windowmap.Game, window: str, goal: Goal,
     spot, point = reachable[0]
     if spot['name']:
         full = game.tree()
-        refused = quit_game.press(full, onscreen.scales_for(list(full)),
-                                  widgettree.class_map(game.pid, {a: k[0] for a, k in full.items()}),
-                                  spot['name'])
+        refused = press(spot['address'], full, onscreen.scales_for(list(full)),
+                        widgettree.class_map(game.pid, {a: k[0] for a, k in full.items()}))
         if refused:
             return spots, None, refused
     else:
@@ -701,7 +704,10 @@ def on_screen(address: int, nodes: widgettree.Nodes, scales: onscreen.Scales,
     stood here as a constant. The drawing area became 1920x1200 that day, after which every
     widget past x1600 or y900 was turned down as "off screen" - a sentence that reads like a
     measurement while being an assumption. `load_button` on the front end sits at 845,931 and was
-    refused by it. `onscreen.drawing_area` asks Windows once per run instead.
+    refused by it. `onscreen.drawing_area` asks Windows once per run instead. **And it is the middle
+    that has to be on screen, where the click goes, not the whole rectangle:** the three peace terms
+    tabs of the war overview reach 7 points past the bottom of 1200 and were refused until
+    23 October 2026, while their middle opened the terms.
     """
     if not onscreen.is_visible(nodes, address) or onscreen.is_clipped(nodes, address, scales, classes):
         return 'not visible'
@@ -710,7 +716,7 @@ def on_screen(address: int, nodes: widgettree.Nodes, scales: onscreen.Scales,
     if width <= 0 or height <= 0:
         return 'no size'
     screen_width, screen_height = onscreen.drawing_area()
-    if x < 0 or y < 0 or x + width > screen_width or y + height > screen_height:
+    if not (0 <= x + width / 2 < screen_width and 0 <= y + height / 2 < screen_height):
         return 'off screen'
     # **The game hides a widget with 0x08 in its state byte, on itself or on an ancestor, and leaves
     # alpha up** - a window as much as a button (`onscreen.flags_for`). One question for the chain.

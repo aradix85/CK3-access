@@ -7,7 +7,9 @@ the button `filters` in the court window on Saru drew the court's own filter win
 """
 import pathlib
 
-from tools.ck3 import guimap, openers, pairing
+import pytest
+
+from tools.ck3 import guimap, onscreen, openers, pairing
 
 TYPES = ('types T {'
          ' type list_filter = window { name = "list_filter" visible = "[List.FiltersShown]" }'
@@ -100,7 +102,8 @@ def test_a_call_opens_the_state_its_object_is_asked_about() -> None:
     assert not openers.reaches('[CourtPositionType.Close]', by_hand)
 
 
-def test_a_click_lands_as_near_the_middle_as_it_can() -> None:
+def test_a_click_lands_as_near_the_middle_as_it_can(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(onscreen, 'DRAWING_AREA', (1920, 1200))
     def button(address: str, rect: list[float]) -> openers.Clickable:
         widget: pairing.Harvested = {
             'address': address, 'parent': '0', 'depth': 1, 'index': 0, 'class': 'PushButton',
@@ -114,3 +117,8 @@ def test_a_click_lands_as_near_the_middle_as_it_can() -> None:
     covered = openers.reachable_point([button('a', card), button('b', [150.0, 180.0, 68.0, 60.0])], 0xa, card)
     assert covered is not None and not (150 <= covered[0] < 218 and 180 <= covered[1] < 240)
     assert abs(covered[0] - 184) + abs(covered[1] - 210) < 60
+    # The peace terms tabs of the war overview hang 7 points past the bottom (23 October 2026):
+    # with the middle covered, the nearest point below the drawing area would win, and reach nothing.
+    tab = [1059.0, 1157.0, 196.0, 50.0]
+    low = openers.reachable_point([button('a', tab), button('b', [1100.0, 1160.0, 120.0, 40.0])], 0xa, tab)
+    assert low is not None and low[1] < 1200

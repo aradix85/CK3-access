@@ -62,11 +62,6 @@ warn_unused_configs = true
 module = ["openvino"]
 ignore_missing_imports = true
 
-[[tool.mypy.overrides]]
-# NVDA's own module: it exists only inside NVDA, which loads the add-on.
-module = ["appModuleHandler"]
-ignore_missing_imports = true
-
 [tool.pytest.ini_options]
 # Only `tests\` is collected. Anything under `tools\` that is run by hand speaks through NVDA and
 # sleeps, so collecting it would make a test run talk - see tools\nvda\check_speech_by_ear.py.
