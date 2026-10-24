@@ -36,7 +36,7 @@ Outcomes, newest day first. No release yet.
 - The keys inside 40 windows are measured and kept in `reports/window_keys.json`, each window opened along a key, a click or a chain and measured once open.
 - That round presses sub-tabs after every tab and a toggle twice, and never a mouse button or a key another widget of the window acts on.
 - The click map no longer counts hidden buttons as covering what lies under them; a cut text on a widget that is not a text box is no longer reported lost.
-- One README holds the whole project, NVDA setup included; the NVDA add-on is gone; `check.py` keeps this changelog short.
+- One README holds the whole project, NVDA setup included; `check.py` keeps this changelog short.
 
 ## 2026-10-21 — CK3 1.20.1.1 and 1.20.1.2
 - Checked against 1.20.1.1 and 1.20.1.2 on disk and in the game: field offsets, game model, numbering and window map hold; moved globals derive again by themselves.
@@ -126,7 +126,7 @@ Outcomes, newest day first. No release yet.
 - The first harvest: opening a window the way a player does gives values, the console only captions.
 - `guimap.py` parses the gui format; `pairing.py` joins it to the live tree on structure.
 - `model.py` and `calibrate.py` derive and check the character record; `numbering.py` reads the numbering from the running game.
-- Braille is not optional; an NVDA add-on puts NVDA to sleep while the game has focus.
+- Braille is not optional.
 - Everything public is in English.
 
 ## 2026-08-23 — first public source
