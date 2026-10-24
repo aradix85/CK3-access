@@ -48,7 +48,7 @@ returns a pair, passed on as one thing, costs a run.
 | `scripts()` | value | Every Python file of the tools and the tests. |
 | `loading_work(files)` | value | Every statement at the top level of these files that does work as the file is loaded. |
 | `changelog_size()` | value | Entries of CHANGELOG.md that are too long, lines that are not one entry, and days with too many. |
-| `stale_reports()` | list | A report drawn from the harvest that describes another harvest than the one on disk. |
+| `stale_reports()` | list of value | A report drawn from the harvest that describes another harvest than the one on disk. |
 | `main(all_of_them)` | value | The checks that need nothing but this repository first, then the claims, which stop at the |
 
 ## never_silent.py
@@ -278,6 +278,18 @@ returns a pair, passed on as one thing, costs a run.
 | `widget_vtables()` | dict | Vtable RVAs of every class descending from CPdxGuiWidget, taken from the exe. |
 | `vtables_by_name(part)` | value | Vtable RVAs of classes whose RTTI name contains `part`, case sensitive. |
 | `type_name_count()` | value | How many RTTI type names the exe contains. |
+
+## ck3\missing.py
+*Which mapped windows have no record from a player's route yet, and how a player gets to each.*
+
+| call | returns | does |
+|---|---|---|
+| `multiplayer_window(path)` | value | Multiplayer, the social network or the Paradox account, by where the gui file sits and |
+| `group_of(window, path, chained)` | str | The first group in `GROUPS` that fits this window. |
+| `state_of(window, record, baseline, mapped)` | str of value | Where a window without a player record stands, in the words the record or the map use. |
+| `player_route(record)` | value | Did this record open its window the way a player does? A console record did not. |
+| `reckon()` | 2-tuple | Every window of the map without a player record, by group; and every view a button on disk |
+| `main()` | nothing | - |
 
 ## ck3\model.py
 *The character record laid out: which offset carries what, derived rather than written down.*

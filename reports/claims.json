@@ -232,7 +232,7 @@
  },
  {
   "name": "files that go into the repo",
-  "claimed": 86,
+  "claimed": 89,
   "measure": "repo_files",
   "counting_rule": "files under the project folder that .gitignore does not exclude, the same set git ls-files plus git ls-files --others --exclude-standard gives"
  },
@@ -492,7 +492,7 @@
  },
  {
   "name": "unexplained texts in the developers' own windows",
-  "claimed": 69,
+  "claimed": 71,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -502,7 +502,7 @@
  },
  {
   "name": "unexplained texts in windows a player opens",
-  "claimed": 857,
+  "claimed": 855,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -522,7 +522,7 @@
  },
  {
   "name": "unexplained texts in windows a player opens that the reading rule says",
-  "claimed": 321,
+  "claimed": 319,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -744,5 +744,45 @@
    "opens_holding_view"
   ],
   "counting_rule": "of those acting widgets, the ones with an action that names holding_view. A click fires every onclick of a block (measured 21 October 2026), so each box calls the holding view first and GUIBuildingItem.OnClick after it"
+ },
+ {
+  "name": "mapped windows without a player record",
+  "claimed": 199,
+  "measure": "json_field",
+  "arguments": ["<project>\\reports\\missing.json", "without a player record"],
+  "counting_rule": "windows of reports\\windows.json whose harvest record did not open them along a key, a click, a chain or by hand: a console record, a window that did not open, one drawn always, or none at all (tools.ck3.missing)",
+  "quoted_in": ["brief\\vensters.md"]
+ },
+ {
+  "name": "windows without a player record that open from an event",
+  "claimed": 11,
+  "measure": "json_field",
+  "arguments": ["<project>\\reports\\missing.json", "counts", "event"],
+  "counting_rule": "of those, the ones declared in gui/event_windows/, and not developer, multiplayer or decided (a decision with its reason in tools.ck3.missing.DECIDED)",
+  "quoted_in": ["brief\\vensters.md"]
+ },
+ {
+  "name": "windows without a player record that open from an interaction",
+  "claimed": 20,
+  "measure": "json_field",
+  "arguments": ["<project>\\reports\\missing.json", "counts", "interaction"],
+  "counting_rule": "of those, the ones declared in a gui/interaction_*.gui file, and in no group before it",
+  "quoted_in": ["brief\\vensters.md"]
+ },
+ {
+  "name": "windows without a player record that a chain route on disk reaches",
+  "claimed": 10,
+  "measure": "json_field",
+  "arguments": ["<project>\\reports\\missing.json", "counts", "chain"],
+  "counting_rule": "of those, the targets of openers.chain_routes from the windows with a player record or a key, and in no group before it",
+  "quoted_in": ["brief\\vensters.md"]
+ },
+ {
+  "name": "windows without a player record and without a window route on disk",
+  "claimed": 109,
+  "measure": "json_field",
+  "arguments": ["<project>\\reports\\missing.json", "counts", "no window route on disk"],
+  "counting_rule": "the rest: no file names a call that opens the window itself; some sit behind a view whose window only a round sees",
+  "quoted_in": ["brief\\vensters.md"]
  }
 ]

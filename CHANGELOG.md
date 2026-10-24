@@ -9,6 +9,8 @@ Outcomes, newest day first. No release yet.
 - The religion and rite panels of the faith window no longer open for a player in 1.20; the Rites tab of Faith Details holds their lists.
 - A running feast on Ghur played gives the activity's guest list, intent choice and log, harvested along the chain from the activity window.
 - A destination icon on the map takes a posted click: the feast planner chose the capital that way.
+- python -m tools.ck3.missing lists every window without a player record, grouped by how a player gets there; tools.check flags it when stale.
+- The node editor, the particle editor and the gui search count as developer windows now.
 
 ## 2026-10-23
 - The hostage exchange is harvested on Harold, through the war overview's peace terms; `tools/ck3/hand.py` takes a step that only presses inside the open window.

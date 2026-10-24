@@ -306,14 +306,20 @@ UNEXPLAINED = ('placeholder, code fills it', 'no key on disk', 'no source on dis
 NUMBER_NOISE = set('+-.,%()/:kKmM ')
 
 
+# The folders of the developers' tools: debug menus and watch windows, the node editor of the
+# particle and texture editors, and the search of the gui tools.
+DEVELOPER_FOLDERS = ('gui/debug/', 'gui/node_editor/', 'gui/particle_editor/', 'gui/applicationutils/')
+
+
 def developer_window(name: str, path: str) -> bool:
     """Is this window the developers' own tooling rather than something a player opens?
 
-    Counting rule: its gui file sits under `gui/debug/`, or its name carries the word debug.
-    Fourteen of the 203 harvested windows. They are set apart because a leftover text in them
-    needs no origin - nobody reads them.
+    Counting rule: its gui file sits in one of `DEVELOPER_FOLDERS`, or its name carries the word
+    debug. They are set apart because a leftover text in them needs no origin - nobody reads them.
+    Until 24 October 2026 only `gui/debug/` counted, and the node editor went among the player
+    windows (`tools.ck3.missing`).
     """
-    return path.startswith('gui/debug/') or 'debug' in name
+    return path.startswith(DEVELOPER_FOLDERS) or 'debug' in name
 
 
 def bare_number(text: str) -> bool:

@@ -1,0 +1,1025 @@
+{
+ "harvest": "2026-10-24 20:07",
+ "without a player record": 199,
+ "counts": {
+  "developer": 26,
+  "multiplayer": 17,
+  "decided": 6,
+  "event": 11,
+  "interaction": 20,
+  "chain": 10,
+  "no window route on disk": 109
+ },
+ "groups": {
+  "developer": {
+   "ai_war_coordinator_watch_window": {
+    "file": "gui/debug/ai_war_coordinator_watch_window.gui",
+    "state": "console record"
+   },
+   "ai_watch_window": {
+    "file": "gui/debug/window_watch_ai.gui",
+    "state": "console record"
+   },
+   "animation_test_window": {
+    "file": "gui/debug/animation_test_window.gui",
+    "state": "console record"
+   },
+   "character_pool_watch_window": {
+    "file": "gui/debug/window_watch_character_pool.gui",
+    "state": "console record"
+   },
+   "component_library_window": {
+    "file": "gui/debug/window_component_library.gui",
+    "state": "console record"
+   },
+   "compound_node_window": {
+    "file": "gui/node_editor/node_editor.gui",
+    "state": "console record"
+   },
+   "curvesampler_node_window": {
+    "file": "gui/node_editor/node_editor.gui",
+    "state": "console record"
+   },
+   "debug_tutorial_window": {
+    "file": "gui/debug/debug_tutorial_window.gui",
+    "state": "console record"
+   },
+   "default_search_list_node": {
+    "file": "gui/node_editor/search_list_window.gui",
+    "state": "console record"
+   },
+   "emitter_node_window": {
+    "file": "gui/particle_editor/particle_nodes.gui",
+    "state": "console record"
+   },
+   "environment_debug_window": {
+    "file": "gui/debug/debug_menus.gui",
+    "state": "console record"
+   },
+   "flag_preview_window": {
+    "file": "gui/debug/debug_menus.gui",
+    "state": "console record"
+   },
+   "graphinterface_node_window": {
+    "file": "gui/node_editor/node_editor.gui",
+    "state": "console record"
+   },
+   "map_debug_menu": {
+    "file": "gui/debug/debug_menus.gui",
+    "state": "console record"
+   },
+   "node_window": {
+    "file": "gui/node_editor/node_editor.gui",
+    "state": "not tried: declared as a type definition inside a types block, where GUI.CreateWidget does not look"
+   },
+   "property_node_window": {
+    "file": "gui/node_editor/node_editor.gui",
+    "state": "console record"
+   },
+   "search": {
+    "file": "gui/applicationutils/tools_gui_search.gui",
+    "state": "console record"
+   },
+   "search_compact": {
+    "file": "gui/applicationutils/tools_gui_search.gui",
+    "state": "console record"
+   },
+   "test_window": {
+    "file": "gui/debug/test_gui.gui",
+    "state": "console record"
+   },
+   "texture_node_window": {
+    "file": "gui/node_editor/node_editor.gui",
+    "state": "console record"
+   },
+   "unit_watch_window": {
+    "file": "gui/debug/ai_war_coordinator_watch_window.gui",
+    "state": "console record"
+   },
+   "userdata_node_input_window": {
+    "file": "gui/particle_editor/particle_nodes.gui",
+    "state": "console record"
+   },
+   "userdata_node_output_window": {
+    "file": "gui/particle_editor/particle_nodes.gui",
+    "state": "console record"
+   },
+   "watch_window": {
+    "file": "gui/debug/window_watch.gui",
+    "state": "console record"
+   },
+   "window_situation_debug": {
+    "file": "gui/window_situation_debug.gui",
+    "state": "console record"
+   },
+   "window_situation_participation_debug": {
+    "file": "gui/window_situation_participation_debug.gui",
+    "state": "console record"
+   }
+  },
+  "multiplayer": {
+   "JominiJoinServerDialog": {
+    "file": "gui/multiplayer_types.gui",
+    "state": "did not open: did not open in 1 try"
+   },
+   "JominiMultiplayerSetupWindow": {
+    "file": "gui/multiplayer_types.gui",
+    "state": "did not open: did not open in 1 try"
+   },
+   "JominiServerBrowser": {
+    "file": "gui/multiplayer_types.gui",
+    "state": "did not open: did not open in 1 try"
+   },
+   "add_friend_window": {
+    "file": "gui/social/add_friend_window_base.gui",
+    "state": "did not open: did not open in 1 try"
+   },
+   "chat_window": {
+    "file": "gui/social/chat_window_base.gui",
+    "state": "did not open: did not open in 1 try"
+   },
+   "create_social_profile_window": {
+    "file": "gui/pdx_account/create_social_profile_window_base.gui",
+    "state": "did not open: did not open in 1 try"
+   },
+   "friend_list_window": {
+    "file": "gui/social/friend_list_window_base.gui",
+    "state": "did not open: did not open in 1 try"
+   },
+   "legal_docs_viewer": {
+    "file": "gui/pdx_account/legal_docs_viewer.gui",
+    "state": "did not open: did not open in 1 try"
+   },
+   "login_window": {
+    "file": "gui/pdx_account/login_window.gui",
+    "state": "not tried: declared as a type definition inside a types block, where GUI.CreateWidget does not look"
+   },
+   "mainmenu_mp_game_setup": {
+    "file": "gui/frontend_mp_game_setup.gui",
+    "state": "console record"
+   },
+   "multiplayer_join_request_dialog": {
+    "file": "gui/multiplayer_types.gui",
+    "state": "not tried: declared as a type definition inside a types block, where GUI.CreateWidget does not look"
+   },
+   "multiplayer_oos_message": {
+    "file": "gui/multiplayer_types.gui",
+    "state": "not tried: declared as a type definition inside a types block, where GUI.CreateWidget does not look"
+   },
+   "remove_friend_confirm_window": {
+    "file": "gui/social/remove_friend_confirm_window_base.gui",
+    "state": "not tried: declared as a type definition inside a types block, where GUI.CreateWidget does not look"
+   },
+   "social_chat_notification_window": {
+    "file": "gui/social/social_chat_notification_window_base.gui",
+    "state": "not tried: declared as a type definition inside a types block, where GUI.CreateWidget does not look"
+   },
+   "social_widget": {
+    "file": "gui/social/social_widget.gui",
+    "state": "not tried: declared as a type definition inside a types block, where GUI.CreateWidget does not look"
+   },
+   "status_widget": {
+    "file": "gui/pdx_account/status_widget.gui",
+    "state": "not tried: declared as a type definition inside a types block, where GUI.CreateWidget does not look"
+   },
+   "window_lobby_helper": {
+    "file": "gui/window_lobby_helper.gui",
+    "state": "did not open: did not open in 1 try"
+   }
+  },
+  "decided": {
+   "achievement_popup_window": {
+    "file": "gui/achievements/popup.gui",
+    "state": "drawn always, so in every capture (21 October 2026)"
+   },
+   "base_dialog": {
+    "file": "gui/shared/dialogs.gui",
+    "state": "a template the game never builds under that name; its four instances each carry a name of their own (read 23 October 2026)"
+   },
+   "layer_window": {
+    "file": "gui/map_icon_layer.gui",
+    "state": "drawn always, so in every capture (21 October 2026)"
+   },
+   "religion_window": {
+    "file": "gui/window_faith.gui",
+    "state": "no player route in 1.20; the Rites tab of Faith Details holds its lists (measured 24 October 2026)"
+   },
+   "rite_window": {
+    "file": "gui/window_faith.gui",
+    "state": "no player route in 1.20; the Rites tab of Faith Details holds its lists (measured 24 October 2026)"
+   },
+   "toolbars_window": {
+    "file": "gui/console.gui",
+    "state": "the console draws it while it stands open, so in every console capture (measured 21 October 2026)"
+   }
+  },
+  "event": {
+   "anonymous_letter_event": {
+    "file": "gui/event_windows/anonymous_letter_event.gui",
+    "state": "console record"
+   },
+   "big_event_window": {
+    "file": "gui/event_windows/big_event_window.gui",
+    "state": "console record"
+   },
+   "character_event": {
+    "file": "gui/event_windows/character_event.gui",
+    "state": "console record"
+   },
+   "duel_event": {
+    "file": "gui/event_windows/duel_event.gui",
+    "state": "console record"
+   },
+   "fullscreen_event": {
+    "file": "gui/event_windows/fullscreen_event.gui",
+    "state": "console record"
+   },
+   "letter_event": {
+    "file": "gui/event_windows/letter_event.gui",
+    "state": "console record"
+   },
+   "scheme_conclusion_event_no_header": {
+    "file": "gui/event_windows/scheme_conclusion_event_no_header.gui",
+    "state": "console record"
+   },
+   "scheme_failed_event": {
+    "file": "gui/event_windows/scheme_failed_event.gui",
+    "state": "console record"
+   },
+   "scheme_preparations_event": {
+    "file": "gui/event_windows/scheme_preparations_event.gui",
+    "state": "console record"
+   },
+   "scheme_successful_event": {
+    "file": "gui/event_windows/scheme_successful_event.gui",
+    "state": "console record"
+   },
+   "visit_settlement_window": {
+    "file": "gui/event_windows/visit_settlement_window.gui",
+    "state": "console record"
+   }
+  },
+  "interaction": {
+   "blackmail_interaction_window": {
+    "file": "gui/interaction_blackmail.gui",
+    "state": "console record"
+   },
+   "call_ally_interaction_notification_window": {
+    "file": "gui/interaction_call_ally_notification_window.gui",
+    "state": "console record"
+   },
+   "call_ally_interaction_window": {
+    "file": "gui/interaction_call_ally.gui",
+    "state": "console record"
+   },
+   "character_ally_list_subview": {
+    "file": "gui/interaction_declare_war.gui",
+    "state": "console record"
+   },
+   "character_interaction_confirmation_window": {
+    "file": "gui/interaction_confirmation.gui",
+    "state": "console record"
+   },
+   "character_interaction_menu_window": {
+    "file": "gui/interaction_menu_window.gui",
+    "state": "console record"
+   },
+   "character_interaction_notification_window": {
+    "file": "gui/interaction_notification_window.gui",
+    "state": "console record"
+   },
+   "concubine_interaction_window": {
+    "file": "gui/interaction_concubine.gui",
+    "state": "console record"
+   },
+   "council_task_interaction_window": {
+    "file": "gui/interaction_council_task.gui",
+    "state": "console record"
+   },
+   "court_task_interaction_window": {
+    "file": "gui/interaction_court_task.gui",
+    "state": "console record"
+   },
+   "create_ceremonial_claimant_faction_against_interaction_window": {
+    "file": "gui/interaction_create_claimant_faction.gui",
+    "state": "console record"
+   },
+   "create_claimant_faction_against_interaction_window": {
+    "file": "gui/interaction_create_claimant_faction.gui",
+    "state": "console record"
+   },
+   "declare_war_window": {
+    "file": "gui/interaction_declare_war.gui",
+    "state": "console record"
+   },
+   "grant_titles_interaction_window": {
+    "file": "gui/interaction_grant_titles.gui",
+    "state": "console record"
+   },
+   "interfere_in_war_interaction_notification_window": {
+    "file": "gui/interaction_interfere_in_war_notification.gui",
+    "state": "console record"
+   },
+   "interfere_in_war_interaction_window": {
+    "file": "gui/interaction_interfere_in_war.gui",
+    "state": "console record"
+   },
+   "marriage_interaction_notification_window": {
+    "file": "gui/interaction_marriage_notification_window.gui",
+    "state": "console record"
+   },
+   "modify_vassal_contract_interaction_window": {
+    "file": "gui/interaction_modify_vassal_window.gui",
+    "state": "console record"
+   },
+   "revoke_titles_interaction_window": {
+    "file": "gui/interaction_revoke_title.gui",
+    "state": "console record"
+   },
+   "transfer_vassal_interaction_window": {
+    "file": "gui/interaction_transfer_vassal.gui",
+    "state": "console record"
+   }
+  },
+  "chain": {
+   "artifact_kill_list": {
+    "file": "gui/window_kill_list.gui",
+    "state": "console record"
+   },
+   "challengers_subwindow": {
+    "file": "gui/window_faith.gui",
+    "state": "console record"
+   },
+   "confederation_window": {
+    "file": "gui/window_confederation.gui",
+    "state": "console record"
+   },
+   "dynastic_cycle_participant_groups": {
+    "file": "gui/window_tgp_dynastic_cycle.gui",
+    "state": "console record"
+   },
+   "dynastic_cycle_phases_list_window": {
+    "file": "gui/window_tgp_dynastic_cycle.gui",
+    "state": "console record"
+   },
+   "great_project": {
+    "file": "gui/window_great_project.gui",
+    "state": "console record"
+   },
+   "legend_chronicle": {
+    "file": "gui/window_legend_chronicle.gui",
+    "state": "console record"
+   },
+   "legend_creation": {
+    "file": "gui/window_legend_creation.gui",
+    "state": "console record"
+   },
+   "raid_intent_selection_window": {
+    "file": "gui/window_raid_intent_selection.gui",
+    "state": "console record"
+   },
+   "title_appointment": {
+    "file": "gui/window_title_appointment.gui",
+    "state": "console record"
+   }
+  },
+  "no window route on disk": {
+   "JominiMusicPlayerView": {
+    "file": "gui/jomini/music_player/music_player_view.gui",
+    "state": "did not open: did not open in 1 try"
+   },
+   "accolade_attribute_selection_view": {
+    "file": "gui/window_accolade_attribute_selection.gui",
+    "state": "console record"
+   },
+   "accolade_view": {
+    "file": "gui/window_accolade.gui",
+    "state": "console record"
+   },
+   "achievements_window": {
+    "file": "gui/achievements/jomini_achievements_window.gui",
+    "state": "console record"
+   },
+   "activity_list_detail_invite": {
+    "file": "gui/window_activity_list.gui",
+    "state": "console record"
+   },
+   "activity_locale_window": {
+    "file": "gui/window_activity_locale.gui",
+    "state": "console record"
+   },
+   "add_tradition_window": {
+    "file": "gui/window_add_tradition.gui",
+    "state": "console record"
+   },
+   "admin_vassal_detail_view": {
+    "file": "gui/window_admin_vassal_detail.gui",
+    "state": "console record"
+   },
+   "army_automation_options_view": {
+    "file": "gui/window_army_automation_options.gui",
+    "state": "console record"
+   },
+   "army_reorganization_window": {
+    "file": "gui/window_army.gui",
+    "state": "console record"
+   },
+   "army_window": {
+    "file": "gui/window_army.gui",
+    "state": "console record"
+   },
+   "attach_to_army_window": {
+    "file": "gui/window_army.gui",
+    "state": "console record"
+   },
+   "barter_window": {
+    "file": "gui/window_barter.gui",
+    "state": "console record"
+   },
+   "basic_confirmation_popup": {
+    "file": "gui/shared/dialogs.gui",
+    "state": "console record"
+   },
+   "basic_image_info_popup": {
+    "file": "gui/shared/dialogs.gui",
+    "state": "console record"
+   },
+   "basic_info_popup": {
+    "file": "gui/shared/dialogs.gui",
+    "state": "console record"
+   },
+   "battle_summary": {
+    "file": "gui/window_battle_summary.gui",
+    "state": "console record"
+   },
+   "catalysts_sub_window": {
+    "file": "gui/window_pam_christian_church.gui",
+    "state": "console record"
+   },
+   "change_court_type_window": {
+    "file": "gui/window_court_types.gui",
+    "state": "console record"
+   },
+   "change_ghw_target_window": {
+    "file": "gui/window_ghw_change_target.gui",
+    "state": "console record"
+   },
+   "character_focus_window": {
+    "file": "gui/window_character_focus.gui",
+    "state": "console record"
+   },
+   "character_name_window": {
+    "file": "gui/window_barbershop.gui",
+    "state": "did not open: did not open in 1 try"
+   },
+   "christian_church_phases_sub_window": {
+    "file": "gui/window_pam_christian_church.gui",
+    "state": "console record"
+   },
+   "claimants_window": {
+    "file": "gui/window_title_claimants.gui",
+    "state": "console record"
+   },
+   "coa_window": {
+    "file": "gui/window_barbershop.gui",
+    "state": "console record"
+   },
+   "colorpicker_window": {
+    "file": "gui/shared/color_picker.gui",
+    "state": "did not open: did not open in 1 try"
+   },
+   "combat_window": {
+    "file": "gui/window_combat.gui",
+    "state": "console record"
+   },
+   "create_accolade_view": {
+    "file": "gui/window_create_accolade.gui",
+    "state": "console record"
+   },
+   "diverge_culture_window": {
+    "file": "gui/window_diverge_culture.gui",
+    "state": "console record"
+   },
+   "dlc_info": {
+    "file": "gui/window_dlc_info.gui",
+    "state": "console record"
+   },
+   "dynasty_customization_window": {
+    "file": "gui/dynasty_customization_window.gui",
+    "state": "console record"
+   },
+   "dynasty_house_customization_window": {
+    "file": "gui/dynasty_house_customization_window.gui",
+    "state": "console record"
+   },
+   "dynasty_house_members_view": {
+    "file": "gui/window_dynasty_house_members.gui",
+    "state": "console record"
+   },
+   "dynasty_house_view": {
+    "file": "gui/window_dynasty_house.gui",
+    "state": "console record"
+   },
+   "dynasty_legacy_window": {
+    "file": "gui/window_dynasty_legacy.gui",
+    "state": "console record"
+   },
+   "dynasty_perk_confirmation_popup": {
+    "file": "gui/window_dynasty_legacy.gui",
+    "state": "console record"
+   },
+   "dynasty_tree_view": {
+    "file": "gui/window_dynasty_tree.gui",
+    "state": "console record"
+   },
+   "faith_conversion_window": {
+    "file": "gui/window_faith_conversion.gui",
+    "state": "console record"
+   },
+   "find_vassal_list_window": {
+    "file": "gui/window_find_vassal.gui",
+    "state": "console record"
+   },
+   "game_rules": {
+    "file": "gui/game_rules.gui",
+    "state": "console record"
+   },
+   "game_rules_preset": {
+    "file": "gui/game_rules.gui",
+    "state": "console record"
+   },
+   "great_holy_war_window": {
+    "file": "gui/window_ghw.gui",
+    "state": "console record"
+   },
+   "herd_leaderboard_window": {
+    "file": "gui/window_the_great_steppe.gui",
+    "state": "console record"
+   },
+   "hired_troop_detail_view": {
+    "file": "gui/window_hired_troops_detail.gui",
+    "state": "console record"
+   },
+   "holding_tracks_view": {
+    "file": "gui/window_county_view.gui",
+    "state": "console record"
+   },
+   "holding_type_selection_view": {
+    "file": "gui/window_county_view.gui",
+    "state": "console record"
+   },
+   "houses_list": {
+    "file": "gui/window_dynasty_house.gui",
+    "state": "did not open: did not open in 1 try"
+   },
+   "hybridize_culture_window": {
+    "file": "gui/window_hybridize_culture.gui",
+    "state": "console record"
+   },
+   "ingame_load_ingame": {
+    "file": "gui/frontend_ingame_menu.gui",
+    "state": "console record"
+   },
+   "ingame_pausemenu": {
+    "file": "gui/frontend_ingame_menu.gui",
+    "state": "console record"
+   },
+   "ingame_resign_confirmation": {
+    "file": "gui/window_resign_confirmation.gui",
+    "state": "console record"
+   },
+   "inventory_view": {
+    "file": "gui/window_inventory.gui",
+    "state": "console record"
+   },
+   "jomini_message": {
+    "file": "gui/notifications/jomini_message.gui",
+    "state": "console record"
+   },
+   "jomini_notification_sidebar": {
+    "file": "gui/notifications/notification_overlay.gui",
+    "state": "did not open: did not open in 1 try"
+   },
+   "knight_permissions": {
+    "file": "gui/window_knights.gui",
+    "state": "did not open: did not open in 1 try"
+   },
+   "knight_view": {
+    "file": "gui/window_knights.gui",
+    "state": "console record"
+   },
+   "languages_window": {
+    "file": "gui/window_languages.gui",
+    "state": "console record"
+   },
+   "lease_out_baronies_window": {
+    "file": "gui/window_lease_out_baronies.gui",
+    "state": "console record"
+   },
+   "levy_view": {
+    "file": "gui/window_levy.gui",
+    "state": "console record"
+   },
+   "lineage_window": {
+    "file": "gui/window_lineage.gui",
+    "state": "console record"
+   },
+   "load_ruler_window": {
+    "file": "gui/window_ruler_designer_load.gui",
+    "state": "console record"
+   },
+   "memories_window": {
+    "file": "gui/window_memories.gui",
+    "state": "console record"
+   },
+   "menatarms_view": {
+    "file": "gui/window_menatarms.gui",
+    "state": "console record"
+   },
+   "menatarmstype_view": {
+    "file": "gui/window_menatarms_type_view.gui",
+    "state": "console record"
+   },
+   "organization_window": {
+    "file": "gui/window_organization.gui",
+    "state": "console record"
+   },
+   "portrait_window": {
+    "file": "gui/window_barbershop.gui",
+    "state": "not tried: declared as a type definition inside a types block, where GUI.CreateWidget does not look"
+   },
+   "potential_agent_window": {
+    "file": "gui/window_intrigue_potential_scheme_agent.gui",
+    "state": "console record"
+   },
+   "potential_councillor_window": {
+    "file": "gui/window_council_potential_councillor.gui",
+    "state": "console record"
+   },
+   "potential_faction_member_window": {
+    "file": "gui/window_intrigue_potential_faction_member.gui",
+    "state": "console record"
+   },
+   "potential_great_project_contributors_window": {
+    "file": "gui/window_potential_great_project_contributors.gui",
+    "state": "console record"
+   },
+   "raid_window": {
+    "file": "gui/window_raid.gui",
+    "state": "console record"
+   },
+   "rally_point_window": {
+    "file": "gui/window_rally_points.gui",
+    "state": "console record"
+   },
+   "reforge_artifact_window": {
+    "file": "gui/window_artifact_reforge.gui",
+    "state": "console record"
+   },
+   "rename_popup": {
+    "file": "gui/shared/dialogs.gui",
+    "state": "console record"
+   },
+   "replace_pillar_window": {
+    "file": "gui/window_replace_pillar.gui",
+    "state": "console record"
+   },
+   "ruler_designer": {
+    "file": "gui/window_ruler_designer.gui",
+    "state": "console record"
+   },
+   "save_game_window": {
+    "file": "gui/window_save_game.gui",
+    "state": "console record"
+   },
+   "save_ruler_window": {
+    "file": "gui/window_ruler_designer_save.gui",
+    "state": "console record"
+   },
+   "select_commander_window": {
+    "file": "gui/window_army_select_commander.gui",
+    "state": "console record"
+   },
+   "siege_window": {
+    "file": "gui/window_siege.gui",
+    "state": "console record"
+   },
+   "situation_sub_region_window": {
+    "file": "gui/window_situation_sub_region.gui",
+    "state": "console record"
+   },
+   "succession_event_window": {
+    "file": "gui/window_succession_event.gui",
+    "state": "console record"
+   },
+   "succession_select_destiny_window": {
+    "file": "gui/window_succession_event.gui",
+    "state": "console record"
+   },
+   "task_contract": {
+    "file": "gui/window_task_contract.gui",
+    "state": "console record"
+   },
+   "title_add_law_window": {
+    "file": "gui/window_title_add_law.gui",
+    "state": "console record"
+   },
+   "title_customization_window": {
+    "file": "gui/window_title_customization.gui",
+    "state": "console record"
+   },
+   "title_history_window": {
+    "file": "gui/window_title_history.gui",
+    "state": "console record"
+   },
+   "tournament_contest_information": {
+    "file": "gui/activity_window_widgets/tournament_contest_information.gui",
+    "state": "console record"
+   },
+   "travel_option_selection_window": {
+    "file": "gui/window_travel_option_selection.gui",
+    "state": "console record"
+   },
+   "travel_planner_window": {
+    "file": "gui/window_travel_planner.gui",
+    "state": "console record"
+   },
+   "travel_route_edit_window": {
+    "file": "gui/window_travel_route_edit.gui",
+    "state": "console record"
+   },
+   "tutorial_window": {
+    "file": "gui/window_tutorial.gui",
+    "state": "console record"
+   },
+   "war_declared_overview": {
+    "file": "gui/window_war_declared_overview.gui",
+    "state": "console record"
+   },
+   "war_results": {
+    "file": "gui/window_war_results.gui",
+    "state": "console record"
+   },
+   "window_barbershop": {
+    "file": "gui/window_barbershop.gui",
+    "state": "console record"
+   },
+   "window_court_visuals": {
+    "file": "gui/window_court_visuals.gui",
+    "state": "console record"
+   },
+   "window_house_relation_history": {
+    "file": "gui/window_house_relation_history.gui",
+    "state": "console record"
+   },
+   "window_message_popup": {
+    "file": "gui/window_message_popup.gui",
+    "state": "console record"
+   },
+   "window_move_domicile": {
+    "file": "gui/window_move_domicile.gui",
+    "state": "console record"
+   },
+   "window_natural_disaster_participant_groups": {
+    "file": "gui/window_tgp_natural_disaster.gui",
+    "state": "not tried: declared as a type definition inside a types block, where GUI.CreateWidget does not look"
+   },
+   "window_pam_christian_church": {
+    "file": "gui/window_pam_christian_church.gui",
+    "state": "console record"
+   },
+   "window_puppet_selection": {
+    "file": "gui/window_puppet_selection.gui",
+    "state": "console record"
+   },
+   "window_situation": {
+    "file": "gui/window_situation.gui",
+    "state": "console record"
+   },
+   "window_situation_participant_groups": {
+    "file": "gui/window_situation.gui",
+    "state": "not tried: declared as a type definition inside a types block, where GUI.CreateWidget does not look"
+   },
+   "window_situation_participation": {
+    "file": "gui/window_situation_participation.gui",
+    "state": "console record"
+   },
+   "window_tgp_natural_disaster": {
+    "file": "gui/window_tgp_natural_disaster.gui",
+    "state": "console record"
+   },
+   "window_the_great_steppe": {
+    "file": "gui/window_the_great_steppe.gui",
+    "state": "console record"
+   },
+   "window_title_selector": {
+    "file": "gui/window_title_selector.gui",
+    "state": "console record"
+   },
+   "window_treasury_budget_change": {
+    "file": "gui/window_treasury_budget_change.gui",
+    "state": "console record"
+   }
+  }
+ },
+ "views on disk": {
+  "activity_list_detail_host_window": [
+   "activity_list",
+   "government_administration_window",
+   "window_tgp_dynastic_cycle"
+  ],
+  "activity_list_detail_invite_window": [
+   "activity_list",
+   "government_administration_window",
+   "window_tgp_dynastic_cycle"
+  ],
+  "artifact_details": [
+   "artifact_details_view",
+   "faith_window",
+   "holy_site_creation_window",
+   "holy_site_window",
+   "ledger_window",
+   "royal_court_window"
+  ],
+  "decision_detail": [
+   "court_window",
+   "faith_window",
+   "government_administration_window",
+   "holy_site_window",
+   "mainline_rite_tenets_window",
+   "military_view",
+   "royal_court_window",
+   "title_view_window",
+   "window_manage_tax_slots",
+   "window_situation_list"
+  ],
+  "diarchy": [
+   "my_realm_window"
+  ],
+  "domicile": [
+   "government_administration_window",
+   "my_realm_window",
+   "title_view_window"
+  ],
+  "epidemics": [
+   "epidemics_window",
+   "holding_view",
+   "legends_window",
+   "window_situation_list"
+  ],
+  "faith": [
+   "activity_guest_list",
+   "activity_intent_selection",
+   "activity_log",
+   "activity_planner",
+   "activity_window",
+   "appoint_court_position_view",
+   "artifact_details_view",
+   "cardinals_window",
+   "character_finder_window",
+   "character_lifestyle_window",
+   "character_window",
+   "council_window",
+   "court_window",
+   "culture_window",
+   "decisions_view",
+   "designate_heir",
+   "diarchy_window",
+   "domicile_window",
+   "factions_window",
+   "faith_window",
+   "government_administration_window",
+   "holding_view",
+   "holy_site_window",
+   "intrigue_window",
+   "kill_list",
+   "ledger_window",
+   "legends_window",
+   "mainline_rite_tenets_window",
+   "marriage_interaction_window",
+   "merit_pool_characters_window",
+   "migration_involved_character_list_window",
+   "military_view",
+   "my_realm_window",
+   "rite_creation_window",
+   "royal_court_window",
+   "struggle_involvement_window",
+   "succession_law_change_window",
+   "title_election",
+   "title_view_window",
+   "travel_entourage_list_window",
+   "war_overview_window",
+   "window_appoint_tax_collector",
+   "window_exchange_hostages",
+   "window_manage_tax_slots",
+   "window_message_settings",
+   "window_migration",
+   "window_personal_beliefs",
+   "window_silk_road",
+   "window_situation_list",
+   "window_tax_slot_assign_vassal",
+   "window_tax_slot_vassals",
+   "window_tgp_dynastic_cycle"
+  ],
+  "faith_conversion": [
+   "faith_window"
+  ],
+  "holy_site": [
+   "faith_window",
+   "holding_view",
+   "ledger_window"
+  ],
+  "holy_site_creation": [
+   "faith_window"
+  ],
+  "house_aspiration_window": [
+   "government_administration_window"
+  ],
+  "inventory": [
+   "character_window"
+  ],
+  "language": [
+   "culture_window",
+   "royal_court_window"
+  ],
+  "legends": [
+   "epidemics_window",
+   "holding_view",
+   "legends_window",
+   "window_situation_list"
+  ],
+  "memories": [
+   "character_window"
+  ],
+  "men_at_arms": [
+   "holding_view"
+  ],
+  "message_settings": [
+   "window_message_settings"
+  ],
+  "military": [
+   "holding_view",
+   "royal_court_window"
+  ],
+  "move_domicile_planner": [
+   "domicile_window",
+   "holding_view"
+  ],
+  "my_realm": [
+   "royal_court_window"
+  ],
+  "organization": [
+   "character_window"
+  ],
+  "personal_beliefs_window": [
+   "faith_window"
+  ],
+  "reforge_artifact": [
+   "artifact_details_view",
+   "holy_site_creation_window",
+   "holy_site_window",
+   "ledger_window",
+   "royal_court_window"
+  ],
+  "rite_creation": [
+   "faith_window"
+  ],
+  "select_title_troop_assignment": [
+   "military_view"
+  ],
+  "situations": [
+   "epidemics_window",
+   "legends_window",
+   "struggle_window",
+   "window_silk_road",
+   "window_situation_list",
+   "window_tgp_dynastic_cycle"
+  ],
+  "struggle": [
+   "window_situation_list"
+  ],
+  "struggle_involvement": [
+   "struggle_window"
+  ],
+  "succession_law_change": [
+   "my_realm_window"
+  ],
+  "tax_slot_appoint_tax_collector": [
+   "window_manage_tax_slots"
+  ],
+  "tax_slot_assign_vassal": [
+   "my_realm_window"
+  ],
+  "tax_slot_obligations": [
+   "window_manage_tax_slots",
+   "window_tax_slot_assign_vassal"
+  ],
+  "tax_slot_vassals": [
+   "window_manage_tax_slots"
+  ],
+  "treasury_budget_change": [
+   "my_realm_window",
+   "royal_court_window"
+  ]
+ }
+}

@@ -691,18 +691,21 @@ def stale_reports() -> list[str]:
 
     The claims on `reports\\pairing.json` are checked against the report, not against the harvest
     it was drawn from: from September to 21 October 2026 the report described an older harvest than
-    the one on disk, and every claim on it still matched. A clone without a harvest has nothing to
-    compare.
+    the one on disk, and every claim on it still matched. The same goes for `reports\\missing.json`,
+    the windows without a player record. A clone without a harvest has nothing to compare.
     """
-    from tools.ck3 import pairing
+    from tools.ck3 import missing, pairing
     if not glob.glob(os.path.join(paths.HARVEST, '*.json')):
         return []
-    described = json.loads(pathlib.Path(pairing.REPORT).read_text(encoding='utf-8')).get('harvest')
     on_disk = pairing.harvested_at()
-    if described == on_disk:
-        return []
-    return [(f'reports\\pairing.json describes the harvest of {described}, and the one on disk is of '
-             f'{on_disk}; run python -m tools.ck3.pairing')]
+    problems = []
+    for report, tool in ((pairing.REPORT, 'tools.ck3.pairing'), (missing.REPORT, 'tools.ck3.missing')):
+        described = (json.loads(pathlib.Path(report).read_text(encoding='utf-8')).get('harvest')
+                     if os.path.exists(report) else None)
+        if described != on_disk:
+            problems.append(f'reports\\{os.path.basename(report)} describes the harvest of {described}, '
+                            f'and the one on disk is of {on_disk}; run python -m {tool}')
+    return problems
 
 
 def main(all_of_them: bool) -> int:
