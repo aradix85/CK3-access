@@ -33,6 +33,11 @@ button on disk opens, with the windows that carry such a button, and does not gu
 Beside its group every window carries its state: a console record, a record of a window that did
 not open with the reason, drawn always (in every record's baseline), or never tried with the
 reason the map gives.
+
+**The keys no round has pressed come last:** a window with a player record whose files declare
+keys a key round may press (`windowmap.presses_for`) and that has no row in
+`reports\window_keys.json` yet. On 24 October 2026 TE DOEN still counted nine of those by hand
+from two days before, and ten had no round.
 """
 import json
 import os
@@ -40,7 +45,7 @@ import pathlib
 from typing import TypedDict
 
 from tools import paths, terminal
-from tools.ck3 import guimap, harvest, openers, pairing
+from tools.ck3 import guimap, harvest, openers, pairing, windowmap
 
 REPORT = os.path.join(paths.REPORTS, 'missing.json')
 GROUPS = ('developer', 'multiplayer', 'decided', 'event', 'interaction', 'chain', 'no window route on disk')
@@ -57,6 +62,10 @@ DECIDED = {
     'layer_window': 'drawn always, so in every capture (21 October 2026)',
     'toolbars_window': 'the console draws it while it stands open, so in every console capture '
                        '(measured 21 October 2026)',
+    'JominiMusicPlayerView': 'visible = no after inheritance: the console made it and it was not '
+                             'drawn (read 24 October 2026)',
+    'jomini_notification_sidebar': 'visible = no after inheritance: the console made it and it was '
+                                   'not drawn (read 24 October 2026)',
 }
 
 
@@ -109,9 +118,23 @@ def player_route(record: dict[str, object]) -> bool:
     return bool(record.get('opened')) and not str(record.get('route', '')).startswith('GUI.CreateWidget')
 
 
-def reckon() -> tuple[dict[str, dict[str, Missing]], dict[str, list[str]]]:
-    """Every window of the map without a player record, by group; and every view a button on disk
-    opens, with the windows that carry such a button."""
+def keys_not_pressed(played: set[str]) -> dict[str, list[str]]:
+    """Window -> the bindings a key round would press in it, for every window with a player record
+    and no row in `reports\\window_keys.json`. `window_bindings` files a key under the innermost
+    window it sits in, so a nested window without a record comes back too, and is left out."""
+    left = played - set(json.loads(pathlib.Path(windowmap.WINDOW_KEYS).read_text(encoding='utf-8')))
+    bound = windowmap.shortcut_file()
+    out = {}
+    for window, rows in sorted(windowmap.window_bindings(left).items()):
+        keys = windowmap.presses_for(rows, bound)
+        if window in left and keys:
+            out[window] = sorted({binding for binding, _, _ in keys})
+    return out
+
+
+def reckon() -> tuple[dict[str, dict[str, Missing]], dict[str, list[str]], dict[str, list[str]]]:
+    """Every window of the map without a player record, by group; every view a button on disk
+    opens, with the windows that carry such a button; and the windows whose keys no round pressed."""
     mapped: dict[str, dict[str, object]] = json.loads(pathlib.Path(harvest.MAP).read_text(encoding='utf-8'))['windows']
     records: dict[str, dict[str, object]] = {}
     baseline: set[str] = set()
@@ -129,16 +152,17 @@ def reckon() -> tuple[dict[str, dict[str, Missing]], dict[str, list[str]]]:
         gui_file = str(mapped[window]['file'])
         out[group_of(window, gui_file, chained)][window] = {
             'file': gui_file, 'state': DECIDED.get(window) or state_of(window, records.get(window), baseline, mapped[window])}
-    return out, views
+    return out, views, keys_not_pressed(played)
 
 
 def main() -> None:
     terminal.utf8()
-    groups, views = reckon()
+    groups, views, keys = reckon()
     total = sum(len(windows) for windows in groups.values())
     report = {'harvest': pairing.harvested_at(), 'without a player record': total,
               'counts': {group: len(windows) for group, windows in groups.items()}, 'groups': groups,
-              'views on disk': views}
+              'views on disk': views, 'windows whose keys no round pressed': len(keys),
+              'keys not pressed': keys}
     pathlib.Path(REPORT).write_text(json.dumps(report, indent=1, ensure_ascii=False), encoding='utf-8')
     print(f'{total} mapped windows without a player record')
     for group, windows in groups.items():
@@ -148,6 +172,9 @@ def main() -> None:
     print(f'\nviews a button on disk opens: {len(views)}')
     for view, sources in views.items():
         print(f"  {view} - from {', '.join(sources)}")
+    print(f'\nwindows with a player record whose keys no round pressed: {len(keys)}')
+    for window, bindings in keys.items():
+        print(f"  {window} - {', '.join(bindings)}")
     print(f'\nwritten to {os.path.relpath(REPORT, paths.PROJECT)}')
 
 

@@ -779,10 +779,18 @@
  },
  {
   "name": "windows without a player record and without a window route on disk",
-  "claimed": 109,
+  "claimed": 107,
   "measure": "json_field",
   "arguments": ["<project>\\reports\\missing.json", "counts", "no window route on disk"],
   "counting_rule": "the rest: no file names a call that opens the window itself; some sit behind a view whose window only a round sees",
+  "quoted_in": ["brief\\vensters.md"]
+ },
+ {
+  "name": "windows with a player record whose keys no round pressed",
+  "claimed": 24,
+  "measure": "json_field",
+  "arguments": ["<project>\\reports\\missing.json", "windows whose keys no round pressed"],
+  "counting_rule": "windows with a player record and no row in reports\\window_keys.json, in which windowmap.presses_for finds a key a key round would press (view only, and no widget of the window acts on it)",
   "quoted_in": ["brief\\vensters.md"]
  }
 ]

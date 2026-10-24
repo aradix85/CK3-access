@@ -4,11 +4,11 @@
  "counts": {
   "developer": 26,
   "multiplayer": 17,
-  "decided": 6,
+  "decided": 8,
   "event": 11,
   "interaction": 20,
   "chain": 10,
-  "no window route on disk": 109
+  "no window route on disk": 107
  },
  "groups": {
   "developer": {
@@ -188,6 +188,10 @@
    }
   },
   "decided": {
+   "JominiMusicPlayerView": {
+    "file": "gui/jomini/music_player/music_player_view.gui",
+    "state": "visible = no after inheritance: the console made it and it was not drawn (read 24 October 2026)"
+   },
    "achievement_popup_window": {
     "file": "gui/achievements/popup.gui",
     "state": "drawn always, so in every capture (21 October 2026)"
@@ -195,6 +199,10 @@
    "base_dialog": {
     "file": "gui/shared/dialogs.gui",
     "state": "a template the game never builds under that name; its four instances each carry a name of their own (read 23 October 2026)"
+   },
+   "jomini_notification_sidebar": {
+    "file": "gui/notifications/notification_overlay.gui",
+    "state": "visible = no after inheritance: the console made it and it was not drawn (read 24 October 2026)"
    },
    "layer_window": {
     "file": "gui/map_icon_layer.gui",
@@ -384,10 +392,6 @@
    }
   },
   "no window route on disk": {
-   "JominiMusicPlayerView": {
-    "file": "gui/jomini/music_player/music_player_view.gui",
-    "state": "did not open: did not open in 1 try"
-   },
    "accolade_attribute_selection_view": {
     "file": "gui/window_accolade_attribute_selection.gui",
     "state": "console record"
@@ -595,10 +599,6 @@
    "jomini_message": {
     "file": "gui/notifications/jomini_message.gui",
     "state": "console record"
-   },
-   "jomini_notification_sidebar": {
-    "file": "gui/notifications/notification_overlay.gui",
-    "state": "did not open: did not open in 1 try"
    },
    "knight_permissions": {
     "file": "gui/window_knights.gui",
@@ -1020,6 +1020,105 @@
   "treasury_budget_change": [
    "my_realm_window",
    "royal_court_window"
+  ]
+ },
+ "windows whose keys no round pressed": 24,
+ "keys not pressed": {
+  "activity_guest_list": [
+   "close_window",
+   "confirm",
+   "confirm_2"
+  ],
+  "activity_intent_selection": [
+   "close_window"
+  ],
+  "activity_log": [
+   "close_window"
+  ],
+  "activity_planner": [
+   "intent",
+   "travel_option"
+  ],
+  "appoint_court_position_view": [
+   "close_window"
+  ],
+  "artifact_details_view": [
+   "close_window",
+   "tab_1",
+   "tab_2"
+  ],
+  "custom_message_window": [
+   "close_window"
+  ],
+  "designate_heir": [
+   "close_window"
+  ],
+  "holy_site_creation_window": [
+   "close_window",
+   "holy_site_compact"
+  ],
+  "holy_site_window": [
+   "close_window",
+   "holy_site_compact",
+   "holy_site_inventory"
+  ],
+  "ledger_filter_window": [
+   "close_window"
+  ],
+  "mainline_rite_tenets_window": [
+   "close_window",
+   "compact_faith_window",
+   "sub_tab_1",
+   "sub_tab_2",
+   "sub_tab_3"
+  ],
+  "marriage_interaction_window": [
+   "close_window"
+  ],
+  "plan_great_project": [
+   "close_window",
+   "tab_1",
+   "tab_2"
+  ],
+  "situation_catalysts_history_window": [
+   "close_window"
+  ],
+  "situation_catalysts_window": [
+   "close_window"
+  ],
+  "succession_law_change_window": [
+   "close_window"
+  ],
+  "title_election": [
+   "close_window",
+   "go_back",
+   "go_back_2",
+   "tab_1",
+   "tab_2"
+  ],
+  "title_view_window": [
+   "go_back",
+   "go_back_2"
+  ],
+  "window_exchange_hostages": [
+   "close_window"
+  ],
+  "window_house_aspiration": [
+   "close_window"
+  ],
+  "window_silk_road": [
+   "go_back",
+   "go_back_2"
+  ],
+  "window_tax_slot_assign_vassal": [
+   "close_window"
+  ],
+  "window_tgp_dynastic_cycle": [
+   "close_window",
+   "go_back",
+   "go_back_2",
+   "tab_1",
+   "tab_2"
   ]
  }
 }
