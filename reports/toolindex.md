@@ -202,6 +202,7 @@ returns a pair, passed on as one thing, costs a run.
 | `type_table(rows=None)` | 2-tuple | Every template the engine knows, as name -> definition. |
 | `build(key, body, scope, templates, overrides=None, depth=0, in_tooltip=False, above=())` | value | One widget, fully expanded: inherited defaults, mixed-in templates, slots filled. |
 | `attribute(node, key)` | value | The value of the last attribute with this key, or None when the widget has none. |
+| `contexts(node)` | value | Every data context this widget sets, in file order, the last one last. |
 | `written(node)` | value | What the file puts in this widget as its text: `text`, a localization key, or else |
 | `windows(rows=None, table=None)` | value | Every window on disk, as name -> (virtual path, its entry). |
 | `root_finder(table)` | value | Type name -> the end of its inheritance chain, remembered, because the walk repeats itself |

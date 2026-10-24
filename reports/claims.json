@@ -218,14 +218,14 @@
  },
  {
   "name": "texts the reading rule says over the harvest",
-  "claimed": 6444,
+  "claimed": 6527,
   "measure": "unseen_texts",
   "arguments": ["texts"],
-  "counting_rule": "every widget in a harvested record whose text is not empty once the game's markup is stripped, summed over the records that hold a window; refusal records carry no tree and do not count. The harvest on 1.20.1.2 of 21 to 23 October 2026"
+  "counting_rule": "every widget in a harvested record whose text is not empty once the game's markup is stripped, summed over the records that hold a window; refusal records carry no tree and do not count. The harvest on 1.20.1.2 of 21 to 24 October 2026"
  },
  {
   "name": "harvested texts that are in the tree but not on the screen",
-  "claimed": 3346,
+  "claimed": 3357,
   "measure": "unseen_texts",
   "arguments": ["all"],
   "counting_rule": "of those texts, the ones the reading rule skips: the rectangle falls outside the drawing area of that record, or it is clipped inside its scroll area, or an ancestor sits at alpha zero, or an ancestor carries 0x08 in its state byte - the game hiding it. The union is smaller than the sum because a text can fail two at once"
@@ -238,18 +238,18 @@
  },
  {
   "name": "windows opened in the harvest round",
-  "claimed": 249,
+  "claimed": 250,
   "measure": "harvest_total",
   "arguments": [
    "<project>\\harvest",
    "windows"
   ],
-  "counting_rule": "records in harvest\\ with opened true, on 1.20.1.2, 21 to 23 October 2026: most on Ghur played, the rest on a state that has what the window needs; the route of each record says how it was opened. A refusal carries no tree; a window with no route at all is not tried, and what the bare screen draws is the baseline and is never harvested",
+  "counting_rule": "records in harvest\\ with opened true, on 1.20.1.2, 21 to 24 October 2026: most on Ghur played, the rest on a state that has what the window needs; the route of each record says how it was opened. A refusal carries no tree; a window with no route at all is not tried, and what the bare screen draws is the baseline and is never harvested",
   "quoted_in": ["README.md", "brief\\vensters.md"]
  },
  {
   "name": "text boxes in the harvest round",
-  "claimed": 3053,
+  "claimed": 3125,
   "measure": "harvest_total",
   "arguments": [
    "<project>\\harvest",
@@ -259,7 +259,7 @@
  },
  {
   "name": "text boxes the recogniser confirmed",
-  "claimed": 2781,
+  "claimed": 2838,
   "measure": "harvest_total",
   "arguments": [
    "<project>\\harvest",
@@ -333,7 +333,7 @@
  },
  {
   "name": "harvested widgets that carry text",
-  "claimed": 6475,
+  "claimed": 6558,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -343,7 +343,7 @@
  },
  {
   "name": "harvested texts paired with a place in a gui file",
-  "claimed": 5825,
+  "claimed": 5900,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -353,7 +353,7 @@
  },
  {
   "name": "harvested texts whose gui file names a plain localization key",
-  "claimed": 830,
+  "claimed": 831,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -363,7 +363,7 @@
  },
  {
   "name": "plain keys whose localization matches what was on screen",
-  "claimed": 830,
+  "claimed": 831,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -373,7 +373,7 @@
  },
  {
   "name": "harvested texts whose gui file writes the sentence out itself",
-  "claimed": 129,
+  "claimed": 128,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -383,7 +383,7 @@
  },
  {
   "name": "sentences written in the gui file that match what was on screen",
-  "claimed": 129,
+  "claimed": 128,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -393,7 +393,7 @@
  },
  {
   "name": "harvested texts filled by a data function",
-  "claimed": 4583,
+  "claimed": 4642,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -472,7 +472,7 @@
  },
  {
   "name": "harvested texts the gui files do not predict",
-  "claimed": 901,
+  "claimed": 925,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -482,7 +482,7 @@
  },
  {
   "name": "unexplained texts that inherit a data context",
-  "claimed": 687,
+  "claimed": 711,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -502,7 +502,7 @@
  },
  {
   "name": "unexplained texts in windows a player opens",
-  "claimed": 832,
+  "claimed": 856,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -512,7 +512,7 @@
  },
  {
   "name": "unexplained bare numbers in windows a player opens",
-  "claimed": 409,
+  "claimed": 412,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -522,7 +522,7 @@
  },
  {
   "name": "unexplained texts in windows a player opens that the reading rule says",
-  "claimed": 302,
+  "claimed": 320,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -533,7 +533,7 @@
  },
  {
   "name": "unexplained bare numbers in windows a player opens that the reading rule says",
-  "claimed": 1,
+  "claimed": 4,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -543,7 +543,7 @@
  },
  {
   "name": "named live widgets in the harvest",
-  "claimed": 53760,
+  "claimed": 54491,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -554,7 +554,7 @@
  },
  {
   "name": "named live widgets the alignment puts on their own name",
-  "claimed": 51725,
+  "claimed": 52383,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",

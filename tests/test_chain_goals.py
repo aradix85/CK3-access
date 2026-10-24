@@ -27,7 +27,10 @@ WINDOWS = ('window = { name = "court" filter_button = {} list_filter = { name = 
            ' list_filter = { name = "its_vassal_filter" datacontext = "[W.GetVassals]" } }'
            ' window = { name = "ledger" button = { onclick = "[GetVariableSystem.Toggle(\'filters\')]" } }'
            ' window = { name = "holder" sub_window = { visible = "[ Sub.IsVisible ]" }'
-           ' button = { onclick = "[Sub.Close]" } button = { onclick = "[Sub.Toggle]" } }')
+           ' button = { onclick = "[Sub.Close]" } button = { onclick = "[Sub.Toggle]" } }'
+           ' window = { name = "matchmaker" widget = { datacontext = "[M.GetList]"'
+           ' datacontext = "[List.Filtered]" filter_button = { name = "match_button" } }'
+           ' list_filter = { name = "match_filter" datacontext = "[M.GetList]" } }')
 # Two tabs without a key, and the filter button of the second list behind the second tab and behind
 # a condition that no button declares - the shape of the subordinates in the character window.
 TABBED = '''window = { name = "tabbed"
@@ -69,12 +72,18 @@ def test_the_data_context_picks_the_button_where_one_window_holds_two_lists(tmp_
     stack: list[tuple[guimap.Node, tuple[str, ...]]] = [(tree, ())]
     while stack:
         node, context = stack.pop()
-        own = guimap.attribute(node, 'datacontext')
-        context = context + ((own,) if own else ())
+        context = context + guimap.contexts(node)
         stack.extend((child, context) for child in node['children'])
         if openers.fires_for(node, goal, context)[0]:
             pressed.append(guimap.attribute(node, 'name'))
     assert pressed == ['vassal_button']
+
+
+def test_a_widget_passes_on_every_data_context_it_sets(tmp_path: pathlib.Path) -> None:
+    """The candidate list of the marriage window sets the list and then a filter of it, and its
+    filter window carries the list: only the first context reaches the button (24 October 2026)."""
+    routes = {r['target']: r['sources'] for r in openers.chain_routes({'matchmaker'}, tables(tmp_path))}
+    assert routes == {'match_filter': ['matchmaker']}
 
 
 def test_a_hidden_trigger_is_shown_by_the_button_whose_down_hides_it(tmp_path: pathlib.Path) -> None:

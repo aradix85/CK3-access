@@ -4,6 +4,9 @@ Outcomes, newest day first. No release yet.
 
 ## 2026-10-24
 - Save games stay out of the repository.
+- The marriage window and its candidate filter are harvested on Ghur played, from a free spouse slot in the character window. 250 windows.
+- A chain step passes on every data context a widget sets, not only the last, so the files lead to the filter button of the marriage candidates.
+- The religion and rite panels of the faith window no longer open for a player in 1.20; the Rites tab of Faith Details holds their lists.
 
 ## 2026-10-23
 - The hostage exchange is harvested on Harold, through the war overview's peace terms; `tools/ck3/hand.py` takes a step that only presses inside the open window.

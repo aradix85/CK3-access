@@ -423,8 +423,7 @@ def unhiding(source: str, goal: Goal, tables: guimap.Tables) -> list[Goal]:
         (guimap.window(source, table, local, known), (), ())]
     while stack:
         node, context, conditions = stack.pop()
-        own = guimap.attribute(node, 'datacontext')
-        context += (own,) if own else ()
+        context += guimap.contexts(node)
         visible = guimap.attribute(node, 'visible')
         conditions += (bare(visible),) if visible else ()
         down = guimap.attribute(node, 'down')
@@ -461,8 +460,7 @@ def chain_routes(start: set[str], tables: guimap.Tables) -> list[ChainRoute]:
         stack: list[tuple[guimap.Node, tuple[str, ...]]] = [(tree, ())]
         while stack:
             node, context = stack.pop()
-            own = guimap.attribute(node, 'datacontext')
-            context = context + ((own,) if own else ())
+            context = context + guimap.contexts(node)
             stack.extend((child, context) for child in node['children'])
             nodes.append((node, context))
         inside = {guimap.attribute(node, 'name') for node, _ in nodes} & known.keys()

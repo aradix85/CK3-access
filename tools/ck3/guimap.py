@@ -449,6 +449,19 @@ def attribute(node: Node, key: str) -> str | None:
     return found
 
 
+def contexts(node: Node) -> tuple[str, ...]:
+    """Every data context this widget sets, in file order, the last one last.
+
+    **All of them, not the last:** a widget can carry several, and each gives its children one
+    more object. The candidate list of the marriage window sets
+    `[MatchmakerInteractionWindow.GetCharacterList]` and then a filter of it; with only the last,
+    its filter button did not match the context of `filter_window`, which it opens (measured
+    24 October 2026 on Ghur played). Over every window on disk this adds that button and Faith
+    Details in the faith window, and takes no toggle away.
+    """
+    return tuple(value for name, value in node['attrs'] if name == 'datacontext' and value)
+
+
 def written(node: Node) -> str | None:
     """What the file puts in this widget as its text: `text`, a localization key, or else
     `raw_text`, a sentence written in the file itself.

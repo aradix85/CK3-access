@@ -204,8 +204,7 @@ def pairs(window: str, table: guimap.Table, local: guimap.LocalTable, known: gui
             for child in by_parent.get(built['address'], []):
                 work.append((None, child, context))
             continue
-        own = guimap.attribute(source, 'datacontext')
-        here = context + ((own,) if own else ())
+        here = context + guimap.contexts(source)
         out.append((source, built, here))
         children = by_parent.get(built['address'], [])
         folder = insertion_folders().get(guimap.attribute(source, 'name') or '')

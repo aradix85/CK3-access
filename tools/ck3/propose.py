@@ -46,8 +46,7 @@ def texts(node: guimap.Node, context: tuple[str, ...] = (), inside: str | None =
         out = []
     if node['type'] == 'tooltipwidget':
         return out                      # a tooltip is for the explain key, not for the order
-    own = guimap.attribute(node, 'datacontext')
-    below = context + ((own,) if own else ())
+    below = context + guimap.contexts(node)
     model = guimap.attribute(node, 'datamodel') or inside
     value = guimap.written(node)
     if value:
