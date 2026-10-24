@@ -2,6 +2,9 @@
 
 Outcomes, newest day first. No release yet.
 
+## 2026-10-24
+- Save games stay out of the repository.
+
 ## 2026-10-23
 - The hostage exchange is harvested on Harold, through the war overview's peace terms; `tools/ck3/hand.py` takes a step that only presses inside the open window.
 - A widget counts as on screen for a click when its middle is in the drawing area, and a named widget is pressed where the chain step found it, not as the first of its name.

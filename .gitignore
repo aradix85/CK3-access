@@ -27,8 +27,8 @@ dll/channel.dll
 # This is Paradox's data. Generate it yourself with the game's debug commands.
 naslag/
 
-# Not published: the sweep's raw material - 51 MB of widget trees and window captures taken from
-# one game state on one machine. It is measurement, not source, and it is Paradox's interface.
+# Not published: the sweep's raw material - widget trees and window captures taken from game
+# states on one machine. It is measurement, not source, and it is Paradox's interface.
 # Produce it yourself with tools/ck3/harvest.py; what was learned from it is in README.md.
 # The pattern also covers a parked round kept for comparison, such as harvest-2026-10-21-1.19.0.6.
 harvest*/
@@ -42,6 +42,9 @@ tools/docsearch.py
 tools/ocr_models/
 tools/nvda/nvdaControllerClient.dll
 tools/nvda/*.exe
+
+# Not published: save games. The tools read them from the game's own save folder.
+*.ck3
 
 # machine-specific copies of settings
 pdx_settings.origineel.txt
