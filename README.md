@@ -81,8 +81,8 @@ Seven parts, 6.1 to 6.7 below, split where a game patch is most likely to hit.
 | 6.6 | **Presentation** — `screens/`, `tools/ck3/reading.py`, `tools/ck3/reader.py` | what gets said, in what order, on which key |
 | 6.7 | **Speech** — `tools/nvda/speech.py` | one seam to NVDA, speech and braille together |
 
-**Direction:** installing should end up as one DLL, the NVDA controller client and the screen files
-beside it, and a launch option — no Python. So logic moves into the DLL when a measurement says it
+**Direction:** installing should end up as one DLL with the NVDA controller client and the screen files
+beside it — no Python, no paths to fill in. So logic moves into the DLL when a measurement says it
 pays. Speech and braille stay outside; receiving keys stays inside.
 
 ### 6.1 The channel
@@ -254,7 +254,8 @@ This project stands on other people's work and ideas.
   public map of where this game keeps things in memory, and the technique of reaching a global through
   a wildcard instruction search. Nothing from the table is copied.
 - **KeinNiemand** — LargePageInjectorMods (`github.com/KeinNiemand/LargePageInjectorMods`): loading a
-  DLL into a Paradox game through `launcher-settings.json`, the route planned for the player version.
+  DLL into a Paradox game through `launcher-settings.json`, one of two routes the player version may
+  take.
 - **The CK3 Wiki**, the Interface page for modders (`ck3.paradoxwikis.com/Interface`): draw order,
   layers, and what `alwaystransparent` and `allow_outside` do to a click.
 - **noxsidereum** (skyretk) and **d3dev** (`d3_tooltips`) — worked examples of reading RTTI and
