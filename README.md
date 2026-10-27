@@ -151,7 +151,8 @@ Text recognition (`tools/ocr.py`) is a witness, never the product.
 
 **Open a window the way a player does.** The console builds a window without its data context, so it
 yields captions without values; a key, a click, a chain of presses the gui files describe
-(`openers.chain`), or presses named by hand (`tools/ck3/hand.py`) give the values. **Check the window
+(`openers.chain`), presses named by hand (`tools/ck3/hand.py`), or an event the console fires - the
+game shows it in its own window, with its data - give the values. **Check the window
 map against the game**, not the files: `windowmap.unmapped` lists what the engine built that the map
 lacks.
 
