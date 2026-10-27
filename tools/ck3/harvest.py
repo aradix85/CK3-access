@@ -580,7 +580,8 @@ def stop_checks(pid: int, player: int, player_name: str | None, before: str) -> 
 
 
 def chain_press(game: windowmap.Game, source: str, goal: 'openers.Goal', tables: guimap.Tables,
-                showing: str | None = None) -> tuple[widgettree.Nodes, set[str], 'openers.Spot | None', str | None]:
+                showing: str | None = None,
+                skip: int = 0) -> tuple[widgettree.Nodes, set[str], 'openers.Spot | None', str | None]:
     """In `source`, standing open, press what reaches `goal` and wait for what comes up: the tree
     then, the windows the press brought up, the widget pressed, and why nothing was pressed. The
     chain round and the key round both take a chain step here; the caller puts the state back.
@@ -592,7 +593,7 @@ def chain_press(game: windowmap.Game, source: str, goal: 'openers.Goal', tables:
     """
     from tools.ck3 import openers  # openers imports this module
     nodes, _, before = game.state()
-    _, spot, why = openers.press_toward(game, source, goal, tables, showing)
+    _, spot, why = openers.press_toward(game, source, goal, tables, showing, skip)
     opened: set[str] = set()
     for hidden in [] if spot is not None else openers.unhiding(source, goal, tables):
         if openers.press_toward(game, source, hidden, tables)[1] is None:

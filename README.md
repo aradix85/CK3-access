@@ -88,7 +88,8 @@ pays. Speech and braille stay outside; receiving keys stays inside.
 ### 6.1 The channel
 
 An injected DLL exposing primitives over a named pipe: read memory, walk the widget tree, post a
-click, a key, a character or a key combination. It contains no game knowledge and no speech.
+left or right click, a key, a character or a key combination. It contains no game knowledge and no
+speech.
 - Tested without the game: `tests/test_channel.py` drives every command through the real pipe
   against a fake widget tree, also under AddressSanitizer. The build stops on any warning.
 - A limit either grows or announces itself, never silently.

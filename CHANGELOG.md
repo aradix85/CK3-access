@@ -8,6 +8,8 @@ Outcomes, newest day first. No release yet.
 - An event fired from the console opens in its own window with its data, as a player gets it; `tools/ck3/hand.py` records it as `event:<id>`.
 - All eleven event windows are harvested on Ghur played from events fired in the console; the harvest answers an event by clicking its first option.
 - The reader says everything in a scroll area on screen, also rows scrolled out of view: a long event description is read to its end.
+- The channel posts a right click (`rmouse`), and `tools/ck3/hand.py` takes a step `right:<call>`, trying the portraits in order.
+- The interaction menu, grant titles, the vassal contract and the confirmation window are harvested on Ghur played. 178 windows still lack a player route.
 
 ## 2026-10-24
 - Save games stay out of the repository.

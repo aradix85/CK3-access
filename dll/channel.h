@@ -19,7 +19,7 @@ Pointer as_pointer(Whole number)
 void keys_enable(bool enable);
 void cmd_waitkey(DWORD timeout);
 void cmd_swallow(const char* rest);
-void cmd_mouse(unsigned x, unsigned y);
+void cmd_mouse(unsigned x, unsigned y, bool right);
 void cmd_sendkey(unsigned code);
 void cmd_sendchar(unsigned ch);
 void cmd_count(void);

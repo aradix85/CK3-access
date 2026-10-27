@@ -93,7 +93,9 @@ class Goal(NamedTuple):
     set (`name` the variable, `value` None when it only has to exist), or a state comes on (`name`
     the data function a toggle button declares as its `down`, `value` the window, `context` the
     data context of the window, which the button has to sit in). A fourth kind, `call`, is a press by
-    hand: `name` a piece of an onclick, for a step no goal on disk reaches (`tools.ck3.hand`)."""
+    hand: `name` a piece of an onclick, for a step no goal on disk reaches (`tools.ck3.hand`); `right`
+    is the same for a piece of an `onrightclick`, pressed with the right button, which is how the
+    menu of interactions opens on a portrait (`DefaultOnCharacterRightClick`)."""
     kind: str
     name: str
     value: str | None = None
@@ -399,7 +401,9 @@ def fires_for(source: guimap.Node | None, goal: Goal,
     for key, value in source['attrs']:
         if key not in ('onclick', 'onrightclick') or not value:
             continue
-        if key == 'onclick' and (toggle or reaches(value, goal)):
+        right = goal.kind == 'right' and key == 'onrightclick' and goal.name in value
+        left = goal.kind != 'right' and key == 'onclick' and (toggle or reaches(value, goal))
+        if right or left:
             wanted.append(value)
         else:
             others.append(f'{key}: {value}')
@@ -643,9 +647,13 @@ def shows(record: pairing.Record, address: int, text: str) -> bool:
 
 
 def press_toward(game: windowmap.Game, window: str, goal: Goal, tables: guimap.Tables,
-                 showing: str | None = None) -> tuple[list[Spot], Spot | None, str | None]:
+                 showing: str | None = None, skip: int = 0) -> tuple[list[Spot], Spot | None, str | None]:
     """In `window`, open, press the first widget that reaches `goal` and a click can reach; with
-    `showing`, the first whose row shows that text.
+    `showing`, the first whose row shows that text; with `skip`, the one after that many.
+
+    `skip` is for a caller that tries the candidates in order: a right click on the first portrait
+    of the character window fell on an empty spouse slot, and on the portraits of the dead parents
+    nothing opened; the living heir's opened the menu of interactions (27 October 2026, Ghur played).
 
     A named one is pressed at its middle, with scale and class asked of the whole tree. Measured
     21 September 2026 on `filters` in the ledger: the aligned point opened nothing, and this opened
@@ -671,12 +679,14 @@ def press_toward(game: windowmap.Game, window: str, goal: Goal, tables: guimap.T
         top = lands_on(buttons, (int(x + w / 2), int(y + h / 2)))
         spot['why_not'] = 'covered everywhere, at its middle by {}'.format(
             (top['name'] or top['class']) if top else 'nothing readable')
-    if not reachable:
+    if len(reachable) <= skip:
         why = sorted({s['why_not'] or '' for s in spots})
-        return spots, None, 'nothing in {} can be pressed for it: {}'.format(
-            window, ', '.join(why) or 'no live widget carries the call')
-    spot, point = reachable[0]
-    if spot['name']:
+        return spots, None, 'nothing {}in {} can be pressed for it: {}'.format(
+            'more ' if skip else '', window, ', '.join(why) or 'no live widget carries the call')
+    spot, point = reachable[skip]
+    if goal.kind == 'right':
+        channel.ask(f'rmouse {int(point[0])} {int(point[1])}')
+    elif spot['name']:
         full = game.tree()
         refused = press(spot['address'], full, onscreen.scales_for(list(full)),
                         widgettree.class_map(game.pid, {a: k[0] for a, k in full.items()}))

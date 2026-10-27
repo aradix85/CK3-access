@@ -241,7 +241,7 @@ returns a pair, passed on as one thing, costs a run.
 | `record_window(game, name, nodes, header, route, attempts, file, started)` | dict | Everything this project can read of one drawn window, plus a capture. It stays open. |
 | `harvest(game, name, row, baseline, header)` | 2-tuple | One window, from opening to the state coming back. Returns the record, or a reason. |
 | `stop_checks(pid, player, player_name, before)` | nothing | The three conditions asked before every window: memory, the channel, and the player. |
-| `chain_press(game, source, goal, tables, showing=None)` | 4-tuple | In `source`, standing open, press what reaches `goal` and wait for what comes up: the tree |
+| `chain_press(game, source, goal, tables, showing=None, skip=0)` | 4-tuple | In `source`, standing open, press what reaches `goal` and wait for what comes up: the tree |
 | `player_chains(names, direct, tables)` | value | Window -> the chain route that opens it, for each of `names` that no key or click opens, as |
 | `open_along(game, name, direct, chained, baseline, tables)` | value of 2-tuple | Open `name` along a player route: its key or click, or the chain from a window that opens |
 | `chain_step(game, route, source, direct, chained, windows, baseline, header, tables)` | 2-tuple | One chain route from one of its sources: open the source along its own route, press what |
@@ -381,7 +381,7 @@ returns a pair, passed on as one thing, costs a run.
 | `reachable_point(buttons, widget_address, rect)` | value of NoneType | A point on this widget that a click really reaches, or None if it is covered everywhere. |
 | `spots_for_goal(game, pid, window, goal, tables)` | 6-tuple | Every widget of an open window that the files say reaches `goal`, aligned rather than guessed. |
 | `shows(record, address, text)` | value | Does the widget at `address`, or one below it, show `text`? Case and markup do not count. |
-| `press_toward(game, window, goal, tables, showing=None)` | 3-tuple | In `window`, open, press the first widget that reaches `goal` and a click can reach; with |
+| `press_toward(game, window, goal, tables, showing=None, skip=0)` | 3-tuple | In `window`, open, press the first widget that reaches `goal` and a click can reach; with |
 | `trigger_spots(row, named, nodes)` | value of list | Where the click for this row could land: the widget itself, or its nameless children. |
 | `on_screen(address, nodes, scales, classes)` | str of value of NoneType | Why this widget cannot be clicked, or None when it can. |
 | `window_above(address, chain, nodes, scales)` | value of NoneType | A drawn window later in the tree whose rectangle holds this widget's middle, or None. |

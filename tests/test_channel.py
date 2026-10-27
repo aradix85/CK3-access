@@ -288,10 +288,12 @@ def test_every_command(host: Host) -> None:
     check('combo', 'refused', refused)
     arrives('sendchar 65', ['char sent\t65'], [])
     arrives('mouse 5 5', ['mouse\t5\t5'], [])
+    arrives('rmouse 5 5', ['rmouse\t5\t5'], [])
     check('mouse 32768 5', 'a point past 16 bits refused', error('the point 32768 5 does not fit'))
+    check('rmouse 5 32768', 'a point past 16 bits refused', error('the point 5 32768 does not fit'))
     check('sendkey 300', 'not a virtual key', error('key code 300'))
     check('keys on', 'hooks the window', lambda ls: ls == ['keys on'])
-    for command in ('sendkey 112 4', 'mouse 5 5 1', 'waitkey 10 5'):
+    for command in ('sendkey 112 4', 'mouse 5 5 1', 'rmouse 5', 'waitkey 10 5'):
         check(command, 'refused', refused)
     check('swallow 38 40', 'two keys', lambda ls: ls == ['swallow\t2'])
     check('swallow 300', 'not a virtual key', error('key code 300'))

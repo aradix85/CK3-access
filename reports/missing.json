@@ -1,12 +1,12 @@
 {
- "harvest": "2026-10-27 14:32",
- "without a player record": 182,
+ "harvest": "2026-10-27 15:22",
+ "without a player record": 178,
  "counts": {
   "developer": 26,
   "multiplayer": 17,
   "decided": 8,
   "event": 0,
-  "interaction": 20,
+  "interaction": 16,
   "chain": 12,
   "no window route on disk": 99
  },
@@ -239,14 +239,6 @@
     "file": "gui/interaction_declare_war.gui",
     "state": "console record"
    },
-   "character_interaction_confirmation_window": {
-    "file": "gui/interaction_confirmation.gui",
-    "state": "console record"
-   },
-   "character_interaction_menu_window": {
-    "file": "gui/interaction_menu_window.gui",
-    "state": "console record"
-   },
    "character_interaction_notification_window": {
     "file": "gui/interaction_notification_window.gui",
     "state": "console record"
@@ -275,10 +267,6 @@
     "file": "gui/interaction_declare_war.gui",
     "state": "console record"
    },
-   "grant_titles_interaction_window": {
-    "file": "gui/interaction_grant_titles.gui",
-    "state": "console record"
-   },
    "interfere_in_war_interaction_notification_window": {
     "file": "gui/interaction_interfere_in_war_notification.gui",
     "state": "console record"
@@ -289,10 +277,6 @@
    },
    "marriage_interaction_notification_window": {
     "file": "gui/interaction_marriage_notification_window.gui",
-    "state": "console record"
-   },
-   "modify_vassal_contract_interaction_window": {
-    "file": "gui/interaction_modify_vassal_window.gui",
     "state": "console record"
    },
    "revoke_titles_interaction_window": {
@@ -766,6 +750,7 @@
   ],
   "artifact_details": [
    "artifact_details_view",
+   "character_interaction_confirmation_window",
    "faith_window",
    "holy_site_creation_window",
    "holy_site_window",
@@ -812,6 +797,7 @@
    "cardinals_window",
    "character_event",
    "character_finder_window",
+   "character_interaction_confirmation_window",
    "character_lifestyle_window",
    "character_window",
    "council_window",
@@ -840,6 +826,7 @@
    "merit_pool_characters_window",
    "migration_involved_character_list_window",
    "military_view",
+   "modify_vassal_contract_interaction_window",
    "my_realm_window",
    "rite_creation_window",
    "royal_court_window",
@@ -971,7 +958,7 @@
    "royal_court_window"
   ]
  },
- "windows whose keys no round pressed": 41,
+ "windows whose keys no round pressed": 45,
  "keys not pressed": {
   "activity_guest_list": [
    "close_window",
@@ -1008,6 +995,16 @@
    "close_tooltips",
    "event_tooltips"
   ],
+  "character_interaction_confirmation_window": [
+   "close_window",
+   "compact_mode",
+   "tab_1",
+   "tab_2",
+   "tab_3"
+  ],
+  "character_interaction_menu_window": [
+   "close_window"
+  ],
   "custom_message_window": [
    "close_window"
   ],
@@ -1034,6 +1031,12 @@
   "fullscreen_event": [
    "close_tooltips",
    "event_tooltips"
+  ],
+  "grant_titles_interaction_window": [
+   "close_window",
+   "tab_1",
+   "tab_2",
+   "tab_3"
   ],
   "holy_site_creation_window": [
    "close_window",
@@ -1070,6 +1073,12 @@
   ],
   "marriage_interaction_window": [
    "close_window"
+  ],
+  "modify_vassal_contract_interaction_window": [
+   "close_window",
+   "tab_1",
+   "tab_2",
+   "tab_3"
   ],
   "plan_great_project": [
    "close_window",

@@ -84,18 +84,19 @@ void cmd_waitkey(DWORD timeout)
 // A message the window refuses is said, never answered as sent.
 static void refused(void) { emit("error: the game window refused a message\n"); }
 
-// mouse: a left click. A window message carries a point in 16 bits a side, so a bigger one is
-// refused rather than wrapped round onto another place. Posted mouse messages do not move the game's
-// hover point, so a move alone does nothing, and right was measured once to do nothing on the ledger.
-void cmd_mouse(unsigned x, unsigned y)
+// mouse and rmouse: a left or a right click. A window message carries a point in 16 bits a side, so
+// a bigger one is refused rather than wrapped round onto another place. Posted mouse messages do not
+// move the game's hover point, so a move alone does nothing. The right click is there for what only
+// a right click opens, such as the menu of interactions on a portrait.
+void cmd_mouse(unsigned x, unsigned y, bool right)
 {
     if (x > 0x7FFF || y > 0x7FFF) { emit("error: the point %u %u does not fit a window message\n", x, y); return; }
     if (!ensure_window()) return;
     const LPARAM spot = MAKELPARAM(x, y);
     if (!PostMessageW(g_window, WM_MOUSEMOVE, 0, spot) ||
-        !PostMessageW(g_window, WM_LBUTTONDOWN, MK_LBUTTON, spot) ||
-        !PostMessageW(g_window, WM_LBUTTONUP, 0, spot)) { refused(); return; }
-    emit("mouse\t%u\t%u\n", x, y);
+        !PostMessageW(g_window, right ? WM_RBUTTONDOWN : WM_LBUTTONDOWN, right ? MK_RBUTTON : MK_LBUTTON, spot) ||
+        !PostMessageW(g_window, right ? WM_RBUTTONUP : WM_LBUTTONUP, 0, spot)) { refused(); return; }
+    emit("%s\t%u\t%u\n", right ? "rmouse" : "mouse", x, y);
 }
 
 // The game ignores a posted key whose lParam is zero, so lParam is built the way Windows builds it

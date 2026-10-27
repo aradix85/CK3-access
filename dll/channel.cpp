@@ -576,7 +576,9 @@ static void dispatch(char* command)
     else if (is("swallow"))                                cmd_swallow(rest);
     else if (is("waitkey") && args(rest, "u", v))          cmd_waitkey(static_cast<DWORD>(v[0]));
     else if (is("mouse") && args(rest, "uu", v))
-        cmd_mouse(static_cast<unsigned>(v[0]), static_cast<unsigned>(v[1]));
+        cmd_mouse(static_cast<unsigned>(v[0]), static_cast<unsigned>(v[1]), false);
+    else if (is("rmouse") && args(rest, "uu", v))
+        cmd_mouse(static_cast<unsigned>(v[0]), static_cast<unsigned>(v[1]), true);
     else if (is("sendkey") && args(rest, "u", v))          cmd_sendkey(static_cast<unsigned>(v[0]));
     else if (is("sendchar") && args(rest, "u", v))         cmd_sendchar(static_cast<unsigned>(v[0]));
     else if (strcmp(command, "count") == 0)                cmd_count();
