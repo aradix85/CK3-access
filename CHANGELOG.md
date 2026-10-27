@@ -6,7 +6,7 @@ Outcomes, newest day first. No release yet.
 - The knights window and its permissions, the house window with its list of houses, the dynasty tree and its legacies are harvested by hand on Ghur played. 252 windows.
 - README: the way the player version loads into the game is chosen on a measurement, not fixed in advance.
 - An event fired from the console opens in its own window with its data, as a player gets it; `tools/ck3/hand.py` records it as `event:<id>`.
-- The character, big, letter and fullscreen event windows are harvested on Ghur played from the game's own test events.
+- All eleven event windows are harvested on Ghur played from events fired in the console; the harvest answers an event by clicking its first option.
 - The reader says everything in a scroll area on screen, also rows scrolled out of view: a long event description is read to its end.
 
 ## 2026-10-24

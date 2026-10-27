@@ -1,11 +1,11 @@
 {
- "harvest": "2026-10-27 12:58",
- "without a player record": 189,
+ "harvest": "2026-10-27 14:32",
+ "without a player record": 182,
  "counts": {
   "developer": 26,
   "multiplayer": 17,
   "decided": 8,
-  "event": 7,
+  "event": 0,
   "interaction": 20,
   "chain": 12,
   "no window route on disk": 99
@@ -221,36 +221,7 @@
     "state": "the console draws it while it stands open, so in every console capture (measured 21 October 2026)"
    }
   },
-  "event": {
-   "anonymous_letter_event": {
-    "file": "gui/event_windows/anonymous_letter_event.gui",
-    "state": "console record"
-   },
-   "duel_event": {
-    "file": "gui/event_windows/duel_event.gui",
-    "state": "console record"
-   },
-   "scheme_conclusion_event_no_header": {
-    "file": "gui/event_windows/scheme_conclusion_event_no_header.gui",
-    "state": "console record"
-   },
-   "scheme_failed_event": {
-    "file": "gui/event_windows/scheme_failed_event.gui",
-    "state": "console record"
-   },
-   "scheme_preparations_event": {
-    "file": "gui/event_windows/scheme_preparations_event.gui",
-    "state": "console record"
-   },
-   "scheme_successful_event": {
-    "file": "gui/event_windows/scheme_successful_event.gui",
-    "state": "console record"
-   },
-   "visit_settlement_window": {
-    "file": "gui/event_windows/visit_settlement_window.gui",
-    "state": "console record"
-   }
-  },
+  "event": {},
   "interaction": {
    "blackmail_interaction_window": {
     "file": "gui/interaction_blackmail.gui",
@@ -850,6 +821,7 @@
    "designate_heir",
    "diarchy_window",
    "domicile_window",
+   "duel_event",
    "dynasty_house_view",
    "dynasty_tree_view",
    "factions_window",
@@ -871,11 +843,16 @@
    "my_realm_window",
    "rite_creation_window",
    "royal_court_window",
+   "scheme_conclusion_event_no_header",
+   "scheme_failed_event",
+   "scheme_preparations_event",
+   "scheme_successful_event",
    "struggle_involvement_window",
    "succession_law_change_window",
    "title_election",
    "title_view_window",
    "travel_entourage_list_window",
+   "visit_settlement_window",
    "war_overview_window",
    "window_appoint_tax_collector",
    "window_exchange_hostages",
@@ -994,7 +971,7 @@
    "royal_court_window"
   ]
  },
- "windows whose keys no round pressed": 34,
+ "windows whose keys no round pressed": 41,
  "keys not pressed": {
   "activity_guest_list": [
    "close_window",
@@ -1010,6 +987,10 @@
   "activity_planner": [
    "intent",
    "travel_option"
+  ],
+  "anonymous_letter_event": [
+   "close_tooltips",
+   "event_tooltips"
   ],
   "appoint_court_position_view": [
    "close_window"
@@ -1032,6 +1013,10 @@
   ],
   "designate_heir": [
    "close_window"
+  ],
+  "duel_event": [
+   "close_tooltips",
+   "event_tooltips"
   ],
   "dynasty_house_view": [
    "go_back",
@@ -1091,6 +1076,21 @@
    "tab_1",
    "tab_2"
   ],
+  "scheme_conclusion_event_no_header": [
+   "close_tooltips",
+   "event_tooltips"
+  ],
+  "scheme_failed_event": [
+   "close_tooltips",
+   "event_tooltips"
+  ],
+  "scheme_preparations_event": [
+   "event_tooltips"
+  ],
+  "scheme_successful_event": [
+   "close_tooltips",
+   "event_tooltips"
+  ],
   "situation_catalysts_history_window": [
    "close_window"
   ],
@@ -1110,6 +1110,10 @@
   "title_view_window": [
    "go_back",
    "go_back_2"
+  ],
+  "visit_settlement_window": [
+   "close_tooltips",
+   "event_tooltips"
   ],
   "window_exchange_hostages": [
    "close_window"

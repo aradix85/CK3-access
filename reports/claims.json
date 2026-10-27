@@ -218,7 +218,7 @@
  },
  {
   "name": "texts the reading rule says over the harvest",
-  "claimed": 6808,
+  "claimed": 6832,
   "measure": "unseen_texts",
   "arguments": ["texts"],
   "counting_rule": "every widget in a harvested record whose text is not empty once the game's markup is stripped, summed over the records that hold a window; refusal records carry no tree and do not count. The harvest on 1.20.1.2 of 21 to 27 October 2026"
@@ -249,7 +249,7 @@
  },
  {
   "name": "text boxes in the harvest round",
-  "claimed": 3373,
+  "claimed": 3396,
   "measure": "harvest_total",
   "arguments": [
    "<project>\\harvest",
@@ -259,7 +259,7 @@
  },
  {
   "name": "text boxes the recogniser confirmed",
-  "claimed": 3052,
+  "claimed": 3070,
   "measure": "harvest_total",
   "arguments": [
    "<project>\\harvest",
@@ -333,7 +333,7 @@
  },
  {
   "name": "harvested widgets that carry text",
-  "claimed": 6838,
+  "claimed": 6862,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -343,7 +343,7 @@
  },
  {
   "name": "harvested texts paired with a place in a gui file",
-  "claimed": 6175,
+  "claimed": 6199,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -393,7 +393,7 @@
  },
  {
   "name": "harvested texts filled by a data function",
-  "claimed": 4896,
+  "claimed": 4920,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -522,13 +522,13 @@
  },
  {
   "name": "unexplained texts in windows a player opens that the reading rule says",
-  "claimed": 325,
+  "claimed": 402,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
    "unexplained in player windows, drawn"
   ],
-  "counting_rule": "of the unexplained texts in windows a player opens, the ones `reading.on_screen` passes in the state the harvest took: inside the drawing area, not clipped, and nothing up the chain hidden or at alpha zero",
+  "counting_rule": "of the unexplained texts in windows a player opens, the ones `reading.on_screen` passes in the state the harvest took: inside the drawing area - for a widget in a scroll area, that scroll area - and nothing up the chain hidden or at alpha zero",
   "quoted_in": ["brief\\gui.md"]
  },
  {
@@ -543,7 +543,7 @@
  },
  {
   "name": "named live widgets in the harvest",
-  "claimed": 57353,
+  "claimed": 57512,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -554,7 +554,7 @@
  },
  {
   "name": "named live widgets the alignment puts on their own name",
-  "claimed": 54822,
+  "claimed": 54975,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -747,7 +747,7 @@
  },
  {
   "name": "mapped windows without a player record",
-  "claimed": 189,
+  "claimed": 182,
   "measure": "json_field",
   "arguments": ["<project>\\reports\\missing.json", "without a player record"],
   "counting_rule": "windows of reports\\windows.json whose harvest record did not open them along a key, a click, a chain or by hand: a console record, a window that did not open, one drawn always, or none at all (tools.ck3.missing)",
@@ -755,7 +755,7 @@
  },
  {
   "name": "windows without a player record that open from an event",
-  "claimed": 7,
+  "claimed": 0,
   "measure": "json_field",
   "arguments": ["<project>\\reports\\missing.json", "counts", "event"],
   "counting_rule": "of those, the ones declared in gui/event_windows/, and not developer, multiplayer or decided (a decision with its reason in tools.ck3.missing.DECIDED)",
@@ -787,7 +787,7 @@
  },
  {
   "name": "windows with a player record whose keys no round pressed",
-  "claimed": 34,
+  "claimed": 41,
   "measure": "json_field",
   "arguments": ["<project>\\reports\\missing.json", "windows whose keys no round pressed"],
   "counting_rule": "windows with a player record and no row in reports\\window_keys.json, in which windowmap.presses_for finds a key a key round would press (view only, and no widget of the window acts on it)",

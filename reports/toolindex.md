@@ -235,6 +235,7 @@ returns a pair, passed on as one thing, costs a run.
 | `click_routes(windows)` | value | Window -> the button that opens it, from `reports\openers.json`. |
 | `open_window(game, name, row, baseline)` | 2-tuple | Open one window along the route phase 0 found for it, and prove it is drawn. |
 | `close_window(game, row, baseline)` | bool | Shut it again and wait until the state before it is back. Anything left open contaminates |
+| `answer_event(game, baseline)` | nothing | Press the first option of every window standing that the baseline does not have. |
 | `drawn_one(nodes, candidates, name)` | value | Of several window objects carrying the same name, the one that is actually drawn. |
 | `settled(game, nodes, address)` | value | The tree once the window below `address` has stopped moving: two reads half a second apart |
 | `record_window(game, name, nodes, header, route, attempts, file, started)` | dict | Everything this project can read of one drawn window, plus a capture. It stays open. |

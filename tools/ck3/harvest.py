@@ -411,9 +411,7 @@ def close_window(game: windowmap.Game, row: windowmap.Route, baseline: set[str])
     asks whether its plan may go, and Escape says no and keeps it standing (Rimbert's council,
     23 October 2026; her yes to answering while testing, the same day).
 
-    **An event shuts only on an answer**, so its route answers the first option with shift+1,
-    as a player would; Escape leaves it standing. That answer changes the game, so fire an event
-    whose first option does nothing, such as the game's own `debug.1000` to `debug.1006`."""
+    An event shuts only on an answer (`answer_event`)."""
     from tools.ck3 import quit_game  # it imports openers, which imports this module
     limit: int = 12
     shortcut = row.get('shortcut')
@@ -425,7 +423,7 @@ def close_window(game: windowmap.Game, row: windowmap.Route, baseline: set[str])
                 windowmap.press(shortcut)
         elif row.get('event'):
             if attempt == 0:
-                windowmap.press('shift+1')
+                answer_event(game, baseline)
         elif not row.get('click'):
             game.command('GUI.ClearWidgets')
         # The click route closes on Escape alone, at the foot of this loop, and that key is only
@@ -441,6 +439,21 @@ def close_window(game: windowmap.Game, row: windowmap.Route, baseline: set[str])
                 continue
         channel.ask('sendkey 27')
     return False
+
+
+def answer_event(game: windowmap.Game, baseline: set[str]) -> None:
+    """Press the first option of every window standing that the baseline does not have.
+
+    **An event shuts only on an answer**; Escape leaves it standing. Shift and a number does not
+    reach every event window: the anonymous letter declares no shortcut on its option and stayed
+    open (measured 27 October 2026 on Ghur played). So the option is pressed where it stands, as a
+    click would. That answer changes the game, so fire an event whose first option does little,
+    such as the game's own `debug.1000` to `debug.1006`, and reload the save after a round.
+    """
+    from tools.ck3 import openers  # openers imports this module
+    tables = guimap.tables()
+    for window in sorted(game.state()[2] - baseline):
+        openers.press_toward(game, window, openers.Goal('call', 'EventOption.Select'), tables)
 
 
 def drawn_one(nodes: widgettree.Nodes, candidates: list[int], name: str) -> int:
