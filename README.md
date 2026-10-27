@@ -15,7 +15,7 @@ NVDA. No game files are copied or redistributed.
   included, from inside the process to map the interface — it never takes focus.
 - **It survives patches:** every memory offset is derived from the running game and rechecked at start.
 - **Events are read aloud live**, with the key that answers them.
-- **282 windows are mapped**, checked against what the running game builds; 250 were harvested on
+- **282 windows are mapped**, checked against what the running game builds; 252 were harvested on
   1.20.1.2 and joined to the `.gui` files. Which ones a player's route has not reached yet, and how
   a player gets to each, `python -m tools.ck3.missing` writes to `reports/missing.json`.
 - **A reader** hands out one unit per keystroke, speech and braille together. Switched-off buttons say

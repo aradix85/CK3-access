@@ -1,14 +1,14 @@
 {
- "harvest": "2026-10-24 20:07",
- "without a player record": 199,
+ "harvest": "2026-10-27 11:46",
+ "without a player record": 193,
  "counts": {
   "developer": 26,
   "multiplayer": 17,
   "decided": 8,
   "event": 11,
   "interaction": 20,
-  "chain": 10,
-  "no window route on disk": 107
+  "chain": 12,
+  "no window route on disk": 99
  },
  "groups": {
   "developer": {
@@ -350,6 +350,10 @@
    }
   },
   "chain": {
+   "accolade_view": {
+    "file": "gui/window_accolade.gui",
+    "state": "console record"
+   },
    "artifact_kill_list": {
     "file": "gui/window_kill_list.gui",
     "state": "console record"
@@ -360,6 +364,10 @@
    },
    "confederation_window": {
     "file": "gui/window_confederation.gui",
+    "state": "console record"
+   },
+   "create_accolade_view": {
+    "file": "gui/window_create_accolade.gui",
     "state": "console record"
    },
    "dynastic_cycle_participant_groups": {
@@ -394,10 +402,6 @@
   "no window route on disk": {
    "accolade_attribute_selection_view": {
     "file": "gui/window_accolade_attribute_selection.gui",
-    "state": "console record"
-   },
-   "accolade_view": {
-    "file": "gui/window_accolade.gui",
     "state": "console record"
    },
    "achievements_window": {
@@ -496,10 +500,6 @@
     "file": "gui/window_combat.gui",
     "state": "console record"
    },
-   "create_accolade_view": {
-    "file": "gui/window_create_accolade.gui",
-    "state": "console record"
-   },
    "diverge_culture_window": {
     "file": "gui/window_diverge_culture.gui",
     "state": "console record"
@@ -520,20 +520,8 @@
     "file": "gui/window_dynasty_house_members.gui",
     "state": "console record"
    },
-   "dynasty_house_view": {
-    "file": "gui/window_dynasty_house.gui",
-    "state": "console record"
-   },
-   "dynasty_legacy_window": {
-    "file": "gui/window_dynasty_legacy.gui",
-    "state": "console record"
-   },
    "dynasty_perk_confirmation_popup": {
     "file": "gui/window_dynasty_legacy.gui",
-    "state": "console record"
-   },
-   "dynasty_tree_view": {
-    "file": "gui/window_dynasty_tree.gui",
     "state": "console record"
    },
    "faith_conversion_window": {
@@ -572,10 +560,6 @@
     "file": "gui/window_county_view.gui",
     "state": "console record"
    },
-   "houses_list": {
-    "file": "gui/window_dynasty_house.gui",
-    "state": "did not open: did not open in 1 try"
-   },
    "hybridize_culture_window": {
     "file": "gui/window_hybridize_culture.gui",
     "state": "console record"
@@ -598,14 +582,6 @@
    },
    "jomini_message": {
     "file": "gui/notifications/jomini_message.gui",
-    "state": "console record"
-   },
-   "knight_permissions": {
-    "file": "gui/window_knights.gui",
-    "state": "did not open: did not open in 1 try"
-   },
-   "knight_view": {
-    "file": "gui/window_knights.gui",
     "state": "console record"
    },
    "languages_window": {
@@ -846,6 +822,7 @@
    "faith_window",
    "government_administration_window",
    "holy_site_window",
+   "knight_view",
    "mainline_rite_tenets_window",
    "military_view",
    "royal_court_window",
@@ -857,6 +834,7 @@
    "my_realm_window"
   ],
   "domicile": [
+   "dynasty_house_view",
    "government_administration_window",
    "my_realm_window",
    "title_view_window"
@@ -886,6 +864,8 @@
    "designate_heir",
    "diarchy_window",
    "domicile_window",
+   "dynasty_house_view",
+   "dynasty_tree_view",
    "factions_window",
    "faith_window",
    "government_administration_window",
@@ -893,6 +873,7 @@
    "holy_site_window",
    "intrigue_window",
    "kill_list",
+   "knight_view",
    "ledger_window",
    "legends_window",
    "mainline_rite_tenets_window",
@@ -933,7 +914,11 @@
    "faith_window"
   ],
   "house_aspiration_window": [
+   "dynasty_house_view",
    "government_administration_window"
+  ],
+  "house_relation_history_window": [
+   "dynasty_house_view"
   ],
   "inventory": [
    "character_window"
@@ -1022,7 +1007,7 @@
    "royal_court_window"
   ]
  },
- "windows whose keys no round pressed": 24,
+ "windows whose keys no round pressed": 30,
  "keys not pressed": {
   "activity_guest_list": [
    "close_window",
@@ -1053,6 +1038,19 @@
   "designate_heir": [
    "close_window"
   ],
+  "dynasty_house_view": [
+   "go_back",
+   "go_back_2",
+   "tab_1",
+   "tab_2",
+   "tab_3"
+  ],
+  "dynasty_legacy_window": [
+   "close_window"
+  ],
+  "dynasty_tree_view": [
+   "close_window"
+  ],
   "holy_site_creation_window": [
    "close_window",
    "holy_site_compact"
@@ -1061,6 +1059,16 @@
    "close_window",
    "holy_site_compact",
    "holy_site_inventory"
+  ],
+  "houses_list": [
+   "close_window"
+  ],
+  "knight_permissions": [
+   "close_window"
+  ],
+  "knight_view": [
+   "close_window",
+   "knight_permissions"
   ],
   "ledger_filter_window": [
    "close_window"
