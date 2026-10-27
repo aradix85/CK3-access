@@ -302,9 +302,9 @@ def unseen_texts(what: str) -> int:
     """Texts in the harvest that are in the tree but not on the screen.
 
     `texts` counts what the text boxes hold once the markup is stripped, `all` how many of those the
-    reading rule skips (`reading.on_screen`): outside the drawing area the record was taken at,
-    wholly outside its scroll area, under an ancestor at alpha zero, or under one carrying 0x08 in its
-    state byte. That decides how much a window says to nobody.
+    reading rule skips (`reading.on_screen`): outside the drawing area the record was taken at - for
+    a widget in a scroll area, that scroll area - under an ancestor at alpha zero, or under one
+    carrying 0x08 in its state byte. That decides how much a window says to nobody.
     """
     from tools.ck3 import reading, widgettree
     texts = unseen = 0

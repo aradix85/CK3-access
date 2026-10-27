@@ -192,55 +192,42 @@ def fills(source: guimap.Node | None) -> str | None:
 
 def on_screen(node: pairing.Harvested, by_address: dict[str, pairing.Harvested],
               area: tuple[int, int]) -> bool:
-    """Is this widget actually drawn, or only present in the tree?
+    """Is this widget there for a player, or only present in the tree?
 
-    Four ways it can fail to be, and each one is a measurement rather than a guess. A row scrolled
-    past the end of its list keeps alpha 1 and a rectangle, so only its place against its scroll area
-    says so (`scrolled_out`). Alpha belongs to the whole parent chain and not to the widget: one
-    ancestor at zero and nothing below it is visible. A widget can be laid outside the drawing area
-    entirely, which is where this game parks what it is not showing. And 0x08 in the state byte of
-    the widget or an ancestor is the game hiding it with alpha left up - the fourth, since
-    21 September 2026.
+    **Everything a player would want to know is read** (her decision, 27 October 2026), so a widget
+    inside a scroll area counts by that scroll area and not by where it lies in it: a row scrolled
+    out of view, or a text taller than its box, is something a seeing player scrolls to. Until that
+    day the reader skipped what was not wholly inside its box, and every long event description was
+    silent: on Ghur played, `debug.1000` gave a text box of 2805 characters and 1153 points high in
+    a box that shows a third of it, and the reader said the title and the options and nothing else.
+    The record's `clipped` keeps the old meaning, for the recogniser and for a click, which need
+    the whole widget in view.
 
-    Measured 20 September 2026 over the harvest: of 1753 units 83 are clipped, 6 sit behind an
-    ancestor at alpha zero and 139 lie outside the drawing area - 172 in all, one in ten. The worst
-    window, `window_situation`, said 48 of its 82 lines to nobody.
-
-    The so-called third state - content the game stacks under itself, alpha 1
-    and unclipped, such as the ledger's eleven category tabs - is the hidden bit: in the ledger of
-    21 September 2026, 4087 of the 4088 widgets below the drawing area carry it. Measured
-    21 September 2026 as well: 40 of 260 texts in seven windows sat under 0x08, all in the
-    character finder, such as "No matching Characters for current filter" while it listed
-    characters. Alpha and the state byte along the chain are `onscreen.shown_in_record`.
+    What still hides a widget is measured, not guessed. Alpha belongs to the whole parent chain and
+    not to the widget: one ancestor at zero and nothing below it is visible. A widget, or the scroll
+    area it sits in, can be laid outside the drawing area entirely, which is where this game parks
+    what it is not showing. And 0x08 in the state byte of the widget or an ancestor is the game
+    hiding it with alpha left up, since 21 September 2026. In the ledger of 21 September 2026, 4087
+    of the 4088 widgets below the drawing area carried that bit; 40 of 260 texts in seven windows sat
+    under it, all in the character finder, such as "No matching Characters for current filter"
+    while it listed characters. Alpha and the state byte along the chain are
+    `onscreen.shown_in_record`.
     """
     width, height = area
-    x, y, w, h = node['screen_rect']
+    x, y, w, h = scroll_box(node, by_address) or node['screen_rect']
     if x + w <= 0 or y + h <= 0 or x >= width or y >= height:
-        return False
-    if scrolled_out(node, by_address):
         return False
     return onscreen.shown_in_record(node, by_address)
 
 
-def scrolled_out(node: pairing.Harvested, by_address: dict[str, pairing.Harvested]) -> bool:
-    """Does the widget lie wholly outside the box of its nearest scroll area?
-
-    **What stands with any part in its frame is read, and read whole** (her decision, 27 October
-    2026). The record's `clipped` says something else - not wholly inside - and that rule kept
-    every long event description silent: on Ghur played, `debug.1000` gave a text box of 2805
-    characters and 1153 points high in a scroll area that shows a third of it, and the reader said
-    the title and the five options and not a word of the description (measured 27 October 2026).
-    `clipped` stays for the recogniser and for a click, which need the whole widget in view.
-    """
-    x, y, w, h = node['screen_rect']
+def scroll_box(node: pairing.Harvested, by_address: dict[str, pairing.Harvested]) -> list[float] | None:
+    """The rectangle of the nearest scroll area above the widget, or None outside any."""
     above = by_address.get(node['parent'])
     while above is not None:
-        if 'Scroll' in (above['class'] or ''):
-            ax, ay, aw, ah = above['screen_rect']
-            if aw > 1 and ah > 1:
-                return not (x < ax + aw and ax < x + w and y < ay + ah and ay < y + h)
+        if 'Scroll' in (above['class'] or '') and above['screen_rect'][2] > 1 and above['screen_rect'][3] > 1:
+            return above['screen_rect']
         above = by_address.get(above['parent'])
-    return False
+    return None
 
 
 EXPANDED: dict[str, guimap.Node] = {}

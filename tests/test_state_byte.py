@@ -101,10 +101,12 @@ def test_a_record_is_drawn_by_the_same_rule() -> None:
     assert not drawn(window=(0x00, None)), 'an alpha that could not be read'
 
 
-def test_what_stands_partly_in_its_scroll_area_is_read() -> None:
-    """Her decision of 27 October 2026: what has any part in its frame is read, whole. The long
-    description of `debug.1000` stood 1153 points high in a box that shows a third of it, and the
-    reader said nothing of it. A row wholly past the box stays silent."""
+def test_everything_in_a_scroll_area_on_screen_is_read() -> None:
+    """Her decision of 27 October 2026: everything a player would want to know is read, so what
+    sits in a scroll area counts by that scroll area. The long description of `debug.1000` stood
+    1153 points high in a box that shows a third of it, and the reader said nothing of it; a row
+    scrolled out of view, even below the drawing area, is one a player scrolls to. A scroll area
+    that lies outside the drawing area itself is parked, and stays silent."""
     def at(address: str, parent: str, kind: str, rect: list[float]) -> pairing.Harvested:
         return {**record_widget(address, parent, 0x00, 1.0), 'class': kind, 'screen_rect': rect,
                 'clipped': True}
@@ -113,9 +115,11 @@ def test_what_stands_partly_in_its_scroll_area_is_read() -> None:
             's': at('s', 'w', 'ScrollArea', [435, 392, 480, 170]),
             'long': at('long', 's', 'Textbox', [435, 392, 480, 1153]),
             'half': at('half', 's', 'Textbox', [435, 540, 480, 40]),
-            'past': at('past', 's', 'Textbox', [435, 700, 480, 40])}
-    said = [a for a in ('long', 'half', 'past') if reading.on_screen(tree[a], tree, (1920, 1200))]
-    assert said == ['long', 'half'], 'a text taller than its box and a half row are read; one wholly past it is not'
+            'past': at('past', 's', 'Textbox', [435, 1300, 480, 40]),
+            'p': at('p', 'w', 'ScrollArea', [435, 1250, 480, 170]),
+            'parked': at('parked', 'p', 'Textbox', [435, 1260, 480, 40])}
+    said = [a for a in ('long', 'half', 'past', 'parked') if reading.on_screen(tree[a], tree, (1920, 1200))]
+    assert said == ['long', 'half', 'past'], 'all in a scroll area on screen is read; a parked scroll area is not'
 
 
 def test_a_toast_says_only_its_drawn_text_boxes(monkeypatch: pytest.MonkeyPatch) -> None:

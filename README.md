@@ -109,8 +109,9 @@ whether something is drawn:
   lets the mouse through, so a drawn window carrying it never catches a click. 0x02 means switched
   off, inherited from where `enabled` is false.
 - **Alpha** along the parent chain.
-- **Scrolling:** what lies wholly outside its nearest scroll area. What stands partly in it is read
-  whole, so a long event description is heard to its end.
+- **Scrolling decides nothing for the reader:** what lies in a scroll area that is on screen is read,
+  also a row scrolled out of view, because a player can scroll to it. Long character lists build only
+  the rows in view, so the rest of those is not read yet.
 - **Geometry:** some windows place drawn buttons outside the drawing area at any resolution, where no
   player can reach them, so the product must say so.
 
