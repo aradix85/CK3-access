@@ -119,6 +119,7 @@ class Route(TypedDict, total=False):
     click: bool
     button: str
     first: tuple[str, str]
+    event: str
 
 
 class WindowMap(TypedDict):
@@ -133,9 +134,18 @@ Press = tuple[str, Callable[[], object], bool]
 
 
 def pressed(how: str) -> Route:
-    """A route given by hand: a key, or `button:<name>` for a button on the bare screen."""
+    """A route given by hand: a key, `button:<name>` for a button on the bare screen, or
+    `event:<id>` for an event the console fires.
+
+    An event is a player route although the console fires it: the game shows it in its own window
+    with all its data, as it does for a player. Measured 27 October 2026 on Ghur played with
+    `debug.1000`: title, a description of 2805 characters and five options, where the window the
+    console builds with `GUI.CreateWidget` has captions only. It is tried once, because a second
+    try fires a second event, which the game queues behind the first."""
     if how.startswith('button:'):
         return {'click': True, 'button': how[len('button:'):], 'drawn': True}
+    if how.startswith('event:'):
+        return {'event': how[len('event:'):]}
     return {'shortcut': how}
 
 

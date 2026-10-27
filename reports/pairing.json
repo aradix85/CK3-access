@@ -1,13 +1,13 @@
 {
  "caption of the widget above": 329,
- "data function": 3846,
+ "data function": 3868,
  "data function through key": 1028,
- "data functions together": 4874,
- "harvest": "2026-10-27 11:46",
+ "data functions together": 4896,
+ "harvest": "2026-10-27 12:58",
  "key not in localization": 3,
  "key quoting another key": 30,
- "named live widgets": 56552,
- "named live widgets on their own name": 54021,
+ "named live widgets": 57353,
+ "named live widgets on their own name": 54822,
  "no key on disk": 253,
  "no source on disk": 663,
  "no source on disk, per window": {
@@ -43,13 +43,13 @@
   "window_silk_road": 18,
   "window_situation_list": 2
  },
- "paired": 6153,
+ "paired": 6175,
  "placeholder, code fills it": 17,
  "plain key": 849,
  "plain key agrees": 849,
  "sentence in the file": 127,
  "sentence in the file agrees": 127,
- "texts": 6816,
+ "texts": 6838,
  "top functions": {
   "Add_int32": 32,
   "ArmyComposition": 28,
@@ -79,7 +79,7 @@
  "unexplained in player windows": 862,
  "unexplained in player windows, drawn": 325,
  "unexplained with data context": 717,
- "widgets in harvest": 123155,
+ "widgets in harvest": 124125,
  "windows": 252,
- "with data context": 5735
+ "with data context": 5757
 }

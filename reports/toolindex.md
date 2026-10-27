@@ -546,7 +546,7 @@ returns a pair, passed on as one thing, costs a run.
 
 | call | returns | does |
 |---|---|---|
-| `pressed(how)` | dict | A route given by hand: a key, or `button:<name>` for a button on the bare screen. |
+| `pressed(how)` | dict | A route given by hand: a key, `button:<name>` for a button on the bare screen, or |
 | `shortcut_file()` | value | Binding -> its keys as `game/gui/shortcuts.shortcuts` spells them, empty for a binding |
 | `window_bindings(only=None)` | value | Window -> every shortcut its widgets declare, with what pressing it calls. Disk only; |
 | `window_keys_plan()` | nothing | Print what a key round inside the windows would press, and what it leaves to a person. |

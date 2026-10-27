@@ -1,11 +1,11 @@
 {
- "harvest": "2026-10-27 11:46",
- "without a player record": 193,
+ "harvest": "2026-10-27 12:58",
+ "without a player record": 189,
  "counts": {
   "developer": 26,
   "multiplayer": 17,
   "decided": 8,
-  "event": 11,
+  "event": 7,
   "interaction": 20,
   "chain": 12,
   "no window route on disk": 99
@@ -226,24 +226,8 @@
     "file": "gui/event_windows/anonymous_letter_event.gui",
     "state": "console record"
    },
-   "big_event_window": {
-    "file": "gui/event_windows/big_event_window.gui",
-    "state": "console record"
-   },
-   "character_event": {
-    "file": "gui/event_windows/character_event.gui",
-    "state": "console record"
-   },
    "duel_event": {
     "file": "gui/event_windows/duel_event.gui",
-    "state": "console record"
-   },
-   "fullscreen_event": {
-    "file": "gui/event_windows/fullscreen_event.gui",
-    "state": "console record"
-   },
-   "letter_event": {
-    "file": "gui/event_windows/letter_event.gui",
     "state": "console record"
    },
    "scheme_conclusion_event_no_header": {
@@ -853,7 +837,9 @@
    "activity_window",
    "appoint_court_position_view",
    "artifact_details_view",
+   "big_event_window",
    "cardinals_window",
+   "character_event",
    "character_finder_window",
    "character_lifestyle_window",
    "character_window",
@@ -876,6 +862,7 @@
    "knight_view",
    "ledger_window",
    "legends_window",
+   "letter_event",
    "mainline_rite_tenets_window",
    "marriage_interaction_window",
    "merit_pool_characters_window",
@@ -1007,7 +994,7 @@
    "royal_court_window"
   ]
  },
- "windows whose keys no round pressed": 30,
+ "windows whose keys no round pressed": 34,
  "keys not pressed": {
   "activity_guest_list": [
    "close_window",
@@ -1032,6 +1019,14 @@
    "tab_1",
    "tab_2"
   ],
+  "big_event_window": [
+   "close_tooltips",
+   "event_tooltips"
+  ],
+  "character_event": [
+   "close_tooltips",
+   "event_tooltips"
+  ],
   "custom_message_window": [
    "close_window"
   ],
@@ -1050,6 +1045,10 @@
   ],
   "dynasty_tree_view": [
    "close_window"
+  ],
+  "fullscreen_event": [
+   "close_tooltips",
+   "event_tooltips"
   ],
   "holy_site_creation_window": [
    "close_window",
@@ -1072,6 +1071,10 @@
   ],
   "ledger_filter_window": [
    "close_window"
+  ],
+  "letter_event": [
+   "close_tooltips",
+   "event_tooltips"
   ],
   "mainline_rite_tenets_window": [
    "close_window",

@@ -384,6 +384,15 @@ def open_window(game: windowmap.Game, name: str, row: windowmap.Route,
                 nodes, _, drawn = game.state()
                 if name in drawn - baseline:
                     return nodes, attempt
+        elif row.get('event'):
+            # The console only fires it; the game shows it in its own window, with its data.
+            game.command(f"event {row['event']}")
+            game.set_console(False)
+            for _ in range(10):
+                time.sleep(1.0)
+                nodes, _, drawn = game.state()
+                if name in drawn - baseline:
+                    return nodes, attempt
         else:
             game.command('GUI.CreateWidget {} {}'.format(row['file'], name))
             for _ in range(5):
@@ -400,7 +409,11 @@ def close_window(game: windowmap.Game, row: windowmap.Route, baseline: set[str])
 
     **A question of the game is answered yes**, as `quit_game.escape_to` does: the activity planner
     asks whether its plan may go, and Escape says no and keeps it standing (Rimbert's council,
-    23 October 2026; her yes to answering while testing, the same day)."""
+    23 October 2026; her yes to answering while testing, the same day).
+
+    **An event shuts only on an answer**, so its route answers the first option with shift+1,
+    as a player would; Escape leaves it standing. That answer changes the game, so fire an event
+    whose first option does nothing, such as the game's own `debug.1000` to `debug.1006`."""
     from tools.ck3 import quit_game  # it imports openers, which imports this module
     limit: int = 12
     shortcut = row.get('shortcut')
@@ -410,6 +423,9 @@ def close_window(game: windowmap.Game, row: windowmap.Route, baseline: set[str])
         if shortcut:
             if attempt == 0:
                 windowmap.press(shortcut)
+        elif row.get('event'):
+            if attempt == 0:
+                windowmap.press('shift+1')
         elif not row.get('click'):
             game.command('GUI.ClearWidgets')
         # The click route closes on Escape alone, at the foot of this loop, and that key is only
