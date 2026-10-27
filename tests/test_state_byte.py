@@ -101,6 +101,23 @@ def test_a_record_is_drawn_by_the_same_rule() -> None:
     assert not drawn(window=(0x00, None)), 'an alpha that could not be read'
 
 
+def test_what_stands_partly_in_its_scroll_area_is_read() -> None:
+    """Her decision of 27 October 2026: what has any part in its frame is read, whole. The long
+    description of `debug.1000` stood 1153 points high in a box that shows a third of it, and the
+    reader said nothing of it. A row wholly past the box stays silent."""
+    def at(address: str, parent: str, kind: str, rect: list[float]) -> pairing.Harvested:
+        return {**record_widget(address, parent, 0x00, 1.0), 'class': kind, 'screen_rect': rect,
+                'clipped': True}
+
+    tree = {'w': at('w', 'root', 'Window', [400, 300, 700, 600]),
+            's': at('s', 'w', 'ScrollArea', [435, 392, 480, 170]),
+            'long': at('long', 's', 'Textbox', [435, 392, 480, 1153]),
+            'half': at('half', 's', 'Textbox', [435, 540, 480, 40]),
+            'past': at('past', 's', 'Textbox', [435, 700, 480, 40])}
+    said = [a for a in ('long', 'half', 'past') if reading.on_screen(tree[a], tree, (1920, 1200))]
+    assert said == ['long', 'half'], 'a text taller than its box and a half row are read; one wholly past it is not'
+
+
 def test_a_toast_says_only_its_drawn_text_boxes(monkeypatch: pytest.MonkeyPatch) -> None:
     said = toast_with(monkeypatch, TOAST_FLAGS)
     assert said == 'Toast title', 'the shut variant, the icon and the text box that went away say nothing'

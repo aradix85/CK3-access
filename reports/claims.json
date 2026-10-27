@@ -225,10 +225,10 @@
  },
  {
   "name": "harvested texts that are in the tree but not on the screen",
-  "claimed": 3392,
+  "claimed": 3347,
   "measure": "unseen_texts",
   "arguments": ["all"],
-  "counting_rule": "of those texts, the ones the reading rule skips: the rectangle falls outside the drawing area of that record, or it is clipped inside its scroll area, or an ancestor sits at alpha zero, or an ancestor carries 0x08 in its state byte - the game hiding it. The union is smaller than the sum because a text can fail two at once"
+  "counting_rule": "of those texts, the ones the reading rule skips: the rectangle falls outside the drawing area of that record, or it lies wholly outside the box of its scroll area (her rule of 27 October 2026: what stands partly in its frame is read), or an ancestor sits at alpha zero, or an ancestor carries 0x08 in its state byte - the game hiding it. The union is smaller than the sum because a text can fail two at once"
  },
  {
   "name": "files that go into the repo",

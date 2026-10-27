@@ -109,7 +109,8 @@ whether something is drawn:
   lets the mouse through, so a drawn window carrying it never catches a click. 0x02 means switched
   off, inherited from where `enabled` is false.
 - **Alpha** along the parent chain.
-- **Clipping** by the nearest scroll area.
+- **Scrolling:** what lies wholly outside its nearest scroll area. What stands partly in it is read
+  whole, so a long event description is heard to its end.
 - **Geometry:** some windows place drawn buttons outside the drawing area at any resolution, where no
   player can reach them, so the product must say so.
 

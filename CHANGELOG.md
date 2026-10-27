@@ -7,6 +7,7 @@ Outcomes, newest day first. No release yet.
 - README: the way the player version loads into the game is chosen on a measurement, not fixed in advance.
 - An event fired from the console opens in its own window with its data, as a player gets it; `tools/ck3/hand.py` records it as `event:<id>`.
 - The character, big, letter and fullscreen event windows are harvested on Ghur played from the game's own test events.
+- The reader says what stands partly inside its scroll area, whole: a long event description was silent and is now read to its end.
 
 ## 2026-10-24
 - Save games stay out of the repository.

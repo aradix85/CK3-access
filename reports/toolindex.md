@@ -465,6 +465,7 @@ returns a pair, passed on as one thing, costs a run.
 | `name_of(model)` | value | A data function as a word for the player: GetOptions -> options, GetGold|0 -> gold. |
 | `fills(source)` | NoneType of value | The data function the gui file puts in this widget, if it puts one there. |
 | `on_screen(node, by_address, area)` | bool of value | Is this widget actually drawn, or only present in the tree? |
+| `scrolled_out(node, by_address)` | value of bool | Does the widget lie wholly outside the box of its nearest scroll area? |
 | `expansion(window, table, local, known)` | value | The window as the gui files describe it, expanded once and then kept. |
 | `words_table()` | value | The localisation, read once. Over a thousand files, so not per keystroke. |
 | `explanation(address, by_address, source_of, localization)` | value of NoneType | The tooltip the gui files predict here: the nearest one up the chain. |

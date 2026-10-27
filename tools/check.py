@@ -303,7 +303,7 @@ def unseen_texts(what: str) -> int:
 
     `texts` counts what the text boxes hold once the markup is stripped, `all` how many of those the
     reading rule skips (`reading.on_screen`): outside the drawing area the record was taken at,
-    clipped inside a scroll area, under an ancestor at alpha zero, or under one carrying 0x08 in its
+    wholly outside its scroll area, under an ancestor at alpha zero, or under one carrying 0x08 in its
     state byte. That decides how much a window says to nobody.
     """
     from tools.ck3 import reading, widgettree
