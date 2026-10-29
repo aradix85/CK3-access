@@ -580,8 +580,7 @@ def stop_checks(pid: int, player: int, player_name: str | None, before: str) -> 
 
 
 def chain_press(game: windowmap.Game, source: str, goal: 'openers.Goal', tables: guimap.Tables,
-                showing: str | None = None,
-                skip: int = 0) -> tuple[widgettree.Nodes, set[str], 'openers.Spot | None', str | None]:
+                showing: str | None = None) -> tuple[widgettree.Nodes, set[str], 'openers.Spot | None', str | None]:
     """In `source`, standing open, press what reaches `goal` and wait for what comes up: the tree
     then, the windows the press brought up, the widget pressed, and why nothing was pressed. The
     chain round and the key round both take a chain step here; the caller puts the state back.
@@ -590,30 +589,44 @@ def chain_press(game: windowmap.Game, source: str, goal: 'openers.Goal', tables:
     turn** (`openers.unhiding`): the button whose `down` is the hiding condition, which is what a
     tab is. The tab keys were tried until 22 October 2026, and the subordinates tab of the
     character window has none. A press that shuts the source ends the try.
+
+    **A right click tries every widget that carries it, in turn, until a window comes up**, all
+    from one alignment. In the character window of Ghur played the first seven are empty spouse
+    slots and the dead parents and grandparents, where nothing opens, and the eighth, a button on
+    the heir's portrait, opens the menu of interactions. That menu stood built before the click and
+    was drawn 0.02 to 0.05 seconds after it, six times out of six (measured 29 October 2026), so
+    one tree walk a second after the click says a try failed; six walks and a new alignment per
+    try cost 21 seconds each.
     """
     from tools.ck3 import openers  # openers imports this module
     nodes, _, before = game.state()
-    _, spot, why = openers.press_toward(game, source, goal, tables, showing, skip)
-    opened: set[str] = set()
-    for hidden in [] if spot is not None else openers.unhiding(source, goal, tables):
+    _, reachable, why = openers.reachable_spots(game, source, goal, tables, showing)
+    for hidden in [] if reachable else openers.unhiding(source, goal, tables):
         if openers.press_toward(game, source, hidden, tables)[1] is None:
             continue
         time.sleep(1.4)
         nodes, _, before = game.state()
         if source not in before:
-            return nodes, opened, None, f'{why}; showing {hidden.name} shut {source}'
-        _, spot, why = openers.press_toward(game, source, goal, tables, showing)
-        if spot is not None:
+            return nodes, set(), None, f'{why}; showing {hidden.name} shut {source}'
+        _, reachable, why = openers.reachable_spots(game, source, goal, tables, showing)
+        if reachable:
             break
-    if spot is None:
-        return nodes, opened, None, why
-    for _ in range(6):
-        time.sleep(1.0)
-        nodes, _, drawn = game.state()
-        opened = drawn - before
-        if opened:
-            break
-    return nodes, opened, spot, None
+    if not reachable:
+        return nodes, set(), None, why
+    right = goal.kind == 'right'
+    tries = reachable if right else reachable[:1]
+    for spot, point in tries:
+        refused = openers.press_spot(game, goal, spot, point)
+        if refused is not None:
+            return nodes, set(), None, refused
+        for _ in range(1 if right else 6):
+            time.sleep(1.0)
+            nodes, _, drawn = game.state()
+            if drawn - before:
+                return nodes, drawn - before, spot, None
+    if right:
+        return nodes, set(), None, f'a right click on each of the {len(tries)} in {source} that carry it brought nothing up'
+    return nodes, set(), tries[0][0], None
 
 
 def player_chains(names: list[str], direct: set[str],

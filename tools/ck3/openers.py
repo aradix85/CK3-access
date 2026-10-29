@@ -646,22 +646,15 @@ def shows(record: pairing.Record, address: int, text: str) -> bool:
                for widget in record['tree'] if int(widget['address'], 16) in below)
 
 
-def press_toward(game: windowmap.Game, window: str, goal: Goal, tables: guimap.Tables,
-                 showing: str | None = None, skip: int = 0) -> tuple[list[Spot], Spot | None, str | None]:
-    """In `window`, open, press the first widget that reaches `goal` and a click can reach; with
-    `showing`, the first whose row shows that text; with `skip`, the one after that many.
+def reachable_spots(game: windowmap.Game, window: str, goal: Goal, tables: guimap.Tables,
+                    showing: str | None = None) -> tuple[list[Spot], list[tuple[Spot, tuple[int, int]]], str]:
+    """In `window`, open: every widget that reaches `goal`; of those, in tree order, the ones a click
+    can reach, each with its point; and why none can, for when that list is empty. With `showing`,
+    only those whose row shows that text.
 
-    `skip` is for a caller that tries the candidates in order: a right click on the first portrait
-    of the character window fell on an empty spouse slot, and on the portraits of the dead parents
-    nothing opened; the living heir's opened the menu of interactions (27 October 2026, Ghur played).
-
-    A named one is pressed at its middle, with scale and class asked of the whole tree. Measured
-    21 September 2026 on `filters` in the ledger: the aligned point opened nothing, and this opened
-    the filter window. **It is the widget found that is pressed, not the first of its name:** the
-    offer and the demand portrait of the hostage exchange share one name, and pressing by name
-    opened the offer for both (23 October 2026, Harold). A nameless one is
-    pressed at a point a click reaches. Returns every widget that reaches the goal, the one pressed
-    or None, and why nothing was pressed. The chain round and the step by hand both press here.
+    One alignment serves a caller that tries the widgets in turn: aligning the character window
+    again for every portrait cost 7.5 seconds a try, 4.8 of them expanding its gui file (profiled
+    29 October 2026 on Ghur played).
     """
     spots, record, acting, _, _, _ = spots_for_goal(game, game.pid, window, goal, tables)
     if showing is not None:
@@ -679,22 +672,44 @@ def press_toward(game: windowmap.Game, window: str, goal: Goal, tables: guimap.T
         top = lands_on(buttons, (int(x + w / 2), int(y + h / 2)))
         spot['why_not'] = 'covered everywhere, at its middle by {}'.format(
             (top['name'] or top['class']) if top else 'nothing readable')
-    if len(reachable) <= skip:
-        why = sorted({s['why_not'] or '' for s in spots})
-        return spots, None, 'nothing {}in {} can be pressed for it: {}'.format(
-            'more ' if skip else '', window, ', '.join(why) or 'no live widget carries the call')
-    spot, point = reachable[skip]
+    why = 'nothing in {} can be pressed for it: {}'.format(
+        window, ', '.join(sorted({s['why_not'] or '' for s in spots})) or 'no live widget carries the call')
+    return spots, reachable, why
+
+
+def press_spot(game: windowmap.Game, goal: Goal, spot: Spot, point: tuple[int, int]) -> str | None:
+    """Press one widget `reachable_spots` gave, with the right button for a `right` goal; returns
+    None, or why the press was refused.
+
+    A named one is pressed at its middle, with scale and class asked of the whole tree. Measured
+    21 September 2026 on `filters` in the ledger: the aligned point opened nothing, and this opened
+    the filter window. **It is the widget found that is pressed, not the first of its name:** the
+    offer and the demand portrait of the hostage exchange share one name, and pressing by name
+    opened the offer for both (23 October 2026, Harold). A nameless one, and every right click, is
+    pressed at the point a click reaches.
+    """
     if goal.kind == 'right':
-        channel.ask(f'rmouse {int(point[0])} {int(point[1])}')
+        channel.ask(f'rmouse {point[0]} {point[1]}')
     elif spot['name']:
         full = game.tree()
-        refused = press(spot['address'], full, onscreen.scales_for(list(full)),
-                        widgettree.class_map(game.pid, {a: k[0] for a, k in full.items()}))
-        if refused:
-            return spots, None, refused
+        return press(spot['address'], full, onscreen.scales_for(list(full)),
+                     widgettree.class_map(game.pid, {a: k[0] for a, k in full.items()}))
     else:
-        channel.ask(f'mouse {int(point[0])} {int(point[1])}')
-    return spots, spot, None
+        channel.ask(f'mouse {point[0]} {point[1]}')
+    return None
+
+
+def press_toward(game: windowmap.Game, window: str, goal: Goal, tables: guimap.Tables,
+                 showing: str | None = None) -> tuple[list[Spot], Spot | None, str | None]:
+    """In `window`, open, press the first widget that reaches `goal` and a click can reach; with
+    `showing`, the first whose row shows that text. Returns every widget that reaches the goal, the
+    one pressed or None, and why nothing was pressed."""
+    spots, reachable, why = reachable_spots(game, window, goal, tables, showing)
+    if not reachable:
+        return spots, None, why
+    spot, point = reachable[0]
+    refused = press_spot(game, goal, spot, point)
+    return (spots, None, refused) if refused else (spots, spot, None)
 
 
 def trigger_spots(row: Button, named: list[int], nodes: widgettree.Nodes) -> list[int]:

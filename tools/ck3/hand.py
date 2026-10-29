@@ -7,16 +7,16 @@ Opens `source` by its key, by pressing a button by name, as the migration window
 nomad's bar, or by firing an event from the console, which the game shows in its own window with
 its data (`windowmap.pressed`); without steps, `source` itself is recorded. Then per step, written
 `<call>=<target>`: press inside the window standing open the first widget whose onclick carries
-`call`, for `right:<call>` click the first whose onrightclick carries it with the right button, as
-the menu of interactions opens on a portrait, or for `goal:<window>` what the files say reaches that
-window; `<call>@<text>` takes the first whose row shows that text, where rows share a call, as the
-activities do. Wait for `target`, record it into the harvest, and go on from it. A step without
-`=target` only changes the window standing open, as a tab does: the hostage exchange sits in the war
-overview's peace terms, which the engine shows once a terms tab is pressed. A window on the way
-that already has a record from a player route keeps it, as in the chain round; the last target is
-always recorded. A record it replaces goes aside into `harvest-<date>-replaced`, or into
-`harvest-<date>-console-replaced` when the console made it. The state is put back, or nothing is
-written.
+`call`, for `right:<call>` click those whose onrightclick carries it with the right button, in turn
+until a window comes up, as the menu of interactions opens on a portrait, or for `goal:<window>`
+what the files say reaches that window; `<call>@<text>` takes the first whose row shows that text,
+where rows share a call, as the activities do. Wait for `target`, record it into the harvest, and
+go on from it. A step without `=target` only changes the window standing open, as a tab does: the
+hostage exchange sits in the war overview's peace terms, which the engine shows once a terms tab is
+pressed. A window on the way that already has a record from a player route keeps it, as in the
+chain round; the last target is always recorded. A record it replaces goes aside into
+`harvest-<date>-replaced`, or into `harvest-<date>-console-replaced` when the console made it. The
+state is put back, or nothing is written.
 
 The route of every record says what was pressed, starting with `hand:`. Made on 22 October 2026,
 after the filter presets, the settings window and the court appointment with its filter had each
@@ -69,13 +69,6 @@ def main() -> None:
                 else openers.Goal('right', call[len('right:'):]) if call.startswith('right:')
                 else openers.Goal('call', call))
         nodes, opened, spot, why = harvest.chain_press(game, source, goal, tables, showing if at else None)
-        # A right click tries the portraits in order until the target opens: the first of the
-        # character window is an empty spouse slot, and a dead parent has no interactions.
-        tried = 1
-        while goal.kind == 'right' and spot is not None and target and not opened:
-            nodes, opened, spot, why = harvest.chain_press(game, source, goal, tables,
-                                                           showing if at else None, tried)
-            tried += 1
         print(f"in {source} pressed {(spot['name'] or spot['class']) if spot else None}; "
               f"opened {', '.join(sorted(opened)) or 'nothing'}{'; ' + why if why else ''}")
         if not target and spot is not None:

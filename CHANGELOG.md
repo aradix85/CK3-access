@@ -2,6 +2,9 @@
 
 Outcomes, newest day first. No release yet.
 
+## 2026-10-29
+- A right-click step tries every target from one alignment of the window: reaching the interaction menu takes 42 seconds instead of 170.
+
 ## 2026-10-27
 - The knights window and its permissions, the house window with its list of houses, the dynasty tree and its legacies are harvested by hand on Ghur played. 252 windows.
 - README: the way the player version loads into the game is chosen on a measurement, not fixed in advance.
