@@ -42,7 +42,7 @@ from tools.ck3 import (
 MENU = 'character_interaction_menu_window'
 RIGHT = openers.Goal('right', 'DefaultOnCharacterRightClick')
 ITEM = openers.Goal('call', 'InteractionItem.OnClick')
-EXPANDER = re.compile(r'^\d+ more\.\.\.$')
+EXPANDER = re.compile(r'^(\d+ more|More)\.\.\.$')
 OUT = os.path.join(paths.REPORTS, 'interactions.json')
 
 
@@ -79,9 +79,13 @@ def category_of(record: pairing.Record, address: int) -> str | None:
 
 def rows(record: pairing.Record) -> tuple[str, dict[int, tuple[str | None, str, int | None]]]:
     """The character the menu stands open for, and every drawn row: address -> (category or None in
-    the flyout, text, state byte)."""
+    the flyout, text, state byte). The name is the heading that is drawn: on the player's own menu
+    that is `character_name_me`, "This is you", while `character_name` stays built, hidden, with the
+    name of the menu before it (measured 29 October 2026 on Saru)."""
     by_address = {w['address']: w for w in record['tree']}
-    name = next(clean(w['text']) for w in record['tree'] if w['name'] == 'character_name' and w['text'])
+    name = next(clean(w['text']) for w in record['tree']
+                if w['name'] in ('character_name', 'character_name_me') and w['text']
+                and onscreen.shown_in_record(w, by_address))
     out: dict[int, tuple[str | None, str, int | None]] = {}
     for widget in record['tree']:
         if widget['name'] != 'interaction_button' or not onscreen.shown_in_record(widget, by_address):

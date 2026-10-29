@@ -170,7 +170,6 @@
     "Diplomacy/Offer Peace",
     "Hostile/Murder (Scheme)",
     "Personal/Learn Language (Scheme)",
-    "Personal/More...",
     "Personal/Send Gift"
    ],
    "off": [
@@ -180,13 +179,21 @@
     "Diplomacy/Offer Hostage",
     "Diplomacy/Puppet Secular Ruler",
     "Hostile/Request Excommunication",
+    "Personal/Gift Artifact",
+    "Personal/Offer Guardianship",
+    "Personal/Offer Ward",
+    "Personal/Seduce (Scheme)",
     "Personal/Sway (Scheme)"
    ],
    "behind_expander": [
     "Diplomacy/Demand Hostage",
     "Diplomacy/Exchange Hostages",
     "Diplomacy/Offer Courtier",
-    "Diplomacy/Offer Hostage"
+    "Diplomacy/Offer Hostage",
+    "Personal/Gift Artifact",
+    "Personal/Offer Guardianship",
+    "Personal/Offer Ward",
+    "Personal/Seduce (Scheme)"
    ],
    "not_expanded": []
   },
@@ -233,7 +240,6 @@
     "Personal/Send Gift",
     "Personal/Sway (Scheme)",
     "Religion/Influence Clerical Candidacy",
-    "Religion/More...",
     "Vassal/Grant Court Position",
     "Vassal/Grant Titles"
    ],
@@ -247,8 +253,13 @@
     "Personal/Offer Ward",
     "Personal/Seduce (Scheme)",
     "Religion/Ask for Gold",
+    "Religion/Beseech a Title",
+    "Religion/Buy Clerical Title",
     "Religion/Preach My Legitimacy",
     "Religion/Replace Archbishop",
+    "Religion/Request Victory",
+    "Religion/Request White Peace",
+    "Religion/Seek Indulgences",
     "Vassal/Grant Vassal",
     "Vassal/Retract Vassal"
    ],
@@ -261,6 +272,11 @@
     "Personal/Offer Guardianship",
     "Personal/Offer Ward",
     "Personal/Seduce (Scheme)",
+    "Religion/Beseech a Title",
+    "Religion/Buy Clerical Title",
+    "Religion/Request Victory",
+    "Religion/Request White Peace",
+    "Religion/Seek Indulgences",
     "Vassal/Grant Court Position",
     "Vassal/Grant Vassal",
     "Vassal/Retract Vassal"
@@ -395,7 +411,7 @@
    "not_expanded": []
   },
   "Duke Gyrth of East Anglia": {
-   "source": "character_window:F1:CharacterWindow.SetTab('subjects')",
+   "source": "character_window:F1:CharacterWindow.SetTab('family')",
    "on": [
     "Diplomacy/Arrange Marriage",
     "Diplomacy/Claim Title",
@@ -896,6 +912,56 @@
     "Vassal/Retract Vassal"
    ],
    "not_expanded": []
+  },
+  "Princess Gunhild": {
+   "source": "character_window:F1:CharacterWindow.SetTab('family')",
+   "on": [
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Demand Hostage",
+    "Diplomacy/Find Spouse",
+    "Hostile/Denounce",
+    "Hostile/Disinherit",
+    "Hostile/Imprison",
+    "Personal/Choose Favorite Child",
+    "Personal/Gift Artifact",
+    "Personal/Offer Guardianship",
+    "Personal/Send Gift",
+    "Realm & Court/Invite to Court"
+   ],
+   "off": [
+    "Diplomacy/Designate Heir",
+    "Diplomacy/Exchange Hostages",
+    "Hostile/Murder (Scheme)",
+    "Hostile/Request Excommunication",
+    "Personal/Sway (Scheme)",
+    "Power Sharing/Elevate Co-Monarch",
+    "Realm & Court/Grant Titles"
+   ],
+   "behind_expander": [
+    "Diplomacy/Demand Hostage",
+    "Diplomacy/Designate Heir",
+    "Diplomacy/Exchange Hostages",
+    "Hostile/Denounce",
+    "Hostile/Disinherit",
+    "Hostile/Request Excommunication",
+    "Personal/Choose Favorite Child",
+    "Personal/Gift Artifact",
+    "Personal/Offer Guardianship"
+   ],
+   "not_expanded": []
+  },
+  "This is you": {
+   "source": "character_window:F1:CharacterWindow.SetTab('relations')",
+   "on": [
+    "Diplomacy/Arrange Marriage",
+    "Personal/Destroy Artifact"
+   ],
+   "off": [
+    "Personal/Educate Child",
+    "Power Sharing/Elevate Co-Monarch"
+   ],
+   "behind_expander": [],
+   "not_expanded": []
   }
  },
  "Andronikos": {
@@ -1161,6 +1227,2071 @@
     "Personal/Romance (Scheme)",
     "Personal/Seduce (Scheme)"
    ],
+   "not_expanded": []
+  }
+ },
+ "Chixin": {
+  "Zhūyé Kèníng": {
+   "source": "character_window:F1:CharacterWindow.SetTab('family')",
+   "on": [
+    "Candidacy/Slander (Scheme)",
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Find Spouse",
+    "Hostile/Denounce",
+    "Hostile/Disinherit",
+    "Hostile/Imprison",
+    "Personal/Choose Favorite Child",
+    "Personal/Educate Child",
+    "Personal/Request Mentorship",
+    "Personal/Send Gift"
+   ],
+   "off": [
+    "Candidacy/Influence Career",
+    "Candidacy/Promote (Scheme)",
+    "Courtier/Ask for Governorship",
+    "Courtier/Demand Courtier",
+    "Courtier/Dismiss",
+    "Courtier/Grant Appointment",
+    "Courtier/Grant Court Position",
+    "Diplomacy/Designate Heir",
+    "Hostile/Challenge Status (Scheme)",
+    "Hostile/Murder (Scheme)",
+    "Personal/Castrate Kin",
+    "Personal/Find Elder",
+    "Personal/Have Child Study Language",
+    "Personal/Make House Head Request",
+    "Personal/Send to Children's Examination",
+    "Personal/Sway (Scheme)"
+   ],
+   "behind_expander": [
+    "Candidacy/Promote (Scheme)",
+    "Candidacy/Slander (Scheme)",
+    "Courtier/Demand Courtier",
+    "Courtier/Dismiss",
+    "Courtier/Grant Court Position",
+    "Hostile/Challenge Status (Scheme)",
+    "Hostile/Denounce",
+    "Hostile/Disinherit",
+    "Personal/Choose Favorite Child",
+    "Personal/Find Elder",
+    "Personal/Make House Head Request"
+   ],
+   "not_expanded": []
+  },
+  "Zhūyé Kègōng": {
+   "source": "character_window:F1:CharacterWindow.SetTab('family')",
+   "on": [
+    "Candidacy/Slander (Scheme)",
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Find Spouse",
+    "Hostile/Denounce",
+    "Hostile/Disinherit",
+    "Hostile/Imprison",
+    "Personal/Choose Favorite Child",
+    "Personal/Educate Child",
+    "Personal/Request Mentorship",
+    "Personal/Send Gift",
+    "Personal/Send to Children's Examination"
+   ],
+   "off": [
+    "Candidacy/Influence Career",
+    "Candidacy/Promote (Scheme)",
+    "Courtier/Ask for Governorship",
+    "Courtier/Demand Courtier",
+    "Courtier/Dismiss",
+    "Courtier/Grant Appointment",
+    "Courtier/Grant Court Position",
+    "Diplomacy/Designate Heir",
+    "Hostile/Challenge Status (Scheme)",
+    "Hostile/Murder (Scheme)",
+    "Personal/Castrate Kin",
+    "Personal/Find Elder",
+    "Personal/Have Child Study Language",
+    "Personal/Make House Head Request",
+    "Personal/Sway (Scheme)"
+   ],
+   "behind_expander": [
+    "Candidacy/Promote (Scheme)",
+    "Candidacy/Slander (Scheme)",
+    "Courtier/Demand Courtier",
+    "Courtier/Dismiss",
+    "Courtier/Grant Court Position",
+    "Hostile/Challenge Status (Scheme)",
+    "Hostile/Denounce",
+    "Hostile/Disinherit",
+    "Personal/Choose Favorite Child",
+    "Personal/Find Elder",
+    "Personal/Make House Head Request"
+   ],
+   "not_expanded": []
+  },
+  "Zhūyé Kèràng": {
+   "source": "character_window:F1:CharacterWindow.SetTab('family')",
+   "on": [
+    "Candidacy/Slander (Scheme)",
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Find Spouse",
+    "Hostile/Denounce",
+    "Hostile/Disinherit",
+    "Hostile/Imprison",
+    "Personal/Choose Favorite Child",
+    "Personal/Educate Child",
+    "Personal/Request Mentorship",
+    "Personal/Send Gift",
+    "Personal/Send to Children's Examination"
+   ],
+   "off": [
+    "Candidacy/Influence Career",
+    "Candidacy/Promote (Scheme)",
+    "Courtier/Ask for Governorship",
+    "Courtier/Demand Courtier",
+    "Courtier/Dismiss",
+    "Courtier/Grant Appointment",
+    "Courtier/Grant Court Position",
+    "Diplomacy/Designate Heir",
+    "Hostile/Challenge Status (Scheme)",
+    "Hostile/Murder (Scheme)",
+    "Personal/Castrate Kin",
+    "Personal/Find Elder",
+    "Personal/Have Child Study Language",
+    "Personal/Make House Head Request",
+    "Personal/Sway (Scheme)"
+   ],
+   "behind_expander": [
+    "Candidacy/Promote (Scheme)",
+    "Candidacy/Slander (Scheme)",
+    "Courtier/Demand Courtier",
+    "Courtier/Dismiss",
+    "Courtier/Grant Court Position",
+    "Hostile/Challenge Status (Scheme)",
+    "Hostile/Denounce",
+    "Hostile/Disinherit",
+    "Personal/Choose Favorite Child",
+    "Personal/Find Elder",
+    "Personal/Make House Head Request"
+   ],
+   "not_expanded": []
+  },
+  "Zhūyé Kèyòng": {
+   "source": "character_window:F1:CharacterWindow.SetTab('family')",
+   "on": [
+    "Candidacy/Slander (Scheme)",
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Find Spouse",
+    "Hostile/Denounce",
+    "Hostile/Disinherit",
+    "Hostile/Imprison",
+    "Personal/Educate Child",
+    "Personal/Request Mentorship",
+    "Personal/Send Gift",
+    "Personal/Send to Children's Examination"
+   ],
+   "off": [
+    "Candidacy/Influence Career",
+    "Candidacy/Promote (Scheme)",
+    "Courtier/Ask for Governorship",
+    "Courtier/Demand Courtier",
+    "Courtier/Dismiss",
+    "Courtier/Grant Appointment",
+    "Courtier/Grant Court Position",
+    "Diplomacy/Designate Heir",
+    "Hostile/Challenge Status (Scheme)",
+    "Hostile/Murder (Scheme)",
+    "Personal/Castrate Kin",
+    "Personal/Choose Favorite Child",
+    "Personal/Find Elder",
+    "Personal/Have Child Study Language",
+    "Personal/Make House Head Request",
+    "Personal/Sway (Scheme)"
+   ],
+   "behind_expander": [
+    "Candidacy/Promote (Scheme)",
+    "Candidacy/Slander (Scheme)",
+    "Courtier/Demand Courtier",
+    "Courtier/Dismiss",
+    "Courtier/Grant Court Position",
+    "Hostile/Challenge Status (Scheme)",
+    "Hostile/Denounce",
+    "Hostile/Disinherit",
+    "Personal/Choose Favorite Child",
+    "Personal/Find Elder",
+    "Personal/Make House Head Request"
+   ],
+   "not_expanded": []
+  },
+  "Huángdì Li Cui of Tang": {
+   "source": "character_window:F1:CharacterWindow.SetTab('family')",
+   "on": [
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Declare War",
+    "Diplomacy/Offer Courtier",
+    "Diplomacy/Offer Hostage",
+    "Diplomacy/Puppet Secular Ruler",
+    "Hostile/Challenge Status (Scheme)",
+    "Hostile/Murder (Scheme)",
+    "Hostile/Siphon Treasury (Scheme)",
+    "Liege/Claim Liege Title",
+    "Liege/Grant Vassal",
+    "Liege/Modify Circuit Administration",
+    "Liege/Request Court Position",
+    "Liege/Request Treasury Funds",
+    "Liege/Send Treasury",
+    "Liege/Start Claimant Faction",
+    "Personal/Find Elder",
+    "Personal/Offer Guardianship",
+    "Personal/Offer Ward",
+    "Personal/Request Mentorship",
+    "Personal/Send Gift",
+    "Personal/Sway (Scheme)",
+    "Religion/Adopt Rite"
+   ],
+   "off": [
+    "Diplomacy/Offer Concubine",
+    "Liege/Ask for Governorship",
+    "Liege/Depose (Scheme)",
+    "Liege/Request Military Aid",
+    "Personal/Seduce (Scheme)",
+    "Personal/Study Rite (Scheme)"
+   ],
+   "behind_expander": [
+    "Diplomacy/Offer Concubine",
+    "Diplomacy/Offer Courtier",
+    "Diplomacy/Offer Hostage",
+    "Liege/Claim Liege Title",
+    "Liege/Depose (Scheme)",
+    "Liege/Grant Vassal",
+    "Liege/Request Court Position",
+    "Liege/Request Military Aid",
+    "Liege/Request Treasury Funds",
+    "Liege/Send Treasury",
+    "Liege/Start Claimant Faction",
+    "Personal/Find Elder",
+    "Personal/Offer Guardianship",
+    "Personal/Offer Ward",
+    "Personal/Seduce (Scheme)"
+   ],
+   "not_expanded": []
+  },
+  "Minister Cáo Què of the Ministry of Revenue": {
+   "source": "character_window:F1:CharacterWindow.SetTab('relations')",
+   "on": [
+    "Candidacy/Influence Career",
+    "Candidacy/Promote (Scheme)",
+    "Candidacy/Slander (Scheme)",
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Offer Courtier",
+    "Diplomacy/Promote Movement Power (Scheme)",
+    "Diplomacy/Slander Movement Power (Scheme)",
+    "Fellow Vassal/Send Treasury",
+    "Hostile/Break with Elder",
+    "Hostile/Challenge Status (Scheme)",
+    "Hostile/Murder (Scheme)",
+    "Hostile/Siphon Treasury (Scheme)",
+    "Personal/Make a Request",
+    "Personal/Offer Guardianship",
+    "Personal/Offer Ward",
+    "Personal/Request Mentorship",
+    "Personal/Send Gift",
+    "Personal/Study Rite (Scheme)",
+    "Personal/Sway (Scheme)"
+   ],
+   "off": [
+    "Diplomacy/Declare War",
+    "Diplomacy/Offer Concubine",
+    "Fellow Vassal/Ask for Governorship",
+    "Hostile/Raid Estate (Scheme)",
+    "Hostile/Request Permission to Raid",
+    "Personal/Find Elder",
+    "Personal/Seduce (Scheme)"
+   ],
+   "behind_expander": [
+    "Candidacy/Promote (Scheme)",
+    "Candidacy/Slander (Scheme)",
+    "Diplomacy/Offer Concubine",
+    "Diplomacy/Offer Courtier",
+    "Diplomacy/Promote Movement Power (Scheme)",
+    "Diplomacy/Slander Movement Power (Scheme)",
+    "Hostile/Break with Elder",
+    "Hostile/Challenge Status (Scheme)",
+    "Hostile/Raid Estate (Scheme)",
+    "Hostile/Request Permission to Raid",
+    "Personal/Find Elder",
+    "Personal/Make a Request",
+    "Personal/Offer Guardianship",
+    "Personal/Offer Ward",
+    "Personal/Seduce (Scheme)"
+   ],
+   "not_expanded": []
+  },
+  "Kolo": {
+   "source": "character_window:F1:CharacterWindow.SetTab('court')",
+   "on": [
+    "Diplomacy/Arrange Marriage",
+    "Hostile/Imprison",
+    "Hostile/Murder (Scheme)",
+    "Personal/Send Gift",
+    "Personal/Sway (Scheme)",
+    "Realm & Court/Dismiss",
+    "Realm & Court/Grant Titles",
+    "Realm & Court/Recruit to Court"
+   ],
+   "off": [
+    "Personal/Educate Child",
+    "Personal/Seduce (Scheme)",
+    "Realm & Court/Ask for Governorship",
+    "Realm & Court/Grant Appointment"
+   ],
+   "behind_expander": [],
+   "not_expanded": []
+  },
+  "Cunjing": {
+   "source": "character_window:F1:CharacterWindow.SetTab('court')",
+   "on": [
+    "Diplomacy/Arrange Marriage",
+    "Hostile/Imprison",
+    "Hostile/Murder (Scheme)",
+    "Personal/Send Gift",
+    "Personal/Sway (Scheme)",
+    "Realm & Court/Dismiss",
+    "Realm & Court/Grant Titles",
+    "Realm & Court/Recruit to Court"
+   ],
+   "off": [
+    "Personal/Educate Child",
+    "Personal/Seduce (Scheme)",
+    "Realm & Court/Ask for Governorship",
+    "Realm & Court/Grant Appointment"
+   ],
+   "behind_expander": [],
+   "not_expanded": []
+  },
+  "Chang": {
+   "source": "character_window:F1:CharacterWindow.SetTab('court')",
+   "on": [
+    "Diplomacy/Arrange Marriage",
+    "Hostile/Imprison",
+    "Hostile/Murder (Scheme)",
+    "Personal/Send Gift",
+    "Personal/Study Rite (Scheme)",
+    "Personal/Sway (Scheme)",
+    "Realm & Court/Dismiss",
+    "Realm & Court/Grant Titles",
+    "Realm & Court/Recruit to Court"
+   ],
+   "off": [
+    "Personal/Educate Child",
+    "Personal/Seduce (Scheme)",
+    "Realm & Court/Ask for Governorship",
+    "Realm & Court/Grant Appointment"
+   ],
+   "behind_expander": [],
+   "not_expanded": []
+  },
+  "Governor Fán Jì of Tiande": {
+   "source": "character_window:F1:CharacterWindow.SetTab('subjects')",
+   "on": [
+    "Candidacy/Force Retirement",
+    "Candidacy/Influence Career",
+    "Candidacy/Promote (Scheme)",
+    "Candidacy/Request Retirement",
+    "Candidacy/Slander (Scheme)",
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Offer Courtier",
+    "Diplomacy/Promote Movement Power (Scheme)",
+    "Diplomacy/Puppet Secular Ruler",
+    "Diplomacy/Slander Movement Power (Scheme)",
+    "Governor/Demand Courtier",
+    "Governor/Give Vassal Directive",
+    "Governor/Grant Appointment",
+    "Governor/Grant Court Position",
+    "Governor/Grant Vassal",
+    "Governor/Modify Circuit Administration",
+    "Governor/Requisition Treasury",
+    "Governor/Revoke Appointment",
+    "Governor/Send Treasury",
+    "Governor/Undermine Governance",
+    "Hostile/Challenge Status (Scheme)",
+    "Hostile/Imprison",
+    "Hostile/Murder (Scheme)",
+    "Hostile/Siphon Treasury (Scheme)",
+    "Personal/Find Elder",
+    "Personal/Offer Ward",
+    "Personal/Request Mentorship",
+    "Personal/Send Gift",
+    "Personal/Study Rite (Scheme)",
+    "Personal/Sway (Scheme)",
+    "Religion/Demand Conversion"
+   ],
+   "off": [
+    "Diplomacy/Declare War",
+    "Diplomacy/Offer Concubine",
+    "Governor/Ask for Governorship",
+    "Governor/Bolster Governance",
+    "Governor/Grant Independence",
+    "Governor/Retract Vassal",
+    "Hostile/Raid Estate (Scheme)",
+    "Hostile/Request Permission to Raid",
+    "Personal/Offer Guardianship",
+    "Personal/Seduce (Scheme)"
+   ],
+   "behind_expander": [
+    "Candidacy/Force Retirement",
+    "Candidacy/Promote (Scheme)",
+    "Candidacy/Request Retirement",
+    "Candidacy/Slander (Scheme)",
+    "Diplomacy/Offer Concubine",
+    "Diplomacy/Offer Courtier",
+    "Diplomacy/Promote Movement Power (Scheme)",
+    "Diplomacy/Slander Movement Power (Scheme)",
+    "Governor/Bolster Governance",
+    "Governor/Demand Courtier",
+    "Governor/Give Vassal Directive",
+    "Governor/Grant Court Position",
+    "Governor/Grant Independence",
+    "Governor/Grant Vassal",
+    "Governor/Requisition Treasury",
+    "Governor/Retract Vassal",
+    "Governor/Send Treasury",
+    "Governor/Undermine Governance",
+    "Hostile/Challenge Status (Scheme)",
+    "Hostile/Raid Estate (Scheme)",
+    "Hostile/Request Permission to Raid",
+    "Personal/Find Elder",
+    "Personal/Offer Guardianship",
+    "Personal/Offer Ward",
+    "Personal/Seduce (Scheme)"
+   ],
+   "not_expanded": []
+  },
+  "Governor Péi Yu of Sanggan": {
+   "source": "character_window:F1:CharacterWindow.SetTab('subjects')",
+   "on": [
+    "Candidacy/Force Retirement",
+    "Candidacy/Influence Career",
+    "Candidacy/Promote (Scheme)",
+    "Candidacy/Request Retirement",
+    "Candidacy/Slander (Scheme)",
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Offer Courtier",
+    "Diplomacy/Promote Movement Power (Scheme)",
+    "Diplomacy/Puppet Secular Ruler",
+    "Diplomacy/Slander Movement Power (Scheme)",
+    "Governor/Demand Courtier",
+    "Governor/Give Vassal Directive",
+    "Governor/Grant Appointment",
+    "Governor/Grant Court Position",
+    "Governor/Grant Vassal",
+    "Governor/Modify Circuit Administration",
+    "Governor/Requisition Treasury",
+    "Governor/Revoke Appointment",
+    "Governor/Send Treasury",
+    "Hostile/Challenge Status (Scheme)",
+    "Hostile/Imprison",
+    "Hostile/Murder (Scheme)",
+    "Hostile/Siphon Treasury (Scheme)",
+    "Personal/Find Elder",
+    "Personal/Offer Guardianship",
+    "Personal/Offer Ward",
+    "Personal/Request Mentorship",
+    "Personal/Send Gift",
+    "Personal/Study Rite (Scheme)",
+    "Personal/Sway (Scheme)",
+    "Religion/Demand Conversion"
+   ],
+   "off": [
+    "Diplomacy/Declare War",
+    "Diplomacy/Offer Concubine",
+    "Governor/Ask for Governorship",
+    "Governor/Bolster Governance",
+    "Governor/Grant Independence",
+    "Governor/Retract Vassal",
+    "Governor/Undermine Governance",
+    "Hostile/Raid Estate (Scheme)",
+    "Hostile/Request Permission to Raid",
+    "Personal/Seduce (Scheme)"
+   ],
+   "behind_expander": [
+    "Candidacy/Force Retirement",
+    "Candidacy/Promote (Scheme)",
+    "Candidacy/Request Retirement",
+    "Candidacy/Slander (Scheme)",
+    "Diplomacy/Offer Concubine",
+    "Diplomacy/Offer Courtier",
+    "Diplomacy/Promote Movement Power (Scheme)",
+    "Diplomacy/Slander Movement Power (Scheme)",
+    "Governor/Bolster Governance",
+    "Governor/Demand Courtier",
+    "Governor/Give Vassal Directive",
+    "Governor/Grant Court Position",
+    "Governor/Grant Independence",
+    "Governor/Grant Vassal",
+    "Governor/Requisition Treasury",
+    "Governor/Retract Vassal",
+    "Governor/Send Treasury",
+    "Governor/Undermine Governance",
+    "Hostile/Challenge Status (Scheme)",
+    "Hostile/Raid Estate (Scheme)",
+    "Hostile/Request Permission to Raid",
+    "Personal/Find Elder",
+    "Personal/Offer Guardianship",
+    "Personal/Offer Ward",
+    "Personal/Seduce (Scheme)"
+   ],
+   "not_expanded": []
+  },
+  "Governor Zhèng Dú of Yunshuo": {
+   "source": "character_window:F1:CharacterWindow.SetTab('subjects')",
+   "on": [
+    "Candidacy/Force Retirement",
+    "Candidacy/Influence Career",
+    "Candidacy/Promote (Scheme)",
+    "Candidacy/Request Retirement",
+    "Candidacy/Slander (Scheme)",
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Offer Courtier",
+    "Diplomacy/Promote Movement Power (Scheme)",
+    "Diplomacy/Puppet Secular Ruler",
+    "Diplomacy/Slander Movement Power (Scheme)",
+    "Governor/Demand Courtier",
+    "Governor/Give Vassal Directive",
+    "Governor/Grant Appointment",
+    "Governor/Grant Court Position",
+    "Governor/Grant Vassal",
+    "Governor/Modify Circuit Administration",
+    "Governor/Requisition Treasury",
+    "Governor/Revoke Appointment",
+    "Governor/Send Treasury",
+    "Governor/Undermine Governance",
+    "Hostile/Challenge Status (Scheme)",
+    "Hostile/Imprison",
+    "Hostile/Murder (Scheme)",
+    "Hostile/Siphon Treasury (Scheme)",
+    "Personal/Find Elder",
+    "Personal/Offer Guardianship",
+    "Personal/Offer Ward",
+    "Personal/Request Mentorship",
+    "Personal/Send Gift",
+    "Personal/Study Rite (Scheme)",
+    "Personal/Sway (Scheme)",
+    "Religion/Demand Conversion"
+   ],
+   "off": [
+    "Diplomacy/Declare War",
+    "Diplomacy/Offer Concubine",
+    "Governor/Ask for Governorship",
+    "Governor/Bolster Governance",
+    "Governor/Grant Independence",
+    "Governor/Retract Vassal",
+    "Hostile/Raid Estate (Scheme)",
+    "Hostile/Request Permission to Raid",
+    "Personal/Seduce (Scheme)"
+   ],
+   "behind_expander": [
+    "Candidacy/Force Retirement",
+    "Candidacy/Promote (Scheme)",
+    "Candidacy/Request Retirement",
+    "Candidacy/Slander (Scheme)",
+    "Diplomacy/Offer Concubine",
+    "Diplomacy/Offer Courtier",
+    "Diplomacy/Promote Movement Power (Scheme)",
+    "Diplomacy/Slander Movement Power (Scheme)",
+    "Governor/Bolster Governance",
+    "Governor/Demand Courtier",
+    "Governor/Give Vassal Directive",
+    "Governor/Grant Court Position",
+    "Governor/Grant Independence",
+    "Governor/Grant Vassal",
+    "Governor/Requisition Treasury",
+    "Governor/Retract Vassal",
+    "Governor/Send Treasury",
+    "Governor/Undermine Governance",
+    "Hostile/Challenge Status (Scheme)",
+    "Hostile/Raid Estate (Scheme)",
+    "Hostile/Request Permission to Raid",
+    "Personal/Find Elder",
+    "Personal/Offer Guardianship",
+    "Personal/Offer Ward",
+    "Personal/Seduce (Scheme)"
+   ],
+   "not_expanded": []
+  }
+ },
+ "Saru": {
+  "Anna": {
+   "source": "character_window:F1:CharacterWindow.SetTab('family')",
+   "on": [
+    "Courtier/Grant Titles",
+    "Courtier/Negotiate Obedience",
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Find Spouse",
+    "Hostile/Denounce",
+    "Hostile/Disinherit",
+    "Hostile/Imprison",
+    "Hostile/Murder (Scheme)",
+    "Personal/Educate Child",
+    "Personal/Gift Artifact",
+    "Personal/Send Gift"
+   ],
+   "off": [
+    "Courtier/Demand Obedience",
+    "Courtier/Dismiss",
+    "Courtier/Grant Court Position",
+    "Diplomacy/Swear Blood Brotherhood",
+    "Personal/Befriend (Scheme)",
+    "Personal/Have Child Study Language",
+    "Personal/Sway (Scheme)"
+   ],
+   "behind_expander": [
+    "Courtier/Dismiss",
+    "Courtier/Grant Court Position",
+    "Hostile/Denounce",
+    "Hostile/Disinherit",
+    "Personal/Befriend (Scheme)",
+    "Personal/Gift Artifact"
+   ],
+   "not_expanded": []
+  },
+  "Aepak": {
+   "source": "character_window:F1:CharacterWindow.SetTab('family')",
+   "on": [
+    "Courtier/Grant Court Position",
+    "Courtier/Grant Titles",
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Find Spouse",
+    "Hostile/Denounce",
+    "Hostile/Disinherit",
+    "Hostile/Imprison",
+    "Hostile/Murder (Scheme)",
+    "Personal/Befriend (Scheme)",
+    "Personal/Educate Child",
+    "Personal/Gift Artifact",
+    "Personal/Send Gift",
+    "Personal/Sway (Scheme)"
+   ],
+   "off": [
+    "Courtier/Dismiss",
+    "Diplomacy/Swear Blood Brotherhood",
+    "Personal/Seduce (Scheme)"
+   ],
+   "behind_expander": [
+    "Courtier/Dismiss",
+    "Courtier/Grant Court Position",
+    "Hostile/Denounce",
+    "Hostile/Disinherit",
+    "Personal/Befriend (Scheme)",
+    "Personal/Gift Artifact",
+    "Personal/Seduce (Scheme)"
+   ],
+   "not_expanded": []
+  },
+  "Ayasun": {
+   "source": "character_window:F1:CharacterWindow.SetTab('court')",
+   "on": [
+    "Diplomacy/Arrange Marriage",
+    "Hostile/Imprison",
+    "Hostile/Murder (Scheme)",
+    "Personal/Befriend (Scheme)",
+    "Personal/Gift Artifact",
+    "Personal/Romance (Scheme)",
+    "Personal/Seduce (Scheme)",
+    "Personal/Send Gift",
+    "Personal/Sway (Scheme)",
+    "Realm & Court/Dismiss",
+    "Realm & Court/Grant Titles",
+    "Realm & Court/Recruit to Court"
+   ],
+   "off": [
+    "Personal/Educate Child"
+   ],
+   "behind_expander": [
+    "Personal/Befriend (Scheme)",
+    "Personal/Gift Artifact",
+    "Personal/Romance (Scheme)",
+    "Personal/Seduce (Scheme)"
+   ],
+   "not_expanded": []
+  },
+  "Eltut": {
+   "source": "character_window:F1:CharacterWindow.SetTab('court')",
+   "on": [
+    "Diplomacy/Arrange Marriage",
+    "Hostile/Imprison",
+    "Hostile/Murder (Scheme)",
+    "Personal/Befriend (Scheme)",
+    "Personal/Gift Artifact",
+    "Personal/Send Gift",
+    "Personal/Sway (Scheme)",
+    "Realm & Court/Dismiss",
+    "Realm & Court/Grant Titles",
+    "Realm & Court/Recruit to Court"
+   ],
+   "off": [
+    "Personal/Educate Child",
+    "Personal/Seduce (Scheme)"
+   ],
+   "behind_expander": [
+    "Personal/Befriend (Scheme)",
+    "Personal/Gift Artifact",
+    "Personal/Seduce (Scheme)"
+   ],
+   "not_expanded": []
+  },
+  "Kemenche": {
+   "source": "character_window:F1:CharacterWindow.SetTab('court')",
+   "on": [
+    "Diplomacy/Arrange Marriage",
+    "Hostile/Imprison",
+    "Hostile/Murder (Scheme)",
+    "Personal/Befriend (Scheme)",
+    "Personal/Gift Artifact",
+    "Personal/Send Gift",
+    "Personal/Sway (Scheme)",
+    "Realm & Court/Dismiss",
+    "Realm & Court/Grant Titles",
+    "Realm & Court/Recruit to Court"
+   ],
+   "off": [
+    "Personal/Educate Child",
+    "Personal/Seduce (Scheme)"
+   ],
+   "behind_expander": [
+    "Personal/Befriend (Scheme)",
+    "Personal/Gift Artifact",
+    "Personal/Seduce (Scheme)"
+   ],
+   "not_expanded": []
+  },
+  "Iltabar Borç of Thocomer Cumans": {
+   "source": "character_window:F1:CharacterWindow.SetTab('subjects')",
+   "on": [
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Demand Hostage",
+    "Diplomacy/Exchange Hostages",
+    "Diplomacy/Offer Concubine",
+    "Diplomacy/Offer Courtier",
+    "Diplomacy/Offer Hostage",
+    "Diplomacy/Puppet Secular Ruler",
+    "Diplomacy/Swear Blood Brotherhood",
+    "Hostile/Demand Herd",
+    "Hostile/Imprison",
+    "Hostile/Murder (Scheme)",
+    "Hostile/Steal Herd",
+    "Personal/Befriend (Scheme)",
+    "Personal/Gift Artifact",
+    "Personal/Offer Guardianship",
+    "Personal/Offer Ward",
+    "Personal/Send a Gift of Herd",
+    "Personal/Sway (Scheme)",
+    "Vassal/Demand Concubine",
+    "Vassal/Demand Courtier",
+    "Vassal/Grant Court Position",
+    "Vassal/Grant Titles",
+    "Vassal/Grant Vassal",
+    "Vassal/Modify Vassal Contract",
+    "Vassal/Negotiate Obedience",
+    "Vassal/Release Vassal as Tributary",
+    "Vassal/Revoke Title"
+   ],
+   "off": [
+    "Diplomacy/Declare War",
+    "Personal/Seduce (Scheme)",
+    "Personal/Send Gift",
+    "Vassal/Demand Obedience",
+    "Vassal/Give Vassal Directive",
+    "Vassal/Grant Independence",
+    "Vassal/Retract Vassal"
+   ],
+   "behind_expander": [
+    "Diplomacy/Demand Hostage",
+    "Diplomacy/Exchange Hostages",
+    "Diplomacy/Offer Concubine",
+    "Diplomacy/Offer Courtier",
+    "Diplomacy/Offer Hostage",
+    "Personal/Befriend (Scheme)",
+    "Personal/Gift Artifact",
+    "Personal/Offer Guardianship",
+    "Personal/Offer Ward",
+    "Personal/Seduce (Scheme)",
+    "Vassal/Demand Concubine",
+    "Vassal/Demand Courtier",
+    "Vassal/Give Vassal Directive",
+    "Vassal/Grant Court Position",
+    "Vassal/Grant Independence",
+    "Vassal/Grant Vassal",
+    "Vassal/Release Vassal as Tributary",
+    "Vassal/Retract Vassal"
+   ],
+   "not_expanded": []
+  },
+  "Beg Uzur of Karasorkaliq Kipchaks": {
+   "source": "character_window:F1:CharacterWindow.SetTab('subjects')",
+   "on": [
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Demand Hostage",
+    "Diplomacy/Exchange Hostages",
+    "Diplomacy/Offer Concubine",
+    "Diplomacy/Offer Courtier",
+    "Diplomacy/Offer Hostage",
+    "Diplomacy/Puppet Secular Ruler",
+    "Diplomacy/Swear Blood Brotherhood",
+    "Hostile/Demand Herd",
+    "Hostile/Imprison",
+    "Hostile/Murder (Scheme)",
+    "Hostile/Steal Herd",
+    "Personal/Befriend (Scheme)",
+    "Personal/Gift Artifact",
+    "Personal/Offer Guardianship",
+    "Personal/Offer Ward",
+    "Personal/Send Gift",
+    "Personal/Send a Gift of Herd",
+    "Personal/Sway (Scheme)",
+    "Vassal/Demand Concubine",
+    "Vassal/Demand Courtier",
+    "Vassal/Grant Court Position",
+    "Vassal/Grant Titles",
+    "Vassal/Modify Vassal Contract",
+    "Vassal/Negotiate Obedience",
+    "Vassal/Release Vassal as Tributary",
+    "Vassal/Revoke Title"
+   ],
+   "off": [
+    "Diplomacy/Declare War",
+    "Personal/Seduce (Scheme)",
+    "Vassal/Demand Obedience",
+    "Vassal/Give Vassal Directive",
+    "Vassal/Grant Independence",
+    "Vassal/Grant Vassal",
+    "Vassal/Retract Vassal"
+   ],
+   "behind_expander": [
+    "Diplomacy/Demand Hostage",
+    "Diplomacy/Exchange Hostages",
+    "Diplomacy/Offer Concubine",
+    "Diplomacy/Offer Courtier",
+    "Diplomacy/Offer Hostage",
+    "Personal/Befriend (Scheme)",
+    "Personal/Gift Artifact",
+    "Personal/Offer Guardianship",
+    "Personal/Offer Ward",
+    "Personal/Seduce (Scheme)",
+    "Vassal/Demand Concubine",
+    "Vassal/Demand Courtier",
+    "Vassal/Give Vassal Directive",
+    "Vassal/Grant Court Position",
+    "Vassal/Grant Independence",
+    "Vassal/Grant Vassal",
+    "Vassal/Release Vassal as Tributary",
+    "Vassal/Retract Vassal"
+   ],
+   "not_expanded": []
+  },
+  "Beg Çilbu of Batpaktan Cumans": {
+   "source": "character_window:F1:CharacterWindow.SetTab('subjects')",
+   "on": [
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Demand Hostage",
+    "Diplomacy/Exchange Hostages",
+    "Diplomacy/Offer Concubine",
+    "Diplomacy/Offer Courtier",
+    "Diplomacy/Offer Hostage",
+    "Diplomacy/Puppet Secular Ruler",
+    "Diplomacy/Swear Blood Brotherhood",
+    "Hostile/Demand Herd",
+    "Hostile/Imprison",
+    "Hostile/Murder (Scheme)",
+    "Hostile/Steal Herd",
+    "Personal/Befriend (Scheme)",
+    "Personal/Gift Artifact",
+    "Personal/Offer Guardianship",
+    "Personal/Offer Ward",
+    "Personal/Send Gift",
+    "Personal/Send a Gift of Herd",
+    "Personal/Sway (Scheme)",
+    "Vassal/Demand Concubine",
+    "Vassal/Demand Courtier",
+    "Vassal/Grant Court Position",
+    "Vassal/Grant Titles",
+    "Vassal/Modify Vassal Contract",
+    "Vassal/Negotiate Obedience",
+    "Vassal/Release Vassal as Tributary",
+    "Vassal/Revoke Title"
+   ],
+   "off": [
+    "Diplomacy/Declare War",
+    "Personal/Seduce (Scheme)",
+    "Vassal/Demand Obedience",
+    "Vassal/Give Vassal Directive",
+    "Vassal/Grant Independence",
+    "Vassal/Grant Vassal",
+    "Vassal/Retract Vassal"
+   ],
+   "behind_expander": [
+    "Diplomacy/Demand Hostage",
+    "Diplomacy/Exchange Hostages",
+    "Diplomacy/Offer Concubine",
+    "Diplomacy/Offer Courtier",
+    "Diplomacy/Offer Hostage",
+    "Personal/Befriend (Scheme)",
+    "Personal/Gift Artifact",
+    "Personal/Offer Guardianship",
+    "Personal/Offer Ward",
+    "Personal/Seduce (Scheme)",
+    "Vassal/Demand Concubine",
+    "Vassal/Demand Courtier",
+    "Vassal/Give Vassal Directive",
+    "Vassal/Grant Court Position",
+    "Vassal/Grant Independence",
+    "Vassal/Grant Vassal",
+    "Vassal/Release Vassal as Tributary",
+    "Vassal/Retract Vassal"
+   ],
+   "not_expanded": []
+  },
+  "This is you": {
+   "source": "character_window:F1:CharacterWindow.SetTab('family')",
+   "on": [
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Find Concubine",
+    "Diplomacy/Find Spouse",
+    "Personal/Destroy Artifact",
+    "Personal/Educate Child"
+   ],
+   "off": [],
+   "behind_expander": [],
+   "not_expanded": []
+  }
+ },
+ "Dauid": {
+  "Petty King Georgios of Makuria": {
+   "source": "character_window:F1:CharacterWindow.SetTab('family')",
+   "on": [
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Declare War",
+    "Diplomacy/Demand Hostage",
+    "Diplomacy/Offer Courtier",
+    "Liege/Modify Vassal Contract",
+    "Liege/Request Court Position",
+    "Personal/Offer Guardianship",
+    "Personal/Offer Ward"
+   ],
+   "off": [
+    "Diplomacy/Beseech Claim",
+    "Diplomacy/Exchange Hostages",
+    "Diplomacy/Offer Hostage",
+    "Hostile/Murder (Scheme)",
+    "Hostile/Request Excommunication",
+    "Liege/Demand Council Position",
+    "Liege/Grant Vassal",
+    "Liege/Start Claimant Faction",
+    "Liege/Start Independence Faction",
+    "Personal/Send Gift",
+    "Personal/Sway (Scheme)",
+    "Power Sharing/Declare me Regent"
+   ],
+   "behind_expander": [
+    "Diplomacy/Beseech Claim",
+    "Diplomacy/Demand Hostage",
+    "Diplomacy/Exchange Hostages",
+    "Diplomacy/Offer Courtier",
+    "Diplomacy/Offer Hostage",
+    "Liege/Demand Council Position",
+    "Liege/Grant Vassal",
+    "Liege/Request Court Position",
+    "Liege/Start Claimant Faction",
+    "Liege/Start Independence Faction",
+    "Personal/Offer Guardianship",
+    "Personal/Offer Ward"
+   ],
+   "not_expanded": []
+  },
+  "This is you": {
+   "source": "character_window:F1:CharacterWindow.SetTab('family')",
+   "on": [
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Find Spouse",
+    "Personal/Educate Child"
+   ],
+   "off": [],
+   "behind_expander": [],
+   "not_expanded": []
+  },
+  "Priest Makarios": {
+   "source": "character_window:F1:CharacterWindow.SetTab('family')",
+   "on": [
+    "Courtier/Grant Court Position",
+    "Personal/Educate Child",
+    "Personal/Send Gift",
+    "Religion/Influence Head of Faith Candidacy"
+   ],
+   "off": [
+    "Courtier/Dismiss",
+    "Courtier/Grant Titles",
+    "Hostile/Imprison",
+    "Hostile/Murder (Scheme)",
+    "Personal/Sway (Scheme)",
+    "Regent/Discharge Entrenched Regent",
+    "Regent/Swing the Scales of Power",
+    "Religion/Influence Clerical Candidacy"
+   ],
+   "behind_expander": [
+    "Courtier/Dismiss",
+    "Courtier/Grant Court Position"
+   ],
+   "not_expanded": []
+  },
+  "Yeften": {
+   "source": "character_window:F1:CharacterWindow.SetTab('court')",
+   "on": [
+    "Diplomacy/Arrange Marriage",
+    "Hostile/Imprison",
+    "Personal/Learn Language (Scheme)",
+    "Personal/Send Gift",
+    "Realm & Court/Dismiss",
+    "Realm & Court/Grant Titles",
+    "Realm & Court/Recruit to Court"
+   ],
+   "off": [
+    "Hostile/Murder (Scheme)",
+    "Personal/Educate Child",
+    "Personal/Study Rite (Scheme)",
+    "Personal/Sway (Scheme)"
+   ],
+   "behind_expander": [],
+   "not_expanded": []
+  },
+  "Epimachos": {
+   "source": "character_window:F1:CharacterWindow.SetTab('court')",
+   "on": [
+    "Diplomacy/Arrange Marriage",
+    "Hostile/Imprison",
+    "Personal/Send Gift",
+    "Realm & Court/Dismiss",
+    "Realm & Court/Grant Titles",
+    "Realm & Court/Recruit to Court"
+   ],
+   "off": [
+    "Hostile/Murder (Scheme)",
+    "Hostile/Request Excommunication",
+    "Personal/Educate Child",
+    "Personal/Sway (Scheme)"
+   ],
+   "behind_expander": [],
+   "not_expanded": []
+  },
+  "Eudosia": {
+   "source": "character_window:F1:CharacterWindow.SetTab('court')",
+   "on": [
+    "Diplomacy/Arrange Marriage",
+    "Hostile/Imprison",
+    "Personal/Send Gift",
+    "Realm & Court/Dismiss",
+    "Realm & Court/Recruit to Court"
+   ],
+   "off": [
+    "Hostile/Murder (Scheme)",
+    "Hostile/Request Excommunication",
+    "Personal/Educate Child",
+    "Personal/Sway (Scheme)",
+    "Realm & Court/Grant Titles"
+   ],
+   "behind_expander": [],
+   "not_expanded": []
+  },
+  "Mayor Patrikios of Korosko": {
+   "source": "character_window:F1:CharacterWindow.SetTab('subjects')",
+   "on": [
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Offer Courtier",
+    "Hostile/Imprison",
+    "Personal/Send Gift",
+    "Vassal/Grant Court Position",
+    "Vassal/Grant Titles"
+   ],
+   "off": [
+    "Hostile/Murder (Scheme)",
+    "Hostile/Request Excommunication",
+    "Personal/Sway (Scheme)",
+    "Vassal/Grant Independence",
+    "Vassal/Revoke Title"
+   ],
+   "behind_expander": [
+    "Vassal/Grant Court Position",
+    "Vassal/Grant Independence"
+   ],
+   "not_expanded": []
+  },
+  "Mayor Mariankouda of Sabagura": {
+   "source": "character_window:F1:CharacterWindow.SetTab('subjects')",
+   "on": [
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Offer Courtier",
+    "Hostile/Imprison",
+    "Personal/Send Gift",
+    "Vassal/Grant Court Position",
+    "Vassal/Grant Titles"
+   ],
+   "off": [
+    "Hostile/Murder (Scheme)",
+    "Hostile/Request Excommunication",
+    "Personal/Sway (Scheme)",
+    "Vassal/Grant Independence",
+    "Vassal/Revoke Title"
+   ],
+   "behind_expander": [
+    "Vassal/Grant Court Position",
+    "Vassal/Grant Independence"
+   ],
+   "not_expanded": []
+  },
+  "Mayor Tophêna of Ikhmindi": {
+   "source": "character_window:F1:CharacterWindow.SetTab('subjects')",
+   "on": [
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Offer Courtier",
+    "Hostile/Imprison",
+    "Personal/Send Gift",
+    "Vassal/Grant Court Position",
+    "Vassal/Grant Titles"
+   ],
+   "off": [
+    "Hostile/Murder (Scheme)",
+    "Hostile/Request Excommunication",
+    "Personal/Sway (Scheme)",
+    "Vassal/Grant Independence",
+    "Vassal/Revoke Title"
+   ],
+   "behind_expander": [
+    "Vassal/Grant Court Position",
+    "Vassal/Grant Independence"
+   ],
+   "not_expanded": []
+  }
+ },
+ "Hereweard": {
+  "Ordgar": {
+   "source": "character_window:F1:CharacterWindow.SetTab('family')",
+   "on": [
+    "Hostile/Murder (Scheme)",
+    "Personal/Send Gift",
+    "Personal/Sway (Scheme)"
+   ],
+   "off": [
+    "Adventurer/Make a Request",
+    "Hostile/Fabricate Hook",
+    "Hostile/Request Excommunication",
+    "Personal/Seduce (Scheme)",
+    "Realm & Court/Invite to Camp"
+   ],
+   "behind_expander": [
+    "Hostile/Fabricate Hook",
+    "Hostile/Request Excommunication"
+   ],
+   "not_expanded": []
+  },
+  "This is you": {
+   "source": "character_window:F1:CharacterWindow.SetTab('family')",
+   "on": [],
+   "off": [
+    "Adventurer/Refill Men-at-Arms",
+    "Adventurer/Scrape the Barrel",
+    "Diplomacy/Arrange Marriage",
+    "Personal/Educate Child",
+    "Religion/Influence Clerical Candidacy"
+   ],
+   "behind_expander": [],
+   "not_expanded": []
+  },
+  "Mistress Turfida of the Men of the Fens": {
+   "source": "character_window:F1:CharacterWindow.SetTab('family')",
+   "on": [
+    "Courtier/Grant Court Position",
+    "Diplomacy/Request Divorce",
+    "Hostile/Imprison",
+    "Hostile/Murder (Scheme)",
+    "Personal/Learn Language (Scheme)",
+    "Personal/Romance (Scheme)",
+    "Personal/Seduce (Scheme)",
+    "Personal/Send Gift",
+    "Personal/Sway (Scheme)"
+   ],
+   "off": [
+    "Adventurer/Make a Request",
+    "Courtier/Ask to Take Monastic Vows",
+    "Courtier/Dismiss",
+    "Diplomacy/Adopt as Successor",
+    "Diplomacy/Hire as Mercenaries",
+    "Hostile/Fabricate Hook",
+    "Hostile/Request Excommunication",
+    "Personal/Educate Child"
+   ],
+   "behind_expander": [
+    "Courtier/Dismiss",
+    "Courtier/Grant Court Position",
+    "Hostile/Fabricate Hook",
+    "Hostile/Request Excommunication",
+    "Personal/Romance (Scheme)",
+    "Personal/Seduce (Scheme)"
+   ],
+   "not_expanded": []
+  }
+ },
+ "Rimbert": {
+  "Damaes": {
+   "source": "character_window:F1:CharacterWindow.SetTab('family')",
+   "on": [
+    "Courtier/Dismiss",
+    "Courtier/Grant Court Position",
+    "Courtier/Grant Titles",
+    "Diplomacy/Support Candidacy",
+    "Hostile/Excommunicate",
+    "Hostile/Imprison",
+    "Hostile/Murder (Scheme)",
+    "Personal/Sway (Scheme)",
+    "Religion/Demand Chastity",
+    "Religion/Influence Clerical Candidacy",
+    "Religion/Influence Head of Faith Candidacy"
+   ],
+   "off": [
+    "Diplomacy/Designate Theocratic Heir",
+    "Hostile/Request Excommunication",
+    "Personal/Educate Child",
+    "Personal/Seduce (Scheme)",
+    "Personal/Send Gift"
+   ],
+   "behind_expander": [
+    "Courtier/Dismiss",
+    "Courtier/Grant Court Position",
+    "Religion/Demand Chastity",
+    "Religion/Influence Head of Faith Candidacy"
+   ],
+   "not_expanded": []
+  },
+  "King Ludwig of East Francia": {
+   "source": "character_window:F1:CharacterWindow.SetTab('family')",
+   "on": [
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Declare War",
+    "Diplomacy/Offer Courtier",
+    "Diplomacy/Puppet Secular Ruler",
+    "Diplomacy/Sell Claim",
+    "Hostile/Murder (Scheme)",
+    "Liege/Claim Liege Title",
+    "Liege/Request Court Position",
+    "Liege/Start Claimant Faction",
+    "Liege/Start Independence Faction",
+    "Personal/Learn Language (Scheme)",
+    "Personal/Sway (Scheme)",
+    "Power Sharing/Declare me Regent",
+    "Religion/Demand Chastity",
+    "Religion/Demand Divorce",
+    "Religion/Offer Spiritual Counsel"
+   ],
+   "off": [
+    "Diplomacy/Demand Hostage",
+    "Diplomacy/Exchange Hostages",
+    "Diplomacy/Gift Claim",
+    "Diplomacy/Incite Claim War",
+    "Diplomacy/Offer Hostage",
+    "Hostile/Excommunicate",
+    "Hostile/Request Excommunication",
+    "Liege/Grant Vassal",
+    "Personal/Offer Guardianship",
+    "Personal/Offer Ward",
+    "Personal/Seduce (Scheme)",
+    "Personal/Send Gift",
+    "Religion/Demand Child for the Cloister",
+    "Religion/Demand Church Succession"
+   ],
+   "behind_expander": [
+    "Diplomacy/Demand Hostage",
+    "Diplomacy/Exchange Hostages",
+    "Diplomacy/Gift Claim",
+    "Diplomacy/Offer Courtier",
+    "Diplomacy/Offer Hostage",
+    "Diplomacy/Sell Claim",
+    "Personal/Offer Guardianship",
+    "Personal/Offer Ward",
+    "Personal/Seduce (Scheme)"
+   ],
+   "not_expanded": []
+  },
+  "This is you": {
+   "source": "character_window:F1:CharacterWindow.SetTab('family')",
+   "on": [
+    "Diplomacy/Arrange Marriage",
+    "Hostile/Siphon Treasury (Scheme)",
+    "Religion/Influence Clerical Candidacy",
+    "Religion/Influence Head of Faith Candidacy"
+   ],
+   "off": [
+    "Personal/Educate Child"
+   ],
+   "behind_expander": [],
+   "not_expanded": []
+  },
+  "Wila": {
+   "source": "character_window:F1:CharacterWindow.SetTab('court')",
+   "on": [
+    "Diplomacy/Arrange Marriage",
+    "Hostile/Excommunicate",
+    "Hostile/Imprison",
+    "Hostile/Murder (Scheme)",
+    "Personal/Romance (Scheme)",
+    "Personal/Seduce (Scheme)",
+    "Personal/Sway (Scheme)",
+    "Realm & Court/Dismiss",
+    "Religion/Demand Chastity",
+    "Religion/Offer Spiritual Counsel"
+   ],
+   "off": [
+    "Hostile/Request Excommunication",
+    "Personal/Educate Child",
+    "Personal/Send Gift",
+    "Realm & Court/Grant Titles",
+    "Realm & Court/Recruit to Court"
+   ],
+   "behind_expander": [
+    "Personal/Romance (Scheme)",
+    "Personal/Seduce (Scheme)"
+   ],
+   "not_expanded": []
+  },
+  "Yechiel": {
+   "source": "character_window:F1:CharacterWindow.SetTab('court')",
+   "on": [
+    "Diplomacy/Arrange Marriage",
+    "Hostile/Imprison",
+    "Hostile/Murder (Scheme)",
+    "Personal/Learn Language (Scheme)",
+    "Personal/Study Rite (Scheme)",
+    "Personal/Sway (Scheme)",
+    "Realm & Court/Dismiss",
+    "Realm & Court/Grant Titles"
+   ],
+   "off": [
+    "Personal/Educate Child",
+    "Personal/Seduce (Scheme)",
+    "Personal/Send Gift",
+    "Realm & Court/Recruit to Court"
+   ],
+   "behind_expander": [],
+   "not_expanded": []
+  },
+  "Balderik": {
+   "source": "character_window:F1:CharacterWindow.SetTab('court')",
+   "on": [
+    "Diplomacy/Arrange Marriage",
+    "Hostile/Excommunicate",
+    "Hostile/Imprison",
+    "Hostile/Murder (Scheme)",
+    "Personal/Sway (Scheme)",
+    "Realm & Court/Dismiss",
+    "Realm & Court/Grant Titles",
+    "Religion/Demand Chastity",
+    "Religion/Offer Spiritual Counsel"
+   ],
+   "off": [
+    "Hostile/Request Excommunication",
+    "Personal/Educate Child",
+    "Personal/Seduce (Scheme)",
+    "Personal/Send Gift",
+    "Realm & Court/Recruit to Court"
+   ],
+   "behind_expander": [],
+   "not_expanded": []
+  },
+  "Mayor Roelof of Itzehoe": {
+   "source": "character_window:F1:CharacterWindow.SetTab('subjects')",
+   "on": [
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Offer Courtier",
+    "Diplomacy/Puppet Secular Ruler",
+    "Hostile/Excommunicate",
+    "Hostile/Imprison",
+    "Hostile/Murder (Scheme)",
+    "Personal/Sway (Scheme)",
+    "Religion/Demand Chastity",
+    "Religion/Offer Spiritual Counsel",
+    "Vassal/Grant Court Position",
+    "Vassal/Grant Titles"
+   ],
+   "off": [
+    "Diplomacy/Designate Theocratic Heir",
+    "Diplomacy/Incite Claim War",
+    "Hostile/Request Excommunication",
+    "Personal/Seduce (Scheme)",
+    "Personal/Send Gift",
+    "Religion/Demand Child for the Cloister",
+    "Vassal/Grant Independence",
+    "Vassal/Revoke Title"
+   ],
+   "behind_expander": [
+    "Diplomacy/Designate Theocratic Heir",
+    "Diplomacy/Offer Courtier",
+    "Vassal/Grant Court Position",
+    "Vassal/Grant Independence"
+   ],
+   "not_expanded": []
+  },
+  "Baron Sicco of Verden": {
+   "source": "character_window:F1:CharacterWindow.SetTab('subjects')",
+   "on": [
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Offer Courtier",
+    "Diplomacy/Puppet Secular Ruler",
+    "Hostile/Excommunicate",
+    "Hostile/Imprison",
+    "Hostile/Murder (Scheme)",
+    "Personal/Sway (Scheme)",
+    "Religion/Demand Chastity",
+    "Religion/Offer Spiritual Counsel",
+    "Vassal/Grant Court Position",
+    "Vassal/Grant Titles"
+   ],
+   "off": [
+    "Diplomacy/Designate Theocratic Heir",
+    "Diplomacy/Incite Claim War",
+    "Hostile/Request Excommunication",
+    "Personal/Seduce (Scheme)",
+    "Personal/Send Gift",
+    "Religion/Demand Child for the Cloister",
+    "Vassal/Grant Independence",
+    "Vassal/Revoke Title"
+   ],
+   "behind_expander": [
+    "Diplomacy/Designate Theocratic Heir",
+    "Diplomacy/Offer Courtier",
+    "Vassal/Grant Court Position",
+    "Vassal/Grant Independence"
+   ],
+   "not_expanded": []
+  }
+ },
+ "Koremochi_3": {
+  "Koreoki": {
+   "source": "character_window:F1:CharacterWindow.SetTab('family')",
+   "on": [
+    "Courtier/Grant Court Position",
+    "Courtier/Grant Titles",
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Designate Heir",
+    "Diplomacy/Find Spouse",
+    "Hostile/Imprison",
+    "Personal/Challenge to Board Game",
+    "Personal/Choose Favorite Child",
+    "Personal/Educate Child",
+    "Personal/Romance (Scheme)",
+    "Personal/Seduce (Scheme)",
+    "Personal/Send Gift",
+    "Personal/Sway (Scheme)"
+   ],
+   "off": [
+    "Courtier/Dismiss",
+    "Courtier/Start Ceremonial Claimant Faction",
+    "Diplomacy/Claim House Bloc Leadership",
+    "Diplomacy/Leave House Bloc",
+    "Hostile/Denounce",
+    "Hostile/Disinherit",
+    "Hostile/Murder (Scheme)"
+   ],
+   "behind_expander": [
+    "Courtier/Dismiss",
+    "Courtier/Grant Court Position",
+    "Courtier/Start Ceremonial Claimant Faction",
+    "Hostile/Denounce",
+    "Hostile/Disinherit",
+    "Personal/Challenge to Board Game",
+    "Personal/Choose Favorite Child",
+    "Personal/Romance (Scheme)",
+    "Personal/Seduce (Scheme)"
+   ],
+   "not_expanded": []
+  },
+  "Korenori": {
+   "source": "character_window:F1:CharacterWindow.SetTab('family')",
+   "on": [
+    "Courtier/Grant Court Position",
+    "Courtier/Grant Titles",
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Designate Heir",
+    "Diplomacy/Find Spouse",
+    "Hostile/Imprison",
+    "Personal/Challenge to Board Game",
+    "Personal/Choose Favorite Child",
+    "Personal/Educate Child",
+    "Personal/Send Gift",
+    "Personal/Sway (Scheme)"
+   ],
+   "off": [
+    "Courtier/Dismiss",
+    "Courtier/Start Ceremonial Claimant Faction",
+    "Diplomacy/Claim House Bloc Leadership",
+    "Diplomacy/Leave House Bloc",
+    "Hostile/Denounce",
+    "Hostile/Disinherit",
+    "Hostile/Murder (Scheme)",
+    "Personal/Seduce (Scheme)"
+   ],
+   "behind_expander": [
+    "Courtier/Dismiss",
+    "Courtier/Grant Court Position",
+    "Courtier/Start Ceremonial Claimant Faction",
+    "Hostile/Denounce",
+    "Hostile/Disinherit",
+    "Personal/Challenge to Board Game",
+    "Personal/Choose Favorite Child",
+    "Personal/Seduce (Scheme)"
+   ],
+   "not_expanded": []
+  },
+  "Koreyoshi": {
+   "source": "character_window:F1:CharacterWindow.SetTab('family')",
+   "on": [
+    "Courtier/Grant Court Position",
+    "Courtier/Grant Titles",
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Designate Heir",
+    "Diplomacy/Find Spouse",
+    "Hostile/Imprison",
+    "Personal/Challenge to Board Game",
+    "Personal/Choose Favorite Child",
+    "Personal/Educate Child",
+    "Personal/Send Gift",
+    "Personal/Sway (Scheme)"
+   ],
+   "off": [
+    "Courtier/Dismiss",
+    "Courtier/Start Ceremonial Claimant Faction",
+    "Diplomacy/Claim House Bloc Leadership",
+    "Diplomacy/Leave House Bloc",
+    "Hostile/Denounce",
+    "Hostile/Disinherit",
+    "Hostile/Murder (Scheme)",
+    "Personal/Seduce (Scheme)"
+   ],
+   "behind_expander": [
+    "Courtier/Dismiss",
+    "Courtier/Grant Court Position",
+    "Courtier/Start Ceremonial Claimant Faction",
+    "Hostile/Denounce",
+    "Hostile/Disinherit",
+    "Personal/Challenge to Board Game",
+    "Personal/Choose Favorite Child",
+    "Personal/Seduce (Scheme)"
+   ],
+   "not_expanded": []
+  },
+  "Koretaka": {
+   "source": "character_window:F1:CharacterWindow.SetTab('family')",
+   "on": [
+    "Courtier/Grant Court Position",
+    "Courtier/Grant Titles",
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Designate Heir",
+    "Diplomacy/Find Spouse",
+    "Hostile/Imprison",
+    "Personal/Challenge to Board Game",
+    "Personal/Choose Favorite Child",
+    "Personal/Educate Child",
+    "Personal/Send Gift",
+    "Personal/Sway (Scheme)"
+   ],
+   "off": [
+    "Courtier/Dismiss",
+    "Courtier/Start Ceremonial Claimant Faction",
+    "Diplomacy/Claim House Bloc Leadership",
+    "Diplomacy/Leave House Bloc",
+    "Hostile/Denounce",
+    "Hostile/Disinherit",
+    "Hostile/Murder (Scheme)",
+    "Personal/Seduce (Scheme)"
+   ],
+   "behind_expander": [
+    "Courtier/Dismiss",
+    "Courtier/Grant Court Position",
+    "Courtier/Start Ceremonial Claimant Faction",
+    "Hostile/Denounce",
+    "Hostile/Disinherit",
+    "Personal/Challenge to Board Game",
+    "Personal/Choose Favorite Child",
+    "Personal/Seduce (Scheme)"
+   ],
+   "not_expanded": []
+  },
+  "Korenaga": {
+   "source": "character_window:F1:CharacterWindow.SetTab('family')",
+   "on": [
+    "Courtier/Grant Court Position",
+    "Courtier/Grant Titles",
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Designate Heir",
+    "Diplomacy/Find Spouse",
+    "Hostile/Imprison",
+    "Personal/Challenge to Board Game",
+    "Personal/Educate Child",
+    "Personal/Send Gift",
+    "Personal/Sway (Scheme)"
+   ],
+   "off": [
+    "Courtier/Dismiss",
+    "Courtier/Start Ceremonial Claimant Faction",
+    "Diplomacy/Claim House Bloc Leadership",
+    "Diplomacy/Leave House Bloc",
+    "Hostile/Denounce",
+    "Hostile/Disinherit",
+    "Hostile/Murder (Scheme)",
+    "Personal/Choose Favorite Child",
+    "Personal/Seduce (Scheme)"
+   ],
+   "behind_expander": [
+    "Courtier/Dismiss",
+    "Courtier/Grant Court Position",
+    "Courtier/Start Ceremonial Claimant Faction",
+    "Hostile/Denounce",
+    "Hostile/Disinherit",
+    "Personal/Challenge to Board Game",
+    "Personal/Choose Favorite Child",
+    "Personal/Seduce (Scheme)"
+   ],
+   "not_expanded": []
+  },
+  "Daijō-daijin Taira Kiyomori of Japan": {
+   "source": "character_window:F1:CharacterWindow.SetTab('family')",
+   "on": [
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Declare War",
+    "Diplomacy/Demand Hostage",
+    "Diplomacy/Exchange Hostages",
+    "Diplomacy/Join House Bloc",
+    "Diplomacy/Offer Courtier",
+    "Diplomacy/Offer Hostage",
+    "Diplomacy/Puppet Clerical Ruler",
+    "Hostile/Murder (Scheme)",
+    "Liege/Claim Liege Title",
+    "Liege/Claim Throne (Scheme)",
+    "Liege/Modify Vassal Contract",
+    "Liege/Request Court Position",
+    "Liege/Start Claimant Faction",
+    "Personal/Challenge to Board Game",
+    "Personal/Offer Guardianship",
+    "Personal/Offer Ward",
+    "Personal/Sway (Scheme)",
+    "Power Sharing/Declare me Regent",
+    "Religion/Literalist Debate"
+   ],
+   "off": [
+    "Diplomacy/Beseech Claim",
+    "Diplomacy/Invite House to Bloc",
+    "Liege/Demand Council Position",
+    "Liege/Grant Vassal",
+    "Liege/Start Ceremonial Claimant Faction",
+    "Liege/Start Independence Faction",
+    "Personal/Adopt into House",
+    "Personal/Seduce (Scheme)",
+    "Personal/Send Gift"
+   ],
+   "behind_expander": [
+    "Diplomacy/Beseech Claim",
+    "Diplomacy/Demand Hostage",
+    "Diplomacy/Exchange Hostages",
+    "Diplomacy/Offer Courtier",
+    "Diplomacy/Offer Hostage",
+    "Liege/Claim Liege Title",
+    "Liege/Claim Throne (Scheme)",
+    "Liege/Demand Council Position",
+    "Liege/Grant Vassal",
+    "Liege/Request Court Position",
+    "Liege/Start Ceremonial Claimant Faction",
+    "Liege/Start Claimant Faction",
+    "Liege/Start Independence Faction",
+    "Personal/Adopt into House",
+    "Personal/Challenge to Board Game",
+    "Personal/Offer Guardianship",
+    "Personal/Offer Ward",
+    "Personal/Seduce (Scheme)"
+   ],
+   "not_expanded": []
+  },
+  "This is you": {
+   "source": "character_window:F1:CharacterWindow.SetTab('family')",
+   "on": [
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Find Spouse",
+    "Diplomacy/Leave House Bloc",
+    "Personal/Educate Child"
+   ],
+   "off": [
+    "Diplomacy/Claim House Bloc Leadership",
+    "Fellow Vassal/Start Ceremonial Claimant Faction"
+   ],
+   "behind_expander": [],
+   "not_expanded": []
+  },
+  "Iemoto": {
+   "source": "character_window:F1:CharacterWindow.SetTab('court')",
+   "on": [
+    "Courtier/Dismiss",
+    "Courtier/Grant Court Position",
+    "Courtier/Grant Titles",
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Find Spouse",
+    "Hostile/Imprison",
+    "Hostile/Murder (Scheme)",
+    "Personal/Challenge to Board Game",
+    "Personal/Educate Child",
+    "Personal/Send Gift",
+    "Personal/Study Rite (Scheme)",
+    "Personal/Sway (Scheme)",
+    "Religion/Demand Conversion"
+   ],
+   "off": [
+    "Courtier/Start Ceremonial Claimant Faction",
+    "Hostile/Denounce",
+    "Hostile/Disinherit",
+    "Personal/Adopt into House",
+    "Personal/Seduce (Scheme)"
+   ],
+   "behind_expander": [
+    "Courtier/Dismiss",
+    "Courtier/Grant Court Position",
+    "Courtier/Start Ceremonial Claimant Faction",
+    "Hostile/Denounce",
+    "Hostile/Disinherit",
+    "Personal/Adopt into House",
+    "Personal/Challenge to Board Game",
+    "Personal/Seduce (Scheme)"
+   ],
+   "not_expanded": []
+  },
+  "Tomofusa": {
+   "source": "character_window:F1:CharacterWindow.SetTab('court')",
+   "on": [
+    "Courtier/Dismiss",
+    "Courtier/Grant Court Position",
+    "Courtier/Grant Titles",
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Find Spouse",
+    "Hostile/Imprison",
+    "Hostile/Murder (Scheme)",
+    "Personal/Challenge to Board Game",
+    "Personal/Educate Child",
+    "Personal/Send Gift",
+    "Personal/Study Rite (Scheme)",
+    "Personal/Sway (Scheme)",
+    "Religion/Demand Conversion"
+   ],
+   "off": [
+    "Courtier/Start Ceremonial Claimant Faction",
+    "Hostile/Denounce",
+    "Hostile/Disinherit",
+    "Personal/Adopt into House",
+    "Personal/Seduce (Scheme)"
+   ],
+   "behind_expander": [
+    "Courtier/Dismiss",
+    "Courtier/Grant Court Position",
+    "Courtier/Start Ceremonial Claimant Faction",
+    "Hostile/Denounce",
+    "Hostile/Disinherit",
+    "Personal/Adopt into House",
+    "Personal/Challenge to Board Game",
+    "Personal/Seduce (Scheme)"
+   ],
+   "not_expanded": []
+  },
+  "Mayor Morikuni of Amabe": {
+   "source": "character_window:F1:CharacterWindow.SetTab('subjects')",
+   "on": [
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Offer Courtier",
+    "Diplomacy/Puppet Secular Ruler",
+    "Hostile/Imprison",
+    "Hostile/Murder (Scheme)",
+    "Personal/Challenge to Board Game",
+    "Personal/Send Gift",
+    "Personal/Sway (Scheme)",
+    "Vassal/Grant Court Position",
+    "Vassal/Grant Titles"
+   ],
+   "off": [
+    "Personal/Adopt into House",
+    "Personal/Seduce (Scheme)",
+    "Vassal/Grant Independence",
+    "Vassal/Revoke Title",
+    "Vassal/Start Ceremonial Claimant Faction"
+   ],
+   "behind_expander": [
+    "Personal/Adopt into House",
+    "Personal/Challenge to Board Game",
+    "Personal/Seduce (Scheme)",
+    "Vassal/Grant Court Position",
+    "Vassal/Grant Independence",
+    "Vassal/Start Ceremonial Claimant Faction"
+   ],
+   "not_expanded": []
+  }
+ },
+ "Gyrth": {
+  "Duke Leofwine of Kent": {
+   "source": "character_window:F1:CharacterWindow.SetTab('family')",
+   "on": [
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Declare War",
+    "Diplomacy/Negotiate Alliance",
+    "Diplomacy/Offer Courtier",
+    "Diplomacy/Puppet Secular Ruler",
+    "Hostile/Murder (Scheme)",
+    "Personal/Offer Guardianship",
+    "Personal/Offer Ward",
+    "Personal/Send Gift",
+    "Personal/Sway (Scheme)"
+   ],
+   "off": [
+    "Diplomacy/Beseech Claim",
+    "Diplomacy/Demand Hostage",
+    "Diplomacy/Exchange Hostages",
+    "Diplomacy/Offer Hostage",
+    "Hostile/Request Excommunication",
+    "Personal/Seduce (Scheme)"
+   ],
+   "behind_expander": [
+    "Diplomacy/Beseech Claim",
+    "Diplomacy/Demand Hostage",
+    "Diplomacy/Exchange Hostages",
+    "Diplomacy/Negotiate Alliance",
+    "Diplomacy/Offer Courtier",
+    "Diplomacy/Offer Hostage",
+    "Personal/Offer Guardianship",
+    "Personal/Offer Ward",
+    "Personal/Seduce (Scheme)"
+   ],
+   "not_expanded": []
+  },
+  "Ælfgar": {
+   "source": "character_window:F1:CharacterWindow.SetTab('family')",
+   "on": [
+    "Hostile/Murder (Scheme)",
+    "Personal/Offer Ward",
+    "Personal/Send Gift",
+    "Personal/Sway (Scheme)"
+   ],
+   "off": [
+    "Diplomacy/Demand Hostage",
+    "Diplomacy/Exchange Hostages",
+    "Hostile/Request Excommunication",
+    "Personal/Offer Guardianship",
+    "Personal/Seduce (Scheme)",
+    "Realm & Court/Invite to Court",
+    "Religion/Influence Clerical Candidacy",
+    "Religion/Preach My Legitimacy"
+   ],
+   "behind_expander": [
+    "Personal/Offer Guardianship",
+    "Personal/Offer Ward",
+    "Personal/Seduce (Scheme)"
+   ],
+   "not_expanded": []
+  },
+  "Gytha": {
+   "source": "character_window:F1:CharacterWindow.SetTab('family')",
+   "on": [
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Demand Hostage",
+    "Hostile/Murder (Scheme)",
+    "Personal/Offer Guardianship",
+    "Personal/Offer Ward",
+    "Personal/Send Gift",
+    "Personal/Sway (Scheme)",
+    "Realm & Court/Invite to Court"
+   ],
+   "off": [
+    "Diplomacy/Exchange Hostages",
+    "Hostile/Request Excommunication",
+    "Personal/Seduce (Scheme)"
+   ],
+   "behind_expander": [
+    "Diplomacy/Demand Hostage",
+    "Diplomacy/Exchange Hostages",
+    "Personal/Offer Guardianship",
+    "Personal/Offer Ward",
+    "Personal/Seduce (Scheme)"
+   ],
+   "not_expanded": []
+  },
+  "Edith": {
+   "source": "character_window:F1:CharacterWindow.SetTab('family')",
+   "on": [
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Demand Hostage",
+    "Hostile/Murder (Scheme)",
+    "Personal/Offer Guardianship",
+    "Personal/Offer Ward",
+    "Personal/Romance (Scheme)",
+    "Personal/Seduce (Scheme)",
+    "Personal/Send Gift",
+    "Personal/Sway (Scheme)",
+    "Realm & Court/Invite to Court"
+   ],
+   "off": [
+    "Diplomacy/Exchange Hostages",
+    "Hostile/Request Excommunication"
+   ],
+   "behind_expander": [
+    "Diplomacy/Demand Hostage",
+    "Diplomacy/Exchange Hostages",
+    "Personal/Offer Guardianship",
+    "Personal/Offer Ward",
+    "Personal/Romance (Scheme)",
+    "Personal/Seduce (Scheme)"
+   ],
+   "not_expanded": []
+  },
+  "Tostig": {
+   "source": "character_window:F1:CharacterWindow.SetTab('family')",
+   "on": [
+    "Hostile/Murder (Scheme)",
+    "Personal/Offer Guardianship",
+    "Personal/Offer Ward",
+    "Personal/Send Gift",
+    "Personal/Sway (Scheme)"
+   ],
+   "off": [
+    "Diplomacy/Demand Hostage",
+    "Diplomacy/Exchange Hostages",
+    "Hostile/Request Excommunication",
+    "Personal/Seduce (Scheme)",
+    "Realm & Court/Invite to Court"
+   ],
+   "behind_expander": [
+    "Personal/Offer Guardianship",
+    "Personal/Offer Ward",
+    "Personal/Seduce (Scheme)"
+   ],
+   "not_expanded": []
+  },
+  "King Harold of England": {
+   "source": "character_window:F1:CharacterWindow.SetTab('family')",
+   "on": [
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Declare War",
+    "Diplomacy/Negotiate Alliance",
+    "Diplomacy/Offer Courtier",
+    "Diplomacy/Offer to Join War",
+    "Diplomacy/Puppet Secular Ruler",
+    "Hostile/Murder (Scheme)",
+    "Liege/Claim Liege Title",
+    "Liege/Grant Vassal",
+    "Liege/Modify Vassal Contract",
+    "Liege/Request Court Position",
+    "Liege/Start Claimant Faction",
+    "Liege/Start Independence Faction",
+    "Personal/Offer Ward",
+    "Personal/Sway (Scheme)",
+    "Power Sharing/Declare me Regent"
+   ],
+   "off": [
+    "Diplomacy/Beseech Claim",
+    "Diplomacy/Demand Hostage",
+    "Diplomacy/Exchange Hostages",
+    "Diplomacy/Negotiate For Land",
+    "Diplomacy/Offer Hostage",
+    "Hostile/Request Excommunication",
+    "Personal/Offer Guardianship",
+    "Personal/Seduce (Scheme)",
+    "Personal/Send Gift"
+   ],
+   "behind_expander": [
+    "Diplomacy/Beseech Claim",
+    "Diplomacy/Demand Hostage",
+    "Diplomacy/Exchange Hostages",
+    "Diplomacy/Negotiate Alliance",
+    "Diplomacy/Offer Courtier",
+    "Diplomacy/Offer Hostage",
+    "Diplomacy/Offer to Join War",
+    "Liege/Claim Liege Title",
+    "Liege/Grant Vassal",
+    "Liege/Request Court Position",
+    "Liege/Start Claimant Faction",
+    "Liege/Start Independence Faction",
+    "Personal/Offer Guardianship",
+    "Personal/Offer Ward",
+    "Personal/Seduce (Scheme)"
+   ],
+   "not_expanded": []
+  },
+  "Countess Gyda of Devon": {
+   "source": "character_window:F1:CharacterWindow.SetTab('family')",
+   "on": [
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Declare War",
+    "Diplomacy/Demand Hostage",
+    "Diplomacy/Negotiate Alliance",
+    "Diplomacy/Offer Courtier",
+    "Diplomacy/Puppet Secular Ruler",
+    "Hostile/Murder (Scheme)",
+    "Personal/Learn Language (Scheme)",
+    "Personal/Offer Guardianship",
+    "Personal/Offer Ward",
+    "Personal/Romance (Scheme)",
+    "Personal/Seduce (Scheme)",
+    "Personal/Send Gift",
+    "Personal/Sway (Scheme)"
+   ],
+   "off": [
+    "Diplomacy/Beseech Claim",
+    "Diplomacy/Exchange Hostages",
+    "Diplomacy/Offer Hostage",
+    "Hostile/Request Excommunication"
+   ],
+   "behind_expander": [
+    "Diplomacy/Beseech Claim",
+    "Diplomacy/Demand Hostage",
+    "Diplomacy/Exchange Hostages",
+    "Diplomacy/Negotiate Alliance",
+    "Diplomacy/Offer Courtier",
+    "Diplomacy/Offer Hostage",
+    "Personal/Offer Guardianship",
+    "Personal/Offer Ward",
+    "Personal/Romance (Scheme)",
+    "Personal/Seduce (Scheme)"
+   ],
+   "not_expanded": []
+  },
+  "Hacon": {
+   "source": "character_window:F1:CharacterWindow.SetTab('family')",
+   "on": [
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Demand Hostage",
+    "Hostile/Murder (Scheme)",
+    "Personal/Offer Guardianship",
+    "Personal/Offer Ward",
+    "Personal/Send Gift",
+    "Personal/Sway (Scheme)"
+   ],
+   "off": [
+    "Diplomacy/Exchange Hostages",
+    "Hostile/Request Excommunication",
+    "Personal/Seduce (Scheme)",
+    "Realm & Court/Invite to Court"
+   ],
+   "behind_expander": [
+    "Diplomacy/Demand Hostage",
+    "Diplomacy/Exchange Hostages",
+    "Personal/Offer Guardianship",
+    "Personal/Offer Ward",
+    "Personal/Seduce (Scheme)"
+   ],
+   "not_expanded": []
+  },
+  "This is you": {
+   "source": "character_window:F1:CharacterWindow.SetTab('family')",
+   "on": [
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Find Spouse",
+    "Personal/Educate Child"
+   ],
+   "off": [],
+   "behind_expander": [],
    "not_expanded": []
   }
  }

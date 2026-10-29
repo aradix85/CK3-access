@@ -643,14 +643,17 @@ def chain_press(game: windowmap.Game, source: str, goal: 'openers.Goal', tables:
 
 
 def window_shows(game: windowmap.Game, nodes: widgettree.Nodes, names: set[str], text: str) -> bool:
-    """Does one of the drawn windows called `names` show `text` anywhere in it? Case and markup do not
-    count. How a right click is told apart: every portrait opens the same menu, and the menu names
-    its character at the top (`character_name`, read in the harvested menu, 29 October 2026)."""
+    """Does one of the drawn windows called `names` show `text` anywhere in it, in a widget nothing
+    hides? Case and markup do not count. How a right click is told apart: every portrait opens the
+    same menu, and the menu names its character at the top (`character_name`, read in the harvested
+    menu, 29 October 2026). Hidden texts do not count: every menu holds "This is you" in a hidden
+    `character_name_me`, and the hidden `character_name` of the player's own menu keeps the name of
+    the menu before it (measured 29 October 2026 on Saru)."""
     wanted = text.lower()
     for name in names:
         candidates = [a for a, k in nodes.items() if k[6] == name and k[0] in game.window_classes]
-        if any(wanted in widgettree.strip_markup(nodes[a][7] or '').lower()
-               for a, _, _ in subtree(nodes, drawn_one(nodes, candidates, name))):
+        if onscreen.shown(nodes, [a for a, _, _ in subtree(nodes, drawn_one(nodes, candidates, name))
+                                  if wanted in widgettree.strip_markup(nodes[a][7] or '').lower()]):
             return True
     return False
 

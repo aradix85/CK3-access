@@ -242,7 +242,7 @@ returns a pair, passed on as one thing, costs a run.
 | `harvest(game, name, row, baseline, header)` | 2-tuple | One window, from opening to the state coming back. Returns the record, or a reason. |
 | `stop_checks(pid, player, player_name, before)` | nothing | The three conditions asked before every window: memory, the channel, and the player. |
 | `chain_press(game, source, goal, tables, showing=None)` | 4-tuple | In `source`, standing open, press what reaches `goal` and wait for what comes up: the tree |
-| `window_shows(game, nodes, names, text)` | bool | Does one of the drawn windows called `names` show `text` anywhere in it? Case and markup do not |
+| `window_shows(game, nodes, names, text)` | bool | Does one of the drawn windows called `names` show `text` anywhere in it, in a widget nothing |
 | `player_chains(names, direct, tables)` | value | Window -> the chain route that opens it, for each of `names` that no key or click opens, as |
 | `open_along(game, name, direct, chained, baseline, tables)` | value of 2-tuple | Open `name` along a player route: its key or click, or the chain from a window that opens |
 | `chain_step(game, route, source, direct, chained, windows, baseline, header, tables)` | 2-tuple | One chain route from one of its sources: open the source along its own route, press what |

@@ -1,12 +1,12 @@
 {
- "harvest": "2026-10-29 13:16",
- "without a player record": 172,
+ "harvest": "2026-10-29 17:29",
+ "without a player record": 170,
  "counts": {
   "developer": 26,
   "multiplayer": 17,
   "decided": 8,
   "event": 0,
-  "interaction": 10,
+  "interaction": 8,
   "chain": 12,
   "no window route on disk": 99
  },
@@ -243,20 +243,12 @@
     "file": "gui/interaction_notification_window.gui",
     "state": "console record"
    },
-   "concubine_interaction_window": {
-    "file": "gui/interaction_concubine.gui",
-    "state": "console record"
-   },
    "create_ceremonial_claimant_faction_against_interaction_window": {
     "file": "gui/interaction_create_claimant_faction.gui",
     "state": "console record"
    },
    "interfere_in_war_interaction_notification_window": {
     "file": "gui/interaction_interfere_in_war_notification.gui",
-    "state": "console record"
-   },
-   "interfere_in_war_interaction_window": {
-    "file": "gui/interaction_interfere_in_war.gui",
     "state": "console record"
    },
    "marriage_interaction_notification_window": {
@@ -776,6 +768,7 @@
    "character_interaction_confirmation_window",
    "character_lifestyle_window",
    "character_window",
+   "concubine_interaction_window",
    "council_task_interaction_window",
    "council_window",
    "court_task_interaction_window",
@@ -795,6 +788,7 @@
    "government_administration_window",
    "holding_view",
    "holy_site_window",
+   "interfere_in_war_interaction_window",
    "intrigue_window",
    "kill_list",
    "knight_view",
@@ -939,7 +933,7 @@
    "royal_court_window"
   ]
  },
- "windows whose keys no round pressed": 51,
+ "windows whose keys no round pressed": 53,
  "keys not pressed": {
   "activity_guest_list": [
    "close_window",
@@ -984,6 +978,9 @@
    "tab_3"
   ],
   "character_interaction_menu_window": [
+   "close_window"
+  ],
+  "concubine_interaction_window": [
    "close_window"
   ],
   "council_task_interaction_window": [
@@ -1042,6 +1039,12 @@
   ],
   "houses_list": [
    "close_window"
+  ],
+  "interfere_in_war_interaction_window": [
+   "close_window",
+   "tab_1",
+   "tab_2",
+   "tab_3"
   ],
   "knight_permissions": [
    "close_window"
