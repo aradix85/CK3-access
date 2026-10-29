@@ -12,13 +12,15 @@
   "name": "RTTI type names according to memory.py",
   "claimed": 51058,
   "measure": "type_names",
-  "counting_rule": "memory.type_name_count() on the exe: unique MSVC RTTI type names, compared case sensitively"
+  "counting_rule": "memory.type_name_count() on the exe: unique MSVC RTTI type names, compared case sensitively",
+  "quoted_in": ["brief\\boom.md"]
  },
  {
   "name": "widget vtables in the exe",
   "claimed": 54,
   "measure": "widget_vtables",
-  "counting_rule": "vtables of classes descending from CPdxGuiWidget; 52 classes, two of which have two through multiple inheritance"
+  "counting_rule": "vtables of classes descending from CPdxGuiWidget; 52 classes, two of which have two through multiple inheritance",
+  "quoted_in": ["brief\\boom.md"]
  },
  {
   "name": "gui files, game layer",
@@ -409,7 +411,8 @@
    "<project>\\reports\\pairing.json",
    "placeholder, code fills it"
   ],
-  "counting_rule": "the widget carries DEFAULT_TEXT as its last text, so the files positively cannot say what will stand there and only a running game can; this is an answer, not a gap. Until 22 October 2026 the first text was read, so a widget whose own entry overrides the DEFAULT_TEXT of its type counted here: 1577 then over 218 windows"
+  "counting_rule": "the widget carries DEFAULT_TEXT as its last text, so the files positively cannot say what will stand there and only a running game can; this is an answer, not a gap. Until 22 October 2026 the first text was read, so a widget whose own entry overrides the DEFAULT_TEXT of its type counted here: 1577 then over 218 windows",
+  "quoted_in": ["brief\\gui.md"]
  },
  {
   "name": "HasDlcFeature checks in the merged gui set",
@@ -508,7 +511,8 @@
    "<project>\\reports\\pairing.json",
    "unexplained in player windows"
   ],
-  "counting_rule": "the unexplained texts minus those in the developers' own windows"
+  "counting_rule": "the unexplained texts minus those in the developers' own windows",
+  "quoted_in": ["brief\\gui.md"]
  },
  {
   "name": "unexplained bare numbers in windows a player opens",
@@ -518,7 +522,8 @@
    "<project>\\reports\\pairing.json",
    "unexplained bare number in player windows"
   ],
-  "counting_rule": "of those, the texts that are only digits and the punctuation a number carries, so that no word says what they are"
+  "counting_rule": "of those, the texts that are only digits and the punctuation a number carries, so that no word says what they are",
+  "quoted_in": ["brief\\gui.md"]
  },
  {
   "name": "unexplained texts in windows a player opens that the reading rule says",
@@ -609,7 +614,8 @@
   "arguments": [
    "titles"
   ],
-  "counting_rule": "blocks in landed_titles whose key starts with a tier letter, at every level of the nesting, mods merged in load order; the hegemony tier h_ counts since 21 October 2026, when the running game showed its first titles are hegemonies, and that adds 6"
+  "counting_rule": "blocks in landed_titles whose key starts with a tier letter, at every level of the nesting, mods merged in load order; the hegemony tier h_ counts since 21 October 2026, when the running game showed its first titles are hegemonies, and that adds 6",
+  "quoted_in": ["brief\\kaart.md"]
  },
  {
   "name": "titles that name a capital",
@@ -763,7 +769,7 @@
  },
  {
   "name": "windows without a player record that open from an interaction",
-  "claimed": 8,
+  "claimed": 3,
   "measure": "json_field",
   "arguments": ["<project>\\reports\\missing.json", "counts", "interaction"],
   "counting_rule": "of those, the ones declared in a gui/interaction_*.gui file, and in no group before it",
@@ -771,7 +777,7 @@
  },
  {
   "name": "windows without a player record that a chain route on disk reaches",
-  "claimed": 12,
+  "claimed": 10,
   "measure": "json_field",
   "arguments": ["<project>\\reports\\missing.json", "counts", "chain"],
   "counting_rule": "of those, the targets of openers.chain_routes from the windows with a player record or a key, and in no group before it",
@@ -779,7 +785,7 @@
  },
  {
   "name": "windows without a player record and without a window route on disk",
-  "claimed": 99,
+  "claimed": 91,
   "measure": "json_field",
   "arguments": ["<project>\\reports\\missing.json", "counts", "no window route on disk"],
   "counting_rule": "the rest: no file names a call that opens the window itself; some sit behind a view whose window only a round sees",

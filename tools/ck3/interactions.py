@@ -7,7 +7,8 @@ A source is a window, the key that opens it, and a press inside it such as a tab
 `character_window:F1:CharacterWindow.SetTab('subjects')`. In each, every portrait that carries
 `DefaultOnCharacterRightClick` is right clicked in turn, from one alignment, and of every menu that
 comes up every row is read with its state byte, 0 on and 6 off (measured 29 October 2026), also
-the rows in the flyout that each expander outside the debug categories opens beside the menu. The
+the rows in the flyout that each expander outside the debug categories opens beside the menu, the
+grey "More..." as well as "2 more...". The player's own menu is written as "This is you". The
 first source that shows a character wins.
 Writes `reports\interactions.json`: per stand (the player's name) and character, the source, the
 interactions on and off as `category/interaction`, the ones behind their category's expander - a

@@ -15,7 +15,9 @@ hand. The console builds a window without its data context, so a console record 
 - `developer`: the developers' own tooling (`pairing.developer_window`); nobody plays in it.
 - `multiplayer`: multiplayer, the social network and the Paradox account, by their gui folders
   and file names. This and the one above fall away (BRIEF.md, TE DOEN, the sessions per state).
-- `decided`: a window with a decision of its own in `DECIDED`, with the reason and its date.
+- `decided`: a window with a decision of its own in `DECIDED`, with the reason and its date; the
+  ones only luck, the AI or an uncertain search brings up carry `DEFERRED` and are taken when they
+  come up in play.
 - `event`: declared in `gui/event_windows/` - it opens when the game fires an event.
 - `interaction`: declared in a `gui/interaction_*.gui` file - it opens from a character
   interaction, usually from the menu a right click on a portrait brings up.
@@ -49,6 +51,11 @@ from tools.ck3 import guimap, harvest, openers, pairing, windowmap
 
 REPORT = os.path.join(paths.REPORTS, 'missing.json')
 GROUPS = ('developer', 'multiplayer', 'decided', 'event', 'interaction', 'chain', 'no window route on disk')
+# Her decision of 29 October 2026: a window only luck, the AI or a search that may not succeed brings
+# up, which a player does not need harvested, waits until it comes up in play and is then taken by hand
+# in one go; so does a window whose one attempt failed.
+DEFERRED = ('deferred: only luck, the AI or an uncertain search brings it up; take it when it comes up '
+            'in play (29 October 2026)')
 # Windows a decision took out of the work, each with why and when. A group that falls away as a
 # whole is a rule above, not a row here.
 DECIDED = {
@@ -66,7 +73,23 @@ DECIDED = {
                              'drawn (read 24 October 2026)',
     'jomini_notification_sidebar': 'visible = no after inheritance: the console made it and it was '
                                    'not drawn (read 24 October 2026)',
-}
+} | dict.fromkeys((
+    'character_ally_list_subview',                          # a war target that has allies
+    'call_ally_interaction_notification_window',            # the four the AI sends the player
+    'character_interaction_notification_window',
+    'interfere_in_war_interaction_notification_window',
+    'marriage_interaction_notification_window',
+    'accolade_view',                                        # a stand with an accolade
+    'create_accolade_view',
+    'accolade_attribute_selection_view',
+    'activity_list_detail_invite',                          # somebody invites the player
+    'window_barbershop',                                    # no button on disk opens it
+    'character_name_window',
+    'colorpicker_window',
+    'portrait_window',
+    'window_situation',                                     # no situation of ours uses it
+    'window_situation_participant_groups',
+), DEFERRED)
 
 
 class Missing(TypedDict):

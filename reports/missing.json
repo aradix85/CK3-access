@@ -4,11 +4,11 @@
  "counts": {
   "developer": 26,
   "multiplayer": 17,
-  "decided": 8,
+  "decided": 23,
   "event": 0,
-  "interaction": 8,
-  "chain": 12,
-  "no window route on disk": 99
+  "interaction": 3,
+  "chain": 10,
+  "no window route on disk": 91
  },
  "groups": {
   "developer": {
@@ -192,13 +192,53 @@
     "file": "gui/jomini/music_player/music_player_view.gui",
     "state": "visible = no after inheritance: the console made it and it was not drawn (read 24 October 2026)"
    },
+   "accolade_attribute_selection_view": {
+    "file": "gui/window_accolade_attribute_selection.gui",
+    "state": "deferred: only luck, the AI or an uncertain search brings it up; take it when it comes up in play (29 October 2026)"
+   },
+   "accolade_view": {
+    "file": "gui/window_accolade.gui",
+    "state": "deferred: only luck, the AI or an uncertain search brings it up; take it when it comes up in play (29 October 2026)"
+   },
    "achievement_popup_window": {
     "file": "gui/achievements/popup.gui",
     "state": "drawn always, so in every capture (21 October 2026)"
    },
+   "activity_list_detail_invite": {
+    "file": "gui/window_activity_list.gui",
+    "state": "deferred: only luck, the AI or an uncertain search brings it up; take it when it comes up in play (29 October 2026)"
+   },
    "base_dialog": {
     "file": "gui/shared/dialogs.gui",
     "state": "a template the game never builds under that name; its four instances each carry a name of their own (read 23 October 2026)"
+   },
+   "call_ally_interaction_notification_window": {
+    "file": "gui/interaction_call_ally_notification_window.gui",
+    "state": "deferred: only luck, the AI or an uncertain search brings it up; take it when it comes up in play (29 October 2026)"
+   },
+   "character_ally_list_subview": {
+    "file": "gui/interaction_declare_war.gui",
+    "state": "deferred: only luck, the AI or an uncertain search brings it up; take it when it comes up in play (29 October 2026)"
+   },
+   "character_interaction_notification_window": {
+    "file": "gui/interaction_notification_window.gui",
+    "state": "deferred: only luck, the AI or an uncertain search brings it up; take it when it comes up in play (29 October 2026)"
+   },
+   "character_name_window": {
+    "file": "gui/window_barbershop.gui",
+    "state": "deferred: only luck, the AI or an uncertain search brings it up; take it when it comes up in play (29 October 2026)"
+   },
+   "colorpicker_window": {
+    "file": "gui/shared/color_picker.gui",
+    "state": "deferred: only luck, the AI or an uncertain search brings it up; take it when it comes up in play (29 October 2026)"
+   },
+   "create_accolade_view": {
+    "file": "gui/window_create_accolade.gui",
+    "state": "deferred: only luck, the AI or an uncertain search brings it up; take it when it comes up in play (29 October 2026)"
+   },
+   "interfere_in_war_interaction_notification_window": {
+    "file": "gui/interaction_interfere_in_war_notification.gui",
+    "state": "deferred: only luck, the AI or an uncertain search brings it up; take it when it comes up in play (29 October 2026)"
    },
    "jomini_notification_sidebar": {
     "file": "gui/notifications/notification_overlay.gui",
@@ -207,6 +247,14 @@
    "layer_window": {
     "file": "gui/map_icon_layer.gui",
     "state": "drawn always, so in every capture (21 October 2026)"
+   },
+   "marriage_interaction_notification_window": {
+    "file": "gui/interaction_marriage_notification_window.gui",
+    "state": "deferred: only luck, the AI or an uncertain search brings it up; take it when it comes up in play (29 October 2026)"
+   },
+   "portrait_window": {
+    "file": "gui/window_barbershop.gui",
+    "state": "deferred: only luck, the AI or an uncertain search brings it up; take it when it comes up in play (29 October 2026)"
    },
    "religion_window": {
     "file": "gui/window_faith.gui",
@@ -219,6 +267,18 @@
    "toolbars_window": {
     "file": "gui/console.gui",
     "state": "the console draws it while it stands open, so in every console capture (measured 21 October 2026)"
+   },
+   "window_barbershop": {
+    "file": "gui/window_barbershop.gui",
+    "state": "deferred: only luck, the AI or an uncertain search brings it up; take it when it comes up in play (29 October 2026)"
+   },
+   "window_situation": {
+    "file": "gui/window_situation.gui",
+    "state": "deferred: only luck, the AI or an uncertain search brings it up; take it when it comes up in play (29 October 2026)"
+   },
+   "window_situation_participant_groups": {
+    "file": "gui/window_situation.gui",
+    "state": "deferred: only luck, the AI or an uncertain search brings it up; take it when it comes up in play (29 October 2026)"
    }
   },
   "event": {},
@@ -227,40 +287,16 @@
     "file": "gui/interaction_blackmail.gui",
     "state": "console record"
    },
-   "call_ally_interaction_notification_window": {
-    "file": "gui/interaction_call_ally_notification_window.gui",
-    "state": "console record"
-   },
    "call_ally_interaction_window": {
     "file": "gui/interaction_call_ally.gui",
-    "state": "console record"
-   },
-   "character_ally_list_subview": {
-    "file": "gui/interaction_declare_war.gui",
-    "state": "console record"
-   },
-   "character_interaction_notification_window": {
-    "file": "gui/interaction_notification_window.gui",
     "state": "console record"
    },
    "create_ceremonial_claimant_faction_against_interaction_window": {
     "file": "gui/interaction_create_claimant_faction.gui",
     "state": "console record"
-   },
-   "interfere_in_war_interaction_notification_window": {
-    "file": "gui/interaction_interfere_in_war_notification.gui",
-    "state": "console record"
-   },
-   "marriage_interaction_notification_window": {
-    "file": "gui/interaction_marriage_notification_window.gui",
-    "state": "console record"
    }
   },
   "chain": {
-   "accolade_view": {
-    "file": "gui/window_accolade.gui",
-    "state": "console record"
-   },
    "artifact_kill_list": {
     "file": "gui/window_kill_list.gui",
     "state": "console record"
@@ -271,10 +307,6 @@
    },
    "confederation_window": {
     "file": "gui/window_confederation.gui",
-    "state": "console record"
-   },
-   "create_accolade_view": {
-    "file": "gui/window_create_accolade.gui",
     "state": "console record"
    },
    "dynastic_cycle_participant_groups": {
@@ -307,16 +339,8 @@
    }
   },
   "no window route on disk": {
-   "accolade_attribute_selection_view": {
-    "file": "gui/window_accolade_attribute_selection.gui",
-    "state": "console record"
-   },
    "achievements_window": {
     "file": "gui/achievements/jomini_achievements_window.gui",
-    "state": "console record"
-   },
-   "activity_list_detail_invite": {
-    "file": "gui/window_activity_list.gui",
     "state": "console record"
    },
    "activity_locale_window": {
@@ -383,10 +407,6 @@
     "file": "gui/window_character_focus.gui",
     "state": "console record"
    },
-   "character_name_window": {
-    "file": "gui/window_barbershop.gui",
-    "state": "did not open: did not open in 1 try"
-   },
    "christian_church_phases_sub_window": {
     "file": "gui/window_pam_christian_church.gui",
     "state": "console record"
@@ -398,10 +418,6 @@
    "coa_window": {
     "file": "gui/window_barbershop.gui",
     "state": "console record"
-   },
-   "colorpicker_window": {
-    "file": "gui/shared/color_picker.gui",
-    "state": "did not open: did not open in 1 try"
    },
    "combat_window": {
     "file": "gui/window_combat.gui",
@@ -527,10 +543,6 @@
     "file": "gui/window_organization.gui",
     "state": "console record"
    },
-   "portrait_window": {
-    "file": "gui/window_barbershop.gui",
-    "state": "not tried: declared as a type definition inside a types block, where GUI.CreateWidget does not look"
-   },
    "potential_agent_window": {
     "file": "gui/window_intrigue_potential_scheme_agent.gui",
     "state": "console record"
@@ -643,10 +655,6 @@
     "file": "gui/window_war_results.gui",
     "state": "console record"
    },
-   "window_barbershop": {
-    "file": "gui/window_barbershop.gui",
-    "state": "console record"
-   },
    "window_court_visuals": {
     "file": "gui/window_court_visuals.gui",
     "state": "console record"
@@ -674,14 +682,6 @@
    "window_puppet_selection": {
     "file": "gui/window_puppet_selection.gui",
     "state": "console record"
-   },
-   "window_situation": {
-    "file": "gui/window_situation.gui",
-    "state": "console record"
-   },
-   "window_situation_participant_groups": {
-    "file": "gui/window_situation.gui",
-    "state": "not tried: declared as a type definition inside a types block, where GUI.CreateWidget does not look"
    },
    "window_situation_participation": {
     "file": "gui/window_situation_participation.gui",

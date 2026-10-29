@@ -9,7 +9,7 @@ its data (`windowmap.pressed`); without steps, `source` itself is recorded. Then
 `<call>=<target>`: press inside the window standing open the first widget whose onclick carries
 `call`, for `right:<call>` click those whose onrightclick carries it with the right button, in turn
 until a window comes up, as the menu of interactions opens on a portrait - with `@<text>`, until
-one comes up that shows the text, such as a character's name - or for `goal:<window>`
+one comes up that shows the text in a drawn widget, such as a character's name - or for `goal:<window>`
 what the files say reaches that window; `<call>@<text>` takes the first whose row shows that text,
 where rows share a call, as the activities do, and `<call>@<group>><text>` the one alone under the
 nearest heading `group`, as the expander of one category of the interaction menu

@@ -8,10 +8,11 @@ Outcomes, newest day first. No release yet.
 - The court position window is harvested on Ghur played, from the heir's interaction menu.
 - python -m tools.ck3.interactions reads per stand which character has which interaction switched on, into reports/interactions.json.
 - A right-click step by hand picks one character's menu by a name after the @.
-- Declare war and transfer vassal on Harold, revoke title, council task and claimant faction on Andronikos, harvested from the menu. 172 windows lack a player route.
+- Declare war and transfer vassal on Harold, revoke title, council task and claimant faction on Andronikos, harvested from the menu.
 - tools.ck3.interactions also opens a grey "More..." expander, and reads the player's own menu; six more stands read, Gyrth new.
 - A step by hand finds a name only in drawn text: a menu keeps the previous character's name in a hidden widget.
 - The concubine window is harvested on Saru from his own menu, and the window to join a war on Gyrth, Harold's vassal. 170 windows lack a player route.
+- tools.ck3.missing marks a window only luck or the AI brings up as deferred: it is harvested when it comes up in play.
 
 ## 2026-10-27
 - The knights window and its permissions, the house window with its list of houses, the dynasty tree and its legacies are harvested by hand on Ghur played. 252 windows.

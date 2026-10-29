@@ -155,9 +155,8 @@ yields captions without values; a key, a click, a chain of presses the gui files
 (`openers.chain`), presses named by hand (`tools/ck3/hand.py`), or an event the console fires - the
 game shows it in its own window, with its data - give the values. An interaction window opens from
 the menu of a character for whom it is valid; `python -m tools.ck3.interactions` reads who that is
-into `reports/interactions.json`. **Check the window
-map against the game**, not the files: `windowmap.unmapped` lists what the engine built that the map
-lacks.
+into `reports/interactions.json`. **Check the window map against the game**, not the files:
+`windowmap.unmapped` lists what the engine built that the map lacks.
 
 **The tree and the files are joined by structure, not by name** (`tools/ck3/pairing.py`), because most
 widgets that show text have no name. `guimap` is the only gui reader and follows the engine's rules,

@@ -597,7 +597,8 @@ def chain_press(game: windowmap.Game, source: str, goal: 'openers.Goal', tables:
     was drawn 0.02 to 0.05 seconds after it, six times out of six (measured 29 October 2026), so
     one tree walk a second after the click says a try failed; six walks and a new alignment per
     try cost 21 seconds each. With `showing` a right click goes on past a window that does not show
-    that text, shut again with Escape, so a name picks one character's menu out of a list.
+    that text in a drawn widget (`window_shows`), shut again with Escape, so a name picks one
+    character's menu out of a list.
     """
     from tools.ck3 import openers  # openers imports this module
     right = goal.kind == 'right'
