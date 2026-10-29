@@ -1,12 +1,12 @@
 {
- "harvest": "2026-10-29 11:58",
- "without a player record": 177,
+ "harvest": "2026-10-29 13:16",
+ "without a player record": 172,
  "counts": {
   "developer": 26,
   "multiplayer": 17,
   "decided": 8,
   "event": 0,
-  "interaction": 15,
+  "interaction": 10,
   "chain": 12,
   "no window route on disk": 99
  },
@@ -247,20 +247,8 @@
     "file": "gui/interaction_concubine.gui",
     "state": "console record"
    },
-   "council_task_interaction_window": {
-    "file": "gui/interaction_council_task.gui",
-    "state": "console record"
-   },
    "create_ceremonial_claimant_faction_against_interaction_window": {
     "file": "gui/interaction_create_claimant_faction.gui",
-    "state": "console record"
-   },
-   "create_claimant_faction_against_interaction_window": {
-    "file": "gui/interaction_create_claimant_faction.gui",
-    "state": "console record"
-   },
-   "declare_war_window": {
-    "file": "gui/interaction_declare_war.gui",
     "state": "console record"
    },
    "interfere_in_war_interaction_notification_window": {
@@ -273,14 +261,6 @@
    },
    "marriage_interaction_notification_window": {
     "file": "gui/interaction_marriage_notification_window.gui",
-    "state": "console record"
-   },
-   "revoke_titles_interaction_window": {
-    "file": "gui/interaction_revoke_title.gui",
-    "state": "console record"
-   },
-   "transfer_vassal_interaction_window": {
-    "file": "gui/interaction_transfer_vassal.gui",
     "state": "console record"
    }
   },
@@ -796,11 +776,14 @@
    "character_interaction_confirmation_window",
    "character_lifestyle_window",
    "character_window",
+   "council_task_interaction_window",
    "council_window",
    "court_task_interaction_window",
    "court_window",
+   "create_claimant_faction_against_interaction_window",
    "culture_window",
    "decisions_view",
+   "declare_war_window",
    "designate_heir",
    "diarchy_window",
    "domicile_window",
@@ -835,6 +818,7 @@
    "succession_law_change_window",
    "title_election",
    "title_view_window",
+   "transfer_vassal_interaction_window",
    "travel_entourage_list_window",
    "visit_settlement_window",
    "war_overview_window",
@@ -955,7 +939,7 @@
    "royal_court_window"
   ]
  },
- "windows whose keys no round pressed": 46,
+ "windows whose keys no round pressed": 51,
  "keys not pressed": {
   "activity_guest_list": [
    "close_window",
@@ -1002,10 +986,19 @@
   "character_interaction_menu_window": [
    "close_window"
   ],
+  "council_task_interaction_window": [
+   "close_window"
+  ],
   "court_task_interaction_window": [
    "close_window"
   ],
+  "create_claimant_faction_against_interaction_window": [
+   "close_window"
+  ],
   "custom_message_window": [
+   "close_window"
+  ],
+  "declare_war_window": [
    "close_window"
   ],
   "designate_heir": [
@@ -1085,6 +1078,12 @@
    "tab_1",
    "tab_2"
   ],
+  "revoke_titles_interaction_window": [
+   "close_window",
+   "tab_1",
+   "tab_2",
+   "tab_3"
+  ],
   "scheme_conclusion_event_no_header": [
    "close_tooltips",
    "event_tooltips"
@@ -1119,6 +1118,12 @@
   "title_view_window": [
    "go_back",
    "go_back_2"
+  ],
+  "transfer_vassal_interaction_window": [
+   "close_window",
+   "tab_1",
+   "tab_2",
+   "tab_3"
   ],
   "visit_settlement_window": [
    "close_tooltips",

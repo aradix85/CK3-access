@@ -596,11 +596,14 @@ def chain_press(game: windowmap.Game, source: str, goal: 'openers.Goal', tables:
     the heir's portrait, opens the menu of interactions. That menu stood built before the click and
     was drawn 0.02 to 0.05 seconds after it, six times out of six (measured 29 October 2026), so
     one tree walk a second after the click says a try failed; six walks and a new alignment per
-    try cost 21 seconds each.
+    try cost 21 seconds each. With `showing` a right click goes on past a window that does not show
+    that text, shut again with Escape, so a name picks one character's menu out of a list.
     """
     from tools.ck3 import openers  # openers imports this module
+    right = goal.kind == 'right'
+    rows = None if right else showing       # a right click is told by what comes up, not by its row
     nodes, _, before = game.state()
-    _, reachable, why = openers.reachable_spots(game, source, goal, tables, showing)
+    _, reachable, why = openers.reachable_spots(game, source, goal, tables, rows)
     for hidden in [] if reachable else openers.unhiding(source, goal, tables):
         if openers.press_toward(game, source, hidden, tables)[1] is None:
             continue
@@ -608,25 +611,48 @@ def chain_press(game: windowmap.Game, source: str, goal: 'openers.Goal', tables:
         nodes, _, before = game.state()
         if source not in before:
             return nodes, set(), None, f'{why}; showing {hidden.name} shut {source}'
-        _, reachable, why = openers.reachable_spots(game, source, goal, tables, showing)
+        _, reachable, why = openers.reachable_spots(game, source, goal, tables, rows)
         if reachable:
             break
     if not reachable:
         return nodes, set(), None, why
-    right = goal.kind == 'right'
     tries = reachable if right else reachable[:1]
     for spot, point in tries:
         refused = openers.press_spot(game, goal, spot, point)
         if refused is not None:
             return nodes, set(), None, refused
+        opened: set[str] = set()
         for _ in range(1 if right else 6):
             time.sleep(1.0)
             nodes, _, drawn = game.state()
-            if drawn - before:
-                return nodes, drawn - before, spot, None
-    if right:
-        return nodes, set(), None, f'a right click on each of the {len(tries)} in {source} that carry it brought nothing up'
-    return nodes, set(), tries[0][0], None
+            opened = drawn - before
+            if opened:
+                break
+        if right and opened and showing is not None and not window_shows(game, nodes, opened, showing):
+            # Somebody else's menu: Escape shuts it alone (measured 29 October 2026, six of six).
+            channel.ask('sendkey 27')
+            time.sleep(1.2)
+            nodes, _, drawn = game.state()
+            if drawn != before:
+                return nodes, drawn - before, None, f'Escape did not shut {", ".join(sorted(opened))}'
+            continue
+        if opened or not right:
+            return nodes, opened, spot, None
+    return nodes, set(), None, 'a right click on each of the {} in {} that carry it brought up {}'.format(
+        len(tries), source, 'nothing' if showing is None else f'nothing that shows {showing}')
+
+
+def window_shows(game: windowmap.Game, nodes: widgettree.Nodes, names: set[str], text: str) -> bool:
+    """Does one of the drawn windows called `names` show `text` anywhere in it? Case and markup do not
+    count. How a right click is told apart: every portrait opens the same menu, and the menu names
+    its character at the top (`character_name`, read in the harvested menu, 29 October 2026)."""
+    wanted = text.lower()
+    for name in names:
+        candidates = [a for a, k in nodes.items() if k[6] == name and k[0] in game.window_classes]
+        if any(wanted in widgettree.strip_markup(nodes[a][7] or '').lower()
+               for a, _, _ in subtree(nodes, drawn_one(nodes, candidates, name))):
+            return True
+    return False
 
 
 def player_chains(names: list[str], direct: set[str],

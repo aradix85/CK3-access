@@ -242,6 +242,7 @@ returns a pair, passed on as one thing, costs a run.
 | `harvest(game, name, row, baseline, header)` | 2-tuple | One window, from opening to the state coming back. Returns the record, or a reason. |
 | `stop_checks(pid, player, player_name, before)` | nothing | The three conditions asked before every window: memory, the channel, and the player. |
 | `chain_press(game, source, goal, tables, showing=None)` | 4-tuple | In `source`, standing open, press what reaches `goal` and wait for what comes up: the tree |
+| `window_shows(game, nodes, names, text)` | bool | Does one of the drawn windows called `names` show `text` anywhere in it? Case and markup do not |
 | `player_chains(names, direct, tables)` | value | Window -> the chain route that opens it, for each of `names` that no key or click opens, as |
 | `open_along(game, name, direct, chained, baseline, tables)` | value of 2-tuple | Open `name` along a player route: its key or click, or the chain from a window that opens |
 | `chain_step(game, route, source, direct, chained, windows, baseline, header, tables)` | 2-tuple | One chain route from one of its sources: open the source along its own route, press what |
@@ -255,6 +256,18 @@ returns a pair, passed on as one thing, costs a run.
 | call | returns | does |
 |---|---|---|
 | `start_with_dll(exe_path, dll_path, arguments)` | value | Starts exe_path suspended, loads dll_path into it, resumes the process. Returns the pid. |
+
+## ck3\interactions.py
+*Who has which interaction switched on, read off the game's own menu, per character.*
+
+| call | returns | does |
+|---|---|---|
+| `clean(text)` | value | - |
+| `category_of(record, address)` | value | The category a row of the menu stands in: the name in the nearest group above it that holds |
+| `rows(record)` | 2-tuple | The character the menu stands open for, and every drawn row: address -> (category or None in |
+| `read_menu(game, tables)` | dict | Every row of the menu standing open. **One category is expanded at a time:** pressing a |
+| `menu_shown(nodes, menus, shown, limit)` | bool | Wait until the menu is drawn, or gone. It stands built before the click and was drawn |
+| `main()` | nothing | - |
 
 ## ck3\mapdata.py
 *The static map layer: where a county is, what it borders, and how far away things are.*

@@ -5,7 +5,10 @@ Outcomes, newest day first. No release yet.
 ## 2026-10-29
 - A right-click step tries every target from one alignment of the window: reaching the interaction menu takes 42 seconds instead of 170.
 - A step by hand can pick a row by its heading, `<call>@<heading>><text>`, as the expander of one category of the interaction menu.
-- The court position window is harvested on Ghur played, from the heir's interaction menu. 177 windows still lack a player route.
+- The court position window is harvested on Ghur played, from the heir's interaction menu.
+- python -m tools.ck3.interactions reads per stand which character has which interaction switched on, into reports/interactions.json.
+- A right-click step by hand picks one character's menu by a name after the @.
+- Declare war and transfer vassal on Harold, revoke title, council task and claimant faction on Andronikos, harvested from the menu. 172 windows lack a player route.
 
 ## 2026-10-27
 - The knights window and its permissions, the house window with its list of houses, the dynasty tree and its legacies are harvested by hand on Ghur played. 252 windows.
