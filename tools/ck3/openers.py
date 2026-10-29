@@ -637,20 +637,43 @@ def shows(record: pairing.Record, address: int, text: str) -> bool:
     list the grand wedding comes before the ecumenical council in the tree, and both open the
     detail view through one onclick (23 October 2026).
     """
-    below = {address}
-    for widget in record['tree']:       # parents before children, breadth first
-        if int(widget['parent'], 16) in below:
-            below.add(int(widget['address'], 16))
+    under = below(record, address)
     wanted = text.lower()
     return any(wanted in widgettree.strip_markup(widget['text'] or '').lower()
-               for widget in record['tree'] if int(widget['address'], 16) in below)
+               for widget in record['tree'] if int(widget['address'], 16) in under)
+
+
+def below(record: pairing.Record, address: int) -> set[int]:
+    """The widget at `address` and every widget under it."""
+    out = {address}
+    for widget in record['tree']:       # parents before children, breadth first
+        if int(widget['parent'], 16) in out:
+            out.add(int(widget['address'], 16))
+    return out
+
+
+def grouped(record: pairing.Record, address: int, group: str, candidates: set[int]) -> bool:
+    """Is the widget at `address` the only one of `candidates` in the nearest group above it that
+    shows `group`? How rows with the same text are told apart by their heading: every category of
+    the interaction menu ends in an expander saying "2 more...", and the nearest container above
+    each that shows a category name holds that one name and that one expander, six levels up (read
+    in the harvested menu, 29 October 2026).
+    """
+    parent = {int(w['address'], 16): int(w['parent'], 16) for w in record['tree']}
+    walk = parent[address]
+    while walk in parent:
+        if shows(record, walk, group):
+            return len(candidates & below(record, walk)) == 1
+        walk = parent[walk]
+    return False
 
 
 def reachable_spots(game: windowmap.Game, window: str, goal: Goal, tables: guimap.Tables,
                     showing: str | None = None) -> tuple[list[Spot], list[tuple[Spot, tuple[int, int]]], str]:
     """In `window`, open: every widget that reaches `goal`; of those, in tree order, the ones a click
     can reach, each with its point; and why none can, for when that list is empty. With `showing`,
-    only those whose row shows that text.
+    only those whose row shows that text; written `group>text`, of those only the one alone in the
+    nearest group above it that shows `group` (`grouped`).
 
     One alignment serves a caller that tries the widgets in turn: aligning the character window
     again for every portrait cost 7.5 seconds a try, 4.8 of them expanding its gui file (profiled
@@ -658,7 +681,11 @@ def reachable_spots(game: windowmap.Game, window: str, goal: Goal, tables: guima
     """
     spots, record, acting, _, _, _ = spots_for_goal(game, game.pid, window, goal, tables)
     if showing is not None:
-        spots = [spot for spot in spots if shows(record, spot['address'], showing)]
+        group, _, text = showing.rpartition('>')
+        spots = [spot for spot in spots if shows(record, spot['address'], text)]
+        if group:
+            candidates = {spot['address'] for spot in spots}
+            spots = [spot for spot in spots if grouped(record, spot['address'], group, candidates)]
     buttons = clickable_map(record, acting)
     reachable: list[tuple[Spot, tuple[int, int]]] = []
     for spot in spots:

@@ -1,12 +1,12 @@
 {
- "harvest": "2026-10-29 10:01",
- "without a player record": 178,
+ "harvest": "2026-10-29 11:58",
+ "without a player record": 177,
  "counts": {
   "developer": 26,
   "multiplayer": 17,
   "decided": 8,
   "event": 0,
-  "interaction": 16,
+  "interaction": 15,
   "chain": 12,
   "no window route on disk": 99
  },
@@ -249,10 +249,6 @@
    },
    "council_task_interaction_window": {
     "file": "gui/interaction_council_task.gui",
-    "state": "console record"
-   },
-   "court_task_interaction_window": {
-    "file": "gui/interaction_court_task.gui",
     "state": "console record"
    },
    "create_ceremonial_claimant_faction_against_interaction_window": {
@@ -801,6 +797,7 @@
    "character_lifestyle_window",
    "character_window",
    "council_window",
+   "court_task_interaction_window",
    "court_window",
    "culture_window",
    "decisions_view",
@@ -958,7 +955,7 @@
    "royal_court_window"
   ]
  },
- "windows whose keys no round pressed": 45,
+ "windows whose keys no round pressed": 46,
  "keys not pressed": {
   "activity_guest_list": [
    "close_window",
@@ -1003,6 +1000,9 @@
    "tab_3"
   ],
   "character_interaction_menu_window": [
+   "close_window"
+  ],
+  "court_task_interaction_window": [
    "close_window"
   ],
   "custom_message_window": [

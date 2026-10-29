@@ -10,7 +10,9 @@ its data (`windowmap.pressed`); without steps, `source` itself is recorded. Then
 `call`, for `right:<call>` click those whose onrightclick carries it with the right button, in turn
 until a window comes up, as the menu of interactions opens on a portrait, or for `goal:<window>`
 what the files say reaches that window; `<call>@<text>` takes the first whose row shows that text,
-where rows share a call, as the activities do. Wait for `target`, record it into the harvest, and
+where rows share a call, as the activities do, and `<call>@<group>><text>` the one alone under the
+nearest heading `group`, as the expander of one category of the interaction menu
+(`InteractionItem.OnClick@Vassal>2 more`). Wait for `target`, record it into the harvest, and
 go on from it. A step without `=target` only changes the window standing open, as a tab does: the
 hostage exchange sits in the war overview's peace terms, which the engine shows once a terms tab is
 pressed. A window on the way that already has a record from a player route keeps it, as in the

@@ -381,6 +381,8 @@ returns a pair, passed on as one thing, costs a run.
 | `reachable_point(buttons, widget_address, rect)` | value of NoneType | A point on this widget that a click really reaches, or None if it is covered everywhere. |
 | `spots_for_goal(game, pid, window, goal, tables)` | 6-tuple | Every widget of an open window that the files say reaches `goal`, aligned rather than guessed. |
 | `shows(record, address, text)` | value | Does the widget at `address`, or one below it, show `text`? Case and markup do not count. |
+| `below(record, address)` | value | The widget at `address` and every widget under it. |
+| `grouped(record, address, group, candidates)` | value of bool | Is the widget at `address` the only one of `candidates` in the nearest group above it that |
 | `reachable_spots(game, window, goal, tables, showing=None)` | 3-tuple | In `window`, open: every widget that reaches `goal`; of those, in tree order, the ones a click |
 | `press_spot(game, goal, spot, point)` | value of NoneType | Press one widget `reachable_spots` gave, with the right button for a `right` goal; returns |
 | `press_toward(game, window, goal, tables, showing=None)` | 3-tuple of value | In `window`, open, press the first widget that reaches `goal` and a click can reach; with |
