@@ -29,7 +29,7 @@
    "not_expanded": []
   },
   "Marzoban Zahhak of Upper Ghur": {
-   "source": "character_window:F1:CharacterWindow.SetTab('subjects')",
+   "source": "character_window:F1:CharacterWindow.SetTab('family')",
    "on": [
     "Diplomacy/Arrange Marriage",
     "Diplomacy/Negotiate Alliance",
@@ -42,7 +42,6 @@
     "Hostile/Murder (Scheme)",
     "Personal/Extol Virtuousness",
     "Personal/Learn Language (Scheme)",
-    "Personal/More...",
     "Personal/Send Gift",
     "Personal/Spar with Aswār",
     "Personal/Sway (Scheme)",
@@ -58,6 +57,9 @@
     "Diplomacy/Exchange Hostages",
     "Diplomacy/Offer Hostage",
     "Hostile/Foment Revolt",
+    "Personal/Offer Guardianship",
+    "Personal/Offer Ward",
+    "Personal/Seduce (Scheme)",
     "Vassal/Grant Independence",
     "Vassal/Grant Vassal",
     "Vassal/Retract Vassal",
@@ -72,6 +74,9 @@
     "Diplomacy/Offer Hostage",
     "Hostile/Denounce",
     "Hostile/Disinherit",
+    "Personal/Offer Guardianship",
+    "Personal/Offer Ward",
+    "Personal/Seduce (Scheme)",
     "Vassal/Give Vassal Directive",
     "Vassal/Grant Court Position",
     "Vassal/Grant Independence",
@@ -144,20 +149,38 @@
     "Diplomacy/Arrange Marriage",
     "Diplomacy/Demand Hostage",
     "Hostile/Murder (Scheme)",
-    "Personal/More...",
     "Personal/Send Gift",
     "Personal/Sway (Scheme)"
    ],
    "off": [
     "Diplomacy/Exchange Hostages",
     "Personal/Learn Language (Scheme)",
+    "Personal/Offer Guardianship",
+    "Personal/Offer Ward",
+    "Personal/Seduce (Scheme)",
     "Personal/Study Rite (Scheme)",
     "Realm & Court/Invite to Court"
    ],
    "behind_expander": [
     "Diplomacy/Demand Hostage",
-    "Diplomacy/Exchange Hostages"
+    "Diplomacy/Exchange Hostages",
+    "Personal/Offer Guardianship",
+    "Personal/Offer Ward",
+    "Personal/Seduce (Scheme)"
    ],
+   "not_expanded": []
+  },
+  "This is you": {
+   "source": "character_window:F1:CharacterWindow.SetTab('family')",
+   "on": [
+    "Diplomacy/Arrange Marriage",
+    "Diplomacy/Find Spouse",
+    "Power Sharing/Appoint Vizier"
+   ],
+   "off": [
+    "Personal/Educate Child"
+   ],
+   "behind_expander": [],
    "not_expanded": []
   }
  },

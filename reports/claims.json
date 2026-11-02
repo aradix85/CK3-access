@@ -220,7 +220,7 @@
  },
  {
   "name": "texts the reading rule says over the harvest",
-  "claimed": 7193,
+  "claimed": 7202,
   "measure": "unseen_texts",
   "arguments": ["texts"],
   "counting_rule": "every widget in a harvested record whose text is not empty once the game's markup is stripped, summed over the records that hold a window; refusal records carry no tree and do not count. The harvest on 1.20.1.2 of 21 to 27 October 2026"
@@ -251,7 +251,7 @@
  },
  {
   "name": "text boxes in the harvest round",
-  "claimed": 3551,
+  "claimed": 3560,
   "measure": "harvest_total",
   "arguments": [
    "<project>\\harvest",
@@ -261,7 +261,7 @@
  },
  {
   "name": "text boxes the recogniser confirmed",
-  "claimed": 3207,
+  "claimed": 3217,
   "measure": "harvest_total",
   "arguments": [
    "<project>\\harvest",
@@ -335,7 +335,7 @@
  },
  {
   "name": "harvested widgets that carry text",
-  "claimed": 7223,
+  "claimed": 7232,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -345,7 +345,7 @@
  },
  {
   "name": "harvested texts paired with a place in a gui file",
-  "claimed": 6560,
+  "claimed": 6569,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -355,7 +355,7 @@
  },
  {
   "name": "harvested texts whose gui file names a plain localization key",
-  "claimed": 794,
+  "claimed": 791,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -365,7 +365,7 @@
  },
  {
   "name": "plain keys whose localization matches what was on screen",
-  "claimed": 794,
+  "claimed": 791,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -395,7 +395,7 @@
  },
  {
   "name": "harvested texts filled by a data function",
-  "claimed": 5328,
+  "claimed": 5339,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -475,7 +475,7 @@
  },
  {
   "name": "harvested texts the gui files do not predict",
-  "claimed": 942,
+  "claimed": 943,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -485,7 +485,7 @@
  },
  {
   "name": "unexplained texts that inherit a data context",
-  "claimed": 726,
+  "claimed": 727,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -505,7 +505,7 @@
  },
  {
   "name": "unexplained texts in windows a player opens",
-  "claimed": 871,
+  "claimed": 872,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -527,7 +527,7 @@
  },
  {
   "name": "unexplained texts in windows a player opens that the reading rule says",
-  "claimed": 411,
+  "claimed": 412,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -548,7 +548,7 @@
  },
  {
   "name": "named live widgets in the harvest",
-  "claimed": 61676,
+  "claimed": 61677,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -559,7 +559,7 @@
  },
  {
   "name": "named live widgets the alignment puts on their own name",
-  "claimed": 59104,
+  "claimed": 59105,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -753,7 +753,7 @@
  },
  {
   "name": "mapped windows without a player record",
-  "claimed": 170,
+  "claimed": 169,
   "measure": "json_field",
   "arguments": ["<project>\\reports\\missing.json", "without a player record"],
   "counting_rule": "windows of reports\\windows.json whose harvest record did not open them along a key, a click, a chain or by hand: a console record, a window that did not open, one drawn always, or none at all (tools.ck3.missing)",
@@ -769,7 +769,7 @@
  },
  {
   "name": "windows without a player record that open from an interaction",
-  "claimed": 3,
+  "claimed": 0,
   "measure": "json_field",
   "arguments": ["<project>\\reports\\missing.json", "counts", "interaction"],
   "counting_rule": "of those, the ones declared in a gui/interaction_*.gui file, and in no group before it",
@@ -793,7 +793,7 @@
  },
  {
   "name": "windows with a player record whose keys no round pressed",
-  "claimed": 53,
+  "claimed": 54,
   "measure": "json_field",
   "arguments": ["<project>\\reports\\missing.json", "windows whose keys no round pressed"],
   "counting_rule": "windows with a player record and no row in reports\\window_keys.json, in which windowmap.presses_for finds a key a key round would press (view only, and no widget of the window acts on it)",

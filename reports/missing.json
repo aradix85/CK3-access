@@ -1,12 +1,12 @@
 {
- "harvest": "2026-10-29 17:29",
- "without a player record": 170,
+ "harvest": "2026-11-02 07:11",
+ "without a player record": 169,
  "counts": {
   "developer": 26,
   "multiplayer": 17,
-  "decided": 24,
+  "decided": 25,
   "event": 0,
-  "interaction": 2,
+  "interaction": 0,
   "chain": 10,
   "no window route on disk": 91
  },
@@ -216,6 +216,10 @@
     "file": "gui/interaction_call_ally_notification_window.gui",
     "state": "deferred: only luck, the AI or an uncertain search brings it up; take it when it comes up in play (29 October 2026)"
    },
+   "call_ally_interaction_window": {
+    "file": "gui/interaction_call_ally.gui",
+    "state": "deferred: only luck, the AI or an uncertain search brings it up; take it when it comes up in play (29 October 2026)"
+   },
    "character_ally_list_subview": {
     "file": "gui/interaction_declare_war.gui",
     "state": "deferred: only luck, the AI or an uncertain search brings it up; take it when it comes up in play (29 October 2026)"
@@ -286,16 +290,7 @@
    }
   },
   "event": {},
-  "interaction": {
-   "blackmail_interaction_window": {
-    "file": "gui/interaction_blackmail.gui",
-    "state": "console record"
-   },
-   "call_ally_interaction_window": {
-    "file": "gui/interaction_call_ally.gui",
-    "state": "console record"
-   }
-  },
+  "interaction": {},
   "chain": {
    "artifact_kill_list": {
     "file": "gui/window_kill_list.gui",
@@ -762,6 +757,7 @@
    "appoint_court_position_view",
    "artifact_details_view",
    "big_event_window",
+   "blackmail_interaction_window",
    "cardinals_window",
    "character_event",
    "character_finder_window",
@@ -933,7 +929,7 @@
    "royal_court_window"
   ]
  },
- "windows whose keys no round pressed": 53,
+ "windows whose keys no round pressed": 54,
  "keys not pressed": {
   "activity_guest_list": [
    "close_window",
@@ -965,6 +961,12 @@
   "big_event_window": [
    "close_tooltips",
    "event_tooltips"
+  ],
+  "blackmail_interaction_window": [
+   "close_window",
+   "tab_1",
+   "tab_2",
+   "tab_3"
   ],
   "character_event": [
    "close_tooltips",
