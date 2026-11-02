@@ -262,10 +262,10 @@ returns a pair, passed on as one thing, costs a run.
 
 | call | returns | does |
 |---|---|---|
-| `clean(text)` | value | - |
+| `clean(text)` | value | A widget's text as the menu shows it: markup stripped, whitespace folded; no text is empty. |
 | `category_of(record, address)` | value | The category a row of the menu stands in: the name in the nearest group above it that holds |
 | `rows(record)` | 2-tuple | The character the menu stands open for, and every drawn row: address -> (category or None in |
-| `read_menu(game, tables)` | dict | Every row of the menu standing open. **One category is expanded at a time:** pressing a |
+| `read_menu(game, tables, source)` | dict | Every row of the menu standing open, opened from `source`. **One category is expanded at a |
 | `menu_shown(nodes, menus, shown, limit)` | bool | Wait until the menu is drawn, or gone. It stands built before the click and was drawn |
 | `main()` | nothing | - |
 

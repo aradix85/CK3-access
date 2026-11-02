@@ -223,7 +223,7 @@
   "claimed": 7202,
   "measure": "unseen_texts",
   "arguments": ["texts"],
-  "counting_rule": "every widget in a harvested record whose text is not empty once the game's markup is stripped, summed over the records that hold a window; refusal records carry no tree and do not count. The harvest on 1.20.1.2 of 21 to 27 October 2026"
+  "counting_rule": "every widget in a harvested record whose text is not empty once the game's markup is stripped, summed over the records that hold a window; refusal records carry no tree and do not count. The harvest on 1.20.1.2 of 21 October to 2 November 2026"
  },
  {
   "name": "harvested texts that are in the tree but not on the screen",
@@ -246,7 +246,7 @@
    "<project>\\harvest",
    "windows"
   ],
-  "counting_rule": "records in harvest\\ with opened true, on 1.20.1.2, 21 to 27 October 2026: most on Ghur played, the rest on a state that has what the window needs; the route of each record says how it was opened. A refusal carries no tree; a window with no route at all is not tried, and what the bare screen draws is the baseline and is never harvested",
+  "counting_rule": "records in harvest\\ with opened true, on 1.20.1.2, 21 October to 2 November 2026: most on Ghur played, the rest on a state that has what the window needs; the route of each record says how it was opened. A refusal carries no tree; a window with no route at all is not tried, and what the bare screen draws is the baseline and is never harvested",
   "quoted_in": ["README.md", "brief\\vensters.md"]
  },
  {
@@ -331,7 +331,7 @@
   "claimed": 282,
   "measure": "gui_windows",
   "counting_rule": "three shapes, one entry per name: a `window = { name = ... }` block at any depth; a block whose type resolves through its inheritance chain to `window` and which carries a name, at any depth; and a type definition that inherits from `window` and carries the name itself. **Do not add shapes here; use `windowmap.unmapped`**, which asks the running game instead: the engine builds every window up front, so the live tree is the whole list. windows.json holds them, and on 1.20.1.1 and 1.20.1.2 the running game built none the map lacks (21 October 2026); 1.20 added 18 windows to the 265 of 1.19.0.6 and removed faith_creation_window",
-  "quoted_in": ["brief\\vensters.md"]
+  "quoted_in": ["README.md", "brief\\vensters.md"]
  },
  {
   "name": "harvested widgets that carry text",
@@ -544,7 +544,8 @@
    "<project>\\reports\\pairing.json",
    "unexplained bare number in player windows, drawn"
   ],
-  "counting_rule": "of those bare numbers, the ones `reading.on_screen` passes, as above; the rest sit in parts that are not drawn in the state the harvest took"
+  "counting_rule": "of those bare numbers, the ones `reading.on_screen` passes, as above; the rest sit in parts that are not drawn in the state the harvest took",
+  "quoted_in": ["brief\\gui.md"]
  },
  {
   "name": "named live widgets in the harvest",

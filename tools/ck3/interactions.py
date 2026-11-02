@@ -9,7 +9,8 @@ A source is a window, the key that opens it, and a press inside it such as a tab
 comes up every row is read with its state byte, 0 on and 6 off (measured 29 October 2026), also
 the rows in the flyout that each expander outside the debug categories opens beside the menu, the
 grey "More..." as well as "2 more...". The player's own menu is written as "This is you". The
-first source that shows a character wins.
+first source that shows a character wins within a run; a later run replaces the characters it
+reads and keeps the others already in the report.
 Writes `reports\interactions.json`: per stand (the player's name) and character, the source, the
 interactions on and off as `category/interaction`, the ones behind their category's expander - a
 step by hand presses that first, `InteractionItem.OnClick@<category>>more` - and the categories
@@ -57,6 +58,7 @@ class Character(TypedDict):
 
 
 def clean(text: str | None) -> str:
+    """A widget's text as the menu shows it: markup stripped, whitespace folded; no text is empty."""
     return ' '.join(widgettree.strip_markup(text or '').split())
 
 
@@ -98,9 +100,9 @@ def rows(record: pairing.Record) -> tuple[str, dict[int, tuple[str | None, str, 
     return name, out
 
 
-def read_menu(game: windowmap.Game, tables: guimap.Tables) -> Character:
-    """Every row of the menu standing open. **One category is expanded at a time:** pressing a
-    second expander shut the first (29 October 2026), so each is pressed and read in turn."""
+def read_menu(game: windowmap.Game, tables: guimap.Tables, source: str) -> Character:
+    """Every row of the menu standing open, opened from `source`. **One category is expanded at a
+    time:** pressing a second expander shut the first (29 October 2026), so each is pressed and read in turn."""
     found: dict[str, tuple[str, int | None, bool]] = {}
     pressed: set[str] = set()
     expanders: set[str] = set()
@@ -130,7 +132,7 @@ def read_menu(game: windowmap.Game, tables: guimap.Tables) -> Character:
                     chosen = (spot, point, category)
                     break
         if chosen is None:
-            return {'source': '', 'on': sorted(k for k, v in found.items() if v[1] == 0),
+            return {'source': source, 'on': sorted(k for k, v in found.items() if v[1] == 0),
                     'off': sorted(k for k, v in found.items() if v[1] != 0),
                     'behind_expander': sorted(k for k, v in found.items() if v[2]),
                     'not_expanded': sorted(expanders - pressed)}
@@ -185,7 +187,7 @@ def main() -> None:
                 continue
             name, _ = rows(openers.live_record(game, pid, MENU)[0])
             if name not in seen:
-                seen[name] = {**read_menu(game, tables), 'source': argument}
+                seen[name] = read_menu(game, tables, argument)
                 print(f"   {name}: on {'; '.join(seen[name]['on'])}")
             channel.ask('sendkey 27')
             if not menu_shown(nodes, menus, False, 3.0):

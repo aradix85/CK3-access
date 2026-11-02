@@ -3,7 +3,8 @@ r"""Which mapped windows have no record from a player's route yet, and how a pla
 Usage:
     python -m tools.ck3.missing
 
-Writes `reports\missing.json` and prints every group with its windows, and the views on disk. The
+Writes `reports\missing.json` and prints the total with how many are still to do for play, every
+group with its windows, the views on disk and the keys no round pressed. The
 list is reckoned from the map (`reports\windows.json`), the harvest and the gui files every time it
 runs, so it cannot age the way a list kept by hand does: on 24 October 2026 TE DOEN named 3 of the
 199 windows without a player record, and covered most of the rest with one sentence.
@@ -14,10 +15,11 @@ hand. The console builds a window without its data context, so a console record 
 **The group says how a player gets there, read off the files; the first that fits wins.**
 - `developer`: the developers' own tooling (`pairing.developer_window`); nobody plays in it.
 - `multiplayer`: multiplayer, the social network and the Paradox account, by their gui folders
-  and file names. This and the one above fall away (BRIEF.md, TE DOEN, the sessions per state).
-- `decided`: a window with a decision of its own in `DECIDED`, with the reason and its date; the
-  ones only luck, the AI or an uncertain search brings up carry `DEFERRED` and are taken when they
-  come up in play.
+  and file names.
+- `decided`: a window with a decision of its own in `DECIDED`, with the reason and its date.
+  `CLOSED` marks one that only luck, the AI or an uncertain search brings up, or whose one attempt
+  failed; `NOT_FOR_PLAY` one a blind player gains nothing from. Both are reopened only on negative
+  feedback from players.
 - `event`: declared in `gui/event_windows/` - it opens when the game fires an event.
 - `interaction`: declared in a `gui/interaction_*.gui` file - it opens from a character
   interaction, usually from the menu a right click on a portrait brings up.
@@ -27,14 +29,16 @@ hand. The console builds a window without its data context, so a console record 
   tree, menus. Some of these sit behind a view (below); for the rest a person has to find the way,
   with `tools.ck3.hand` once it is known.
 
+The first three fall away (`FALL_AWAY`); the report counts every other window as still to do for play.
+
 **The views come apart from the groups**, because which window the engine puts behind a view is
 not on disk: `OpenGameView('inventory')` names no window, and only a round that presses it sees
 which one comes up (`brief\vensters.md`, the measured couplings). So the report lists every view a
 button on disk opens, with the windows that carry such a button, and does not guess the window.
 
 Beside its group every window carries its state: a console record, a record of a window that did
-not open with the reason, drawn always (in every record's baseline), or never tried with the
-reason the map gives.
+not open with the reason, drawn always (in every record's baseline), never tried with the reason
+the map gives, or, for a window in `DECIDED`, the reason given there.
 
 **The keys no round has pressed come last:** a window with a player record whose files declare
 keys a key round may press (`windowmap.presses_for`) and that has no row in
@@ -130,15 +134,15 @@ def state_of(window: str, record: dict[str, object] | None, baseline: set[str],
     if record is not None and record.get('opened'):
         return 'console record'
     if record is not None:
-        return f"did not open: {record.get('reason')}"
+        return f"did not open: {record['reason']}"
     if window in baseline:
         return 'drawn always, so in every capture'
-    return f"not tried: {mapped.get('reason') or 'no route'}"
+    return f"not tried: {mapped['reason']}"
 
 
 def player_route(record: dict[str, object]) -> bool:
     """Did this record open its window the way a player does? A console record did not."""
-    return bool(record.get('opened')) and not str(record.get('route', '')).startswith('GUI.CreateWidget')
+    return bool(record.get('opened')) and not str(record['route']).startswith('GUI.CreateWidget')
 
 
 def keys_not_pressed(played: set[str]) -> dict[str, list[str]]:
@@ -163,7 +167,7 @@ def reckon() -> tuple[dict[str, dict[str, Missing]], dict[str, list[str]], dict[
     baseline: set[str] = set()
     for found in pathlib.Path(paths.HARVEST).glob('*.json'):
         record = json.loads(found.read_text(encoding='utf-8'))
-        records[str(record.get('window', found.stem))] = record
+        records[str(record['window'])] = record
         baseline.update(record.get('baseline') or [])
     played = {w for w, r in records.items() if player_route(r)}
     keyed = {w for w, m in mapped.items() if m.get('shortcut')}
