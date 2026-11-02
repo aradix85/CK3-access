@@ -4,11 +4,11 @@
  "counts": {
   "developer": 26,
   "multiplayer": 17,
-  "decided": 25,
+  "decided": 30,
   "event": 0,
-  "interaction": 0,
-  "chain": 10,
-  "no window route on disk": 91
+  "interaction": 6,
+  "chain": 11,
+  "no window route on disk": 79
  },
  "groups": {
   "developer": {
@@ -192,61 +192,57 @@
     "file": "gui/jomini/music_player/music_player_view.gui",
     "state": "visible = no after inheritance: the console made it and it was not drawn (read 24 October 2026)"
    },
-   "accolade_attribute_selection_view": {
-    "file": "gui/window_accolade_attribute_selection.gui",
-    "state": "deferred: only luck, the AI or an uncertain search brings it up; take it when it comes up in play (29 October 2026)"
-   },
-   "accolade_view": {
-    "file": "gui/window_accolade.gui",
-    "state": "deferred: only luck, the AI or an uncertain search brings it up; take it when it comes up in play (29 October 2026)"
-   },
    "achievement_popup_window": {
     "file": "gui/achievements/popup.gui",
     "state": "drawn always, so in every capture (21 October 2026)"
    },
-   "activity_list_detail_invite": {
-    "file": "gui/window_activity_list.gui",
-    "state": "deferred: only luck, the AI or an uncertain search brings it up; take it when it comes up in play (29 October 2026)"
+   "achievements_window": {
+    "file": "gui/achievements/jomini_achievements_window.gui",
+    "state": "not important for play: appearance, customisation, achievements or setup a blind player gains nothing from; reopened only on negative feedback from players (2 November 2026)"
+   },
+   "artifact_kill_list": {
+    "file": "gui/window_kill_list.gui",
+    "state": "not important for play: appearance, customisation, achievements or setup a blind player gains nothing from; reopened only on negative feedback from players (2 November 2026)"
    },
    "base_dialog": {
     "file": "gui/shared/dialogs.gui",
     "state": "a template the game never builds under that name; its four instances each carry a name of their own (read 23 October 2026)"
    },
-   "call_ally_interaction_notification_window": {
-    "file": "gui/interaction_call_ally_notification_window.gui",
-    "state": "deferred: only luck, the AI or an uncertain search brings it up; take it when it comes up in play (29 October 2026)"
-   },
-   "call_ally_interaction_window": {
-    "file": "gui/interaction_call_ally.gui",
-    "state": "deferred: only luck, the AI or an uncertain search brings it up; take it when it comes up in play (29 October 2026)"
-   },
-   "character_ally_list_subview": {
-    "file": "gui/interaction_declare_war.gui",
-    "state": "deferred: only luck, the AI or an uncertain search brings it up; take it when it comes up in play (29 October 2026)"
-   },
-   "character_interaction_notification_window": {
-    "file": "gui/interaction_notification_window.gui",
-    "state": "deferred: only luck, the AI or an uncertain search brings it up; take it when it comes up in play (29 October 2026)"
-   },
    "character_name_window": {
     "file": "gui/window_barbershop.gui",
-    "state": "deferred: only luck, the AI or an uncertain search brings it up; take it when it comes up in play (29 October 2026)"
+    "state": "not important for play: appearance, customisation, achievements or setup a blind player gains nothing from; reopened only on negative feedback from players (2 November 2026)"
+   },
+   "coa_window": {
+    "file": "gui/window_barbershop.gui",
+    "state": "not important for play: appearance, customisation, achievements or setup a blind player gains nothing from; reopened only on negative feedback from players (2 November 2026)"
    },
    "colorpicker_window": {
     "file": "gui/shared/color_picker.gui",
-    "state": "deferred: only luck, the AI or an uncertain search brings it up; take it when it comes up in play (29 October 2026)"
-   },
-   "create_accolade_view": {
-    "file": "gui/window_create_accolade.gui",
-    "state": "deferred: only luck, the AI or an uncertain search brings it up; take it when it comes up in play (29 October 2026)"
+    "state": "not important for play: appearance, customisation, achievements or setup a blind player gains nothing from; reopened only on negative feedback from players (2 November 2026)"
    },
    "create_ceremonial_claimant_faction_against_interaction_window": {
     "file": "gui/interaction_create_claimant_faction.gui",
-    "state": "deferred: only luck, the AI or an uncertain search brings it up; take it when it comes up in play (29 October 2026)"
+    "state": "closed without a harvest: one attempt failed, or only luck, the AI or an uncertain search brings it up; reopened only on negative feedback from players (2 November 2026)"
    },
-   "interfere_in_war_interaction_notification_window": {
-    "file": "gui/interaction_interfere_in_war_notification.gui",
-    "state": "deferred: only luck, the AI or an uncertain search brings it up; take it when it comes up in play (29 October 2026)"
+   "dlc_info": {
+    "file": "gui/window_dlc_info.gui",
+    "state": "not important for play: appearance, customisation, achievements or setup a blind player gains nothing from; reopened only on negative feedback from players (2 November 2026)"
+   },
+   "dynasty_customization_window": {
+    "file": "gui/dynasty_customization_window.gui",
+    "state": "not important for play: appearance, customisation, achievements or setup a blind player gains nothing from; reopened only on negative feedback from players (2 November 2026)"
+   },
+   "dynasty_house_customization_window": {
+    "file": "gui/dynasty_house_customization_window.gui",
+    "state": "not important for play: appearance, customisation, achievements or setup a blind player gains nothing from; reopened only on negative feedback from players (2 November 2026)"
+   },
+   "game_rules": {
+    "file": "gui/game_rules.gui",
+    "state": "not important for play: appearance, customisation, achievements or setup a blind player gains nothing from; reopened only on negative feedback from players (2 November 2026)"
+   },
+   "game_rules_preset": {
+    "file": "gui/game_rules.gui",
+    "state": "not important for play: appearance, customisation, achievements or setup a blind player gains nothing from; reopened only on negative feedback from players (2 November 2026)"
    },
    "jomini_notification_sidebar": {
     "file": "gui/notifications/notification_overlay.gui",
@@ -256,13 +252,17 @@
     "file": "gui/map_icon_layer.gui",
     "state": "drawn always, so in every capture (21 October 2026)"
    },
-   "marriage_interaction_notification_window": {
-    "file": "gui/interaction_marriage_notification_window.gui",
-    "state": "deferred: only luck, the AI or an uncertain search brings it up; take it when it comes up in play (29 October 2026)"
+   "load_ruler_window": {
+    "file": "gui/window_ruler_designer_load.gui",
+    "state": "not important for play: appearance, customisation, achievements or setup a blind player gains nothing from; reopened only on negative feedback from players (2 November 2026)"
    },
    "portrait_window": {
     "file": "gui/window_barbershop.gui",
-    "state": "deferred: only luck, the AI or an uncertain search brings it up; take it when it comes up in play (29 October 2026)"
+    "state": "not important for play: appearance, customisation, achievements or setup a blind player gains nothing from; reopened only on negative feedback from players (2 November 2026)"
+   },
+   "reforge_artifact_window": {
+    "file": "gui/window_artifact_reforge.gui",
+    "state": "not important for play: appearance, customisation, achievements or setup a blind player gains nothing from; reopened only on negative feedback from players (2 November 2026)"
    },
    "religion_window": {
     "file": "gui/window_faith.gui",
@@ -272,28 +272,73 @@
     "file": "gui/window_faith.gui",
     "state": "no player route in 1.20; the Rites tab of Faith Details holds its lists (measured 24 October 2026)"
    },
+   "ruler_designer": {
+    "file": "gui/window_ruler_designer.gui",
+    "state": "not important for play: appearance, customisation, achievements or setup a blind player gains nothing from; reopened only on negative feedback from players (2 November 2026)"
+   },
+   "save_ruler_window": {
+    "file": "gui/window_ruler_designer_save.gui",
+    "state": "not important for play: appearance, customisation, achievements or setup a blind player gains nothing from; reopened only on negative feedback from players (2 November 2026)"
+   },
+   "title_customization_window": {
+    "file": "gui/window_title_customization.gui",
+    "state": "not important for play: appearance, customisation, achievements or setup a blind player gains nothing from; reopened only on negative feedback from players (2 November 2026)"
+   },
    "toolbars_window": {
     "file": "gui/console.gui",
     "state": "the console draws it while it stands open, so in every console capture (measured 21 October 2026)"
    },
+   "tutorial_window": {
+    "file": "gui/window_tutorial.gui",
+    "state": "not important for play: appearance, customisation, achievements or setup a blind player gains nothing from; reopened only on negative feedback from players (2 November 2026)"
+   },
    "window_barbershop": {
     "file": "gui/window_barbershop.gui",
-    "state": "deferred: only luck, the AI or an uncertain search brings it up; take it when it comes up in play (29 October 2026)"
+    "state": "not important for play: appearance, customisation, achievements or setup a blind player gains nothing from; reopened only on negative feedback from players (2 November 2026)"
+   },
+   "window_court_visuals": {
+    "file": "gui/window_court_visuals.gui",
+    "state": "not important for play: appearance, customisation, achievements or setup a blind player gains nothing from; reopened only on negative feedback from players (2 November 2026)"
    },
    "window_situation": {
     "file": "gui/window_situation.gui",
-    "state": "deferred: only luck, the AI or an uncertain search brings it up; take it when it comes up in play (29 October 2026)"
+    "state": "closed without a harvest: one attempt failed, or only luck, the AI or an uncertain search brings it up; reopened only on negative feedback from players (2 November 2026)"
    },
    "window_situation_participant_groups": {
     "file": "gui/window_situation.gui",
-    "state": "deferred: only luck, the AI or an uncertain search brings it up; take it when it comes up in play (29 October 2026)"
+    "state": "closed without a harvest: one attempt failed, or only luck, the AI or an uncertain search brings it up; reopened only on negative feedback from players (2 November 2026)"
    }
   },
   "event": {},
-  "interaction": {},
+  "interaction": {
+   "call_ally_interaction_notification_window": {
+    "file": "gui/interaction_call_ally_notification_window.gui",
+    "state": "console record"
+   },
+   "call_ally_interaction_window": {
+    "file": "gui/interaction_call_ally.gui",
+    "state": "console record"
+   },
+   "character_ally_list_subview": {
+    "file": "gui/interaction_declare_war.gui",
+    "state": "console record"
+   },
+   "character_interaction_notification_window": {
+    "file": "gui/interaction_notification_window.gui",
+    "state": "console record"
+   },
+   "interfere_in_war_interaction_notification_window": {
+    "file": "gui/interaction_interfere_in_war_notification.gui",
+    "state": "console record"
+   },
+   "marriage_interaction_notification_window": {
+    "file": "gui/interaction_marriage_notification_window.gui",
+    "state": "console record"
+   }
+  },
   "chain": {
-   "artifact_kill_list": {
-    "file": "gui/window_kill_list.gui",
+   "accolade_view": {
+    "file": "gui/window_accolade.gui",
     "state": "console record"
    },
    "challengers_subwindow": {
@@ -302,6 +347,10 @@
    },
    "confederation_window": {
     "file": "gui/window_confederation.gui",
+    "state": "console record"
+   },
+   "create_accolade_view": {
+    "file": "gui/window_create_accolade.gui",
     "state": "console record"
    },
    "dynastic_cycle_participant_groups": {
@@ -334,8 +383,12 @@
    }
   },
   "no window route on disk": {
-   "achievements_window": {
-    "file": "gui/achievements/jomini_achievements_window.gui",
+   "accolade_attribute_selection_view": {
+    "file": "gui/window_accolade_attribute_selection.gui",
+    "state": "console record"
+   },
+   "activity_list_detail_invite": {
+    "file": "gui/window_activity_list.gui",
     "state": "console record"
    },
    "activity_locale_window": {
@@ -410,28 +463,12 @@
     "file": "gui/window_title_claimants.gui",
     "state": "console record"
    },
-   "coa_window": {
-    "file": "gui/window_barbershop.gui",
-    "state": "console record"
-   },
    "combat_window": {
     "file": "gui/window_combat.gui",
     "state": "console record"
    },
    "diverge_culture_window": {
     "file": "gui/window_diverge_culture.gui",
-    "state": "console record"
-   },
-   "dlc_info": {
-    "file": "gui/window_dlc_info.gui",
-    "state": "console record"
-   },
-   "dynasty_customization_window": {
-    "file": "gui/dynasty_customization_window.gui",
-    "state": "console record"
-   },
-   "dynasty_house_customization_window": {
-    "file": "gui/dynasty_house_customization_window.gui",
     "state": "console record"
    },
    "dynasty_house_members_view": {
@@ -448,14 +485,6 @@
    },
    "find_vassal_list_window": {
     "file": "gui/window_find_vassal.gui",
-    "state": "console record"
-   },
-   "game_rules": {
-    "file": "gui/game_rules.gui",
-    "state": "console record"
-   },
-   "game_rules_preset": {
-    "file": "gui/game_rules.gui",
     "state": "console record"
    },
    "great_holy_war_window": {
@@ -518,10 +547,6 @@
     "file": "gui/window_lineage.gui",
     "state": "console record"
    },
-   "load_ruler_window": {
-    "file": "gui/window_ruler_designer_load.gui",
-    "state": "console record"
-   },
    "memories_window": {
     "file": "gui/window_memories.gui",
     "state": "console record"
@@ -562,10 +587,6 @@
     "file": "gui/window_rally_points.gui",
     "state": "console record"
    },
-   "reforge_artifact_window": {
-    "file": "gui/window_artifact_reforge.gui",
-    "state": "console record"
-   },
    "rename_popup": {
     "file": "gui/shared/dialogs.gui",
     "state": "console record"
@@ -574,16 +595,8 @@
     "file": "gui/window_replace_pillar.gui",
     "state": "console record"
    },
-   "ruler_designer": {
-    "file": "gui/window_ruler_designer.gui",
-    "state": "console record"
-   },
    "save_game_window": {
     "file": "gui/window_save_game.gui",
-    "state": "console record"
-   },
-   "save_ruler_window": {
-    "file": "gui/window_ruler_designer_save.gui",
     "state": "console record"
    },
    "select_commander_window": {
@@ -614,10 +627,6 @@
     "file": "gui/window_title_add_law.gui",
     "state": "console record"
    },
-   "title_customization_window": {
-    "file": "gui/window_title_customization.gui",
-    "state": "console record"
-   },
    "title_history_window": {
     "file": "gui/window_title_history.gui",
     "state": "console record"
@@ -638,20 +647,12 @@
     "file": "gui/window_travel_route_edit.gui",
     "state": "console record"
    },
-   "tutorial_window": {
-    "file": "gui/window_tutorial.gui",
-    "state": "console record"
-   },
    "war_declared_overview": {
     "file": "gui/window_war_declared_overview.gui",
     "state": "console record"
    },
    "war_results": {
     "file": "gui/window_war_results.gui",
-    "state": "console record"
-   },
-   "window_court_visuals": {
-    "file": "gui/window_court_visuals.gui",
     "state": "console record"
    },
    "window_house_relation_history": {

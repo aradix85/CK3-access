@@ -51,11 +51,14 @@ from tools.ck3 import guimap, harvest, openers, pairing, windowmap
 
 REPORT = os.path.join(paths.REPORTS, 'missing.json')
 GROUPS = ('developer', 'multiplayer', 'decided', 'event', 'interaction', 'chain', 'no window route on disk')
-# Her decision of 29 October 2026: a window only luck, the AI or a search that may not succeed brings
-# up, which a player does not need harvested, waits until it comes up in play and is then taken by hand
-# in one go; so does a window whose one attempt failed.
-DEFERRED = ('deferred: only luck, the AI or an uncertain search brings it up; take it when it comes up '
-            'in play (29 October 2026)')
+# Her decisions of 29 October and 2 November 2026: a window only luck, the AI or a search that may not
+# succeed brings up, and a window whose one attempt failed, is done without a harvest when a player
+# does not need it; it is opened again only when players report a problem.
+CLOSED = ('closed without a harvest: one attempt failed, or only luck, the AI or an uncertain search '
+          'brings it up; reopened only on negative feedback from players (2 November 2026)')
+# Her decision of 2 November 2026: what a blind player gains nothing from is done as well, and said so.
+NOT_FOR_PLAY = ('not important for play: appearance, customisation, achievements or setup a blind player '
+                'gains nothing from; reopened only on negative feedback from players (2 November 2026)')
 # Windows a decision took out of the work, each with why and when. A group that falls away as a
 # whole is a rule above, not a row here.
 DECIDED = {
@@ -74,24 +77,16 @@ DECIDED = {
     'jomini_notification_sidebar': 'visible = no after inheritance: the console made it and it was '
                                    'not drawn (read 24 October 2026)',
 } | dict.fromkeys((
-    'character_ally_list_subview',                          # a war target that has allies
-    'call_ally_interaction_notification_window',            # the four the AI sends the player
-    'character_interaction_notification_window',
-    'interfere_in_war_interaction_notification_window',
-    'marriage_interaction_notification_window',
-    'accolade_view',                                        # a stand with an accolade
-    'create_accolade_view',
-    'accolade_attribute_selection_view',
-    'activity_list_detail_invite',                          # somebody invites the player
-    'window_barbershop',                                    # no button on disk opens it
-    'character_name_window',
-    'colorpicker_window',
-    'portrait_window',
     'window_situation',                                     # no situation of ours uses it
     'window_situation_participant_groups',
     'create_ceremonial_claimant_faction_against_interaction_window',  # off for Omiwa (2 November 2026)
-    'call_ally_interaction_window',                         # Harold's allies are vassals (2 November 2026)
-), DEFERRED)
+), CLOSED) | dict.fromkeys((
+    'window_barbershop', 'character_name_window', 'colorpicker_window', 'portrait_window',
+    'coa_window', 'dynasty_customization_window', 'dynasty_house_customization_window',
+    'title_customization_window', 'window_court_visuals', 'reforge_artifact_window', 'artifact_kill_list',
+    'ruler_designer', 'load_ruler_window', 'save_ruler_window', 'game_rules', 'game_rules_preset',
+    'achievements_window', 'dlc_info', 'tutorial_window',
+), NOT_FOR_PLAY)
 
 
 class Missing(TypedDict):

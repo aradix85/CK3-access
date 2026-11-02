@@ -769,7 +769,7 @@
  },
  {
   "name": "windows without a player record that open from an interaction",
-  "claimed": 0,
+  "claimed": 6,
   "measure": "json_field",
   "arguments": ["<project>\\reports\\missing.json", "counts", "interaction"],
   "counting_rule": "of those, the ones declared in a gui/interaction_*.gui file, and in no group before it",
@@ -777,7 +777,7 @@
  },
  {
   "name": "windows without a player record that a chain route on disk reaches",
-  "claimed": 10,
+  "claimed": 11,
   "measure": "json_field",
   "arguments": ["<project>\\reports\\missing.json", "counts", "chain"],
   "counting_rule": "of those, the targets of openers.chain_routes from the windows with a player record or a key, and in no group before it",
@@ -785,7 +785,7 @@
  },
  {
   "name": "windows without a player record and without a window route on disk",
-  "claimed": 91,
+  "claimed": 79,
   "measure": "json_field",
   "arguments": ["<project>\\reports\\missing.json", "counts", "no window route on disk"],
   "counting_rule": "the rest: no file names a call that opens the window itself; some sit behind a view whose window only a round sees",

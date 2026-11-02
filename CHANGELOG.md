@@ -3,10 +3,11 @@
 Outcomes, newest day first. No release yet.
 
 ## 2026-11-02
-- The ceremonial claimant faction stays off for Omiwa, also in the emperor's own menu, so its window is deferred until it comes up in play.
+- The ceremonial claimant faction stays off for Omiwa, also in the emperor's own menu, so its window is closed without a harvest.
 - The blackmail window is harvested on Harold from the intrigue window, after the debug interaction that spreads secrets. 169 windows lack a player route.
-- Calling an ally to war stays off on Harold: his only allies are his vassals. Its window is deferred.
-- tools.ck3.interactions read Ghur played again, now with the player's own menu and every expander opened.
+- Calling an ally to war stays off on Harold: his only allies are his vassals; it needs a foreign ally.
+- tools.ck3.interactions read Ghur played, Andronikos and Zhuye Chixin again, with the player's own menu and every expander opened.
+- tools.ck3.missing marks 19 windows not important for play and closes three without a harvest; the AI's notifications, allies and accolades stay open.
 
 ## 2026-10-29
 - A right-click step tries every target from one alignment of the window: reaching the interaction menu takes 42 seconds instead of 170.
