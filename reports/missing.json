@@ -4,9 +4,9 @@
  "counts": {
   "developer": 26,
   "multiplayer": 17,
-  "decided": 23,
+  "decided": 24,
   "event": 0,
-  "interaction": 3,
+  "interaction": 2,
   "chain": 10,
   "no window route on disk": 91
  },
@@ -236,6 +236,10 @@
     "file": "gui/window_create_accolade.gui",
     "state": "deferred: only luck, the AI or an uncertain search brings it up; take it when it comes up in play (29 October 2026)"
    },
+   "create_ceremonial_claimant_faction_against_interaction_window": {
+    "file": "gui/interaction_create_claimant_faction.gui",
+    "state": "deferred: only luck, the AI or an uncertain search brings it up; take it when it comes up in play (29 October 2026)"
+   },
    "interfere_in_war_interaction_notification_window": {
     "file": "gui/interaction_interfere_in_war_notification.gui",
     "state": "deferred: only luck, the AI or an uncertain search brings it up; take it when it comes up in play (29 October 2026)"
@@ -289,10 +293,6 @@
    },
    "call_ally_interaction_window": {
     "file": "gui/interaction_call_ally.gui",
-    "state": "console record"
-   },
-   "create_ceremonial_claimant_faction_against_interaction_window": {
-    "file": "gui/interaction_create_claimant_faction.gui",
     "state": "console record"
    }
   },

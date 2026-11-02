@@ -89,6 +89,7 @@ DECIDED = {
     'portrait_window',
     'window_situation',                                     # no situation of ours uses it
     'window_situation_participant_groups',
+    'create_ceremonial_claimant_faction_against_interaction_window',  # off for Omiwa (2 November 2026)
 ), DEFERRED)
 
 

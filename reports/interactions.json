@@ -2669,7 +2669,7 @@
  },
  "Koremochi_3": {
   "Koreoki": {
-   "source": "character_window:F1:CharacterWindow.SetTab('family')",
+   "source": "government_administration_window:alt+F1",
    "on": [
     "Courtier/Grant Court Position",
     "Courtier/Grant Titles",
@@ -2708,7 +2708,7 @@
    "not_expanded": []
   },
   "Korenori": {
-   "source": "character_window:F1:CharacterWindow.SetTab('family')",
+   "source": "government_administration_window:alt+F1",
    "on": [
     "Courtier/Grant Court Position",
     "Courtier/Grant Titles",
@@ -2745,7 +2745,7 @@
    "not_expanded": []
   },
   "Koreyoshi": {
-   "source": "character_window:F1:CharacterWindow.SetTab('family')",
+   "source": "government_administration_window:alt+F1",
    "on": [
     "Courtier/Grant Court Position",
     "Courtier/Grant Titles",
@@ -2782,7 +2782,7 @@
    "not_expanded": []
   },
   "Koretaka": {
-   "source": "character_window:F1:CharacterWindow.SetTab('family')",
+   "source": "government_administration_window:alt+F1",
    "on": [
     "Courtier/Grant Court Position",
     "Courtier/Grant Titles",
@@ -2819,7 +2819,7 @@
    "not_expanded": []
   },
   "Korenaga": {
-   "source": "character_window:F1:CharacterWindow.SetTab('family')",
+   "source": "government_administration_window:alt+F1",
    "on": [
     "Courtier/Grant Court Position",
     "Courtier/Grant Titles",
@@ -2913,7 +2913,7 @@
    "not_expanded": []
   },
   "This is you": {
-   "source": "character_window:F1:CharacterWindow.SetTab('family')",
+   "source": "government_administration_window:alt+F1",
    "on": [
     "Diplomacy/Arrange Marriage",
     "Diplomacy/Find Spouse",

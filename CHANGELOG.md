@@ -2,6 +2,9 @@
 
 Outcomes, newest day first. No release yet.
 
+## 2026-11-02
+- The ceremonial claimant faction stays off for Omiwa, also in the emperor's own menu, so its window is deferred until it comes up in play.
+
 ## 2026-10-29
 - A right-click step tries every target from one alignment of the window: reaching the interaction menu takes 42 seconds instead of 170.
 - A step by hand can pick a row by its heading, `<call>@<heading>><text>`, as the expander of one category of the interaction menu.
