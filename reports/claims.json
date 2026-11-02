@@ -760,6 +760,14 @@
   "quoted_in": ["brief\\vensters.md"]
  },
  {
+  "name": "windows still to do for play",
+  "claimed": 96,
+  "measure": "json_field",
+  "arguments": ["<project>\\reports\\missing.json", "still to do for play"],
+  "counting_rule": "of those, every one outside the groups that fall away: developer, multiplayer and decided, the last with CLOSED and NOT_FOR_PLAY (tools.ck3.missing.FALL_AWAY)",
+  "quoted_in": ["BRIEF.md", "brief\\vensters.md"]
+ },
+ {
   "name": "windows without a player record that open from an event",
   "claimed": 0,
   "measure": "json_field",

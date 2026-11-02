@@ -51,6 +51,9 @@ from tools.ck3 import guimap, harvest, openers, pairing, windowmap
 
 REPORT = os.path.join(paths.REPORTS, 'missing.json')
 GROUPS = ('developer', 'multiplayer', 'decided', 'event', 'interaction', 'chain', 'no window route on disk')
+# The groups that fall away; every other window still matters for play, and that count is the one she
+# hears (her request, 2 November 2026).
+FALL_AWAY = ('developer', 'multiplayer', 'decided')
 # Her decisions of 29 October and 2 November 2026: a window only luck, the AI or a search that may not
 # succeed brings up, and a window whose one attempt failed, is done without a harvest when a player
 # does not need it; it is opened again only when players report a problem.
@@ -179,12 +182,14 @@ def main() -> None:
     terminal.utf8()
     groups, views, keys = reckon()
     total = sum(len(windows) for windows in groups.values())
+    to_do = sum(len(windows) for group, windows in groups.items() if group not in FALL_AWAY)
     report = {'harvest': pairing.harvested_at(), 'without a player record': total,
+              'still to do for play': to_do,
               'counts': {group: len(windows) for group, windows in groups.items()}, 'groups': groups,
               'views on disk': views, 'windows whose keys no round pressed': len(keys),
               'keys not pressed': keys}
     pathlib.Path(REPORT).write_text(json.dumps(report, indent=1, ensure_ascii=False), encoding='utf-8')
-    print(f'{total} mapped windows without a player record')
+    print(f'{total} mapped windows without a player record, {to_do} of them still to do for play')
     for group, windows in groups.items():
         print(f'\n{group}: {len(windows)}')
         for window, row in windows.items():
