@@ -44,6 +44,7 @@ import pathlib
 import re
 import sys
 import time
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Literal, TypedDict
 
 from tools import ocr, paths, terminal, windowgrab
@@ -85,12 +86,14 @@ class Capture(TypedDict):
 
 
 class Record(Header, Capture):
-    """One harvested window, as `harvest\\<window>.json` keeps it."""
+    """One harvested window, as `harvest\\<window>.json` keeps it. `views` holds every view whose
+    name is no window name that a press was seen to bring this window up along (`reached_views`)."""
     window: str
     opened: Literal[True]
     attempts: int
     file: str | None
     route: str
+    views: list[str]
     address: str
     widgets: int
     tree_size: int
@@ -102,8 +105,7 @@ class Record(Header, Capture):
 
 
 class ChainRecord(Record):
-    """A window a chain route reached: the view it went through, and what came up with it."""
-    view: str | None
+    """A window a chain route reached, and what came up with it."""
     opened_with: list[str]
 
 
@@ -300,13 +302,14 @@ def click_routes(windows: dict[str, windowmap.Route]) -> dict[str, windowmap.Rou
     in, and that window is opened first, by its shortcut.
     """
     out: dict[str, windowmap.Route] = {}
-    buttons: list[openers.Button] = json.loads(pathlib.Path(OPENERS).read_text(encoding='utf-8'))['buttons']
-    for row in buttons:
+    for row in measured_buttons():
         for name in row.get('opens') or ():
             if name in out:
                 continue
             route: windowmap.Route = {'click': True, 'button': row['widget'],
                                       'file': windows.get(name, {}).get('file'), 'drawn': True}
+            if row['via'] == 'onclick' and row['target'] not in windows:
+                route['view'] = row['target']
             if row['found_in'].startswith('in '):
                 inside = row['found_in'][3:]
                 key = (windows.get(inside) or {}).get('shortcut')
@@ -504,7 +507,7 @@ def settled(game: windowmap.Game, nodes: widgettree.Nodes, address: int) -> widg
 
 
 def record_window(game: windowmap.Game, name: str, nodes: widgettree.Nodes, header: Header, route: str,
-                  attempts: int, file: str | None, started: float) -> Record:
+                  attempts: int, file: str | None, started: float, views: list[str]) -> Record:
     """Everything this project can read of one drawn window, plus a capture. It stays open."""
     windows = [a for a, k in nodes.items() if k[0] in game.window_classes]
     named = [a for a in windows if nodes[a][6] == name]
@@ -535,7 +538,7 @@ def record_window(game: windowmap.Game, name: str, nodes: widgettree.Nodes, head
         game.set_console(True)
     boxes, seen, offscreen = confirmed(tree, picture['recognised'], picture['size'])
     return {**header, 'window': name, 'opened': True, 'attempts': attempts, 'file': file,
-            'route': route, 'address': f'{address:x}', 'widgets': len(family),
+            'route': route, 'views': views, 'address': f'{address:x}', 'widgets': len(family),
             'tree_size': len(nodes), 'seconds': seconds, 'tree': tree, **picture,
             'boxes': boxes, 'confirmed': seen, 'offscreen': offscreen}
 
@@ -556,7 +559,8 @@ def harvest(game: windowmap.Game, name: str, row: windowmap.Route, baseline: set
                 'not opened' if came_back else 'state did not come back')
     route = ('shortcut ' + shortcut if (shortcut := row.get('shortcut'))
              else 'click ' + row['button'] if row.get('click') else 'GUI.CreateWidget')
-    record = record_window(game, name, nodes, header, route, attempts, row.get('file'), started)
+    record = record_window(game, name, nodes, header, route, attempts, row.get('file'), started,
+                           [view] if (view := row.get('view')) else [])
     if not close_window(game, row, baseline):
         return record, 'state did not come back'
     record['seconds'] = round(time.time() - started, 1)
@@ -667,8 +671,8 @@ def player_chains(names: list[str], direct: set[str],
     from the tax slots, which a click opens (measured on Ghur played, 21 October 2026). Each step
     only offers sources of an earlier one, so there is no loop.
 
-    A view without a window name counts for the window the harvest measured behind it, the `view`
-    of that window's record: which window the engine puts behind such a view is not on disk.
+    A view without a window name counts for the window the harvest measured behind it, one of the
+    `views` of that window's record: which window the engine puts behind such a view is not on disk.
     """
     from tools.ck3 import openers  # openers imports this module
     found: dict[str, openers.ChainRoute] = {}
@@ -685,9 +689,10 @@ def player_chains(names: list[str], direct: set[str],
                 continue
             path = os.path.join(OUT, name + '.json')
             if os.path.exists(path):
-                view = json.loads(pathlib.Path(path).read_text(encoding='utf-8')).get('view')
-                if view in by_view:
-                    more[name] = by_view[view]
+                record: Record | Refused = json.loads(pathlib.Path(path).read_text(encoding='utf-8'))
+                seen = [view for view in record['views'] if view in by_view] if record['opened'] else []
+                if seen:
+                    more[name] = by_view[seen[0]]
         if not more:
             return found
         found.update(more)
@@ -751,9 +756,9 @@ def chain_step(game: windowmap.Game, route: 'openers.ChainRoute', source: str,
     records: list[ChainRecord] = []
     for name in names:
         record = record_window(game, name, nodes, header, route_text, attempts,
-                               (windows.get(name) or {}).get('file'), started)
-        records.append({**record, 'view': route['view'],
-                        'opened_with': [n for n in names if n != name]})
+                               (windows.get(name) or {}).get('file'), started,
+                               [route['view']] if route['view'] else [])
+        records.append({**record, 'opened_with': [n for n in names if n != name]})
     if not close_window(game, back, baseline):
         return records, 'state did not come back'
     for record in records:
@@ -761,14 +766,65 @@ def chain_step(game: windowmap.Game, route: 'openers.ChainRoute', source: str,
     return records, None
 
 
+def player_route(record: Mapping[str, object]) -> bool:
+    """Did this record open its window the way a player does - by a key, a click, a chain or by
+    hand? A console record did not, and neither did a refusal."""
+    return bool(record['opened']) and not str(record['route']).startswith('GUI.CreateWidget')
+
+
 def player_record(name: str) -> bool:
-    """Has `name` a record from a player route - a key, a click, a chain or a hand - and not only
-    one the console made, or a refusal?"""
+    """Has `name` a record from a player route, and not only one the console made, or a refusal?"""
     path = os.path.join(OUT, name + '.json')
-    if not os.path.exists(path):
-        return False
-    route: str = json.loads(pathlib.Path(path).read_text(encoding='utf-8')).get('route', 'GUI')
-    return not route.startswith('GUI')
+    return os.path.exists(path) and player_route(json.loads(pathlib.Path(path).read_text(encoding='utf-8')))
+
+
+def records_on_disk() -> dict[str, Record | Refused]:
+    """Every record of the harvest, opened or refused, by its window."""
+    records: dict[str, Record | Refused] = {}
+    for path in pathlib.Path(OUT).glob('*.json'):
+        record: Record | Refused = json.loads(path.read_text(encoding='utf-8'))
+        records[record['window']] = record
+    return records
+
+
+def measured_buttons() -> list['openers.Button']:
+    """The buttons of the click round, as `reports\\openers.json` keeps them."""
+    buttons: list[openers.Button] = json.loads(pathlib.Path(OPENERS).read_text(encoding='utf-8'))['buttons']
+    return buttons
+
+
+def reached_views(records: dict[str, Record | Refused], buttons: list['openers.Button']) -> dict[str, list[str]]:
+    """View -> the windows a press of it brought up, for every view a round pressed whose windows
+    all have a record from a player route.
+
+    Which window the engine puts behind a view whose name is no window name is not on disk
+    (`openers.chain_routes`), so a press is the only measurement: the `views` of the harvest
+    records, and every view the click round pressed. A view whose window has only a console
+    record is not reached: a round still has to bring that window up along it, with its data.
+    Until 3 November 2026 a chain round that brought up a window with a player record kept that
+    record and dropped the view, and the report counted every view as unknown.
+    """
+    seen: dict[str, set[str]] = {}
+    for window, record in records.items():
+        if record['opened']:
+            for view in record['views']:
+                seen.setdefault(view, set()).add(window)
+    for button in buttons:
+        opens = button.get('opens')
+        if button['via'] == 'onclick' and opens:
+            seen.setdefault(button['target'], set()).update(opens)
+    return {view: sorted(windows) for view, windows in seen.items()
+            if all(window in records and player_route(records[window]) for window in windows)}
+
+
+def note_view(window: str, view: str) -> None:
+    """Write `view` into the record of `window`, which a press of it was seen to bring up; the record
+    is otherwise kept as it was."""
+    path = pathlib.Path(OUT, window + '.json')
+    record: Record = json.loads(path.read_text(encoding='utf-8'))
+    if view not in record['views']:
+        record['views'].append(view)
+        path.write_text(json.dumps(record, ensure_ascii=False, indent=1), encoding='utf-8')
 
 
 def chain_round(game: windowmap.Game, pid: int, windows: dict[str, windowmap.Route], wanted: list[str],
@@ -791,7 +847,10 @@ def chain_round(game: windowmap.Game, pid: int, windows: dict[str, windowmap.Rou
     # targets among its sources, so those rows come from `player_chains` itself.
     rows = {r['target'] or r['view']: r for r in openers.chain_routes(set(direct) | set(chained), tables)}
     rows.update({r['target'] or r['view']: r for r in chained.values()})
-    routes = sorted(rows.values(), key=lambda r: (r['view'] or '', r['target'] or ''))
+    # A view a round already reached is left alone too: its windows have their player records.
+    reached = reached_views(records_on_disk(), measured_buttons())
+    routes = sorted((r for r in rows.values() if r['view'] not in reached),
+                    key=lambda r: (r['view'] or '', r['target'] or ''))
     if wanted:
         routes = [r for r in routes if (r['target'] or r['view']) in wanted]
     aside = os.path.join(paths.PROJECT, 'harvest-{}-console-replaced'.format(time.strftime('%Y-%m-%d')))
@@ -815,6 +874,8 @@ def chain_round(game: windowmap.Game, pid: int, windows: dict[str, windowmap.Rou
         said = []
         for record in records or ():
             kept = player_record(record['window'])
+            if kept and route['view']:
+                note_view(record['window'], route['view'])
             if not kept:
                 target = os.path.join(OUT, record['window'] + '.json')
                 if os.path.exists(target):
@@ -823,7 +884,8 @@ def chain_round(game: windowmap.Game, pid: int, windows: dict[str, windowmap.Rou
                 pathlib.Path(target).write_text(json.dumps(record, ensure_ascii=False, indent=1), encoding='utf-8')
             done += not kept
             confirmed_only += kept
-            said.append('{}, which already has a player record; that one is kept'.format(record['window'])
+            said.append('{}, which already has a player record; that one is kept{}'.format(
+                            record['window'], ', with the view written into it' if route['view'] else '')
                         if kept else f"{record['window']}: {int(record['widgets'])} widgets, {int(record['confirmed'])}/{int(record['boxes'])} text boxes confirmed, {record['seconds']:.0f}s")
         if reason == 'state did not come back':
             raise SystemExit(f'stopping after {label}: {reason}')

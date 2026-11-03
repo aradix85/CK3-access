@@ -33,8 +33,9 @@ The first three fall away (`FALL_AWAY`); the report counts every other window as
 
 **The views come apart from the groups**, because which window the engine puts behind a view is
 not on disk: `OpenGameView('inventory')` names no window, and only a round that presses it sees
-which one comes up (`brief\vensters.md`, the measured couplings). So the report lists every view a
-button on disk opens, with the windows that carry such a button, and does not guess the window.
+which one comes up. So the report lists every view a button on disk opens that no round has
+reached yet, with the windows that carry such a button, and does not guess the window; a view a
+round reached comes with the windows it brought up (`harvest.reached_views`).
 
 Beside its group every window carries its state: a console record, a record of a window that did
 not open with the reason, drawn always (in every record's baseline), never tried with the reason
@@ -48,6 +49,7 @@ from two days before, and ten had no round.
 import json
 import os
 import pathlib
+from collections.abc import Mapping
 from typing import TypedDict
 
 from tools import paths, terminal
@@ -128,7 +130,7 @@ def group_of(window: str, path: str, chained: set[str]) -> str:
     return 'no window route on disk'
 
 
-def state_of(window: str, record: dict[str, object] | None, baseline: set[str],
+def state_of(window: str, record: Mapping[str, object] | None, baseline: set[str],
              mapped: dict[str, object]) -> str:
     """Where a window without a player record stands, in the words the record or the map use."""
     if record is not None and record.get('opened'):
@@ -138,11 +140,6 @@ def state_of(window: str, record: dict[str, object] | None, baseline: set[str],
     if window in baseline:
         return 'drawn always, so in every capture'
     return f"not tried: {mapped['reason']}"
-
-
-def player_route(record: dict[str, object]) -> bool:
-    """Did this record open its window the way a player does? A console record did not."""
-    return bool(record.get('opened')) and not str(record['route']).startswith('GUI.CreateWidget')
 
 
 def keys_not_pressed(played: set[str]) -> dict[str, list[str]]:
@@ -159,48 +156,54 @@ def keys_not_pressed(played: set[str]) -> dict[str, list[str]]:
     return out
 
 
-def reckon() -> tuple[dict[str, dict[str, Missing]], dict[str, list[str]], dict[str, list[str]]]:
+def reckon() -> tuple[dict[str, dict[str, Missing]], dict[str, list[str]], dict[str, list[str]],
+                      dict[str, list[str]]]:
     """Every window of the map without a player record, by group; every view a button on disk
-    opens, with the windows that carry such a button; and the windows whose keys no round pressed."""
+    opens that no round reached, with the windows that carry such a button; every one a round
+    reached, with the windows it brought up; and the windows whose keys no round pressed."""
     mapped: dict[str, dict[str, object]] = json.loads(pathlib.Path(harvest.MAP).read_text(encoding='utf-8'))['windows']
-    records: dict[str, dict[str, object]] = {}
+    records = harvest.records_on_disk()
     baseline: set[str] = set()
-    for found in pathlib.Path(paths.HARVEST).glob('*.json'):
-        record = json.loads(found.read_text(encoding='utf-8'))
-        records[str(record['window'])] = record
-        baseline.update(record.get('baseline') or [])
-    played = {w for w, r in records.items() if player_route(r)}
+    for record in records.values():
+        if record['opened']:
+            baseline.update(record['baseline'])
+    played = {w for w, r in records.items() if harvest.player_route(r)}
     keyed = {w for w, m in mapped.items() if m.get('shortcut')}
     routes = openers.chain_routes(played | keyed, guimap.tables())
     chained = {row['target'] for row in routes if row['target']}
-    views = {row['view']: sorted(row['sources']) for row in routes if row['view'] and not row['target']}
+    on_disk = {row['view']: sorted(row['sources']) for row in routes if row['view'] and not row['target']}
+    reached = harvest.reached_views(records, harvest.measured_buttons())
     out: dict[str, dict[str, Missing]] = {group: {} for group in GROUPS}
     for window in sorted(set(mapped) - played):
         gui_file = str(mapped[window]['file'])
         out[group_of(window, gui_file, chained)][window] = {
             'file': gui_file, 'state': DECIDED.get(window) or state_of(window, records.get(window), baseline, mapped[window])}
-    return out, views, keys_not_pressed(played)
+    return (out, {v: s for v, s in on_disk.items() if v not in reached},
+            {v: reached[v] for v in on_disk if v in reached}, keys_not_pressed(played))
 
 
 def main() -> None:
     terminal.utf8()
-    groups, views, keys = reckon()
+    groups, views, reached, keys = reckon()
     total = sum(len(windows) for windows in groups.values())
     to_do = sum(len(windows) for group, windows in groups.items() if group not in FALL_AWAY)
     report = {'harvest': pairing.harvested_at(), 'without a player record': total,
               'still to do for play': to_do,
               'counts': {group: len(windows) for group, windows in groups.items()}, 'groups': groups,
-              'views on disk': views, 'windows whose keys no round pressed': len(keys),
-              'keys not pressed': keys}
+              'views not reached': views, 'views reached': reached,
+              'windows whose keys no round pressed': len(keys), 'keys not pressed': keys}
     pathlib.Path(REPORT).write_text(json.dumps(report, indent=1, ensure_ascii=False), encoding='utf-8')
     print(f'{total} mapped windows without a player record, {to_do} of them still to do for play')
     for group, windows in groups.items():
         print(f'\n{group}: {len(windows)}')
         for window, row in windows.items():
             print(f"  {window} - {row['state']}")
-    print(f'\nviews a button on disk opens: {len(views)}')
+    print(f'\nviews a button on disk opens that no round reached: {len(views)}')
     for view, sources in views.items():
         print(f"  {view} - from {', '.join(sources)}")
+    print(f'\nviews a round reached: {len(reached)}')
+    for view, opened in reached.items():
+        print(f"  {view} - {', '.join(opened)}")
     print(f'\nwindows with a player record whose keys no round pressed: {len(keys)}')
     for window, bindings in keys.items():
         print(f"  {window} - {', '.join(bindings)}")

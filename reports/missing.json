@@ -702,41 +702,11 @@
    }
   }
  },
- "views on disk": {
-  "activity_list_detail_host_window": [
-   "activity_list",
-   "government_administration_window",
-   "window_tgp_dynastic_cycle"
-  ],
+ "views not reached": {
   "activity_list_detail_invite_window": [
    "activity_list",
    "government_administration_window",
    "window_tgp_dynastic_cycle"
-  ],
-  "artifact_details": [
-   "artifact_details_view",
-   "character_interaction_confirmation_window",
-   "faith_window",
-   "holy_site_creation_window",
-   "holy_site_window",
-   "ledger_window",
-   "royal_court_window"
-  ],
-  "decision_detail": [
-   "court_window",
-   "faith_window",
-   "government_administration_window",
-   "holy_site_window",
-   "knight_view",
-   "mainline_rite_tenets_window",
-   "military_view",
-   "royal_court_window",
-   "title_view_window",
-   "window_manage_tax_slots",
-   "window_situation_list"
-  ],
-  "diarchy": [
-   "my_realm_window"
   ],
   "domicile": [
    "dynasty_house_view",
@@ -829,18 +799,6 @@
   "faith_conversion": [
    "faith_window"
   ],
-  "holy_site": [
-   "faith_window",
-   "holding_view",
-   "ledger_window"
-  ],
-  "holy_site_creation": [
-   "faith_window"
-  ],
-  "house_aspiration_window": [
-   "dynasty_house_view",
-   "government_administration_window"
-  ],
   "house_relation_history_window": [
    "dynasty_house_view"
   ],
@@ -866,16 +824,9 @@
   "message_settings": [
    "window_message_settings"
   ],
-  "military": [
-   "holding_view",
-   "royal_court_window"
-  ],
   "move_domicile_planner": [
    "domicile_window",
    "holding_view"
-  ],
-  "my_realm": [
-   "royal_court_window"
   ],
   "organization": [
    "character_window"
@@ -890,45 +841,69 @@
    "ledger_window",
    "royal_court_window"
   ],
-  "rite_creation": [
-   "faith_window"
-  ],
   "select_title_troop_assignment": [
    "military_view"
-  ],
-  "situations": [
-   "epidemics_window",
-   "legends_window",
-   "struggle_window",
-   "window_silk_road",
-   "window_situation_list",
-   "window_tgp_dynastic_cycle"
-  ],
-  "struggle": [
-   "window_situation_list"
-  ],
-  "struggle_involvement": [
-   "struggle_window"
-  ],
-  "succession_law_change": [
-   "my_realm_window"
-  ],
-  "tax_slot_appoint_tax_collector": [
-   "window_manage_tax_slots"
-  ],
-  "tax_slot_assign_vassal": [
-   "my_realm_window"
-  ],
-  "tax_slot_obligations": [
-   "window_manage_tax_slots",
-   "window_tax_slot_assign_vassal"
-  ],
-  "tax_slot_vassals": [
-   "window_manage_tax_slots"
   ],
   "treasury_budget_change": [
    "my_realm_window",
    "royal_court_window"
+  ]
+ },
+ "views reached": {
+  "activity_list_detail_host_window": [
+   "activity_list_detail_host"
+  ],
+  "artifact_details": [
+   "artifact_details_view"
+  ],
+  "decision_detail": [
+   "decisiondetail_view",
+   "decisions_view"
+  ],
+  "diarchy": [
+   "diarchy_window"
+  ],
+  "holy_site": [
+   "holy_site_window"
+  ],
+  "holy_site_creation": [
+   "holy_site_creation_window"
+  ],
+  "house_aspiration_window": [
+   "window_house_aspiration"
+  ],
+  "military": [
+   "military_view"
+  ],
+  "my_realm": [
+   "my_realm_window"
+  ],
+  "rite_creation": [
+   "rite_creation_window"
+  ],
+  "situations": [
+   "window_situation_list"
+  ],
+  "struggle": [
+   "struggle_window"
+  ],
+  "struggle_involvement": [
+   "struggle_involvement_window"
+  ],
+  "succession_law_change": [
+   "succession_law_change_window"
+  ],
+  "tax_slot_appoint_tax_collector": [
+   "window_appoint_tax_collector"
+  ],
+  "tax_slot_assign_vassal": [
+   "window_tax_slot_assign_vassal"
+  ],
+  "tax_slot_obligations": [
+   "window_tax_slot_obligations"
+  ],
+  "tax_slot_vassals": [
+   "window_tax_slot_vassals"
   ]
  },
  "windows whose keys no round pressed": 54,

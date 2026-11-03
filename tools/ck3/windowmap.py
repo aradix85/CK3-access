@@ -103,8 +103,9 @@ class OnDisk(TypedDict):
 class Route(TypedDict, total=False):
     """One window of `reports\\windows.json`, or a click route that `harvest.click_routes` builds
     from `reports\\openers.json`: what `harvest.open_window` and `close_window` go by. Phase 0 writes
-    the declaration, the shortcut and the console round; a click route carries the button and the
-    window to open first with the key that opens it."""
+    the declaration, the shortcut and the console round; a click route carries the button, the view
+    it opens when that view has no window name, and the window to open first with the key that
+    opens it."""
     file: str | None
     shape: str
     console: bool
@@ -118,6 +119,7 @@ class Route(TypedDict, total=False):
     reason: str
     click: bool
     button: str
+    view: str
     first: tuple[str, str]
     event: str
 
@@ -310,10 +312,14 @@ def window_keys_round(game: 'Game', names: list[str],
     sub-tab keys once. **A toggle is pressed a second time**, and the row says whether that put
     the text back, because the game keeps a view such as the compact one for the next opening.
 
-    **Only along a player route: a key, a click, or a chain** from a window that opens along one.
-    A window built by `GUI.CreateWidget` takes none of its own keys: on Ghur played, 22 October
-    2026, every key in five such windows did nothing, Escape included, while tabs, sub-tabs and the
-    compact view worked in the same round in two windows opened by their key.
+    **Only along a player route: a key, a click, or a chain** from a window that opens along one,
+    and else the hand route its harvest record keeps, of as many presses as that took
+    (`hand.route_of`). A recorded route of one press goes the way a press given here goes, so an
+    event fires again and is answered at the end (`harvest.close_window`), which changes the game:
+    load the save again after such a round. A window built by `GUI.CreateWidget` takes none of its
+    own keys: on Ghur played, 22 October 2026, every key in five such windows did nothing, Escape
+    included, while tabs, sub-tabs and the compact view worked in the same round in two windows
+    opened by their key.
 
     **A key is measured against what stood once the window was open**, not against the bare screen:
     a click route can open a window inside another, and a chain leaves its source standing. Against
@@ -321,7 +327,7 @@ def window_keys_round(game: 'Game', names: list[str],
     had opened first (22 October 2026). When the window, or one it stands in, shuts, the round goes
     back to the bare screen and opens it again along its route.
     """
-    from tools.ck3 import harvest, openers  # both import this module
+    from tools.ck3 import hand, harvest, openers  # all three import this module
     openers.game_classes = game.window_classes      # a click asks what lies over its button
     with open(OUT, encoding='utf-8') as file:
         on_disk: dict[str, Route] = json.load(file)['windows']
@@ -329,6 +335,16 @@ def window_keys_round(game: 'Game', names: list[str],
                **by_hand}
     tables = guimap.tables()
     chains = harvest.player_chains(names, set(windows), tables)
+    hands: dict[str, tuple[str, str, list[hand.Step]]] = {}
+    for name in set(names) - set(windows) - set(chains):
+        path = pathlib.Path(harvest.OUT, name + '.json')
+        if path.exists():
+            record: harvest.Record | harvest.Refused = json.loads(path.read_text(encoding='utf-8'))
+            walked = hand.route_of(record['route'], name) if record['opened'] else None
+            if walked and walked[2]:
+                hands[name] = walked
+            elif walked:
+                windows[name] = pressed(walked[1])
     back: Route = {'click': True}       # shut on Escape until the bare screen is back
     bound = {n: k for n, k in shortcut_file().items() if k.strip()}
     plan = window_bindings()
@@ -350,16 +366,21 @@ def window_keys_round(game: 'Game', names: list[str],
 
     def open_along(name: str) -> bool:
         """Open `name` along its player route; True once it is drawn, else the bare screen back."""
-        if harvest.open_along(game, name, windows, chains, baseline, tables)[0] is not None:
+        if name in hands:
+            source, how, steps = hands[name]
+            if (harvest.open_window(game, source, pressed(how), baseline)[0] is not None
+                    and hand.walk(game, source, steps, f'hand: {how}', tables, lambda *_: None) is None):
+                return True
+        elif harvest.open_along(game, name, windows, chains, baseline, tables)[0] is not None:
             return True
         to_bare(f'{name} did not open')
         return False
 
     out: dict[str, str | list[tuple[str, str, str]]] = {}
     for name in names:
-        if name not in windows and name not in chains:
-            out[name] = 'no player route'
-            print(f'{name}: no player route')
+        if name not in windows and name not in chains and name not in hands:
+            out[name] = 'no player route the round can walk'
+            print(f'{name}: no player route the round can walk')
             continue
         if not open_along(name):
             out[name] = 'did not open'

@@ -2,6 +2,11 @@
 
 Outcomes, newest day first. No release yet.
 
+## 2026-11-03
+- Every harvest record names the views it came up along; a chain round writes a view into a record it keeps, and skips a view whose windows are recorded.
+- tools.ck3.missing splits the views on disk into reached, with their windows, and not reached: 18 and 18 on 3 November 2026.
+- The key round inside windows walks the hand route a window's record keeps, of any length; 53 of the 54 windows without a key round now have a route.
+
 ## 2026-11-02
 - The ceremonial claimant faction stays off for Omiwa, also in the emperor's own menu, so its window is closed without a harvest.
 - The blackmail window is harvested on Harold from the intrigue window, after the debug interaction that spreads secrets. 169 windows lack a player route.

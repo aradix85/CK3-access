@@ -3,7 +3,9 @@
 The groups decide what work a window asks for, so a rule that puts an event among the windows
 nothing opens sends the next session looking for a button that does not exist.
 """
-from tools.ck3 import missing
+import json
+
+from tools.ck3 import harvest, missing, openers
 
 
 def test_the_first_group_that_fits_wins() -> None:
@@ -22,11 +24,35 @@ def test_the_first_group_that_fits_wins() -> None:
 
 def test_a_window_says_where_it_stands() -> None:
     console = {'opened': True, 'route': 'GUI.CreateWidget gui/window_army.gui'}
-    assert not missing.player_route(console)
-    assert missing.player_route({'opened': True, 'route': 'chain PushButton in decisions_view'})
-    assert not missing.player_route({'opened': False, 'reason': 'did not open in 1 try'})
+    assert not harvest.player_route(console)
+    assert harvest.player_route({'opened': True, 'route': 'chain PushButton in decisions_view'})
+    assert not harvest.player_route({'opened': False, 'reason': 'did not open in 1 try'})
     assert missing.state_of('army_window', console, set(), {}) == 'console record'
     assert missing.state_of('houses_list', {'opened': False, 'reason': 'did not open in 1 try'}, set(),
                             {}) == 'did not open: did not open in 1 try'
     assert missing.state_of('layer_window', None, {'layer_window'}, {}) == 'drawn always, so in every capture'
     assert missing.state_of('node_window', None, set(), {'reason': 'a type definition'}) == 'not tried: a type definition'
+
+
+def test_a_view_is_reached_once_its_windows_have_player_records() -> None:
+    # Records as the harvest keeps them on disk; only the fields the rule reads.
+    records: dict[str, harvest.Record | harvest.Refused] = json.loads(json.dumps({
+        'faith_window': {'window': 'faith_window', 'opened': True, 'route': 'shortcut alt+R', 'views': ['faith']},
+        'holy_site_window': {'window': 'holy_site_window', 'opened': True,
+                             'route': 'chain PushButton in faith_window', 'views': ['holy_site']},
+        'diarchy_window': {'window': 'diarchy_window', 'opened': True,
+                           'route': 'click open_future_diarchy_tutorial_uses_this', 'views': []},
+        'inventory_view': {'window': 'inventory_view', 'opened': True,
+                           'route': 'GUI.CreateWidget gui/window_inventory.gui', 'views': []},
+        'kill_list': {'window': 'kill_list', 'opened': False, 'reason': 'did not open in 1 try'},
+    }))
+    buttons: list[openers.Button] = [
+        {'via': 'onclick', 'target': 'diarchy', 'widget': 'w', 'file': 'f', 'opens': ['diarchy_window']},
+        # Its window has only a console record, so a round still has to bring it up along the view.
+        {'via': 'onclick', 'target': 'inventory', 'widget': 'w', 'file': 'f', 'opens': ['inventory_view']},
+        # A button that refused, and one that opens by its shortcut and names a window, not a view.
+        {'via': 'onclick', 'target': 'memories', 'widget': 'w', 'file': 'f', 'opens': None},
+        {'via': 'shortcut', 'target': 'court_window', 'widget': 'w', 'file': 'f', 'opens': ['court_window']},
+    ]
+    assert harvest.reached_views(records, buttons) == {
+        'faith': ['faith_window'], 'holy_site': ['holy_site_window'], 'diarchy': ['diarchy_window']}
