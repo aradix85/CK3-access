@@ -8,7 +8,7 @@ Usage:  python -m tools.ck3.windowmap <pid> [<count> | <window> <window> ...]
         python -m tools.ck3.windowmap <pid> --keys
         python -m tools.ck3.windowmap <pid> --modified-keys
         python -m tools.ck3.windowmap --window-keys
-        python -m tools.ck3.windowmap <pid> --window-keys <window>[=<key | button:name>] ...
+        python -m tools.ck3.windowmap <pid> --window-keys <window>[=<key | button:name | event:id>] ...
 
 A count or a list of window names makes it a trial run, and a trial run writes its result beside
 the map instead of over it. `--keys` runs only the key round, needs no -debug_mode, and adds the
@@ -16,8 +16,9 @@ windows it opens to the map as shortcut routes without changing anything else in
 `--modified-keys` does the same for the bindings with a modifier, posted through the channel's
 `combo`, so the foreground is never taken. `--window-keys` needs no game: it reads off disk which
 keys every window declares and which of them only change the view. With a game it presses them;
-a window that no key, click or chain on disk opens is given the press that does, as `hand` takes
-it - the migration opens from `button:button_migrate`, whose onclick opens an interaction.
+a window that no key, click or chain on disk opens is walked along the hand route its harvest
+record keeps (`hand.route_of`), or given the one press that opens it, as `hand` takes it - the
+migration opens from `button:button_migrate`, whose onclick opens an interaction.
 """
 import collections
 import functools
