@@ -79,18 +79,22 @@ int main(int argc, char** argv)
     put_string(J, 0x40, NULL, 20, (const char*)(gap + 0x200));     // text in memory never committed
     unsigned char* K = widget(page + 0x300, 0x1111, "garbled", (u64)A);
     *(u64*)(K + 0x20 + 16) = 40;                                  // longer than its capacity of 15
+    // A text pointer of garbage near the top of the address space, whose length added to it wraps
+    // round to a small number: as found on a widget in the game on 4 November 2026.
+    unsigned char* L = widget(page + 0x380, 0x1111, "wrapping", (u64)A);
+    put_string(L, 0x40, NULL, 20000, (const char*)0xFFFFFFFFFFFFD8F0ULL);
     u64* list_a = (u64*)(page + 0x400);
     list_a[0] = (u64)B; list_a[1] = (u64)C; list_a[2] = (u64)D; list_a[3] = (u64)E; list_a[4] = (u64)F;
-    list_a[5] = (u64)G; list_a[6] = (u64)H; list_a[7] = (u64)J; list_a[8] = (u64)K;
-    *(u64*)(A + 0x60) = (u64)list_a; *(unsigned*)(A + 0x68) = 9;
+    list_a[5] = (u64)G; list_a[6] = (u64)H; list_a[7] = (u64)J; list_a[8] = (u64)K; list_a[9] = (u64)L;
+    *(u64*)(A + 0x60) = (u64)list_a; *(unsigned*)(A + 0x68) = 10;
     put_string(B, 0x40, "Hello", 5, NULL);
     *(u64*)(B + 0x60) = (u64)(gap + 0x100); *(unsigned*)(B + 0x68) = 2;   // child list unreadable
     put_string(E, 0x40, NULL, sizeof(long_text), long_text);
     *(u64*)(F + 0x60) = (u64)list_a; *(unsigned*)(F + 0x68) = 200000;   // not believable
     *(u64*)H = 0x1111;                                            // a vtable in the last eight bytes
 
-    printf("objects %llx %llx %llx %llx %llx %llx %llx %llx %llx %llx %llx %llx\n", (u64)A, (u64)B, (u64)C,
-           (u64)D, (u64)E, (u64)F, (u64)G, (u64)page, (u64)many, (u64)combined, (u64)J, (u64)K);
+    printf("objects %llx %llx %llx %llx %llx %llx %llx %llx %llx %llx %llx %llx %llx\n", (u64)A, (u64)B,
+           (u64)C, (u64)D, (u64)E, (u64)F, (u64)G, (u64)page, (u64)many, (u64)combined, (u64)J, (u64)K, (u64)L);
     fflush(stdout);
     g_log = argc > 2 ? fopen(argv[2], "w") : NULL;
     if (!g_log) { printf("no log\n"); return 1; }

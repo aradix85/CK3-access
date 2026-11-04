@@ -138,7 +138,7 @@ def counts(lines: list[str]) -> dict[str, list[str]]:
 
 
 def test_every_command(host: Host) -> None:
-    pid, (A, B, C, D, E, F, G, PAGE, MANY, COMBINED, J, K), log, variant = host
+    pid, (A, B, C, D, E, F, G, PAGE, MANY, COMBINED, J, K, L), log, variant = host
     h = '%x'.__mod__
     failed: list[str] = []
 
@@ -202,10 +202,13 @@ def test_every_command(host: Host) -> None:
     check('vtables ' + ' '.join('%x' % (i + 1) for i in range(257)), '257 refused', error('more than 256 vtables'))
     check('vtables 1111', 'one set', lambda ls: ls == ['vtables set\t1'])
 
-    check('tree ' + h(A), 'seven widgets, nine losses, ten visited',
-          lambda ls: addresses(ls, 'w') == {A, B, E, F, G, J, K}
-          and addresses(ls, 'missing') == {C, D, D + 0x100, E, F, G, PAGE + 4088, J, K}
-          and ls[-1] == 'done\t10' and not any(line.startswith('error') for line in ls))
+    check('tree ' + h(A), 'eight widgets, ten losses, eleven visited',
+          lambda ls: addresses(ls, 'w') == {A, B, E, F, G, J, K, L}
+          and addresses(ls, 'missing') == {C, D, D + 0x100, E, F, G, PAGE + 4088, J, K, L}
+          and ls[-1] == 'done\t11' and not any(line.startswith('error') for line in ls))
+    check('tree ' + h(A), 'a pointer whose length wraps round past the top is unreadable, and nothing faults',
+          lambda ls: ['missing', h(L), 'text unreadable'] in kind(ls, 'missing')
+          and not any('exception' in line for line in ls))
     check('tree ' + h(A), 'a child without a widget vtable is a loss',
           lambda ls: ['missing', h(C), 'no widget vtable'] in kind(ls, 'missing'))
     check('tree ' + h(C), 'a root without one answers nothing: the top of a climb',
@@ -220,7 +223,7 @@ def test_every_command(host: Host) -> None:
         row[1:] == [h(B), '1111', '1.0', '2.0', '3.0', '4.0', h(A), 'child', 'Hello'] for row in kind(ls, 'w')))
     check(f'tree {h(A)} 2', 'refused', refused)
     check(f'scan {h(PAGE)} {h(PAGE + 4096)}', 'up to the last eight bytes of a region',
-          lambda ls: addresses(ls, 'w') == {A, B, E, F, G, J, K, PAGE + 4088} and ls[-1] == 'done\t8\tskipped\t0')
+          lambda ls: addresses(ls, 'w') == {A, B, E, F, G, J, K, L, PAGE + 4088} and ls[-1] == 'done\t9\tskipped\t0')
     check('scan 1', 'refused', refused)
 
     # A search of the game's memory must not find the DLL itself: a session leaves what it handled on

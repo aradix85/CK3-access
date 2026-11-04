@@ -8,8 +8,9 @@ Outcomes, newest day first. No release yet.
 - The message popup came up along a custom reminder, and the confirmation question along discarded changes to the message settings; nothing was saved.
 - An AI request arrives as an icon in the top bar, not as a window; the AI notifications stay open until a watch follows that bar. 80 windows still to do for play.
 - Code read through: a dead constant removed, and docstrings say that a window the game showed by itself counts as a player route and that the reader misses AI requests.
-- The tree walk now also reports a name or text it cannot read, and a child without a widget vtable, instead of an empty string and a bare count; on two loaded games every lost text sat on a class without text of its own, so nothing is spoken.
-- The DLL refuses a character past 16 bits, keeps the game's window procedure in place for a key still being handled when the reader stops listening, and closes the handle of its server thread.
+- The tree walk reports a name or text it cannot read and a child without a widget vtable; on two loaded games every lost text sat on a class without text of its own.
+- A whole tree walk takes 0.6 to 0.8 seconds, not 2.5 to 2.9, with the same answer; a read that faults loses one widget, not the rest of the walk.
+- The DLL refuses a character past 16 bits, keeps the game's window procedure for a key still in hand when the reader stops, and closes its server thread's handle.
 
 ## 2026-11-03
 - Every harvest record names the views it came up along; a chain round writes a view into a record it keeps, and skips a view whose windows are recorded.

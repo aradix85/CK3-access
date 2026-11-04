@@ -181,15 +181,48 @@ static int access_violation(DWORD code)
     return code == EXCEPTION_ACCESS_VIOLATION ? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH;
 }
 
+static bool readable_region(const MEMORY_BASIC_INFORMATION& info)
+{
+    return info.State == MEM_COMMIT && !(info.Protect & PAGE_GUARD) && (info.Protect & READABLE);
+}
+
+// Asked of Windows every time: for `read` and `readmany`, whose reads have no handler around them.
 static bool readable(const void* address, SIZE_T count)
 {
     MEMORY_BASIC_INFORMATION info;
-    if (!VirtualQuery(address, &info, sizeof(info))) return false;
-    if (info.State != MEM_COMMIT) return false;
-    if (info.Protect & PAGE_GUARD) return false;
-    if (!(info.Protect & READABLE)) return false;
+    if (!VirtualQuery(address, &info, sizeof(info)) || !readable_region(info)) return false;
     const char* end_of = (const char*)info.BaseAddress + info.RegionSize;
-    return (const char*)address + count <= end_of;
+    return count <= (SIZE_T)(end_of - (const char*)address);
+}
+
+// The regions one walk has found readable. Asking Windows about every field, ten questions a widget,
+// was most of a walk: measured 4 November 2026 on Ghur feest, both builds in one game state, 2.5 to
+// 2.9 seconds for 78,532 widgets, and 0.6 to 0.8 once a walk keeps the last few regions it was told
+// are readable and asks only about an address outside them - with the same answer to the byte. A
+// region the game frees during the walk is then read rather than asked about; the access violation
+// that follows is caught for that one widget, said as a loss, and the walk goes on.
+// A length is measured from the address to the end of its region, never added to the address: a
+// pointer of garbage near the top of the address space plus its length wraps round to a small number
+// inside any region (measured 4 November 2026: one widget on Ghur feest, read as an exception).
+struct Known {
+    const unsigned char* from[8];
+    const unsigned char* to[8];
+    unsigned next;
+};
+
+static bool readable_known(Known& known, const void* address, SIZE_T count)
+{
+    const unsigned char* at = (const unsigned char*)address;
+    for (unsigned i = 0; i < 8; i++)
+        if (at >= known.from[i] && at < known.to[i] && count <= (SIZE_T)(known.to[i] - at)) return true;
+    MEMORY_BASIC_INFORMATION info;
+    if (!VirtualQuery(address, &info, sizeof(info)) || !readable_region(info)) return false;
+    const unsigned char* begin = (const unsigned char*)info.BaseAddress;
+    const unsigned char* end = begin + info.RegionSize;
+    known.from[known.next] = begin;
+    known.to[known.next] = end;
+    known.next = (known.next + 1) % 8;
+    return count <= (SIZE_T)(end - at);
 }
 
 // MSVC string: 16 bytes of buffer or pointer, then length, then capacity.
@@ -200,11 +233,11 @@ static bool readable(const void* address, SIZE_T count)
 // exactly like a measurement.
 static const size_t UNREAD = ~size_t{0};
 
-static size_t read_cstring(char* out, size_t space, const unsigned char* object_address, SIZE_T field)
+static size_t read_cstring(Known& known, char* out, size_t space, const unsigned char* object_address, SIZE_T field)
 {
     out[0] = 0;
     const unsigned char* header = object_address + field;
-    if (!readable(header, 32)) return UNREAD;
+    if (!readable_known(known, header, 32)) return UNREAD;
 
     unsigned long long length = *(const unsigned long long*)(header + 16);
     unsigned long long capacity = *(const unsigned long long*)(header + 24);
@@ -214,7 +247,7 @@ static size_t read_cstring(char* out, size_t space, const unsigned char* object_
 
     const char* source = (capacity == 15) ? (const char*)header
                                           : (const char*)(*(const char* const*)header);
-    if (!readable(source, (SIZE_T)length)) return UNREAD;
+    if (!readable_known(known, source, (SIZE_T)length)) return UNREAD;
 
     size_t n = (size_t)length;
     // Truncating is allowed, hiding it is not: the caller gets the real length back and can see
@@ -320,14 +353,29 @@ static void cmd_scan(Span span)
 // A widget whose parent, position or size cannot be read is such a loss, not a widget at 0,0 under
 // no parent: a zero read for an unreadable field looks exactly like a measurement. So is a name or a
 // text that cannot be read; the line then carries it empty.
-static bool emit_widget(const unsigned char* p, char* name, char* text, size_t space_name, size_t space_text)
+
+// One walk: the queue of widgets still to visit, the regions found readable, and where a widget's
+// name and text are read into.
+struct Walk {
+    unsigned long long* work;
+    unsigned space, count, done;
+    Known known;
+    char name[512], text[8192];
+};
+
+static bool emit_widget(Walk& walk, const unsigned char* p)
 {
-    if (!readable(p + f_parent, 8) || !readable(p + f_position, 8) || !readable(p + f_size, 8)) {
+    Known& known = walk.known;
+    if (!readable_known(known, p + f_parent, 8) || !readable_known(known, p + f_position, 8) ||
+        !readable_known(known, p + f_size, 8)) {
         emit("missing\t%llx\tparent, position or size unreadable\n", (unsigned long long)p);
         return false;
     }
-    size_t name_length = read_cstring(name, space_name, p, f_name);
-    size_t text_length = read_cstring(text, space_text, p, f_text);
+    char* name = walk.name;
+    char* text = walk.text;
+    const size_t space_name = sizeof(walk.name), space_text = sizeof(walk.text);
+    size_t name_length = read_cstring(known, name, space_name, p, f_name);
+    size_t text_length = read_cstring(known, text, space_text, p, f_text);
     const float* position = (const float*)(p + f_position);
     const float* size = (const float*)(p + f_size);
     emit("w\t%llx\t%llx\t%.1f\t%.1f\t%.1f\t%.1f\t%llx\t%s\t%s\n",
@@ -345,69 +393,83 @@ static bool emit_widget(const unsigned char* p, char* name, char* text, size_t s
     return true;
 }
 
+// One widget of the walk: its line, and its children onto the queue. False only when the queue
+// cannot grow, which ends the walk.
+static bool visit(Walk& walk, const unsigned char* p)
+{
+    Known& known = walk.known;
+    // Only the vtable has to be readable: every field below is checked on its own, and an object may
+    // end right before an uncommitted page.
+    if (!readable_known(known, p, 8)) { emit("missing\t%llx\tunreadable\n", (unsigned long long)p); return true; }
+    // A root that is no widget is how derive.to_root finds the top: it answers nothing. A child that
+    // is no widget is a loss: measured 4 November 2026 on a loaded game, every one of 78,524 children
+    // carried a widget vtable, so one without is a class the list lacks or memory the game freed.
+    if (!is_widget(*(const unsigned long long*)p)) {
+        if (walk.done > 1) emit("missing\t%llx\tno widget vtable\n", (unsigned long long)p);
+        return true;
+    }
+    if (!emit_widget(walk, p)) return true;
+
+    // An object cut off by a page before its child fields would read as "no children".
+    if (!readable_known(known, p + f_children, 8) || !readable_known(known, p + f_count, 4)) {
+        emit("missing\t%llx\tchild fields unreadable\n", (unsigned long long)p);
+        return true;
+    }
+    unsigned long long list_start = *(const unsigned long long*)(p + f_children);
+    unsigned how_many = *(const unsigned*)(p + f_count);
+    if (!list_start || how_many == 0) return true;
+    // An absurd number of children means the field is wrong, not a container of a million.
+    if (how_many > 100000) {
+        emit("missing\t%llx\t%u children is not believable\n", (unsigned long long)p, how_many);
+        return true;
+    }
+    if (!readable_known(known, as_pointer<const void*>(list_start), (SIZE_T)how_many * 8)) {
+        emit("missing\t%llx\tchild list unreadable\n", list_start);
+        return true;
+    }
+    const unsigned long long* children = as_pointer<const unsigned long long*>(list_start);
+    for (unsigned i = 0; i < how_many; i++) {
+        if (!children[i]) continue;
+        if (walk.count == walk.space) {
+            unsigned long long* bigger =
+                (unsigned long long*)realloc(walk.work, sizeof(unsigned long long) * walk.space * 2);
+            if (!bigger) { emit("error: out of memory at %u nodes\n", walk.count); return false; }
+            walk.work = bigger;
+            walk.space *= 2;
+        }
+        walk.work[walk.count++] = children[i];
+    }
+    return true;
+}
+
 static void cmd_tree(const unsigned char* root)
 {
     if (!g_fields_set || g_vtable_count == 0) { emit("error: set and vtables come first\n"); return; }
-    // The queue grows as far as the tree goes.
-    unsigned space = 20000;
-    unsigned long long* work = (unsigned long long*)malloc(sizeof(unsigned long long) * space);
-    if (!work) { emit("error: out of memory\n"); return; }
+    // On the stack, like everything a session reads, so no search finds the copies (own_stack). The
+    // queue grows as far as the tree goes.
+    Walk walk;
+    walk.space = 20000;
+    walk.work = (unsigned long long*)malloc(sizeof(unsigned long long) * walk.space);
+    if (!walk.work) { emit("error: out of memory\n"); return; }
+    walk.count = 0;
+    walk.done = 0;
+    walk.known = Known{};
+    walk.work[walk.count++] = (unsigned long long)root;
 
-    unsigned work_count = 0, done = 0;
-    work[work_count++] = (unsigned long long)root;
-    char name[512], text[8192];
-
-    __try {
-        while (done < work_count) {
-            const unsigned char* p = as_pointer<const unsigned char*>(work[done++]);
-            // Only the vtable has to be readable: every field below is checked on its own, and an
-            // object may end right before an uncommitted page.
-            if (!readable(p, 8)) { emit("missing\t%llx\tunreadable\n", (unsigned long long)p); continue; }
-            // A root that is no widget is how derive.to_root finds the top: it answers nothing. A child
-            // that is no widget is a loss: measured 4 November 2026 on a loaded game, every one of
-            // 78,524 children carried a widget vtable, so one without is a class the list lacks or
-            // memory the game freed.
-            if (!is_widget(*(const unsigned long long*)p)) {
-                if (done > 1) emit("missing\t%llx\tno widget vtable\n", (unsigned long long)p);
-                continue;
-            }
-            if (!emit_widget(p, name, text, sizeof(name), sizeof(text))) continue;
-
-            // An object cut off by a page before its child fields would read as "no children".
-            if (!readable(p + f_children, 8) || !readable(p + f_count, 4)) {
-                emit("missing\t%llx\tchild fields unreadable\n", (unsigned long long)p);
-                continue;
-            }
-            unsigned long long list_start = *(const unsigned long long*)(p + f_children);
-            unsigned how_many = *(const unsigned*)(p + f_count);
-            if (!list_start || how_many == 0) continue;
-            // An absurd number of children means the field is wrong, not a container of a million.
-            if (how_many > 100000) {
-                emit("missing\t%llx\t%u children is not believable\n", (unsigned long long)p, how_many);
-                continue;
-            }
-            if (!readable(as_pointer<const void*>(list_start), (SIZE_T)how_many * 8)) {
-                emit("missing\t%llx\tchild list unreadable\n", list_start);
-                continue;
-            }
-            const unsigned long long* children = as_pointer<const unsigned long long*>(list_start);
-            for (unsigned i = 0; i < how_many; i++) {
-                if (!children[i]) continue;
-                if (work_count == space) {
-                    space *= 2;
-                    unsigned long long* bigger =
-                        (unsigned long long*)realloc(work, sizeof(unsigned long long) * space);
-                    if (!bigger) { emit("error: out of memory at %u nodes\n", work_count); free(work); return; }
-                    work = bigger;
-                }
-                work[work_count++] = children[i];
-            }
+    bool going = true;
+    while (going && walk.done < walk.count) {
+        const unsigned char* p = as_pointer<const unsigned char*>(walk.work[walk.done++]);
+        // The game frees memory while the walk reads it. A violation loses this one widget, says so,
+        // and the walk goes on with the rest of the queue.
+        __try {
+            going = visit(walk, p);
+        } __except (access_violation(GetExceptionCode())) {
+            emit("missing\t%llx\tread broken off by exception %08x\n", (unsigned long long)p, GetExceptionCode());
         }
-    } __except (access_violation(GetExceptionCode())) {
-        emit("missing\t%llx\twalk broken off by exception %08x\n", work[done - 1], GetExceptionCode());
     }
-    emit("done\t%u\n", done);
-    free(work);
+    free(walk.work);
+    walk.work = NULL;
+    if (going) emit("done\t%u\n", walk.done);
 }
 
 // read: raw bytes at an address, as hex.

@@ -44,8 +44,8 @@ def widgets(root: int) -> Nodes:
             missing.append((d[1], d[2]))
     missing = _believed(nodes, missing)
     # Whatever the walk lost it says on a `missing` line - a node or child list it could not read,
-    # a child count nobody believes, a walk an exception broke off, a name or text it could not read
-    # or had to cut short - so say so:
+    # a child count nobody believes, a widget whose reading an exception broke off, a name or text it
+    # could not read or had to cut short - so say so:
     # on 1.20.0.3 a walk that skipped such nodes in silence lost the decisions window and its 526
     # widgets. Spoken once per address, because the reader asks for the toast container every round
     # and a node that stays unreadable would otherwise be said every 400 ms.
