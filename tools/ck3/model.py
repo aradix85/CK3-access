@@ -33,7 +33,6 @@ from typing import TypeVar
 from tools import terminal
 from tools.ck3 import anchor, channel, derive, memory, savegame, vtablemap
 
-FIXED = 100000
 STRING_IN_PLACE = 15
 
 # What the save says about one character, as the text the save writes: the name, then each field of

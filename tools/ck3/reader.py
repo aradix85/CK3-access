@@ -31,11 +31,11 @@ back to the game first and the failure is spoken second, and that order is the p
 The game ending is not a failure. Its keys go with it, and the player closed it or saw it crash
 (her decision, 21 October 2026), so the reader ends with it and says nothing.
 
-An event is the one thing that arrives without a keystroke, so it gets the one piece of machinery
-here: the layers under the root count their own children, and an event is a new window object
-added to one of them. Reading those counts is a single question, and one of
-the layers is called `events` and stands empty until one comes in. Nothing is polled that the
-engine does not already keep.
+An event arrives without a keystroke, so it gets the one piece of machinery here: the layers under
+the root count their own children, and an event is a new window object added to one of them.
+Reading those counts is a single question; most events land in the layer called `events`, which
+stands empty until one comes in, and the big full-screen event in `top` (measured 4 November 2026).
+Nothing is polled that the engine does not already keep.
 
 A toast is the other one, and it is cheaper still. The game shows one at a time in one widget that is
 always in the tree, `toast_container_widget` in `hud_notification_templates.gui`, whose `visible` is
@@ -45,6 +45,10 @@ is not a window, so the place you stand on does not move. Decided with the playe
 2026, in place of first finding out whether the message log keeps toasts. It does, with their date:
 two toasts called up through the console stood in its log tab afterwards (measured 6 October 2026),
 so a toast missed is not a toast lost.
+
+A request from the AI also arrives without a keystroke, and nothing here notices it yet: it is an
+icon in the top bar, a row of `diplomatic_items`, not a window (read in
+`hud_notification_templates.gui`, 4 November 2026).
 """
 import sys
 

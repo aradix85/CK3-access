@@ -2,7 +2,7 @@ r"""Which button opens which window? Clicks them and writes `reports\openers.jso
 
 **This cannot be read off disk, and that is measured, not assumed.** The gui files say which *view*
 an `onclick` opens - `OpenGameViewData('my_realm')` - but nothing on disk binds a view to a window.
-The nine view names whose window we already knew appear in the 515 files only as texture paths,
+The nine view names whose window we already knew appear in the gui files only as texture paths,
 widget names and tooltip names, never as a declaration. That binding lives in the engine, so the
 only honest way to it is to press the button and see what gets drawn.
 

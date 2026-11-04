@@ -767,8 +767,9 @@ def chain_step(game: windowmap.Game, route: 'openers.ChainRoute', source: str,
 
 
 def player_route(record: Mapping[str, object]) -> bool:
-    """Did this record open its window the way a player does - by a key, a click, a chain or by
-    hand? A console record did not, and neither did a refusal."""
+    """Did this record open its window the way a player does - by a key, a click, a chain, by hand,
+    or because the game showed it by itself? A record `GUI.CreateWidget` made did not, and neither
+    did a refusal."""
     return bool(record['opened']) and not str(record['route']).startswith('GUI.CreateWidget')
 
 

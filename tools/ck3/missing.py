@@ -9,8 +9,9 @@ list is reckoned from the map (`reports\windows.json`), the harvest and the gui 
 runs, so it cannot age the way a list kept by hand does: on 24 October 2026 TE DOEN named 3 of the
 199 windows without a player record, and covered most of the rest with one sentence.
 
-A window has a player record when its harvest record opened it along a key, a click, a chain or by
-hand. The console builds a window without its data context, so a console record does not count.
+A window has a player record when its harvest record opened it along a key, a click, a chain, by
+hand, or because the game showed it by itself (`harvest.player_route`). The console builds a window
+without its data context, so a record `GUI.CreateWidget` made does not count.
 
 **The group says how a player gets there, read off the files; the first that fits wins.**
 - `developer`: the developers' own tooling (`pairing.developer_window`); nobody plays in it.

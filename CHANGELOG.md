@@ -7,6 +7,7 @@ Outcomes, newest day first. No release yet.
 - Harold: the siege from the holding view of the besieged capital, the battle from its icon on the map, the war declared and the war results as the game showed them.
 - The message popup came up along a custom reminder, and the confirmation question along discarded changes to the message settings; nothing was saved.
 - An AI request arrives as an icon in the top bar, not as a window; the AI notifications stay open until a watch follows that bar. 80 windows still to do for play.
+- Code read through: a dead constant removed, and docstrings say that a window the game showed by itself counts as a player route and that the reader misses AI requests.
 
 ## 2026-11-03
 - Every harvest record names the views it came up along; a chain round writes a view into a record it keeps, and skips a view whose windows are recorded.

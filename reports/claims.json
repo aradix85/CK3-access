@@ -757,7 +757,7 @@
   "claimed": 153,
   "measure": "json_field",
   "arguments": ["<project>\\reports\\missing.json", "without a player record"],
-  "counting_rule": "windows of reports\\windows.json whose harvest record did not open them along a key, a click, a chain or by hand: a console record, a window that did not open, one drawn always, or none at all (tools.ck3.missing)",
+  "counting_rule": "windows of reports\\windows.json whose harvest record did not open them along a key, a click, a chain, by hand or as the game showed them by itself: a console record, a window that did not open, one drawn always, or none at all (tools.ck3.missing)",
   "quoted_in": ["brief\\vensters.md"]
  },
  {

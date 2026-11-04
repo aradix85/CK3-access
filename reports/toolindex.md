@@ -248,7 +248,7 @@ returns a pair, passed on as one thing, costs a run.
 | `player_chains(names, direct, tables)` | value | Window -> the chain route that opens it, for each of `names` that no key or click opens, as |
 | `open_along(game, name, direct, chained, baseline, tables)` | value of 2-tuple | Open `name` along a player route: its key or click, or the chain from a window that opens |
 | `chain_step(game, route, source, direct, chained, windows, baseline, header, tables)` | 2-tuple | One chain route from one of its sources: open the source along its own route, press what |
-| `player_route(record)` | value | Did this record open its window the way a player does - by a key, a click, a chain or by |
+| `player_route(record)` | value | Did this record open its window the way a player does - by a key, a click, a chain, by hand, |
 | `player_record(name)` | value | Has `name` a record from a player route, and not only one the console made, or a refusal? |
 | `records_on_disk()` | value | Every record of the harvest, opened or refused, by its window. |
 | `measured_buttons()` | value | The buttons of the click round, as `reports\openers.json` keeps them. |
