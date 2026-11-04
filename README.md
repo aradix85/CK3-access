@@ -166,7 +166,8 @@ among them that every `onclick` of a block fires, in order, on a click and on a 
 
 Not sorted by screen position; one keystroke gives one unit of speech plus braille.
 `tools/ck3/reader.py` claims up, down, F12 and Delete and gives every key back on the way out. An event
-is noticed through the child count of the layer that holds events.
+is noticed through the child counts of the layers under the root, and a toast through its container.
+A request from the AI arrives as an icon in the top bar instead, which the reader does not notice yet.
 
 **Screen files** under `screens/` hold exceptions only, in the game's own format; whatever they do not
 name is read in gui-file order, so a stale file costs detail, never the screen. `tools/ck3/screens.py`
