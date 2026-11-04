@@ -2,6 +2,12 @@
 
 Outcomes, newest day first. No release yet.
 
+## 2026-11-04
+- Harold: the pause menu with save, load and the exit question, the council candidates, army, commander, levies and mercenaries harvested along a player route.
+- Harold: the siege from the holding view of the besieged capital, the battle from its icon on the map, the war declared and the war results as the game showed them.
+- The message popup came up along a custom reminder, and the confirmation question along discarded changes to the message settings; nothing was saved.
+- An AI request arrives as an icon in the top bar, not as a window; the AI notifications stay open until a watch follows that bar. 80 windows still to do for play.
+
 ## 2026-11-03
 - Every harvest record names the views it came up along; a chain round writes a view into a record it keeps, and skips a view whose windows are recorded.
 - tools.ck3.missing splits the views on disk into reached, with their windows, and not reached: 18 and 18 on 3 November 2026.

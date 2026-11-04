@@ -1,7 +1,7 @@
 {
- "harvest": "2026-11-02 07:11",
- "without a player record": 169,
- "still to do for play": 96,
+ "harvest": "2026-11-04 11:27",
+ "without a player record": 153,
+ "still to do for play": 80,
  "counts": {
   "developer": 26,
   "multiplayer": 17,
@@ -9,7 +9,7 @@
   "event": 0,
   "interaction": 6,
   "chain": 11,
-  "no window route on disk": 79
+  "no window route on disk": 63
  },
  "groups": {
   "developer": {
@@ -412,20 +412,12 @@
     "file": "gui/window_army.gui",
     "state": "console record"
    },
-   "army_window": {
-    "file": "gui/window_army.gui",
-    "state": "console record"
-   },
    "attach_to_army_window": {
     "file": "gui/window_army.gui",
     "state": "console record"
    },
    "barter_window": {
     "file": "gui/window_barter.gui",
-    "state": "console record"
-   },
-   "basic_confirmation_popup": {
-    "file": "gui/shared/dialogs.gui",
     "state": "console record"
    },
    "basic_image_info_popup": {
@@ -464,10 +456,6 @@
     "file": "gui/window_title_claimants.gui",
     "state": "console record"
    },
-   "combat_window": {
-    "file": "gui/window_combat.gui",
-    "state": "console record"
-   },
    "diverge_culture_window": {
     "file": "gui/window_diverge_culture.gui",
     "state": "console record"
@@ -496,10 +484,6 @@
     "file": "gui/window_the_great_steppe.gui",
     "state": "console record"
    },
-   "hired_troop_detail_view": {
-    "file": "gui/window_hired_troops_detail.gui",
-    "state": "console record"
-   },
    "holding_tracks_view": {
     "file": "gui/window_county_view.gui",
     "state": "console record"
@@ -510,18 +494,6 @@
    },
    "hybridize_culture_window": {
     "file": "gui/window_hybridize_culture.gui",
-    "state": "console record"
-   },
-   "ingame_load_ingame": {
-    "file": "gui/frontend_ingame_menu.gui",
-    "state": "console record"
-   },
-   "ingame_pausemenu": {
-    "file": "gui/frontend_ingame_menu.gui",
-    "state": "console record"
-   },
-   "ingame_resign_confirmation": {
-    "file": "gui/window_resign_confirmation.gui",
     "state": "console record"
    },
    "inventory_view": {
@@ -538,10 +510,6 @@
    },
    "lease_out_baronies_window": {
     "file": "gui/window_lease_out_baronies.gui",
-    "state": "console record"
-   },
-   "levy_view": {
-    "file": "gui/window_levy.gui",
     "state": "console record"
    },
    "lineage_window": {
@@ -568,10 +536,6 @@
     "file": "gui/window_intrigue_potential_scheme_agent.gui",
     "state": "console record"
    },
-   "potential_councillor_window": {
-    "file": "gui/window_council_potential_councillor.gui",
-    "state": "console record"
-   },
    "potential_faction_member_window": {
     "file": "gui/window_intrigue_potential_faction_member.gui",
     "state": "console record"
@@ -596,24 +560,8 @@
     "file": "gui/window_replace_pillar.gui",
     "state": "console record"
    },
-   "save_game_window": {
-    "file": "gui/window_save_game.gui",
-    "state": "console record"
-   },
-   "select_commander_window": {
-    "file": "gui/window_army_select_commander.gui",
-    "state": "console record"
-   },
-   "siege_window": {
-    "file": "gui/window_siege.gui",
-    "state": "console record"
-   },
    "situation_sub_region_window": {
     "file": "gui/window_situation_sub_region.gui",
-    "state": "console record"
-   },
-   "succession_event_window": {
-    "file": "gui/window_succession_event.gui",
     "state": "console record"
    },
    "succession_select_destiny_window": {
@@ -648,20 +596,8 @@
     "file": "gui/window_travel_route_edit.gui",
     "state": "console record"
    },
-   "war_declared_overview": {
-    "file": "gui/window_war_declared_overview.gui",
-    "state": "console record"
-   },
-   "war_results": {
-    "file": "gui/window_war_results.gui",
-    "state": "console record"
-   },
    "window_house_relation_history": {
     "file": "gui/window_house_relation_history.gui",
-    "state": "console record"
-   },
-   "window_message_popup": {
-    "file": "gui/window_message_popup.gui",
     "state": "console record"
    },
    "window_move_domicile": {
@@ -727,6 +663,7 @@
    "activity_planner",
    "activity_window",
    "appoint_court_position_view",
+   "army_window",
    "artifact_details_view",
    "big_event_window",
    "blackmail_interaction_window",
@@ -736,6 +673,7 @@
    "character_interaction_confirmation_window",
    "character_lifestyle_window",
    "character_window",
+   "combat_window",
    "concubine_interaction_window",
    "council_task_interaction_window",
    "council_window",
@@ -754,6 +692,7 @@
    "factions_window",
    "faith_window",
    "government_administration_window",
+   "hired_troop_detail_view",
    "holding_view",
    "holy_site_window",
    "interfere_in_war_interaction_window",
@@ -770,23 +709,29 @@
    "military_view",
    "modify_vassal_contract_interaction_window",
    "my_realm_window",
+   "potential_councillor_window",
    "rite_creation_window",
    "royal_court_window",
    "scheme_conclusion_event_no_header",
    "scheme_failed_event",
    "scheme_preparations_event",
    "scheme_successful_event",
+   "select_commander_window",
    "struggle_involvement_window",
+   "succession_event_window",
    "succession_law_change_window",
    "title_election",
    "title_view_window",
    "transfer_vassal_interaction_window",
    "travel_entourage_list_window",
    "visit_settlement_window",
+   "war_declared_overview",
    "war_overview_window",
+   "war_results",
    "window_appoint_tax_collector",
    "window_exchange_hostages",
    "window_manage_tax_slots",
+   "window_message_popup",
    "window_message_settings",
    "window_migration",
    "window_personal_beliefs",
@@ -822,6 +767,7 @@
    "holding_view"
   ],
   "message_settings": [
+   "window_message_popup",
    "window_message_settings"
   ],
   "move_domicile_planner": [
@@ -906,7 +852,7 @@
    "window_tax_slot_vassals"
   ]
  },
- "windows whose keys no round pressed": 54,
+ "windows whose keys no round pressed": 65,
  "keys not pressed": {
   "activity_guest_list": [
    "close_window",
@@ -928,6 +874,9 @@
    "event_tooltips"
   ],
   "appoint_court_position_view": [
+   "close_window"
+  ],
+  "army_window": [
    "close_window"
   ],
   "artifact_details_view": [
@@ -957,6 +906,9 @@
    "tab_3"
   ],
   "character_interaction_menu_window": [
+   "close_window"
+  ],
+  "combat_window": [
    "close_window"
   ],
   "concubine_interaction_window": [
@@ -1007,6 +959,9 @@
    "tab_2",
    "tab_3"
   ],
+  "hired_troop_detail_view": [
+   "close_window"
+  ],
   "holy_site_creation_window": [
    "close_window",
    "holy_site_compact"
@@ -1039,6 +994,9 @@
    "close_tooltips",
    "event_tooltips"
   ],
+  "levy_view": [
+   "close_window"
+  ],
   "mainline_rite_tenets_window": [
    "close_window",
    "compact_faith_window",
@@ -1059,6 +1017,9 @@
    "close_window",
    "tab_1",
    "tab_2"
+  ],
+  "potential_councillor_window": [
+   "close_window"
   ],
   "revoke_titles_interaction_window": [
    "close_window",
@@ -1081,10 +1042,19 @@
    "close_tooltips",
    "event_tooltips"
   ],
+  "select_commander_window": [
+   "close_window"
+  ],
+  "siege_window": [
+   "close_window"
+  ],
   "situation_catalysts_history_window": [
    "close_window"
   ],
   "situation_catalysts_window": [
+   "close_window"
+  ],
+  "succession_event_window": [
    "close_window"
   ],
   "succession_law_change_window": [
@@ -1111,11 +1081,24 @@
    "close_tooltips",
    "event_tooltips"
   ],
+  "war_declared_overview": [
+   "close_window",
+   "confirm",
+   "confirm_2"
+  ],
+  "war_results": [
+   "close_window"
+  ],
   "window_exchange_hostages": [
    "close_window"
   ],
   "window_house_aspiration": [
    "close_window"
+  ],
+  "window_message_popup": [
+   "close_window",
+   "confirm",
+   "confirm_2"
   ],
   "window_silk_road": [
    "go_back",
