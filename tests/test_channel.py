@@ -8,8 +8,9 @@ must reach its handler, a loss the walk must report, a counter that must move, a
 arrive with its modifiers held.
 
 **Run it after every change to the DLL, before restarting the game:** building and this test take
-seconds, a restart takes minutes. Skipped without a built DLL or a compiler, and while the game
-runs, because both answer on the same pipe name.
+seconds, a restart takes minutes. Skipped while the game runs, because both answer on the same pipe
+name, and without a built DLL or a compiler - except on a machine where `.tools-required` says they
+must be there, where that fails (below).
 """
 import ctypes
 import functools
@@ -137,7 +138,7 @@ def counts(lines: list[str]) -> dict[str, list[str]]:
 
 
 def test_every_command(host: Host) -> None:
-    pid, (A, B, _C, D, E, F, G, PAGE, MANY, COMBINED), log, variant = host
+    pid, (A, B, C, D, E, F, G, PAGE, MANY, COMBINED, J, K), log, variant = host
     h = '%x'.__mod__
     failed: list[str] = []
 
@@ -201,17 +202,25 @@ def test_every_command(host: Host) -> None:
     check('vtables ' + ' '.join('%x' % (i + 1) for i in range(257)), '257 refused', error('more than 256 vtables'))
     check('vtables 1111', 'one set', lambda ls: ls == ['vtables set\t1'])
 
-    check('tree ' + h(A), 'five widgets, six losses, one stranger, eight visited',
-          lambda ls: addresses(ls, 'w') == {A, B, E, F, G}
-          and addresses(ls, 'missing') == {D, D + 0x100, E, F, G, PAGE + 4088}
-          and 'not widgets\t1' in ls and ls[-1] == 'done\t8' and not any(line.startswith('error') for line in ls))
+    check('tree ' + h(A), 'seven widgets, nine losses, ten visited',
+          lambda ls: addresses(ls, 'w') == {A, B, E, F, G, J, K}
+          and addresses(ls, 'missing') == {C, D, D + 0x100, E, F, G, PAGE + 4088, J, K}
+          and ls[-1] == 'done\t10' and not any(line.startswith('error') for line in ls))
+    check('tree ' + h(A), 'a child without a widget vtable is a loss',
+          lambda ls: ['missing', h(C), 'no widget vtable'] in kind(ls, 'missing'))
+    check('tree ' + h(C), 'a root without one answers nothing: the top of a climb',
+          lambda ls: ls == ['done\t1'])
     check('tree ' + h(A), 'a widget whose parent cannot be read is a loss, not one at 0,0 under no parent',
           lambda ls: ['missing', h(PAGE + 4088), 'parent, position or size unreadable'] in kind(ls, 'missing'))
+    check('tree ' + h(A), 'a name or a text that cannot be read is a loss; an empty one, like the root text, is not',
+          lambda ls: all(row in kind(ls, 'missing') for row in (['missing', h(G), 'name unreadable'],
+                                                                ['missing', h(J), 'text unreadable'],
+                                                                ['missing', h(K), 'name unreadable'])))
     check('tree ' + h(A), 'the fields of one widget', lambda ls: any(
         row[1:] == [h(B), '1111', '1.0', '2.0', '3.0', '4.0', h(A), 'child', 'Hello'] for row in kind(ls, 'w')))
     check(f'tree {h(A)} 2', 'refused', refused)
     check(f'scan {h(PAGE)} {h(PAGE + 4096)}', 'up to the last eight bytes of a region',
-          lambda ls: addresses(ls, 'w') == {A, B, E, F, G, PAGE + 4088} and ls[-1] == 'done\t6\tskipped\t0')
+          lambda ls: addresses(ls, 'w') == {A, B, E, F, G, J, K, PAGE + 4088} and ls[-1] == 'done\t8\tskipped\t0')
     check('scan 1', 'refused', refused)
 
     # A search of the game's memory must not find the DLL itself: a session leaves what it handled on
@@ -287,6 +296,7 @@ def test_every_command(host: Host) -> None:
         arrives(command, error(text), [])
     check('combo', 'refused', refused)
     arrives('sendchar 65', ['char sent\t65'], [])
+    check('sendchar 65536', 'past one UTF-16 unit refused', error('65536 is not a UTF-16 unit'))
     arrives('mouse 5 5', ['mouse\t5\t5'], [])
     arrives('rmouse 5 5', ['rmouse\t5\t5'], [])
     check('mouse 32768 5', 'a point past 16 bits refused', error('the point 32768 5 does not fit'))

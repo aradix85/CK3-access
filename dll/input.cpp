@@ -11,7 +11,10 @@ static SRWLOCK g_lock = SRWLOCK_INIT;   // never taken twice by one thread
 static int g_keys[256];
 static int g_key_count = 0;
 static unsigned g_keys_dropped = 0;      // keys that found the list full; waitkey says so
-static WNDPROC g_old_proc = NULL;
+// The game's own window procedure. Set before ours goes in and kept after it comes out, so a
+// message the game thread is still handling in our_proc always has somewhere to go on to.
+static WNDPROC volatile g_old_proc = NULL;
+static bool g_hooked = false;
 static HWND g_window = NULL;
 static bool g_swallow[256] = {false};   // keys the game must not see
 
@@ -46,18 +49,31 @@ static bool ensure_window(void)
 
 void keys_enable(bool enable)
 {
-    if (enable && !g_old_proc) {
+    if (enable && !g_hooked) {
         // The window to hook is the one there now. Searched here and not through ensure_window,
         // so the code analysis sees the handle checked before it is used.
         g_window = NULL;
         EnumWindows(visit_window, 0);
         if (!g_window) { emit("error: no window found\n"); return; }
-        g_old_proc = as_pointer<WNDPROC>(SetWindowLongPtrW(g_window, GWLP_WNDPROC, (LONG_PTR)our_proc));
-        if (!g_old_proc) { emit("error: the window procedure was not replaced: %lu\n", GetLastError()); return; }
+        // The game's procedure first, then ours in its place: a message that arrives in between
+        // finds where to go on to.
+        const WNDPROC theirs = as_pointer<WNDPROC>(GetWindowLongPtrW(g_window, GWLP_WNDPROC));
+        if (!theirs) { emit("error: the window procedure could not be read: %lu\n", GetLastError()); return; }
+        g_old_proc = theirs;
+        MemoryBarrier();
+        const WNDPROC replaced = as_pointer<WNDPROC>(SetWindowLongPtrW(g_window, GWLP_WNDPROC, (LONG_PTR)our_proc));
+        const DWORD why = GetLastError();
+        if (replaced != theirs) {
+            // Nothing went in, or something changed the procedure in between: put back what was there.
+            if (replaced) SetWindowLongPtrW(g_window, GWLP_WNDPROC, (LONG_PTR)replaced);
+            emit("error: the window procedure was not replaced (%lu)\n", why);
+            return;
+        }
+        g_hooked = true;
         emit("keys on\n");
-    } else if (!enable && g_old_proc) {
+    } else if (!enable && g_hooked) {
         SetWindowLongPtrW(g_window, GWLP_WNDPROC, (LONG_PTR)g_old_proc);
-        g_old_proc = NULL;
+        g_hooked = false;
         emit("keys off\n");
     } else {
         emit("keys unchanged\n");
@@ -134,9 +150,11 @@ void cmd_sendkey(unsigned code)
 }
 
 // Entering text does not go through key codes but through WM_CHAR: that is the message an input
-// field listens to. Needed in order to type a console command.
+// field listens to. Needed in order to type a console command. The message carries one UTF-16 unit,
+// so a bigger number is refused rather than cut down to another character.
 void cmd_sendchar(unsigned ch)
 {
+    if (ch > 0xFFFF) { emit("error: %u is not a UTF-16 unit\n", ch); return; }
     if (!ensure_window()) return;
     if (!PostMessageW(g_window, WM_CHAR, ch, 1)) { refused(); return; }
     emit("char sent\t%u\n", ch);

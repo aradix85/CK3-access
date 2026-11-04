@@ -67,11 +67,22 @@ def test_a_text_cut_short_names_its_widget(heard: speech.Recorder, monkeypatch: 
     assert len(heard.spoken) == 1
 
 
-def test_a_text_cut_short_on_another_class_is_no_loss(heard: speech.Recorder, monkeypatch: pytest.MonkeyPatch,
-                                                     capsys: pytest.CaptureFixture[str]) -> None:
-    """The text field of a progress bar holds something else, and nothing believes it."""
+def test_a_text_lost_on_another_class_is_no_loss(heard: speech.Recorder, monkeypatch: pytest.MonkeyPatch,
+                                                capsys: pytest.CaptureFixture[str]) -> None:
+    """The text field of a progress bar holds something else, and nothing believes it - cut short
+    or unreadable."""
     answer(monkeypatch, WIDGET, 'w\t2000\t6\t0\t0\t10\t10\t1000\tconstruct_progressbar\tx',
-           'missing\t2000\ttext of 262148 characters cut short')
+           'w\t3000\t6\t0\t0\t10\t10\t1000\tbuilding_progressbar\t',
+           'missing\t2000\ttext of 262148 characters cut short', 'missing\t3000\ttext unreadable')
     widgettree.widgets(0x1000)
     assert capsys.readouterr().err == ''
     assert heard.spoken == []
+
+
+def test_an_unreadable_name_is_a_loss_on_any_class(heard: speech.Recorder, monkeypatch: pytest.MonkeyPatch,
+                                                  capsys: pytest.CaptureFixture[str]) -> None:
+    """Every widget has a name of its own, so one that cannot be read is said, whatever its class."""
+    answer(monkeypatch, WIDGET, 'w\t2000\t6\t0\t0\t10\t10\t1000\t\t', 'missing\t2000\tname unreadable')
+    widgettree.widgets(0x1000)
+    assert 'name unreadable' in capsys.readouterr().err
+    assert len(heard.spoken) == 1

@@ -194,20 +194,27 @@ static bool readable(const void* address, SIZE_T count)
 
 // MSVC string: 16 bytes of buffer or pointer, then length, then capacity.
 // If the capacity is 15, the text sits inside the object itself.
-// Returns the real length, even when less of it fits in `out`.
+// Returns the real length, even when less of it fits in `out`, or UNREAD when the string cannot be
+// read at all: its header or its text unreadable, or a length no string has. An empty string is a
+// length of zero; an unread one is a loss the caller says, because read as empty it would look
+// exactly like a measurement.
+static const size_t UNREAD = ~size_t{0};
+
 static size_t read_cstring(char* out, size_t space, const unsigned char* object_address, SIZE_T field)
 {
     out[0] = 0;
     const unsigned char* header = object_address + field;
-    if (!readable(header, 32)) return 0;
+    if (!readable(header, 32)) return UNREAD;
 
     unsigned long long length = *(const unsigned long long*)(header + 16);
     unsigned long long capacity = *(const unsigned long long*)(header + 24);
-    if (length == 0 || length > 1000000) return 0;
+    if (length == 0) return 0;
+    // A string never holds more than its capacity, and none on screen holds a million characters.
+    if (length > 1000000 || capacity < length) return UNREAD;
 
     const char* source = (capacity == 15) ? (const char*)header
                                           : (const char*)(*(const char* const*)header);
-    if (!readable(source, (SIZE_T)length)) return 0;
+    if (!readable(source, (SIZE_T)length)) return UNREAD;
 
     size_t n = (size_t)length;
     // Truncating is allowed, hiding it is not: the caller gets the real length back and can see
@@ -260,7 +267,7 @@ static void say_skipped(const char* what, const Skips& tally)
 
 // scan: every address that holds a widget vtable, with that vtable, and nothing else - it runs
 // before the field offsets are known, because the derivation starts here. Every eight bytes up to
-// the end of a region are a candidate. Without bounds it walks all eleven gigabytes of the game.
+// the end of a region are a candidate. Without bounds it walks all the writable memory the game has.
 static void cmd_scan(Span span)
 {
     if (g_vtable_count == 0) { emit("error: no vtables set\n"); return; }
@@ -308,9 +315,11 @@ static void cmd_scan(Span span)
 
 // tree: from a widget, walk the children, and their children, and so on - following pointers,
 // searching nothing. Whatever the walk loses it says on one kind of line, `missing <address> <why>`,
-// and widgettree.widgets speaks every one of them.
+// and widgettree.widgets speaks it, once per address - except a text lost on a widget whose class
+// has no text of its own, where the field holds something else.
 // A widget whose parent, position or size cannot be read is such a loss, not a widget at 0,0 under
-// no parent: a zero read for an unreadable field looks exactly like a measurement.
+// no parent: a zero read for an unreadable field looks exactly like a measurement. So is a name or a
+// text that cannot be read; the line then carries it empty.
 static bool emit_widget(const unsigned char* p, char* name, char* text, size_t space_name, size_t space_text)
 {
     if (!readable(p + f_parent, 8) || !readable(p + f_position, 8) || !readable(p + f_size, 8)) {
@@ -325,9 +334,13 @@ static bool emit_widget(const unsigned char* p, char* name, char* text, size_t s
             (unsigned long long)p, *(const unsigned long long*)p,
             position[0], position[1], size[0], size[1],
             *(const unsigned long long*)(p + f_parent), name, text);
-    if (name_length >= space_name)
+    if (name_length == UNREAD)
+        emit("missing\t%llx\tname unreadable\n", (unsigned long long)p);
+    else if (name_length >= space_name)
         emit("missing\t%llx\tname of %zu characters cut short\n", (unsigned long long)p, name_length);
-    if (text_length >= space_text)
+    if (text_length == UNREAD)
+        emit("missing\t%llx\ttext unreadable\n", (unsigned long long)p);
+    else if (text_length >= space_text)
         emit("missing\t%llx\ttext of %zu characters cut short\n", (unsigned long long)p, text_length);
     return true;
 }
@@ -340,7 +353,7 @@ static void cmd_tree(const unsigned char* root)
     unsigned long long* work = (unsigned long long*)malloc(sizeof(unsigned long long) * space);
     if (!work) { emit("error: out of memory\n"); return; }
 
-    unsigned work_count = 0, done = 0, foreign = 0;
+    unsigned work_count = 0, done = 0;
     work[work_count++] = (unsigned long long)root;
     char name[512], text[8192];
 
@@ -350,8 +363,14 @@ static void cmd_tree(const unsigned char* root)
             // Only the vtable has to be readable: every field below is checked on its own, and an
             // object may end right before an uncommitted page.
             if (!readable(p, 8)) { emit("missing\t%llx\tunreadable\n", (unsigned long long)p); continue; }
-            // A root that is no widget is how derive.to_root finds the top, so only children count.
-            if (!is_widget(*(const unsigned long long*)p)) { if (done > 1) foreign++; continue; }
+            // A root that is no widget is how derive.to_root finds the top: it answers nothing. A child
+            // that is no widget is a loss: measured 4 November 2026 on a loaded game, every one of
+            // 78,524 children carried a widget vtable, so one without is a class the list lacks or
+            // memory the game freed.
+            if (!is_widget(*(const unsigned long long*)p)) {
+                if (done > 1) emit("missing\t%llx\tno widget vtable\n", (unsigned long long)p);
+                continue;
+            }
             if (!emit_widget(p, name, text, sizeof(name), sizeof(text))) continue;
 
             // An object cut off by a page before its child fields would read as "no children".
@@ -387,9 +406,6 @@ static void cmd_tree(const unsigned char* root)
     } __except (access_violation(GetExceptionCode())) {
         emit("missing\t%llx\twalk broken off by exception %08x\n", work[done - 1], GetExceptionCode());
     }
-    // Children that carry no widget vtable: counted, not spoken, until it is measured whether that
-    // is normal in the game.
-    if (foreign) emit("not widgets\t%u\n", foreign);
     emit("done\t%u\n", done);
     free(work);
 }
@@ -487,7 +503,8 @@ static void cmd_find(const char* rest, Span span)
 }
 
 // readmany: one command, many addresses. Thousands of characters meant thousands of separate
-// reads of about 0.7 ms each; this turns those into one answer.
+// reads of about 0.7 ms each (measured 27 July 2026, tools/ck3/channel.py); this turns those into
+// one answer.
 static void cmd_readmany(const char* rest)
 {
     unsigned long long count = 0, address = 0;
@@ -671,11 +688,15 @@ static DWORD WINAPI serve_pipe(LPVOID)
     }
 }
 
+// The thread that serves the pipe runs for the life of the game; its handle is not needed. If it
+// cannot start, no pipe ever opens, and the start says the channel did not answer.
 BOOL APIENTRY DllMain(HMODULE module, DWORD reason, LPVOID)
 {
     if (reason == DLL_PROCESS_ATTACH) {
         DisableThreadLibraryCalls(module);
-        CreateThread(NULL, 0, serve_pipe, NULL, 0, NULL);
+        HANDLE server = CreateThread(NULL, 0, serve_pipe, NULL, 0, NULL);
+        if (server) CloseHandle(server);
     }
     return TRUE;
 }
+

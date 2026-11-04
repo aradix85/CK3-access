@@ -57,7 +57,7 @@ if TYPE_CHECKING:
 OUT = paths.HARVEST
 MAP = os.path.join(paths.REPORTS, 'windows.json')
 OPENERS = os.path.join(paths.REPORTS, 'openers.json')
-FREE_MEMORY_FLOOR = 2.0          # gigabytes; the game itself uses about 16
+FREE_MEMORY_FLOOR = 2.0          # gigabytes of physical memory left free; a round stops below it
 OPEN_TRIES = 3
 
 
