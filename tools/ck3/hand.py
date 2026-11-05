@@ -35,7 +35,7 @@ import time
 from collections.abc import Callable
 
 from tools import paths, terminal
-from tools.ck3 import derive, guimap, harvest, model, openers, widgettree, windowmap
+from tools.ck3 import guimap, harvest, openers, widgettree, windowmap
 
 # One step as this tool takes it: what to press, and the window that comes up, or '' for a step that
 # only changes the window standing open.
@@ -98,12 +98,7 @@ def main() -> None:
     windows: dict[str, windowmap.Route] = json.loads(pathlib.Path(harvest.MAP).read_text(encoding='utf-8'))['windows']
     row = windowmap.pressed(how)
     baseline = game.bare()
-    nodes = game.tree()
-    player, player_name = model.player(pid)
-    header: harvest.Header = {'measured': time.strftime('%Y-%m-%d %H:%M'), 'exe': derive.build_key(),
-                              'game_date': harvest.game_date(nodes), 'baseline': sorted(baseline),
-                              'player': player, 'player_name': player_name,
-                              'fields': {k: v for k, v in game.fields.items() if isinstance(v, int)}}
+    header = harvest.header(game, baseline)
     back: windowmap.Route = {'click': True}
     tables = guimap.tables()
     started = time.time()

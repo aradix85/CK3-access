@@ -147,6 +147,24 @@ returns a pair, passed on as one thing, costs a run.
 | `readmany(addresses, count)` | value | Raw bytes per address, in as few questions as both limits allow; an address where the game |
 | `field_for(addresses, offset, width=1)` | dict | One field of many objects, as a whole number, keyed by the object. |
 
+## ck3\clock.py
+*Let the clock run, and record what the game shows of its own accord.*
+
+| call | returns | does |
+|---|---|---|
+| `running(nodes)` | value | Is the clock running? The first child of `pause_play_icons` is the pause icon, drawn only |
+| `stopped_by_hand(nodes)` | value | Is the clock stopped the way a space stops it? An event stops it as well, but only until it |
+| `set_clock(game, on, baseline=None)` | nothing | Start the clock, or stop it by hand, and prove it on the bar at the bottom. A space is |
+| `at_war(nodes)` | value | Is the player at war? The button that raises all armies is drawn while they are and have |
+| `icons_in(nodes, row)` | list | Every `action_icon` drawn in one row of the top bar, left to right: `diplomatic_items` for |
+| `request_icons(game, nodes)` | list | The icons of the requests that a click could reach. Each grows from nothing as it comes in, |
+| `inside(nodes, address)` | bool | Does the middle of this widget lie within the frame of every ancestor that cuts off its |
+| `middle(nodes, address)` | 2-tuple | - |
+| `click(game, right=False)` | 2-tuple | Click the first request icon, or with `right` take it away with a right click: the tree |
+| `option(game, window, tables)` | 2-tuple of NoneType | The first answer in `window` that a click reaches, or None. **An option the game has switched |
+| `answer(game, baseline, tables)` | nothing | Answer every window beyond the bare screen, and shut what an answer leaves standing. |
+| `main()` | nothing | - |
+
 ## ck3\database.py
 *Reads the game's own databases off disk: which key sits at which place, and what it is called.*
 
@@ -230,6 +248,7 @@ returns a pair, passed on as one thing, costs a run.
 | `free_memory()` | value | Free physical memory in gigabytes, straight from Windows. |
 | `game_date(nodes)` | value of NoneType | The date the game is showing, from the widget that carries it. |
 | `paused(game)` | value | Is the clock standing still? Measured, not assumed - a running clock makes the round |
+| `header(game, baseline)` | dict | What every record of one round shares, read now: when, the build, the date, the bare |
 | `subtree(nodes, root)` | value | Every widget below this window, breadth first, with the depth and the sibling index kept. |
 | `widget_record(nodes, address, depth, index, scales, classes, flags, alphas)` | dict | One widget, with every field this project can read - also the ones nothing uses yet. |
 | `capture(pid, name)` | dict | The window as pixels, plus everything the recogniser reads in it, with positions. |

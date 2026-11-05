@@ -90,6 +90,8 @@ DECIDED = {
     'window_situation',                                     # no situation of ours uses it
     'window_situation_participant_groups',
     'create_ceremonial_claimant_faction_against_interaction_window',  # off for Omiwa (2 November 2026)
+    'marriage_interaction_notification_window',     # no AI offer in nine years on Harold (5 November 2026)
+    'activity_list_detail_invite',                  # no activity of another in F9 (5 November 2026)
 ), CLOSED) | dict.fromkeys((
     'window_barbershop', 'character_name_window', 'colorpicker_window', 'portrait_window',
     'coa_window', 'dynasty_customization_window', 'dynasty_house_customization_window',

@@ -79,6 +79,7 @@ def _visibility_offset(which: str) -> int:
 SWITCHED_OFF = 0x02     # `enabled` false on this widget or an ancestor
 HIDDEN = 0x08           # a `visible` condition that does not hold, on this widget
 PASSES_CLICKS = 0x20    # `alwaystransparent`, or the class default for icons and layouts
+CLIPS = 0x40            # cuts its children off at its frame: `scissor`, scroll, edit and zoom areas
 
 
 def flags_for(addresses: Iterable[int]) -> dict[int, int]:
@@ -94,7 +95,8 @@ def flags_for(addresses: Iterable[int]) -> dict[int, int]:
     planner carry it while drawn, which is why "zero is a drawn window" failed on them. 0x04 is
     `enabled = no` on the widget itself (407 of 407), and 0x02 goes with it and is inherited by
     everything below: 549 widgets where it starts all carry 0x04, the 140 that inherit it none.
-    0x01 never occurs; 0x40 sits on scroll areas, edit boxes and zoom areas and is not read here.
+    0x01 never occurs; 0x40 sits on scroll areas, edit boxes, zoom areas and widgets with `scissor`
+    (`CLIPS`).
     """
     return channel.field_for(addresses, _visibility_offset('flag'))
 

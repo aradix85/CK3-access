@@ -158,6 +158,16 @@ def paused(game: windowmap.Game) -> bool:
     return first == game_date(game.tree())
 
 
+def header(game: windowmap.Game, baseline: set[str]) -> Header:
+    """What every record of one round shares, read now: when, the build, the date, the bare
+    screen, the player and the derivation."""
+    player, player_name = model.player(game.pid)
+    return {'measured': time.strftime('%Y-%m-%d %H:%M'), 'exe': derive.build_key(),
+            'game_date': game_date(game.tree()), 'baseline': sorted(baseline),
+            'player': player, 'player_name': player_name,
+            'fields': {k: v for k, v in game.fields.items() if isinstance(v, int)}}
+
+
 def subtree(nodes: widgettree.Nodes, root: int) -> list[tuple[int, int, int]]:
     """Every widget below this window, breadth first, with the depth and the sibling index kept.
 
@@ -935,15 +945,11 @@ def main() -> None:
     if console_round:
         game.set_console(True)
         baseline = game.state()[2]
-    nodes = game.tree()
-    player, player_name = model.player(pid)
-    header: Header = {'measured': time.strftime('%Y-%m-%d %H:%M'), 'exe': derive.build_key(),
-                      'game_date': game_date(nodes), 'baseline': sorted(baseline),
-                      'player': player, 'player_name': player_name,
-                      'fields': {k: v for k, v in game.fields.items() if isinstance(v, int)}}
-    print(f"baseline {sorted(baseline) or 'nothing drawn'}, date {header['game_date']}, player {player_name} ({int(player)}), free memory {free_memory():.1f} GB")
+    shared = header(game, baseline)
+    player, player_name = shared['player'], shared['player_name']
+    print(f"baseline {sorted(baseline) or 'nothing drawn'}, date {shared['game_date']}, player {player_name} ({int(player)}), free memory {free_memory():.1f} GB")
     if by_chain:
-        chain_round(game, pid, windows, wanted, baseline, header, player, player_name)
+        chain_round(game, pid, windows, wanted, baseline, shared, player, player_name)
         return
     names = [n for n in names if n not in baseline]
     # A window with neither key nor button that the console cannot build either - one declared
@@ -961,7 +967,7 @@ def main() -> None:
         if os.path.exists(target):
             continue
         stop_checks(pid, player, player_name, name)
-        record, reason = harvest(game, name, windows[name], baseline, header)
+        record, reason = harvest(game, name, windows[name], baseline, shared)
         pathlib.Path(target).write_text(json.dumps(record, ensure_ascii=False, indent=1), encoding='utf-8')
         if reason == 'state did not come back':
             raise SystemExit(f'stopping after {name}: {reason}')

@@ -2,6 +2,17 @@
 
 Outcomes, newest day first. No release yet.
 
+## 2026-11-05
+- tools.ck3.clock lets the clock run, answers events, clicks the icons in the top bar and records what they open; it stops at war and leaves the clock stopped.
+- An AI request, a war result and a battle result each come as an icon in the top bar; a right click rejects a request or takes a result away.
+- An AI request nobody opens lapses after about fifty days, as a rejection; it does not stop the clock, and an event does, a second before its window shows.
+- Warnings stand in front of the requests in one clipped widget, and enough of them push a request out of reach; the watcher right-clicks warnings away.
+- The battle summary is harvested on Harold from the icon a lost battle put in the top bar.
+- Harold: an AI request as the AI sent it, the succession with an heir in its ordinary form and the destiny choice; 75 windows still to do for play.
+- The marriage offer and the invitation to another's activity are closed without a harvest: nine years on Harold brought no offer, F9 no activity.
+- The watcher stops the clock by hand when it ends, so answering an event afterwards does not start it, and it passes over options the game switched off.
+- harvest.header gives what every record of a round shares, for the harvest, the hand route and the clock alike.
+
 ## 2026-11-04
 - Harold: the pause menu with save, load and the exit question, the council candidates, army, commander, levies and mercenaries harvested along a player route.
 - Harold: the siege from the holding view of the besieged capital, the battle from its icon on the map, the war declared and the war results as the game showed them.

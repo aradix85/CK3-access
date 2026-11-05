@@ -1,15 +1,15 @@
 {
- "harvest": "2026-11-04 11:27",
- "without a player record": 153,
- "still to do for play": 80,
+ "harvest": "2026-11-05 14:33",
+ "without a player record": 150,
+ "still to do for play": 75,
  "counts": {
   "developer": 26,
   "multiplayer": 17,
-  "decided": 30,
+  "decided": 32,
   "event": 0,
-  "interaction": 6,
+  "interaction": 4,
   "chain": 11,
-  "no window route on disk": 63
+  "no window route on disk": 60
  },
  "groups": {
   "developer": {
@@ -201,6 +201,10 @@
     "file": "gui/achievements/jomini_achievements_window.gui",
     "state": "not important for play: appearance, customisation, achievements or setup a blind player gains nothing from; reopened only on negative feedback from players (2 November 2026)"
    },
+   "activity_list_detail_invite": {
+    "file": "gui/window_activity_list.gui",
+    "state": "closed without a harvest: one attempt failed, or only luck, the AI or an uncertain search brings it up; reopened only on negative feedback from players (2 November 2026)"
+   },
    "artifact_kill_list": {
     "file": "gui/window_kill_list.gui",
     "state": "not important for play: appearance, customisation, achievements or setup a blind player gains nothing from; reopened only on negative feedback from players (2 November 2026)"
@@ -256,6 +260,10 @@
    "load_ruler_window": {
     "file": "gui/window_ruler_designer_load.gui",
     "state": "not important for play: appearance, customisation, achievements or setup a blind player gains nothing from; reopened only on negative feedback from players (2 November 2026)"
+   },
+   "marriage_interaction_notification_window": {
+    "file": "gui/interaction_marriage_notification_window.gui",
+    "state": "closed without a harvest: one attempt failed, or only luck, the AI or an uncertain search brings it up; reopened only on negative feedback from players (2 November 2026)"
    },
    "portrait_window": {
     "file": "gui/window_barbershop.gui",
@@ -324,16 +332,8 @@
     "file": "gui/interaction_declare_war.gui",
     "state": "console record"
    },
-   "character_interaction_notification_window": {
-    "file": "gui/interaction_notification_window.gui",
-    "state": "console record"
-   },
    "interfere_in_war_interaction_notification_window": {
     "file": "gui/interaction_interfere_in_war_notification.gui",
-    "state": "console record"
-   },
-   "marriage_interaction_notification_window": {
-    "file": "gui/interaction_marriage_notification_window.gui",
     "state": "console record"
    }
   },
@@ -388,10 +388,6 @@
     "file": "gui/window_accolade_attribute_selection.gui",
     "state": "console record"
    },
-   "activity_list_detail_invite": {
-    "file": "gui/window_activity_list.gui",
-    "state": "console record"
-   },
    "activity_locale_window": {
     "file": "gui/window_activity_locale.gui",
     "state": "console record"
@@ -426,10 +422,6 @@
    },
    "basic_info_popup": {
     "file": "gui/shared/dialogs.gui",
-    "state": "console record"
-   },
-   "battle_summary": {
-    "file": "gui/window_battle_summary.gui",
     "state": "console record"
    },
    "catalysts_sub_window": {
@@ -564,10 +556,6 @@
     "file": "gui/window_situation_sub_region.gui",
     "state": "console record"
    },
-   "succession_select_destiny_window": {
-    "file": "gui/window_succession_event.gui",
-    "state": "console record"
-   },
    "task_contract": {
     "file": "gui/window_task_contract.gui",
     "state": "console record"
@@ -665,12 +653,14 @@
    "appoint_court_position_view",
    "army_window",
    "artifact_details_view",
+   "battle_summary",
    "big_event_window",
    "blackmail_interaction_window",
    "cardinals_window",
    "character_event",
    "character_finder_window",
    "character_interaction_confirmation_window",
+   "character_interaction_notification_window",
    "character_lifestyle_window",
    "character_window",
    "combat_window",
@@ -720,6 +710,7 @@
    "struggle_involvement_window",
    "succession_event_window",
    "succession_law_change_window",
+   "succession_select_destiny_window",
    "title_election",
    "title_view_window",
    "transfer_vassal_interaction_window",
@@ -852,7 +843,7 @@
    "window_tax_slot_vassals"
   ]
  },
- "windows whose keys no round pressed": 65,
+ "windows whose keys no round pressed": 68,
  "keys not pressed": {
   "activity_guest_list": [
    "close_window",
@@ -884,6 +875,11 @@
    "tab_1",
    "tab_2"
   ],
+  "battle_summary": [
+   "close_window",
+   "tab_1",
+   "tab_2"
+  ],
   "big_event_window": [
    "close_tooltips",
    "event_tooltips"
@@ -907,6 +903,12 @@
   ],
   "character_interaction_menu_window": [
    "close_window"
+  ],
+  "character_interaction_notification_window": [
+   "close_window",
+   "tab_1",
+   "tab_2",
+   "tab_3"
   ],
   "combat_window": [
    "close_window"
@@ -1058,6 +1060,9 @@
    "close_window"
   ],
   "succession_law_change_window": [
+   "close_window"
+  ],
+  "succession_select_destiny_window": [
    "close_window"
   ],
   "title_election": [
