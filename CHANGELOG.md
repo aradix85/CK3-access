@@ -12,6 +12,7 @@ Outcomes, newest day first. No release yet.
 - The marriage offer and the invitation to another's activity are closed without a harvest: nine years on Harold brought no offer, F9 no activity.
 - The watcher stops the clock by hand when it ends, so answering an event afterwards does not start it, and it passes over options the game switched off.
 - harvest.header gives what every record of a round shares, for the harvest, the hand route and the clock alike.
+- Decided, not built: the reader stops the clock for every request or result in the top bar, and says how many items lie out of view.
 
 ## 2026-11-04
 - Harold: the pause menu with save, load and the exit question, the council candidates, army, commander, levies and mercenaries harvested along a player route.
