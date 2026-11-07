@@ -42,9 +42,11 @@ from tools.ck3 import channel, guimap, harvest, model, onscreen, openers, widget
 
 # What answers a window: the first option of an event, and the reject button of a request, or its
 # acknowledge button where the request needs no answer (read in the four interaction_*notification
-# gui files, 5 November 2026).
+# gui files, 5 November 2026), and the confirm button of a message shown as a popup (read in
+# window_message_popup.gui). When a message was left to the Escape that puts the state back, a
+# letter stood afterwards and the round stopped there (measured 7 November 2026 on Harold).
 ANSWERS = ('EventOption.Select', 'CharacterInteractionNotificationWindow.Reject',
-           'CharacterInteractionNotificationWindow.Acknowledge')
+           'CharacterInteractionNotificationWindow.Acknowledge', 'MessagePopup.Close')
 SPACE = 32
 # Seconds the clock may stand with nothing open before it is started again. An event stops it
 # before its window is drawn - three rounds of a second or more saw it stopped and no window -
@@ -103,7 +105,9 @@ def at_war(nodes: widgettree.Nodes) -> bool:
     raised none (`[And( Character.IsAtWar, Not(Character.HasRaisedRegiments))]`, read in hud.gui),
     and this raises none. On the day a letter was answered with its first option a faction took
     Harold to war, and the clock ran eighteen months of it, until he lost England, with no window to
-    say so (measured 5 November 2026)."""
+    say so (measured 5 November 2026). **The button is not drawn in the diplomatic map mode either**,
+    which the character window's diplomacy button switches on: there this said no war while Harold
+    was at war (measured 7 November 2026)."""
     button = [a for a, k in nodes.items() if k[6] == 'tutorial_highlight_raise_troops']
     return bool(onscreen.shown(nodes, button))
 
@@ -212,17 +216,15 @@ def click(game: windowmap.Game, right: bool = False) -> tuple[widgettree.Nodes, 
 
 def option(game: windowmap.Game, window: str,
            tables: guimap.Tables) -> tuple[openers.Goal, openers.Spot, tuple[int, int]] | None:
-    """The first answer in `window` that a click reaches, or None. **An option the game has switched
-    off is passed over** (`onscreen.SWITCHED_OFF`): the first option a click reached in "A Vision in
+    """The first answer in `window` that a click reaches, or None. An option the game has switched
+    off is no spot (`openers.reachable_spots`): the first option a click reached in "A Vision in
     the Night" asked for learning 12, and five presses on it answered nothing (measured 5 November
     2026 on Harold)."""
     for call in ANSWERS:
         goal = openers.Goal('call', call)
         reachable = openers.reachable_spots(game, window, goal, tables)[1]
-        flags = onscreen.flags_for(spot['address'] for spot, _ in reachable)
-        usable = [(spot, point) for spot, point in reachable if not flags[spot['address']] & onscreen.SWITCHED_OFF]
-        if usable:
-            return goal, *usable[0]
+        if reachable:
+            return goal, *reachable[0]
     return None
 
 

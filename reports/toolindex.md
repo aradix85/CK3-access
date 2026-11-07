@@ -161,7 +161,7 @@ returns a pair, passed on as one thing, costs a run.
 | `inside(nodes, address)` | bool | Does the middle of this widget lie within the frame of every ancestor that cuts off its |
 | `middle(nodes, address)` | 2-tuple | - |
 | `click(game, right=False)` | 2-tuple | Click the first request icon, or with `right` take it away with a right click: the tree |
-| `option(game, window, tables)` | 2-tuple of NoneType | The first answer in `window` that a click reaches, or None. **An option the game has switched |
+| `option(game, window, tables)` | 2-tuple of NoneType | The first answer in `window` that a click reaches, or None. An option the game has switched |
 | `answer(game, baseline, tables)` | nothing | Answer every window beyond the bare screen, and shut what an answer leaves standing. |
 | `main()` | nothing | - |
 
@@ -407,6 +407,7 @@ returns a pair, passed on as one thing, costs a run.
 | `live_record(game, pid, window, address=None, nodes=None)` | 4-tuple | The widgets of the window that is drawn right now, in the shape the harvest writes them and |
 | `goal_of(target, tables)` | value | What has to happen before `target` is drawn: a view opens, a variable is set, or a state |
 | `bare(expression)` | value | An expression without its whitespace, so that two spellings of one condition compare equal. |
+| `down_states(down)` | set of value | The states a button's `down` declares: the condition itself, and each term of an `Or`. The |
 | `toggles(node, goal, context)` | value | Is this widget the button whose `down` state is the condition the goal waits on, inside the |
 | `reaches(value, goal)` | value of bool | Does this onclick reach the goal? Setting a variable counts, clearing it does not. |
 | `opens_state(call, state)` | bool | Does `call` open what `state` asks about? The same object, a verb that opens - Toggle, Open, |

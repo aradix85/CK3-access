@@ -403,7 +403,7 @@ def window_keys_round(game: 'Game', names: list[str],
         if not tabs:
             steps += [(sub, None) for sub in sub_tabs]
         shut_tab: str | None = None
-        for (binding, keys, toggles), on_tab in steps:
+        for number, ((binding, keys, toggles), on_tab) in enumerate(steps, 1):
             label = f'{binding} on {on_tab}' if on_tab else binding
             if on_tab is not None and on_tab == shut_tab:
                 results.append((label, keys, 'not pressed: its tab shut the window'))
@@ -444,6 +444,10 @@ def window_keys_round(game: 'Game', names: list[str],
                 raise SystemExit(f"after {keys} in {name}, {', '.join(sorted(drawn - standing))} stayed open")
             if drawn != standing:
                 to_bare(f'after {keys} in {name}')
+                if number == len(steps):
+                    # Nothing is left to press. The army window opens on the button that raises
+                    # the armies, which is gone once they are raised (measured 7 November 2026).
+                    break
                 if not open_along(name):
                     raise SystemExit(f'{name} did not open again after {keys}')
                 time.sleep(1.0)
@@ -863,13 +867,14 @@ def store_window_keys(pid: int, found: dict[str, str | list[tuple[str, str, str]
     state it was measured on, beside the map rather than in it.
 
     Which windows open depends on the state, so a window that did not open keeps what a round on
-    another state found; one that opened replaces its entry.
+    another state found, and gets no entry when none did: an entry is what takes a window off the
+    list of keys no round pressed (`missing.keys_not_pressed`). One that opened replaces its entry.
     """
     _, player = model.player(pid)
     stand = {'measured': time.strftime('%Y-%m-%d %H:%M'), 'exe': derive.build_key(), 'player': player}
     report = json.loads(pathlib.Path(WINDOW_KEYS).read_text(encoding='utf-8')) if os.path.exists(WINDOW_KEYS) else {}
     for window, keys in found.items():
-        if isinstance(keys, str) and window in report:
+        if isinstance(keys, str):
             continue
         report[window] = {**stand, 'keys': keys}
     pathlib.Path(WINDOW_KEYS).write_text(json.dumps(report, ensure_ascii=False, indent=1, sort_keys=True),

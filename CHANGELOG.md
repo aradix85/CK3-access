@@ -2,6 +2,16 @@
 
 Outcomes, newest day first. No release yet.
 
+## 2026-11-07
+- The game reads the player's message settings: every message came up as a popup and stopped the clock; shutting one leaves a clock stopped by hand stopped.
+- A battle sends a message only when someone falls or is taken; a war ended in white peace shows its result window and an icon, and no message.
+- Harold: the call to war, the ally list of the declare-war window and an ally's call sent by the AI, harvested along player routes. 72 windows still to do for play.
+- The notice that someone wants to join the player's war reaches only a vassal: no AI sends it to an independent ruler.
+- A chain step shows a hidden button through a button down on any term of an Or, and waits up to seven seconds for what that showed.
+- A widget the game has switched off is no click target; the clock watcher answers a message popup with its confirm button.
+- The key round inside windows opens no window again after its last key, and writes no row for a window that did not open.
+- Keys pressed in the council candidates, levies, mercenary detail, custom message and call to war.
+
 ## 2026-11-05
 - tools.ck3.clock lets the clock run, answers events, clicks the icons in the top bar and records what they open; it stops at war and leaves the clock stopped.
 - An AI request, a war result and a battle result each come as an icon in the top bar; a right click rejects a request or takes a result away.

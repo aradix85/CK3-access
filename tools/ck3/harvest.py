@@ -622,11 +622,17 @@ def chain_press(game: windowmap.Game, source: str, goal: 'openers.Goal', tables:
     for hidden in [] if reachable else openers.unhiding(source, goal, tables):
         if openers.press_toward(game, source, hidden, tables)[1] is None:
             continue
-        time.sleep(1.4)
-        nodes, _, before = game.state()
-        if source not in before:
-            return nodes, set(), None, f'{why}; showing {hidden.name} shut {source}'
-        _, reachable, why = openers.reachable_spots(game, source, goal, tables, rows)
+        # What a press shows can take seconds to become reachable: the rows of the expanded
+        # diplomacy in the character window were not 1.4 seconds after its button, and were six
+        # seconds after it (measured 7 November 2026 on Harold).
+        for _ in range(5):
+            time.sleep(1.4)
+            nodes, _, before = game.state()
+            if source not in before:
+                return nodes, set(), None, f'{why}; showing {hidden.name} shut {source}'
+            _, reachable, why = openers.reachable_spots(game, source, goal, tables, rows)
+            if reachable:
+                break
         if reachable:
             break
     if not reachable:

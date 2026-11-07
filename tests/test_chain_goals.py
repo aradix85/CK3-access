@@ -39,11 +39,16 @@ TABBED = '''window = { name = "tabbed"
     widget = { visible = "[W.AreNoneExpanded]"
         widget = { visible = "[ W.IsTabShown('b') ]" datacontext = "[W.GetSubordinates]" filter_button = {} }
         list_filter = { name = "its_b_filter" datacontext = "[W.GetSubordinates]" } } }'''
+# A button that is down on either of two states and toggles the first - the shape of the diplomacy
+# button of the character window, which also switches a map mode.
+EXPANDED = '''window = { name = "expandable"
+    button = { name = "show" down = "[Or( W.AreExpanded, IsMapMode( 'd' ) )]" onclick = "[W.ToggleExpanded]" }
+    widget = { visible = "[W.AreExpanded]" button = { onclick = "[Item.OnClick]" } } }'''
 
 
 def tables(tmp_path: pathlib.Path) -> guimap.Tables:
     full = tmp_path / 'gui_windows.gui'
-    full.write_text(TYPES + ' ' + WINDOWS + ' ' + TABBED, encoding='utf-8')
+    full.write_text(f'{TYPES} {WINDOWS} {TABBED} {EXPANDED}', encoding='utf-8')
     rows: list[guimap.Row] = [('game', 'gui/windows.gui', str(full))]
     table, local = guimap.type_table(rows)
     return table, local, guimap.windows(rows, table), guimap.root_finder(table)
@@ -90,6 +95,21 @@ def test_a_hidden_trigger_is_shown_by_the_button_whose_down_hides_it(tmp_path: p
     found = tables(tmp_path)
     goal = openers.goal_of('its_b_filter', found)
     assert openers.unhiding('tabbed', goal, found) == [openers.Goal('state', "[W.IsTabShown('b')]")]
+
+
+def test_a_button_down_on_either_of_two_states_shows_the_first(tmp_path: pathlib.Path) -> None:
+    """The rows of the expanded diplomacy in the character window are shown by the diplomacy
+    button, whose `down` is an `Or` of the expanded state and a map mode (read 7 November 2026)."""
+    found = tables(tmp_path)
+    hidden = openers.unhiding('expandable', openers.Goal('call', 'Item.OnClick'), found)
+    assert hidden == [openers.Goal('state', '[W.AreExpanded]')]
+    stack = [guimap.window('expandable', found[0], found[1], found[2])]
+    named = {}
+    while stack:
+        node = stack.pop()
+        named[guimap.attribute(node, 'name')] = node
+        stack.extend(node['children'])
+    assert openers.toggles(named['show'], hidden[0], ())
 
 
 def test_the_one_use_of_a_window_type_carries_its_condition(tmp_path: pathlib.Path) -> None:

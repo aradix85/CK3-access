@@ -1,13 +1,13 @@
 {
- "harvest": "2026-11-05 14:33",
- "without a player record": 150,
- "still to do for play": 75,
+ "harvest": "2026-11-07 18:28",
+ "without a player record": 147,
+ "still to do for play": 72,
  "counts": {
   "developer": 26,
   "multiplayer": 17,
   "decided": 32,
   "event": 0,
-  "interaction": 4,
+  "interaction": 1,
   "chain": 11,
   "no window route on disk": 60
  },
@@ -320,18 +320,6 @@
   },
   "event": {},
   "interaction": {
-   "call_ally_interaction_notification_window": {
-    "file": "gui/interaction_call_ally_notification_window.gui",
-    "state": "console record"
-   },
-   "call_ally_interaction_window": {
-    "file": "gui/interaction_call_ally.gui",
-    "state": "console record"
-   },
-   "character_ally_list_subview": {
-    "file": "gui/interaction_declare_war.gui",
-    "state": "console record"
-   },
    "interfere_in_war_interaction_notification_window": {
     "file": "gui/interaction_interfere_in_war_notification.gui",
     "state": "console record"
@@ -656,7 +644,10 @@
    "battle_summary",
    "big_event_window",
    "blackmail_interaction_window",
+   "call_ally_interaction_notification_window",
+   "call_ally_interaction_window",
    "cardinals_window",
+   "character_ally_list_subview",
    "character_event",
    "character_finder_window",
    "character_interaction_confirmation_window",
@@ -843,7 +834,7 @@
    "window_tax_slot_vassals"
   ]
  },
- "windows whose keys no round pressed": 68,
+ "windows whose keys no round pressed": 66,
  "keys not pressed": {
   "activity_guest_list": [
    "close_window",
@@ -890,6 +881,15 @@
    "tab_2",
    "tab_3"
   ],
+  "call_ally_interaction_notification_window": [
+   "close_window",
+   "tab_1",
+   "tab_2",
+   "tab_3"
+  ],
+  "character_ally_list_subview": [
+   "close_window"
+  ],
   "character_event": [
    "close_tooltips",
    "event_tooltips"
@@ -925,9 +925,6 @@
   "create_claimant_faction_against_interaction_window": [
    "close_window"
   ],
-  "custom_message_window": [
-   "close_window"
-  ],
   "declare_war_window": [
    "close_window"
   ],
@@ -961,9 +958,6 @@
    "tab_2",
    "tab_3"
   ],
-  "hired_troop_detail_view": [
-   "close_window"
-  ],
   "holy_site_creation_window": [
    "close_window",
    "holy_site_compact"
@@ -996,9 +990,6 @@
    "close_tooltips",
    "event_tooltips"
   ],
-  "levy_view": [
-   "close_window"
-  ],
   "mainline_rite_tenets_window": [
    "close_window",
    "compact_faith_window",
@@ -1019,9 +1010,6 @@
    "close_window",
    "tab_1",
    "tab_2"
-  ],
-  "potential_councillor_window": [
-   "close_window"
   ],
   "revoke_titles_interaction_window": [
    "close_window",

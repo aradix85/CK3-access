@@ -317,11 +317,31 @@ def bare(expression: str) -> str:
     return re.sub(r'\s+', '', expression)
 
 
+def down_states(down: str) -> set[str]:
+    """The states a button's `down` declares: the condition itself, and each term of an `Or`. The
+    diplomacy button of the character window is down while the expanded diplomacy shows or its map
+    mode is on, `[Or( CharacterWindow.AreDiplomacyExpanded, IsMapMode( 'diplomatic_relations' ) )]`,
+    and it toggles the first (read in window_character.gui, 7 November 2026)."""
+    whole = bare(down)
+    found = re.fullmatch(r'\[Or\((.*)\)\]', whole)
+    if not found:
+        return {whole}
+    terms: list[str] = []
+    depth = start = 0
+    for at, letter in enumerate(found.group(1)):
+        depth += {'(': 1, ')': -1}.get(letter, 0)
+        if letter == ',' and depth == 0:
+            terms.append(found.group(1)[start:at])
+            start = at + 1
+    terms.append(found.group(1)[start:])
+    return {whole} | {f'[{term}]' for term in terms}
+
+
 def toggles(node: guimap.Node, goal: Goal, context: tuple[str, ...]) -> bool:
     """Is this widget the button whose `down` state is the condition the goal waits on, inside the
     data context of the target? `context` is the widget's own and inherited data contexts."""
     down = guimap.attribute(node, 'down')
-    return (goal.kind == 'state' and down is not None and bare(down) == goal.name
+    return (goal.kind == 'state' and down is not None and goal.name in down_states(down)
             and (goal.context is None or goal.context in {bare(c) for c in context}))
 
 
@@ -432,7 +452,7 @@ def unhiding(source: str, goal: Goal, tables: guimap.Tables) -> list[Goal]:
         conditions += (bare(visible),) if visible else ()
         down = guimap.attribute(node, 'down')
         if down and any(key == 'onclick' and value for key, value in node['attrs']):
-            downs.add(bare(down))
+            downs |= down_states(down)
         if fires_for(node, goal, context)[0]:
             above += [c for c in reversed(conditions) if c not in above]
         stack.extend((child, context, conditions) for child in node['children'])
@@ -678,6 +698,11 @@ def reachable_spots(game: windowmap.Game, window: str, goal: Goal, tables: guima
     One alignment serves a caller that tries the widgets in turn: aligning the character window
     again for every portrait cost 7.5 seconds a try, 4.8 of them expanding its gui file (profiled
     29 October 2026 on Ghur played).
+
+    **A widget the game has switched off is no spot** (`onscreen.SWITCHED_OFF`): a click on it opens
+    nothing (a menu row with state 0x06, 27 October 2026), and the declare-war window draws a
+    switched-off "Allies (0)" for the defender before the attacker's "Allies (1)" (measured
+    7 November 2026 on Harold).
     """
     spots, record, acting, _, _, _ = spots_for_goal(game, game.pid, window, goal, tables)
     if showing is not None:
@@ -686,6 +711,10 @@ def reachable_spots(game: windowmap.Game, window: str, goal: Goal, tables: guima
         if group:
             candidates = {spot['address'] for spot in spots}
             spots = [spot for spot in spots if grouped(record, spot['address'], group, candidates)]
+    flags = onscreen.flags_for(spot['address'] for spot in spots)
+    for spot in spots:
+        if spot['why_not'] is None and flags[spot['address']] & onscreen.SWITCHED_OFF:
+            spot['why_not'] = 'switched off by the game'
     buttons = clickable_map(record, acting)
     reachable: list[tuple[Spot, tuple[int, int]]] = []
     for spot in spots:
@@ -700,7 +729,7 @@ def reachable_spots(game: windowmap.Game, window: str, goal: Goal, tables: guima
         spot['why_not'] = 'covered everywhere, at its middle by {}'.format(
             (top['name'] or top['class']) if top else 'nothing readable')
     why = 'nothing in {} can be pressed for it: {}'.format(
-        window, ', '.join(sorted({s['why_not'] or '' for s in spots})) or 'no live widget carries the call')
+        window, ', '.join(sorted({s['why_not'] for s in spots if s['why_not']})) or 'no live widget carries the call')
     return spots, reachable, why
 
 

@@ -55,6 +55,33 @@
   "measured": "2026-10-22 16:15",
   "player": "SU_rI_"
  },
+ "call_ally_interaction_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "tab_1",
+    "ctrl+1",
+    "nothing"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "nothing"
+   ],
+   [
+    "tab_3",
+    "ctrl+3",
+    "nothing"
+   ]
+  ],
+  "measured": "2026-11-07 19:08",
+  "player": "Harold"
+ },
  "cardinals_window": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -242,6 +269,18 @@
    ]
   ],
   "measured": "2026-10-22 11:58",
+  "player": "Harold"
+ },
+ "custom_message_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-07 18:58",
   "player": "Harold"
  },
  "decisiondetail_view": {
@@ -513,6 +552,18 @@
   ],
   "measured": "2026-10-22 16:41",
   "player": "Andronikos"
+ },
+ "hired_troop_detail_view": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-07 18:58",
+  "player": "Harold"
  },
  "holding_view": {
   "exe": "101125752-1792594002",
@@ -801,6 +852,18 @@
   "measured": "2026-10-22 13:28",
   "player": "SU_rI_"
  },
+ "levy_view": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-07 18:58",
+  "player": "Harold"
+ },
  "military_view": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -883,6 +946,18 @@
    ]
   ],
   "measured": "2026-10-22 11:58",
+  "player": "Harold"
+ },
+ "potential_councillor_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-07 18:58",
   "player": "Harold"
  },
  "rite_creation_window": {
