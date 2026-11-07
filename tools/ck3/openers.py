@@ -432,7 +432,8 @@ def fires_for(source: guimap.Node | None, goal: Goal,
 
 def unhiding(source: str, goal: Goal, tables: guimap.Tables) -> list[Goal]:
     """The states that show a hidden trigger: every `visible` condition above a block of `source`
-    that reaches `goal`, nearest first, that a button of the same window declares as its `down`.
+    that reaches `goal`, nearest first, that a button of the same window declares as its `down`, or
+    as one term of an `Or` in it (`down_states`).
 
     That is how a tab works, and it needs no key: the filter button of the religious subordinates
     sits under `[CharacterWindow.IsTabShown('subordinates')]`, and the tab `subordinates_button`

@@ -598,6 +598,10 @@ returns a pair, passed on as one thing, costs a run.
 | `binding_names(binding, bound, numbers=None)` | list of value | The shortcut names one declared binding stands for. |
 | `presses_for(rows, bound)` | value | (binding, keys, toggles) to press in one window: every view-only row, once, the first three |
 | `shown_texts(game, name, text_classes)` | NoneType of value | The texts of window `name` that are on the screen now, in draw order; None if it is not drawn. |
+| `text_classes_of(pid)` | set | Where the text classes have their vtables in this run: the only widgets whose text is read. |
+| `key_effect(game, name, text_classes, standing, before, keys, toggles)` | 3-tuple | What a key just pressed in `name` did, against what stood once it was open and the texts it |
+| `shutting_last(presses)` | value | The keys with the ones that shut the window by their name at the end: a confirmation, and |
+| `keys_in_place(game, name)` | value | Press every key of `name`, standing open, where it stands, and say per key what happened, as |
 | `window_keys_round(game, names, by_hand)` | value | Open each window along its route, press every key in it that only changes the view, and say |
 | `modified_keys()` | value | Binding -> (spelling, modifier keys, key) for every name in `MODIFIED`, as the file binds it. |
 | `key_of(key)` | value | The virtual key for one key as the shortcut file or the map spells it: F1, c, 0, BACKSPACE. |

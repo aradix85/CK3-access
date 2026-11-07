@@ -600,7 +600,8 @@ def chain_press(game: windowmap.Game, source: str, goal: 'openers.Goal', tables:
     chain round and the key round both take a chain step here; the caller puts the state back.
 
     **When nothing that reaches the goal can be pressed, the states that hide it are shown in
-    turn** (`openers.unhiding`): the button whose `down` is the hiding condition, which is what a
+    turn** (`openers.unhiding`): the button whose `down` is the hiding condition, or one term of
+    it, which is what a
     tab is. The tab keys were tried until 22 October 2026, and the subordinates tab of the
     character window has none. A press that shuts the source ends the try.
 

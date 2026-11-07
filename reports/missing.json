@@ -1,5 +1,5 @@
 {
- "harvest": "2026-11-07 18:28",
+ "harvest": "2026-11-07 19:46",
  "without a player record": 147,
  "still to do for play": 72,
  "counts": {
@@ -834,7 +834,7 @@
    "window_tax_slot_vassals"
   ]
  },
- "windows whose keys no round pressed": 66,
+ "windows whose keys no round pressed": 63,
  "keys not pressed": {
   "activity_guest_list": [
    "close_window",
@@ -856,9 +856,6 @@
    "event_tooltips"
   ],
   "appoint_court_position_view": [
-   "close_window"
-  ],
-  "army_window": [
    "close_window"
   ],
   "artifact_details_view": [
@@ -1079,19 +1076,11 @@
    "confirm",
    "confirm_2"
   ],
-  "war_results": [
-   "close_window"
-  ],
   "window_exchange_hostages": [
    "close_window"
   ],
   "window_house_aspiration": [
    "close_window"
-  ],
-  "window_message_popup": [
-   "close_window",
-   "confirm",
-   "confirm_2"
   ],
   "window_silk_road": [
    "go_back",

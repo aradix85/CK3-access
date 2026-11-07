@@ -35,6 +35,15 @@ def test_the_same_key_under_another_name_blocks_it() -> None:
     assert pressed(rows) == []
 
 
+def test_in_place_the_keys_that_shut_the_window_go_last() -> None:
+    """A window the clock brought up cannot be opened again, so what shuts it goes last: the message
+    popup carries Escape, Enter and Alt+C, and the last two confirm it (read 7 November 2026)."""
+    presses = [('close_window', 'ESCAPE', False), ('confirm', 'RETURN', False), ('tab_1', 'ctrl+1', False),
+               ('confirm_2', 'alt+c', False), ('tab_2', 'ctrl+2', False)]
+    assert [b for b, _, _ in windowmap.shutting_last(presses)] == ['tab_1', 'tab_2', 'confirm', 'confirm_2',
+                                                                   'close_window']
+
+
 def test_a_widget_without_an_onclick_blocks_nothing_and_a_mouse_button_is_no_key() -> None:
     rows = [row('go_back', ['OpenFromViewHistory']), row('go_back', []), row('go_back_3', ['OpenFromViewHistory'])]
     assert pressed(rows) == ['go_back']

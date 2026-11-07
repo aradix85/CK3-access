@@ -296,6 +296,80 @@ def shown_texts(game: 'Game', name: str, text_classes: set[int]) -> tuple[str, .
     return tuple(widgettree.strip_markup(nodes[a][7]) for a in texts if a in visible)
 
 
+def text_classes_of(pid: int) -> set[int]:
+    """Where the text classes have their vtables in this run: the only widgets whose text is read."""
+    base = vtablemap.module_base(pid)
+    return {base + v for name in widgettree.TEXT_CLASSES for v in memory.vtables_by_name(name)}
+
+
+def key_effect(game: 'Game', name: str, text_classes: set[int], standing: set[str], before: tuple[str, ...],
+               keys: str, toggles: bool) -> tuple[str, tuple[str, ...] | None, set[str]]:
+    """What a key just pressed in `name` did, against what stood once it was open and the texts it
+    showed before the key: (what, its texts now or None once it is shut, what is drawn now). A key
+    that changed the text and toggles is pressed a second time, and the answer says whether that put
+    the text back, because the game keeps a view such as the compact one for the next opening."""
+    time.sleep(1.4)
+    _, _, drawn = game.state()
+    after = shown_texts(game, name, text_classes)
+    opened = sorted(drawn - standing)
+    gone = sorted(standing - drawn - {name})
+    parts = ((['shut the window'] if after is None else []) + (['shut ' + ', '.join(gone)] if gone else [])
+             + (['opened ' + ', '.join(opened)] if opened else []))
+    if parts:
+        return ', '.join(parts), after, drawn
+    if after is None or after == before:
+        return 'nothing', after, drawn
+    what = f'changed the text: {len(after)} lines, was {len(before)}'
+    if toggles:
+        press(keys)
+        time.sleep(1.4)
+        what += '; again: back' if shown_texts(game, name, text_classes) == before else '; again: not back'
+    return what, after, drawn
+
+
+def shutting_last(presses: list[Key]) -> list[Key]:
+    """The keys with the ones that shut the window by their name at the end: a confirmation, and
+    Escape after it. A window that cannot be opened again takes no key after one that shut it."""
+    return sorted(presses, key=lambda one: (one[0] == 'close_window', one[0].startswith('confirm')))
+
+
+def keys_in_place(game: 'Game', name: str) -> str | list[tuple[str, str, str]]:
+    """Press every key of `name`, standing open, where it stands, and say per key what happened, as
+    `window_keys_round` does, for a window that cannot be opened again: one the clock, the console
+    or a click on the map brought up (decided 7 November 2026; `clock.main` calls it). A window a
+    key opens is shut with Escape; a key after one that shut `name` is not pressed, and its row
+    says so. A sentence instead of rows when `name` is not drawn."""
+    bound = {n: k for n, k in shortcut_file().items() if k.strip()}
+    text_classes = text_classes_of(game.pid)
+    _, _, standing = game.state()
+    before = shown_texts(game, name, text_classes)
+    if before is None:
+        return f'{name} was not drawn when its keys were to be pressed'
+    results: list[tuple[str, str, str]] = []
+    for binding, keys, toggles in shutting_last(presses_for(window_bindings({name}).get(name, []), bound)):
+        if before is None:
+            results.append((binding, keys, 'not pressed: an earlier key shut the window'))
+            continue
+        try:
+            press(keys)
+        except KeyError:
+            results.append((binding, keys, 'no key code for this spelling'))
+            continue
+        what, _, drawn = key_effect(game, name, text_classes, standing, before, keys, toggles)
+        results.append((binding, keys, what))
+        print(f'  {name[:24]!s:<24} {keys!s:<14} {binding[:24]!s:<24} {what}')
+        for _ in range(3):
+            if not drawn - standing:
+                break
+            channel.ask('sendkey 27')
+            time.sleep(1.2)
+            _, _, drawn = game.state()
+        if drawn - standing:
+            raise SystemExit(f"after {keys} in {name}, {', '.join(sorted(drawn - standing))} stayed open")
+        before = shown_texts(game, name, text_classes)
+    return results
+
+
 def window_keys_round(game: 'Game', names: list[str],
                       by_hand: dict[str, Route]) -> dict[str, str | list[tuple[str, str, str]]]:
     """Open each window along its route, press every key in it that only changes the view, and say
@@ -326,7 +400,8 @@ def window_keys_round(game: 'Game', names: list[str],
     a click route can open a window inside another, and a chain leaves its source standing. Against
     the bare screen every key in the diarchy reported my_realm_window opened, which the click route
     had opened first (22 October 2026). When the window, or one it stands in, shuts, the round goes
-    back to the bare screen and opens it again along its route.
+    back to the bare screen and opens it again along its route, unless no key is left to press. A
+    window that cannot be opened again gets its keys where it stands (`keys_in_place`).
     """
     from tools.ck3 import hand, harvest, openers  # all three import this module
     openers.game_classes = game.window_classes      # a click asks what lies over its button
@@ -349,9 +424,7 @@ def window_keys_round(game: 'Game', names: list[str],
     back: Route = {'click': True}       # shut on Escape until the bare screen is back
     bound = {n: k for n, k in shortcut_file().items() if k.strip()}
     plan = window_bindings()
-    base = vtablemap.module_base(game.pid)
-    text_classes = {base + v for name in widgettree.TEXT_CLASSES
-                    for v in memory.vtables_by_name(name)}
+    text_classes = text_classes_of(game.pid)
     baseline = game.bare()
 
     def drawn_texts(name: str) -> tuple[str, ...]:
@@ -413,23 +486,7 @@ def window_keys_round(game: 'Game', names: list[str],
             except KeyError:
                 results.append((label, keys, 'no key code for this spelling'))
                 continue
-            time.sleep(1.4)
-            _, _, drawn = game.state()
-            after = shown_texts(game, name, text_classes)
-            opened = sorted(drawn - standing)
-            gone = sorted(standing - drawn - {name})
-            parts = ((['shut the window'] if after is None else []) + (['shut ' + ', '.join(gone)] if gone else [])
-                     + (['opened ' + ', '.join(opened)] if opened else []))
-            if parts:
-                what = ', '.join(parts)
-            elif after is not None and after != before:
-                what = f'changed the text: {len(after)} lines, was {len(before)}'
-                if toggles:
-                    press(keys)
-                    time.sleep(1.4)
-                    what += '; again: back' if shown_texts(game, name, text_classes) == before else '; again: not back'
-            else:
-                what = 'nothing'
+            what, after, drawn = key_effect(game, name, text_classes, standing, before, keys, toggles)
             if TAB.search(binding) and not SUB_TAB.search(binding):
                 shut_tab = binding if after is None else None
             results.append((label, keys, what))

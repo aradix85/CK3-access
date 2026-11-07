@@ -261,7 +261,7 @@
  },
  {
   "name": "text boxes the recogniser confirmed",
-  "claimed": 3390,
+  "claimed": 3389,
   "measure": "harvest_total",
   "arguments": [
    "<project>\\harvest",
@@ -802,7 +802,7 @@
  },
  {
   "name": "windows with a player record whose keys no round pressed",
-  "claimed": 66,
+  "claimed": 63,
   "measure": "json_field",
   "arguments": ["<project>\\reports\\missing.json", "windows whose keys no round pressed"],
   "counting_rule": "windows with a player record and no row in reports\\window_keys.json, in which windowmap.presses_for finds a key a key round would press (view only, and no widget of the window acts on it)",

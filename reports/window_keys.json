@@ -55,6 +55,18 @@
   "measured": "2026-10-22 16:15",
   "player": "SU_rI_"
  },
+ "army_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-07 19:42",
+  "player": "Harold"
+ },
  "call_ally_interaction_window": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -1195,6 +1207,18 @@
   "measured": "2026-10-22 11:58",
   "player": "Harold"
  },
+ "war_results": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-07 19:45",
+  "player": "Harold"
+ },
  "window_appoint_tax_collector": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -1218,6 +1242,28 @@
   ],
   "measured": "2026-10-22 13:50",
   "player": "SU_rI_"
+ },
+ "window_message_popup": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "confirm",
+    "RETURN",
+    "shut the window"
+   ],
+   [
+    "confirm_2",
+    "alt+c",
+    "not pressed: an earlier key shut the window"
+   ],
+   [
+    "close_window",
+    "ESCAPE",
+    "not pressed: an earlier key shut the window"
+   ]
+  ],
+  "measured": "2026-11-07 19:47",
+  "player": "Harold"
  },
  "window_message_settings": {
   "exe": "101125752-1792594002",

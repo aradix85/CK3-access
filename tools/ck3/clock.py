@@ -25,6 +25,10 @@ holds the pause icon, drawn while the clock runs, and the play icon, drawn while
 moved with it (measured 5 November 2026 on Harold). **When this ends, however it ends, the clock
 is stopped by hand** (`stopped_by_hand`), so that answering what stands does not start it.
 
+**A window it records into the harvest gets its keys pressed where it stands** (`windowmap.
+keys_in_place`), Escape last, and the answer goes into `reports\window_keys.json`: such a window
+cannot be opened again for the key round (decided 7 November 2026).
+
 With `--try` the records go to the work folder and not into the harvest: a request the console
 made proves this watcher, and the record of a request has to come from the AI itself. It stops
 when the player is at war, unless `--war` says the round is meant to run through one; and with
@@ -67,7 +71,12 @@ def stopped_by_hand(nodes: widgettree.Nodes) -> bool:
     is answered: with this tool gone and an event standing, answering it let the clock run eight
     months (measured 5 November 2026 on Harold). The icon drawn while it stands by hand is the second
     child of the widget two levels above `tutorial_highlight_bottom_right_bar`: a space turned it on
-    and off, also with an event standing, which kept the clock stopped (measured the same day)."""
+    and off, also with an event standing, which kept the clock stopped (measured the same day).
+
+    **A message that pauses shows the same icon**, with nothing pressed, and that pause is not by
+    hand: shutting the message starts the clock, and so does a space while it stands. A message that
+    comes while the clock already stands by hand leaves it standing when it shuts (measured
+    7 November 2026 on Harold)."""
     named = next(a for a, k in nodes.items() if k[6] == 'tutorial_highlight_bottom_right_bar')
     bar = nodes[nodes[named][5]][5]
     return bool(onscreen.shown(nodes, [[a for a, k in nodes.items() if k[5] == bar][1]]))
@@ -294,11 +303,17 @@ def main() -> None:
         recorded.add(window)
         print(f"{window}: {int(found['widgets'])} widgets, {int(found['confirmed'])}/{int(found['boxes'])} "
               f'text boxes confirmed; {route}')
+        if out == harvest.OUT:
+            windowmap.store_window_keys(pid, {window: windowmap.keys_in_place(game, window)})
 
     def wanted(window: str) -> bool:
         return window not in recorded and (out != harvest.OUT or window in goals
                                            or not harvest.player_record(window))
 
+    # Icons standing before the clock runs did not come while it ran, and are said so: the icon of a
+    # war the console ended stood there, and the first round said it came with the clock running,
+    # while a war that ends with the clock running stops it (measured 7 November 2026 on Harold).
+    earlier = len(request_icons(game, game.tree()))
     windowmap.press(speed)
     deadline = time.time() + minutes * 60
     stood: float | None = None          # since when the clock has stood with nothing open
@@ -325,12 +340,13 @@ def main() -> None:
                     stood = None
                 continue
             date, ran = harvest.game_date(nodes), running(nodes)
+            came = (f"the clock {'running' if ran else 'stopped'} as it came" if not (icons and earlier)
+                    else 'standing before the clock ran')
             waited = f', {time.time() - stood:.1f} seconds after it stopped' if stood else ''
             stood = None
             set_clock(game, False)
             started = time.time()
-            print(f"{date}: {len(icons)} request icons, windows {', '.join(sorted(fresh)) or 'none'}, "
-                  f"the clock {'running' if ran else 'stopped'}{waited}")
+            print(f"{date}: {len(icons)} request icons, windows {', '.join(sorted(fresh)) or 'none'}, {came}{waited}")
             for window in sorted(fresh):
                 if wanted(window):
                     record(window, game.tree(), f'clock: the game showed it on {date}', started)
@@ -339,13 +355,17 @@ def main() -> None:
                 print(f"   the icon brought up {', '.join(sorted(opened)) or 'nothing, and went'}")
                 for window in sorted(opened):
                     if wanted(window):
-                        record(window, nodes, 'clock: DiplomaticItem.OnClick on an icon in the top bar on '
-                               f"{date}, the clock {'running' if ran else 'stopped'} as it came", started)
+                        record(window, nodes, f'clock: DiplomaticItem.OnClick on an icon in the top bar on {date}, {came}',
+                               started)
+                earlier = max(0, earlier - 1)
             answer(game, baseline, tables)
             if icons and len(icons_in(game.tree(), 'diplomatic_items')) == standing:
                 click(game, right=True)
             set_clock(game, True, baseline)
     finally:
+        # A message standing now would hold the clock with the icon of a stop by hand, and the next
+        # thing to shut it would start the clock (`stopped_by_hand`): shut what stands, then stop.
+        answer(game, baseline, tables)
         set_clock(game, False)
         print(f"stopped on {harvest.game_date(game.tree())}; recorded {', '.join(sorted(recorded)) or 'nothing'} into {out}")
 
