@@ -1,7 +1,11 @@
 {
  "harvest": "2026-11-08 12:04",
  "without a player record": 147,
- "still to do for play": 72,
+ "still to do for play": 122,
+ "still to do, by reason": {
+  "no player record yet": 72,
+  "a player record, but no key round yet": 50
+ },
  "counts": {
   "developer": 26,
   "multiplayer": 17,

@@ -32,6 +32,10 @@ without its data context, so a record `GUI.CreateWidget` made does not count.
 
 The first three fall away (`FALL_AWAY`); the report counts every other window as still to do for play.
 
+**A window with a player record is not done until a key round pressed its keys** (her decision,
+8 November 2026): one that is still among the keys no round pressed (below) counts as still to do
+for play too, and the report gives both reasons apart.
+
 **The views come apart from the groups**, because which window the engine puts behind a view is
 not on disk: `OpenGameView('inventory')` names no window, and only a round that presses it sees
 which one comes up. So the report lists every view a button on disk opens that no round has
@@ -191,12 +195,15 @@ def main() -> None:
     total = sum(len(windows) for windows in groups.values())
     to_do = sum(len(windows) for group, windows in groups.items() if group not in FALL_AWAY)
     report = {'harvest': pairing.harvested_at(), 'without a player record': total,
-              'still to do for play': to_do,
+              'still to do for play': to_do + len(keys),
+              'still to do, by reason': {'no player record yet': to_do,
+                                         'a player record, but no key round yet': len(keys)},
               'counts': {group: len(windows) for group, windows in groups.items()}, 'groups': groups,
               'views not reached': views, 'views reached': reached,
               'windows whose keys no round pressed': len(keys), 'keys not pressed': keys}
     pathlib.Path(REPORT).write_text(json.dumps(report, indent=1, ensure_ascii=False), encoding='utf-8')
-    print(f'{total} mapped windows without a player record, {to_do} of them still to do for play')
+    print(f'{to_do + len(keys)} windows still to do for play: {to_do} of the {total} mapped windows without '
+          f'a player record, and {len(keys)} with one but no key round yet')
     for group, windows in groups.items():
         print(f'\n{group}: {len(windows)}')
         for window, row in windows.items():

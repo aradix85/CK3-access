@@ -8,6 +8,7 @@ Outcomes, newest day first. No release yet.
 - Declare War is switched off while the player's armies are raised; Escape in the succession and destiny windows opens the pause menu instead of shutting them.
 - The game shows its war declaration window for a war the console starts against the player, and Enter shuts it.
 - Keys pressed on Harold in thirteen windows, among them the siege, the battle, the ally's call, the succession and the destiny choice; 50 windows still lack a key round.
+- A window counts as done only once a key round has pressed its keys: 122 windows still to do for play, 72 without a player record and 50 without a key round.
 
 ## 2026-11-07
 - The game reads the player's message settings: every message came up as a popup and stopped the clock.
