@@ -16,8 +16,9 @@ NVDA. No game files are copied or redistributed.
 - **It survives patches:** every memory offset is derived from the running game and rechecked at start.
 - **Events are read aloud live**, with the key that answers them.
 - **282 windows are mapped**, checked against what the running game builds; 252 were harvested on
-  1.20.1.2 and joined to the `.gui` files. Which ones a player's route has not reached yet, and how
-  a player gets to each, `python -m tools.ck3.missing` writes to `reports/missing.json`.
+  1.20.1.2 and joined to the `.gui` files. Which ones are still to do - no record from a player's
+  route yet, or no key round inside them yet - and how a player gets to each,
+  `python -m tools.ck3.missing` writes to `reports/missing.json`.
 - **A reader** hands out one unit per keystroke, speech and braille together. Switched-off buttons say
   so, hidden widgets stay silent, and every failure is spoken.
 - **A map layer from the files alone:** neighbours, de jure titles, distance, bearing, travel days.
@@ -155,8 +156,9 @@ yields captions without values; a key, a click, a chain of presses the gui files
 (`openers.chain`), presses named by hand (`tools/ck3/hand.py`), or an event the console fires - the
 game shows it in its own window, with its data - give the values. `python -m tools.ck3.clock` lets the
 clock run and records what the game shows by itself, clicking the icons that requests from the AI and
-the results of wars put in the top bar, and presses the keys of each window it records where it
-stands, since such a window cannot be opened again. An interaction window opens from
+the results of wars put in the top bar, and a battle on the map when it is told to wait for one, and
+presses the keys of each window it records where it stands, since such a window cannot be opened
+again. An interaction window opens from
 the menu of a character for whom it is valid; `python -m tools.ck3.interactions` reads who that is
 into `reports/interactions.json`. **Check the window map against the game**, not the files:
 `windowmap.unmapped` lists what the engine built that the map lacks.
