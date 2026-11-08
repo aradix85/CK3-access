@@ -67,6 +67,55 @@
   "measured": "2026-11-07 19:42",
   "player": "Harold"
  },
+ "battle_summary": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "tab_1",
+    "ctrl+1",
+    "nothing"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "nothing"
+   ],
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-08 11:16",
+  "player": "Harold"
+ },
+ "call_ally_interaction_notification_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "tab_1",
+    "ctrl+1",
+    "changed the text: 15 lines, was 18"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "nothing"
+   ],
+   [
+    "tab_3",
+    "ctrl+3",
+    "changed the text: 18 lines, was 15"
+   ],
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-08 11:26",
+  "player": "Harold"
+ },
  "call_ally_interaction_window": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -106,6 +155,18 @@
   "measured": "2026-10-22 11:58",
   "player": "Harold"
  },
+ "character_ally_list_subview": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-08 11:06",
+  "player": "Harold"
+ },
  "character_finder_window": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -116,6 +177,33 @@
    ]
   ],
   "measured": "2026-10-22 11:58",
+  "player": "Harold"
+ },
+ "character_interaction_notification_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "tab_1",
+    "ctrl+1",
+    "nothing"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "nothing"
+   ],
+   [
+    "tab_3",
+    "ctrl+3",
+    "changed the text: 11 lines, was 11"
+   ],
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-08 11:17",
   "player": "Harold"
  },
  "character_lifestyle_window": {
@@ -191,6 +279,18 @@
   ],
   "measured": "2026-10-22 13:28",
   "player": "SU_rI_"
+ },
+ "combat_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-08 12:04",
+  "player": "Harold"
  },
  "council_window": {
   "exe": "101125752-1792594002",
@@ -1041,6 +1141,30 @@
   "measured": "2026-10-22 11:58",
   "player": "Harold"
  },
+ "select_commander_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-08 10:59",
+  "player": "Harold"
+ },
+ "siege_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-08 11:52",
+  "player": "Harold"
+ },
  "struggle_involvement_window": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -1194,6 +1318,128 @@
   ],
   "measured": "2026-10-22 13:50",
   "player": "SU_rI_"
+ },
+ "succession_event_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut layer_window, opened ingame_pausemenu"
+   ]
+  ],
+  "measured": "2026-11-08 11:31",
+  "player": "Eadmund"
+ },
+ "succession_select_destiny_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut layer_window, opened ingame_pausemenu"
+   ]
+  ],
+  "measured": "2026-11-08 11:31",
+  "player": "Eadmund"
+ },
+ "title_election": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "go_back",
+    "B",
+    "shut the window, opened holding_view"
+   ],
+   [
+    "go_back_2",
+    "BACKSPACE",
+    "shut the window, opened holding_view"
+   ],
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "tab_1",
+    "ctrl+1",
+    "changed the text: 57 lines, was 74; again: back"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "changed the text: 57 lines, was 74; again: back"
+   ]
+  ],
+  "measured": "2026-11-08 12:15",
+  "player": "Harold"
+ },
+ "title_view_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "go_back",
+    "B",
+    "shut the window, opened faith_window"
+   ],
+   [
+    "go_back_2",
+    "BACKSPACE",
+    "shut the window, opened faith_window"
+   ]
+  ],
+  "measured": "2026-11-08 12:15",
+  "player": "Harold"
+ },
+ "transfer_vassal_interaction_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "tab_1",
+    "ctrl+1",
+    "nothing"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "nothing"
+   ],
+   [
+    "tab_3",
+    "ctrl+3",
+    "nothing"
+   ]
+  ],
+  "measured": "2026-11-08 12:15",
+  "player": "Harold"
+ },
+ "war_declared_overview": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "confirm",
+    "RETURN",
+    "shut the window"
+   ],
+   [
+    "confirm_2",
+    "alt+c",
+    "not pressed: an earlier key shut the window"
+   ],
+   [
+    "close_window",
+    "ESCAPE",
+    "not pressed: an earlier key shut the window"
+   ]
+  ],
+  "measured": "2026-11-08 12:05",
+  "player": "Harold"
  },
  "war_overview_window": {
   "exe": "101125752-1792594002",

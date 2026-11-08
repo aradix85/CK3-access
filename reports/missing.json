@@ -1,5 +1,5 @@
 {
- "harvest": "2026-11-07 19:46",
+ "harvest": "2026-11-08 12:04",
  "without a player record": 147,
  "still to do for play": 72,
  "counts": {
@@ -834,7 +834,7 @@
    "window_tax_slot_vassals"
   ]
  },
- "windows whose keys no round pressed": 63,
+ "windows whose keys no round pressed": 50,
  "keys not pressed": {
   "activity_guest_list": [
    "close_window",
@@ -863,11 +863,6 @@
    "tab_1",
    "tab_2"
   ],
-  "battle_summary": [
-   "close_window",
-   "tab_1",
-   "tab_2"
-  ],
   "big_event_window": [
    "close_tooltips",
    "event_tooltips"
@@ -877,15 +872,6 @@
    "tab_1",
    "tab_2",
    "tab_3"
-  ],
-  "call_ally_interaction_notification_window": [
-   "close_window",
-   "tab_1",
-   "tab_2",
-   "tab_3"
-  ],
-  "character_ally_list_subview": [
-   "close_window"
   ],
   "character_event": [
    "close_tooltips",
@@ -899,15 +885,6 @@
    "tab_3"
   ],
   "character_interaction_menu_window": [
-   "close_window"
-  ],
-  "character_interaction_notification_window": [
-   "close_window",
-   "tab_1",
-   "tab_2",
-   "tab_3"
-  ],
-  "combat_window": [
    "close_window"
   ],
   "concubine_interaction_window": [
@@ -1029,52 +1006,18 @@
    "close_tooltips",
    "event_tooltips"
   ],
-  "select_commander_window": [
-   "close_window"
-  ],
-  "siege_window": [
-   "close_window"
-  ],
   "situation_catalysts_history_window": [
    "close_window"
   ],
   "situation_catalysts_window": [
    "close_window"
   ],
-  "succession_event_window": [
-   "close_window"
-  ],
   "succession_law_change_window": [
    "close_window"
-  ],
-  "succession_select_destiny_window": [
-   "close_window"
-  ],
-  "title_election": [
-   "close_window",
-   "go_back",
-   "go_back_2",
-   "tab_1",
-   "tab_2"
-  ],
-  "title_view_window": [
-   "go_back",
-   "go_back_2"
-  ],
-  "transfer_vassal_interaction_window": [
-   "close_window",
-   "tab_1",
-   "tab_2",
-   "tab_3"
   ],
   "visit_settlement_window": [
    "close_tooltips",
    "event_tooltips"
-  ],
-  "war_declared_overview": [
-   "close_window",
-   "confirm",
-   "confirm_2"
   ],
   "window_exchange_hostages": [
    "close_window"

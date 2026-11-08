@@ -29,6 +29,9 @@ is stopped by hand** (`stopped_by_hand`), so that answering what stands does not
 keys_in_place`), Escape last, and the answer goes into `reports\window_keys.json`: such a window
 cannot be opened again for the key round (decided 7 November 2026).
 
+**A window named that a click on the map opens** (`ON_MAP`) is clicked open as soon as the game
+draws its icon where a click reaches it, which only happens on screen: the camera decides.
+
 With `--try` the records go to the work folder and not into the harvest: a request the console
 made proves this watcher, and the record of a request has to come from the AI itself. It stops
 when the player is at war, unless `--war` says the round is meant to run through one; and with
@@ -57,6 +60,14 @@ SPACE = 32
 # and while the event stands a space does not start it (measured 5 November 2026 on Harold). How
 # long the clock stood before a window came is printed with that window.
 IDLE = 20
+# What a click on the map opens: the widget the game draws over a province for it, whose first
+# child is the button, and the call the button makes. A battle draws `combat_widget`, 0 wide, with
+# its button as the one child, 162 by 42 (map_icon_layer.gui; measured 8 November 2026 on Harold,
+# where this clicked it and recorded `combat_window`). Not the
+# siege: its icon fades out once the camera is zoomed out past level 8 (`warfare_out` in
+# map_icon_layer.gui), and with all of England in view a round that saw sieges reported drew none
+# (measured 8 November 2026); `siege_window` opens from the holding view of a besieged capital.
+ON_MAP = {'combat_window': ('combat_widget', 'CombatMapIcon.OnClick')}
 
 
 def running(nodes: widgettree.Nodes) -> bool:
@@ -168,6 +179,21 @@ def inside(nodes: widgettree.Nodes, address: int) -> bool:
             if not (cx <= x < cx + cw and cy <= y < cy + ch):
                 return False
     return True
+
+
+def map_spot(game: windowmap.Game, nodes: widgettree.Nodes, window: str) -> tuple[int, int] | None:
+    """Where a click on the map opens `window` (`ON_MAP`): the middle of the first of its buttons a
+    click reaches, or None while none is drawn there."""
+    drawn = onscreen.shown(nodes, [a for a, k in nodes.items() if k[6] == ON_MAP[window][0]])
+    if not drawn:
+        return None
+    scales = onscreen.scales_for(list(nodes))
+    classes = widgettree.class_map(game.pid, {a: k[0] for a, k in nodes.items()})
+    for address in drawn:
+        button = next(a for a, k in nodes.items() if k[5] == address)
+        if openers.on_screen(button, nodes, scales, classes) is None:
+            return middle(nodes, button)
+    return None
 
 
 def middle(nodes: widgettree.Nodes, address: int) -> tuple[int, int]:
@@ -310,6 +336,11 @@ def main() -> None:
         return window not in recorded and (out != harvest.OUT or window in goals
                                            or not harvest.player_record(window))
 
+    def done() -> bool:
+        """Every window named is recorded. Asked before the clock is started again: answering
+        after the last one let it run two months more (measured 8 November 2026 on Harold)."""
+        return bool(goals) and not any(wanted(goal) for goal in goals)
+
     # Icons standing before the clock runs did not come while it ran, and are said so: the icon of a
     # war the console ended stood there, and the first round said it came with the clock running,
     # while a war that ends with the clock running stops it (measured 7 November 2026 on Harold).
@@ -319,7 +350,7 @@ def main() -> None:
     stood: float | None = None          # since when the clock has stood with nothing open
     try:
         set_clock(game, True, baseline)
-        while time.time() < deadline and not (goals and not any(wanted(goal) for goal in goals)):
+        while time.time() < deadline and not done():
             if harvest.free_memory() < harvest.FREE_MEMORY_FLOOR:
                 raise SystemExit(f'{harvest.free_memory():.1f} GB free, below the floor of {harvest.FREE_MEMORY_FLOOR:.1f}')
             channel.ask('hello')
@@ -329,6 +360,26 @@ def main() -> None:
             icons = request_icons(game, nodes)
             standing = len(icons_in(nodes, 'diplomatic_items'))
             fresh = drawn - baseline
+            on_map = next(((g, s) for g in goals if g in ON_MAP and wanted(g)
+                           for s in [map_spot(game, nodes, g)] if s), None)
+            if on_map and not icons and not fresh:
+                window, (x, y) = on_map
+                date = harvest.game_date(nodes)
+                set_clock(game, False)
+                started = time.time()
+                channel.ask(f'mouse {x} {y}')
+                time.sleep(1.5)
+                nodes, _, drawn = game.state()
+                if window not in drawn:
+                    raise SystemExit(f"{date}: a click on the {ON_MAP[window][0]} at {x},{y} brought up "
+                                     f"{', '.join(sorted(drawn - baseline)) or 'nothing'}")
+                print(f'{date}: clicked the {ON_MAP[window][0]} on the map')
+                record(window, nodes, f'clock: {ON_MAP[window][1]} on the map on {date}', started)
+                answer(game, baseline, tables)
+                if not done():
+                    set_clock(game, True, baseline)
+                stood = None
+                continue
             if not icons and not fresh:
                 if running(nodes):
                     stood = None
@@ -361,7 +412,8 @@ def main() -> None:
             answer(game, baseline, tables)
             if icons and len(icons_in(game.tree(), 'diplomatic_items')) == standing:
                 click(game, right=True)
-            set_clock(game, True, baseline)
+            if not done():
+                set_clock(game, True, baseline)
     finally:
         # A message standing now would hold the clock with the icon of a stop by hand, and the next
         # thing to shut it would start the clock (`stopped_by_hand`): shut what stands, then stop.

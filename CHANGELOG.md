@@ -2,6 +2,13 @@
 
 Outcomes, newest day first. No release yet.
 
+## 2026-11-08
+- The clock watcher clicks a battle it is told to wait for on the map and records the battle window; it no longer starts the clock again after its last goal.
+- A siege icon on the map fades out once the camera is zoomed out past level 8, so the siege window goes by the holding view of a besieged capital.
+- Declare War is switched off while the player's armies are raised; Escape in the succession and destiny windows opens the pause menu instead of shutting them.
+- The game shows its war declaration window for a war the console starts against the player, and Enter shuts it.
+- Keys pressed on Harold in thirteen windows, among them the siege, the battle, the ally's call, the succession and the destiny choice; 50 windows still lack a key round.
+
 ## 2026-11-07
 - The game reads the player's message settings: every message came up as a popup and stopped the clock.
 - A battle sends a message only when someone falls or is taken; a war ended in white peace shows its result window and an icon, and no message.

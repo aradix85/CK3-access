@@ -159,6 +159,7 @@ returns a pair, passed on as one thing, costs a run.
 | `icons_in(nodes, row)` | list | Every `action_icon` drawn in one row of the top bar, left to right: `diplomatic_items` for |
 | `request_icons(game, nodes)` | list | The icons of the requests that a click could reach. Each grows from nothing as it comes in, |
 | `inside(nodes, address)` | bool | Does the middle of this widget lie within the frame of every ancestor that cuts off its |
+| `map_spot(game, nodes, window)` | NoneType of value | Where a click on the map opens `window` (`ON_MAP`): the middle of the first of its buttons a |
 | `middle(nodes, address)` | 2-tuple | - |
 | `click(game, right=False)` | 2-tuple | Click the first request icon, or with `right` take it away with a right click: the tree |
 | `option(game, window, tables)` | 2-tuple of NoneType | The first answer in `window` that a click reaches, or None. An option the game has switched |
