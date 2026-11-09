@@ -319,6 +319,18 @@
   "measured": "2026-11-08 12:04",
   "player": "Harold"
  },
+ "council_task_interaction_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-09 12:41",
+  "player": "Andronikos"
+ },
  "council_window": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -372,6 +384,18 @@
   ],
   "measured": "2026-10-22 11:58",
   "player": "Harold"
+ },
+ "create_claimant_faction_against_interaction_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-09 12:41",
+  "player": "Andronikos"
  },
  "culture_window": {
   "exe": "101125752-1792594002",
@@ -467,6 +491,18 @@
   ],
   "measured": "2026-11-09 11:33",
   "player": "Harold"
+ },
+ "designate_heir": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-09 12:41",
+  "player": "Andronikos"
  },
  "diarchy_window": {
   "exe": "101125752-1792594002",
@@ -742,6 +778,33 @@
   ],
   "measured": "2026-10-22 11:58",
   "player": "Harold"
+ },
+ "interfere_in_war_interaction_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "tab_1",
+    "ctrl+1",
+    "nothing"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "nothing"
+   ],
+   [
+    "tab_3",
+    "ctrl+3",
+    "nothing"
+   ]
+  ],
+  "measured": "2026-11-09 12:05",
+  "player": "Gyrth"
  },
  "intrigue_window": {
   "exe": "101125752-1792594002",
@@ -1110,6 +1173,33 @@
   ],
   "measured": "2026-11-07 18:58",
   "player": "Harold"
+ },
+ "revoke_titles_interaction_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "tab_1",
+    "ctrl+1",
+    "nothing"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "nothing"
+   ],
+   [
+    "tab_3",
+    "ctrl+3",
+    "changed the text: 12 lines, was 12"
+   ]
+  ],
+  "measured": "2026-11-09 12:31",
+  "player": "Andronikos"
  },
  "rite_creation_window": {
   "exe": "101125752-1792594002",
@@ -1527,6 +1617,18 @@
   ],
   "measured": "2026-11-09 11:49",
   "player": "Harold"
+ },
+ "window_house_aspiration": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-09 12:41",
+  "player": "Andronikos"
  },
  "window_manage_tax_slots": {
   "exe": "101125752-1792594002",

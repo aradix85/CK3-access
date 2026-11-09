@@ -1,10 +1,10 @@
 {
  "harvest": "2026-11-08 12:04",
  "without a player record": 147,
- "still to do for play": 119,
+ "still to do for play": 113,
  "still to do, by reason": {
   "no player record yet": 72,
-  "a player record, but no key round yet": 47
+  "a player record, but no key round yet": 41
  },
  "counts": {
   "developer": 26,
@@ -838,7 +838,7 @@
    "window_tax_slot_vassals"
   ]
  },
- "windows whose keys no round pressed": 47,
+ "windows whose keys no round pressed": 41,
  "keys not pressed": {
   "activity_guest_list": [
    "close_window",
@@ -888,16 +888,7 @@
   "concubine_interaction_window": [
    "close_window"
   ],
-  "council_task_interaction_window": [
-   "close_window"
-  ],
   "court_task_interaction_window": [
-   "close_window"
-  ],
-  "create_claimant_faction_against_interaction_window": [
-   "close_window"
-  ],
-  "designate_heir": [
    "close_window"
   ],
   "duel_event": [
@@ -939,12 +930,6 @@
   "houses_list": [
    "close_window"
   ],
-  "interfere_in_war_interaction_window": [
-   "close_window",
-   "tab_1",
-   "tab_2",
-   "tab_3"
-  ],
   "knight_permissions": [
    "close_window"
   ],
@@ -980,12 +965,6 @@
    "tab_1",
    "tab_2"
   ],
-  "revoke_titles_interaction_window": [
-   "close_window",
-   "tab_1",
-   "tab_2",
-   "tab_3"
-  ],
   "scheme_conclusion_event_no_header": [
    "close_tooltips",
    "event_tooltips"
@@ -1013,9 +992,6 @@
   "visit_settlement_window": [
    "close_tooltips",
    "event_tooltips"
-  ],
-  "window_house_aspiration": [
-   "close_window"
   ],
   "window_silk_road": [
    "go_back",

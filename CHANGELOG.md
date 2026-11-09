@@ -4,7 +4,7 @@ Outcomes, newest day first. No release yet.
 
 ## 2026-11-09
 - The key round inside windows walks the hand route a record keeps before a chain from the files: the chain to the hostage exchange failed where the hand opened it.
-- Keys pressed on Harold in the war declaration, the hostage exchange and the blackmail window: 119 windows still to do for play, 47 without a key round.
+- Keys pressed in three windows on Harold, the war offer on Gyrth and five windows on Andronikos: 113 windows still to do for play, 41 without a key round.
 - The AI sends the notice to interfere in a war only as a liege joining a vassal's defence, under a realm law England lacks and the Chinese empire has.
 
 ## 2026-11-08
