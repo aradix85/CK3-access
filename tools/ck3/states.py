@@ -35,6 +35,10 @@ from tools.ck3 import channel, model, savegame, widgettree, windowmap
 from tools.ck3.quit_game import PAUSE_MENU, escape_to, look, press, ready
 
 IN_GAME = re.compile(r'\bPaused\b|Domain Holdings|Pinned Characters')
+# The date in the bar at the bottom right, drawn in every game. On Zhuye Chixin "Paused" stands over
+# the name of a realm on the map and the recogniser read no Paused at all (9 November 2026), so the
+# date is the last word, asked after the main menu and the setup screen.
+DATE_BAR = re.compile(r'\b\d{1,2}(?:st|nd|rd|th) of [A-Z][a-z]+, \d{3,4} AD\b')
 MAIN_MENU = ('New Game', 'Load')
 SETUP = 'Random Character'         # the button `new` presses on the setup screen of a bookmark
 
@@ -65,6 +69,8 @@ def wait(pid: int) -> str:
             return 'menu'
         if SETUP in words:
             return 'setup'
+        if DATE_BAR.search(text) and 'Loading' not in text:
+            return 'game'
         time.sleep(15)
     raise SystemExit(f'no game, main menu or setup screen on screen after {int(timeout)} seconds')
 

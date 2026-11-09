@@ -1,10 +1,10 @@
 {
- "harvest": "2026-11-09 14:48",
- "without a player record": 143,
- "still to do for play": 75,
+ "harvest": "2026-11-09 15:28",
+ "without a player record": 141,
+ "still to do for play": 70,
  "still to do, by reason": {
-  "no player record yet": 69,
-  "a player record, but no key round yet": 6
+  "no player record yet": 67,
+  "a player record, but no key round yet": 3
  },
  "counts": {
   "developer": 26,
@@ -12,7 +12,7 @@
   "decided": 31,
   "event": 0,
   "interaction": 1,
-  "chain": 11,
+  "chain": 9,
   "no window route on disk": 57
  },
  "groups": {
@@ -340,14 +340,6 @@
    },
    "create_accolade_view": {
     "file": "gui/window_create_accolade.gui",
-    "state": "console record"
-   },
-   "dynastic_cycle_participant_groups": {
-    "file": "gui/window_tgp_dynastic_cycle.gui",
-    "state": "console record"
-   },
-   "dynastic_cycle_phases_list_window": {
-    "file": "gui/window_tgp_dynastic_cycle.gui",
     "state": "console record"
    },
    "great_project": {
@@ -729,7 +721,7 @@
    "window_tax_slot_vassals"
   ]
  },
- "windows whose keys no round pressed": 6,
+ "windows whose keys no round pressed": 3,
  "keys not pressed": {
   "concubine_interaction_window": [
    "close_window"
@@ -737,22 +729,9 @@
   "ledger_filter_window": [
    "close_window"
   ],
-  "situation_catalysts_history_window": [
-   "close_window"
-  ],
-  "situation_catalysts_window": [
-   "close_window"
-  ],
   "window_silk_road": [
    "go_back",
    "go_back_2"
-  ],
-  "window_tgp_dynastic_cycle": [
-   "close_window",
-   "go_back",
-   "go_back_2",
-   "tab_1",
-   "tab_2"
   ]
  }
 }

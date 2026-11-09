@@ -868,6 +868,30 @@
   "measured": "2026-11-09 13:55",
   "player": "SU_rI_"
  },
+ "dynastic_cycle_participant_groups": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-09 15:33",
+  "player": "Chixin"
+ },
+ "dynastic_cycle_phases_list_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-09 15:38",
+  "player": "Chixin"
+ },
  "dynasty_house_view": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -1981,6 +2005,30 @@
   "measured": "2026-11-08 11:52",
   "player": "Harold"
  },
+ "situation_catalysts_history_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-09 15:38",
+  "player": "Chixin"
+ },
+ "situation_catalysts_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-09 15:38",
+  "player": "Chixin"
+ },
  "struggle_involvement_window": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -2538,5 +2586,37 @@
   ],
   "measured": "2026-10-22 15:44",
   "player": "SU_rI_"
+ },
+ "window_tgp_dynastic_cycle": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "go_back",
+    "B",
+    "shut the window, opened window_situation_list"
+   ],
+   [
+    "go_back_2",
+    "BACKSPACE",
+    "shut the window, opened window_situation_list"
+   ],
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "tab_1",
+    "ctrl+1",
+    "changed the text: 12 lines, was 25"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "changed the text: 25 lines, was 12"
+   ]
+  ],
+  "measured": "2026-11-09 15:33",
+  "player": "Chixin"
  }
 }
