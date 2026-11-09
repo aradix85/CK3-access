@@ -762,7 +762,7 @@
  },
  {
   "name": "windows still to do for play",
-  "claimed": 122,
+  "claimed": 119,
   "measure": "json_field",
   "arguments": ["<project>\\reports\\missing.json", "still to do for play"],
   "counting_rule": "of those, every one outside the groups that fall away: developer, multiplayer and decided, the last with CLOSED and NOT_FOR_PLAY (tools.ck3.missing.FALL_AWAY); plus every window with a player record that no key round has pressed yet (her decision, 8 November 2026)",
@@ -802,7 +802,7 @@
  },
  {
   "name": "windows with a player record whose keys no round pressed",
-  "claimed": 50,
+  "claimed": 47,
   "measure": "json_field",
   "arguments": ["<project>\\reports\\missing.json", "windows whose keys no round pressed"],
   "counting_rule": "windows with a player record and no row in reports\\window_keys.json, in which windowmap.presses_for finds a key a key round would press (view only, and no widget of the window acts on it)",

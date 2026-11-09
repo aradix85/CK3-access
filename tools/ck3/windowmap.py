@@ -410,9 +410,11 @@ def window_keys_round(game: 'Game', names: list[str],
     windows = {**harvest.click_routes(on_disk), **{n: r for n, r in on_disk.items() if r.get('shortcut')},
                **by_hand}
     tables = guimap.tables()
-    chains = harvest.player_chains(names, set(windows), tables)
+    # The hand route a record keeps goes before a chain from the files: it is the one that opened the
+    # window. The chain to the hostage exchange waits on a state no button declares as `down`, and
+    # failed where the hand route opened it (measured 9 November 2026 on Harold).
     hands: dict[str, tuple[str, str, list[hand.Step]]] = {}
-    for name in set(names) - set(windows) - set(chains):
+    for name in set(names) - set(windows):
         path = pathlib.Path(harvest.OUT, name + '.json')
         if path.exists():
             record: harvest.Record | harvest.Refused = json.loads(path.read_text(encoding='utf-8'))
@@ -421,6 +423,7 @@ def window_keys_round(game: 'Game', names: list[str],
                 hands[name] = walked
             elif walked:
                 windows[name] = pressed(walked[1])
+    chains = harvest.player_chains([n for n in names if n not in windows and n not in hands], set(windows), tables)
     back: Route = {'click': True}       # shut on Escape until the bare screen is back
     bound = {n: k for n, k in shortcut_file().items() if k.strip()}
     plan = window_bindings()

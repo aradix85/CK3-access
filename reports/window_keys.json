@@ -89,6 +89,33 @@
   "measured": "2026-11-08 11:16",
   "player": "Harold"
  },
+ "blackmail_interaction_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "tab_1",
+    "ctrl+1",
+    "nothing"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "nothing"
+   ],
+   [
+    "tab_3",
+    "ctrl+3",
+    "changed the text: 12 lines, was 14"
+   ]
+  ],
+  "measured": "2026-11-09 11:41",
+  "player": "Harold"
+ },
  "call_ally_interaction_notification_window": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -427,6 +454,18 @@
    ]
   ],
   "measured": "2026-10-22 11:58",
+  "player": "Harold"
+ },
+ "declare_war_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-09 11:33",
   "player": "Harold"
  },
  "diarchy_window": {
@@ -1476,6 +1515,18 @@
   ],
   "measured": "2026-10-22 15:44",
   "player": "SU_rI_"
+ },
+ "window_exchange_hostages": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-09 11:49",
+  "player": "Harold"
  },
  "window_manage_tax_slots": {
   "exe": "101125752-1792594002",
