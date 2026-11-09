@@ -1,17 +1,17 @@
 {
  "harvest": "2026-11-09 15:28",
  "without a player record": 141,
- "still to do for play": 70,
+ "still to do for play": 69,
  "still to do, by reason": {
-  "no player record yet": 67,
+  "no player record yet": 66,
   "a player record, but no key round yet": 3
  },
  "counts": {
   "developer": 26,
   "multiplayer": 17,
-  "decided": 31,
+  "decided": 32,
   "event": 0,
-  "interaction": 1,
+  "interaction": 0,
   "chain": 9,
   "no window route on disk": 57
  },
@@ -253,6 +253,10 @@
     "file": "gui/game_rules.gui",
     "state": "not important for play: appearance, customisation, achievements or setup a blind player gains nothing from; reopened only on negative feedback from players (2 November 2026)"
    },
+   "interfere_in_war_interaction_notification_window": {
+    "file": "gui/interaction_interfere_in_war_notification.gui",
+    "state": "closed without a harvest: one attempt failed, or only luck, the AI or an uncertain search brings it up; reopened only on negative feedback from players (2 November 2026)"
+   },
    "jomini_notification_sidebar": {
     "file": "gui/notifications/notification_overlay.gui",
     "state": "visible = no after inheritance: the console made it and it was not drawn (read 24 October 2026)"
@@ -319,12 +323,7 @@
    }
   },
   "event": {},
-  "interaction": {
-   "interfere_in_war_interaction_notification_window": {
-    "file": "gui/interaction_interfere_in_war_notification.gui",
-    "state": "console record"
-   }
-  },
+  "interaction": {},
   "chain": {
    "accolade_view": {
     "file": "gui/window_accolade.gui",

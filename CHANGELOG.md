@@ -4,7 +4,8 @@ Outcomes, newest day first. No release yet.
 
 ## 2026-11-09
 - The key round inside windows walks the hand route a record keeps before a chain from the files: the chain to the hostage exchange failed where the hand opened it.
-- Keys pressed in 53 windows on Harold, Gyrth, Andronikos, Ghur and Zhuye Chixin: 70 windows still to do for play, 3 without a key round.
+- Keys pressed in 53 windows on Harold, Gyrth, Andronikos, Ghur and Zhuye Chixin: 69 windows still to do for play, 3 without a key round.
+- The notice that a liege joins a vassal's war is closed: a liege only joins after three years of war, and none did in five on Zhuye Chixin.
 - The dynastic cycle's eras and participant groups came in by hand; the cycle remembers its last tab, so a later route has to press the first one.
 - states.wait also knows a game by the date in the bottom bar: on Zhuye Chixin the recogniser read no Paused.
 - tools.ck3.hand takes a hover step: the memories and the inventory only show while the mouse is over the main portrait, and came in that way.

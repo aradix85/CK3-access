@@ -762,7 +762,7 @@
  },
  {
   "name": "windows still to do for play",
-  "claimed": 70,
+  "claimed": 69,
   "measure": "json_field",
   "arguments": ["<project>\\reports\\missing.json", "still to do for play"],
   "counting_rule": "of those, every one outside the groups that fall away: developer, multiplayer and decided, the last with CLOSED and NOT_FOR_PLAY (tools.ck3.missing.FALL_AWAY); plus every window with a player record that no key round has pressed yet (her decision, 8 November 2026)",
@@ -778,7 +778,7 @@
  },
  {
   "name": "windows without a player record that open from an interaction",
-  "claimed": 1,
+  "claimed": 0,
   "measure": "json_field",
   "arguments": ["<project>\\reports\\missing.json", "counts", "interaction"],
   "counting_rule": "of those, the ones declared in a gui/interaction_*.gui file, and in no group before it",
