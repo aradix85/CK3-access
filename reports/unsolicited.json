@@ -1,0 +1,1853 @@
+{
+ "events": {
+  "character_event": 6015,
+  "activity_window": 1380,
+  "letter_event": 667,
+  "court_event": 193,
+  "big_event_window": 164,
+  "scheme_successful_event": 153,
+  "widget_activity_locale_fullscreen_event": 143,
+  "scheme_failed_event": 141,
+  "scheme_conclusion_event_no_header": 88,
+  "fullscreen_event": 70,
+  "visit_settlement_window": 51,
+  "duel_event": 11,
+  "tournament_fullscreen_pivotal_event_widget": 8,
+  "tour_arrival_event": 4,
+  "anonymous_letter_event": 4,
+  "scheme_preparations_event": 2,
+  "chariot_race_pivotal_moment_widget": 1,
+  "activity_locale_fullscreen_event_widget": 1
+ },
+ "messages": {
+  "heir_change": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "character",
+   "messages": 0
+  },
+  "character_level_change": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "character",
+   "messages": 0
+  },
+  "character_lifestyle": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "character",
+   "messages": 0
+  },
+  "character_nickname": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "character",
+   "messages": 0
+  },
+  "character_stress": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "character",
+   "messages": 0
+  },
+  "secondary_character_stress": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "character",
+   "messages": 0
+  },
+  "character_health": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "character",
+   "messages": 0
+  },
+  "character_trait": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "character",
+   "messages": 0
+  },
+  "relationship_gained": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "character",
+   "messages": 0
+  },
+  "hook_on_me": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "diplomacy",
+   "messages": 0
+  },
+  "hook_on_other": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "diplomacy",
+   "messages": 0
+  },
+  "marriage_started": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "diplomacy",
+   "messages": 0
+  },
+  "marriage_ended": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "diplomacy",
+   "messages": 0
+  },
+  "legitimacy_change": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "character",
+   "messages": 0
+  },
+  "child_born": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "family",
+   "messages": 0
+  },
+  "grandchild_born": {
+   "display": "hidden",
+   "auto_pause": false,
+   "group": "family",
+   "messages": 0
+  },
+  "child_language": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "family",
+   "messages": 0
+  },
+  "known_pregnancy": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "family",
+   "messages": 0
+  },
+  "family_became_concubine": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "family",
+   "messages": 0
+  },
+  "family_marriage_started": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "family",
+   "messages": 0
+  },
+  "marriage_ended_heir": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "family",
+   "messages": 0
+  },
+  "realm_priest_endorsement": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "council",
+   "messages": 0
+  },
+  "council_task": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "council",
+   "messages": 0
+  },
+  "councillor_ongoing": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "council",
+   "messages": 0
+  },
+  "councillor": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "council",
+   "messages": 0
+  },
+  "councillor_liege": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "council",
+   "messages": 0
+  },
+  "dynasty_prestige": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "dynasty",
+   "messages": 0
+  },
+  "dynasty_perk": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "dynasty",
+   "messages": 0
+  },
+  "dynasty_head_change": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "dynasty",
+   "messages": 0
+  },
+  "dynasty_cadet_created": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "dynasty",
+   "messages": 0
+  },
+  "dynasty_child_of_age": {
+   "display": "hidden",
+   "auto_pause": false,
+   "group": "dynasty",
+   "messages": 0
+  },
+  "child_of_age": {
+   "display": "hidden",
+   "auto_pause": false,
+   "group": "dynasty",
+   "messages": 0
+  },
+  "house_head_change": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "dynasty",
+   "messages": 0
+  },
+  "house_feud_status": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "dynasty",
+   "messages": 0
+  },
+  "courtier_arrived": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "court",
+   "messages": 0
+  },
+  "courtier_arrived_notable": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "court",
+   "messages": 0
+  },
+  "courtier_leaving": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "court",
+   "messages": 0
+  },
+  "courtier_child_of_age": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "court",
+   "messages": 0
+  },
+  "court_position": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "court",
+   "messages": 0
+  },
+  "court_position_held": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "court",
+   "messages": 0
+  },
+  "scheme_agent": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "scheme",
+   "messages": 0
+  },
+  "scheme_ended": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "scheme",
+   "messages": 0
+  },
+  "scheme_progress": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "scheme",
+   "messages": 0
+  },
+  "scheme_completion": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "scheme",
+   "messages": 0
+  },
+  "scheme_opportunity_threshold": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "scheme",
+   "messages": 0
+  },
+  "countermeasure_change": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "scheme",
+   "messages": 0
+  },
+  "secret_discovered": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "scheme",
+   "messages": 0
+  },
+  "secret_exposed": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "scheme",
+   "messages": 0
+  },
+  "interaction_consequence": {
+   "display": "hidden",
+   "auto_pause": false,
+   "group": "default",
+   "messages": 0
+  },
+  "ransom_result": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "default",
+   "messages": 0
+  },
+  "death_family": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "death",
+   "messages": 0
+  },
+  "death_councillor": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "death",
+   "messages": 0
+  },
+  "death_prisoner": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "death",
+   "messages": 0
+  },
+  "death_relation": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "death",
+   "messages": 0
+  },
+  "death_notable": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "death",
+   "messages": 0
+  },
+  "title_gained": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "title",
+   "messages": 0
+  },
+  "title_lost": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "title",
+   "messages": 0
+  },
+  "title_primary_changed": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "title",
+   "messages": 0
+  },
+  "title_rank_changed": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "title",
+   "messages": 0
+  },
+  "clergy_title_transfer": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "title",
+   "messages": 0
+  },
+  "independence_gained": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "realm",
+   "messages": 0
+  },
+  "vassal_contract_changed": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "realm",
+   "messages": 0
+  },
+  "liege_changed": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "realm",
+   "messages": 0
+  },
+  "government_changed": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "realm",
+   "messages": 0
+  },
+  "law_changed": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "realm",
+   "messages": 0
+  },
+  "law_liege": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "realm",
+   "messages": 0
+  },
+  "faction": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "realm",
+   "messages": 0
+  },
+  "faction_liege": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "realm",
+   "messages": 0
+  },
+  "liege_ceded_title": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "realm",
+   "messages": 0
+  },
+  "alliance_formed": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "diplomacy",
+   "messages": 0
+  },
+  "alliance_broken": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "diplomacy",
+   "messages": 0
+  },
+  "confederation": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "diplomacy",
+   "messages": 0
+  },
+  "war_participation": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "war",
+   "messages": 0
+  },
+  "war_participation_ally": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "war",
+   "messages": 0
+  },
+  "war_participation_enemy": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "war",
+   "messages": 0
+  },
+  "war_target": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "war",
+   "messages": 0
+  },
+  "war_ended": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "war",
+   "messages": 0
+  },
+  "war_ended_liege": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "war",
+   "messages": 0
+  },
+  "war_ended_neighbor": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "war",
+   "messages": 0
+  },
+  "war_declared_liege": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "war",
+   "messages": 0
+  },
+  "war_target_liege": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "war",
+   "messages": 0
+  },
+  "war_target_vassal": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "war",
+   "messages": 0
+  },
+  "war_target_tributary": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "war",
+   "messages": 0
+  },
+  "war_target_suzerain": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "war",
+   "messages": 0
+  },
+  "tributary_war": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "war",
+   "messages": 0
+  },
+  "war_troops_gained": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "war",
+   "messages": 0
+  },
+  "war_troops_dismissed": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "war",
+   "messages": 0
+  },
+  "war_enemy_troops": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "war",
+   "messages": 0
+  },
+  "combat_casualties": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "battle",
+   "messages": 0
+  },
+  "combat_prisoners": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "battle",
+   "messages": 0
+  },
+  "raid_completed": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "battle",
+   "messages": 0
+  },
+  "raid_lost": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "battle",
+   "messages": 0
+  },
+  "raid_intent_invalidated": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "battle",
+   "messages": 0
+  },
+  "barter_completed": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "battle",
+   "messages": 0
+  },
+  "barter_loot_delivered": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "battle",
+   "messages": 0
+  },
+  "barter_aborted": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "battle",
+   "messages": 0
+  },
+  "barter_loot_lost": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "battle",
+   "messages": 0
+  },
+  "barter_loot_won": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "battle",
+   "messages": 0
+  },
+  "siege_won": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "battle",
+   "messages": 0
+  },
+  "siege_won_loot": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "battle",
+   "messages": 0
+  },
+  "siege_started_enemy": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "battle",
+   "messages": 0
+  },
+  "siege_won_enemy": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "battle",
+   "messages": 0
+  },
+  "artifact_claim": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "artifact",
+   "messages": 0
+  },
+  "artifact_ownership": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "artifact",
+   "messages": 0
+  },
+  "building_started": {
+   "display": "hidden",
+   "auto_pause": false,
+   "group": "domain",
+   "messages": 0
+  },
+  "building_completed": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "domain",
+   "messages": 0
+  },
+  "county_corruption": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "domain",
+   "messages": 0
+  },
+  "culture_head": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "culture",
+   "messages": 0
+  },
+  "culture_traditions": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "culture",
+   "messages": 0
+  },
+  "culture_innovation": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "culture",
+   "messages": 0
+  },
+  "culture_era": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "culture",
+   "messages": 0
+  },
+  "culture_hybridized_nearby": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "culture",
+   "messages": 0
+  },
+  "culture_conversion_notable": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "culture",
+   "messages": 0
+  },
+  "faith_excommunication": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "religion",
+   "messages": 0
+  },
+  "head_of_faith_changed": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "religion",
+   "messages": 0
+  },
+  "holy_site_changed": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "religion",
+   "messages": 0
+  },
+  "liege_converting_holding": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "religion",
+   "messages": 0
+  },
+  "rite_updated": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "religion",
+   "messages": 0
+  },
+  "holy_order_founded": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "holy_order",
+   "messages": 0
+  },
+  "holy_order_destroyed": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "holy_order",
+   "messages": 0
+  },
+  "holy_order_founded_enemy": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "holy_order",
+   "messages": 0
+  },
+  "holy_order_patronage": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "holy_order",
+   "messages": 0
+  },
+  "holy_order_hired": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "holy_order",
+   "messages": 0
+  },
+  "court_amenity": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "court",
+   "messages": 0
+  },
+  "court_language": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "court",
+   "messages": 0
+  },
+  "court_grandeur": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "court",
+   "messages": 0
+  },
+  "courtier_court_trait": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "court",
+   "messages": 0
+  },
+  "court_inspiration": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "court",
+   "messages": 0
+  },
+  "struggle_catalyst": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "struggle",
+   "messages": 0
+  },
+  "struggle_phase": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "struggle",
+   "messages": 0
+  },
+  "house_unity_stage": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "dynasty",
+   "messages": 0
+  },
+  "house_unity_change": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "dynasty",
+   "messages": 0
+  },
+  "diarch": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "realm",
+   "messages": 0
+  },
+  "accolade_activity": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "accolade",
+   "messages": 0
+  },
+  "accolade_rank": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "accolade",
+   "messages": 0
+  },
+  "accolade_succession": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "accolade",
+   "messages": 0
+  },
+  "accolade_eligibility": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "accolade",
+   "messages": 0
+  },
+  "accolade_squire_training": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "accolade",
+   "messages": 0
+  },
+  "accolade_knight_training": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "accolade",
+   "messages": 0
+  },
+  "accolade_mercenary": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "accolade",
+   "messages": 0
+  },
+  "tournament_arrival": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "activity",
+   "messages": 0
+  },
+  "tournament_knight_arrives": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "activity",
+   "messages": 0
+  },
+  "tournament_qualification": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "activity",
+   "messages": 0
+  },
+  "tournament_qualification_champion": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "activity",
+   "messages": 0
+  },
+  "tournament_qualification_knight": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "activity",
+   "messages": 0
+  },
+  "legend_promoter": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "legend",
+   "messages": 0
+  },
+  "legend_seed": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "legend",
+   "messages": 0
+  },
+  "epidemic_outbreak": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "epidemic",
+   "messages": 0
+  },
+  "epidemic_spread": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "epidemic",
+   "messages": 0
+  },
+  "court_contracted_epidemic": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "epidemic",
+   "messages": 0
+  },
+  "court_recover_epidemic": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "epidemic",
+   "messages": 0
+  },
+  "appointment_candidacy": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "administrative",
+   "messages": 0
+  },
+  "candidate_title_gained": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "administrative",
+   "messages": 0
+  },
+  "candidate_title_lost": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "administrative",
+   "messages": 0
+  },
+  "governance_contracts": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "administrative",
+   "messages": 0
+  },
+  "governor_notification": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "administrative",
+   "messages": 0
+  },
+  "provincial_army_assignment": {
+   "display": "hidden",
+   "auto_pause": false,
+   "group": "administrative",
+   "messages": 0
+  },
+  "admin_border_change": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "administrative",
+   "messages": 0
+  },
+  "admin_provincial_army_requests": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "administrative",
+   "messages": 0
+  },
+  "admin_new_powerful_family": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "administrative",
+   "messages": 0
+  },
+  "admin_new_noble_family": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "administrative",
+   "messages": 0
+  },
+  "laamp_contracts": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "adventurer",
+   "messages": 0
+  },
+  "laamp_follower_event": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "adventurer",
+   "messages": 0
+  },
+  "laamp_nearby": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "adventurer",
+   "messages": 0
+  },
+  "domicile_moved": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "domain",
+   "messages": 0
+  },
+  "migration_into_realm": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "nomadic",
+   "messages": 0
+  },
+  "migration_into_neighbour": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "nomadic",
+   "messages": 0
+  },
+  "tributaries_breaking_free": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "nomadic",
+   "messages": 0
+  },
+  "yurt_yearly_benefits": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "nomadic",
+   "messages": 0
+  },
+  "mpo_de_jure_shifting": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "nomadic",
+   "messages": 0
+  },
+  "gok_gained_vassal": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "nomadic",
+   "messages": 0
+  },
+  "great_steppe": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "situation",
+   "messages": 0
+  },
+  "silk_road": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "situation",
+   "messages": 0
+  },
+  "house_relation_changed": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "dynasty",
+   "messages": 0
+  },
+  "mandala_aspect": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "mandala",
+   "messages": 0
+  },
+  "mandala_contract": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "mandala",
+   "messages": 0
+  },
+  "tributary": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "domain",
+   "messages": 0
+  },
+  "natural_disaster_started": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "natural_disaster",
+   "messages": 0
+  },
+  "natural_disaster_army_damaged": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "natural_disaster",
+   "messages": 0
+  },
+  "great_project": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "realm",
+   "messages": 0
+  },
+  "great_project_contribution": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "realm",
+   "messages": 0
+  },
+  "appointed_to_title": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "title",
+   "messages": 0
+  },
+  "character_becomes_saint": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "dynasty",
+   "messages": 0
+  },
+  "spiritual_fulfillment_changed": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "religion",
+   "messages": 0
+  },
+  "clerical_region": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "religion",
+   "messages": 0
+  },
+  "ecumenical_council_ruling": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "religion",
+   "messages": 0
+  },
+  "great_schism_progress": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "religion",
+   "messages": 0
+  },
+  "order_espousing_beliefs": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "religion",
+   "messages": 0
+  },
+  "generic_interface_message_good": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "default",
+   "messages": 0
+  },
+  "generic_interface_message_bad": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "default",
+   "messages": 0
+  },
+  "generic_interface_message_neutral": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "default",
+   "messages": 0
+  },
+  "event_outcome": {
+   "display": "toast",
+   "auto_pause": false,
+   "group": "default",
+   "messages": 0
+  },
+  "multiplayer": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "default",
+   "messages": 0
+  },
+  "custom_message": {
+   "display": "popup",
+   "auto_pause": false,
+   "group": "default",
+   "messages": 0
+  },
+  "passive_religious_learning": {
+   "display": "feed",
+   "auto_pause": false,
+   "group": "religion",
+   "messages": 0
+  }
+ },
+ "interactions": {
+  "accepted without being asked": [
+   "make_accolade_into_mercenary_decision",
+   "join_vassal_war_interaction",
+   "start_stealing_back_artifact",
+   "buy_artifact_claim",
+   "set_primary_spouse_interaction",
+   "recruit_guest_interaction",
+   "ai_cultural_hybridization_interaction",
+   "demand_church_succession_interaction",
+   "demand_church_succession_religious_head_interaction",
+   "diarch_legal_meddling_interaction",
+   "diarch_syphon_treasury_interaction",
+   "diarch_shift_privileges_interaction",
+   "mulct_vizier_interaction",
+   "scapegoat_counterpart_interaction",
+   "swing_scales_currency_interaction",
+   "diarch_swing_scales_currency_interaction",
+   "diarch_entrench_regency_interaction",
+   "diarch_regent_appoints_self_co_emperor_interaction",
+   "liege_dismiss_temporary_regency_interaction",
+   "liege_dismiss_vizier_interaction",
+   "appoint_vizier_interaction",
+   "appoint_junior_emperor_interaction",
+   "appoint_co_emperor_interaction",
+   "appoint_co_monarch_interaction",
+   "overthrow_regent_scheme_interaction",
+   "disinherit_interaction",
+   "disinherit_children_interaction",
+   "restore_inheritance_interaction",
+   "denounce_interaction",
+   "forgive_interaction",
+   "send_to_varangian_guard_interaction",
+   "educate_child_interaction",
+   "make_child_learn_language_interaction",
+   "force_join_faction_interaction",
+   "fp3_request_honorary_titles_interaction",
+   "fp3_request_house_unity_change_interaction",
+   "accuse_of_decandence_interaction",
+   "extoll_virtuousness_interaction",
+   "revoke_leased_title_interaction",
+   "ai_make_concubine_interaction",
+   "divorce_character_interaction",
+   "divorce_character_dynast_request_interaction",
+   "ai_only_liege_modify_vassal_contract_interaction",
+   "ai_only_liege_modify_vassal_contract_admin_province_interaction",
+   "ai_only_vassal_modify_vassal_contract_interaction",
+   "ai_only_hegemonic_tributary_modify_tributary_contract_interaction",
+   "claim_throne_interaction",
+   "fabricate_hook_interaction",
+   "demand_payment_interaction",
+   "send_poem_interaction",
+   "move_to_dungeon_interaction",
+   "execute_prisoner_interaction",
+   "torture_interaction",
+   "castrate_interaction",
+   "blind_interaction",
+   "systematically_maim_character_interaction",
+   "fire_puppet_interaction",
+   "excommunicate_interaction",
+   "lift_excommunication_interaction",
+   "host_honored_guest_interaction",
+   "exaltation_of_pain_wound_courtier_interaction",
+   "offer_bedside_support_interaction",
+   "monastic_espouse_beliefs_interaction",
+   "start_abduct",
+   "befriend_interaction",
+   "seduce_interaction",
+   "court_interaction",
+   "sway_interaction",
+   "learn_language_interaction",
+   "appoint_podesta_interaction",
+   "abandon_hook_interaction",
+   "dismiss_strong_hook_interaction",
+   "dismiss_weak_hook_interaction",
+   "force_duel_criminals_interaction",
+   "force_duel_anyone_interaction",
+   "support_feudalize_tribal_holding_interaction",
+   "cease_paying_tribute_interaction",
+   "release_as_tributary_interaction",
+   "force_onto_council",
+   "pardon_interaction",
+   "vassal_claim_liege_title_interaction",
+   "give_vassal_directive_interaction",
+   "convert_to_witchcraft_interaction",
+   "reveal_as_witch_interaction",
+   "incite_revolts_interaction",
+   "return_hostage_interaction",
+   "transfer_county_interaction",
+   "cabinet_of_curiosities_interaction",
+   "acknowledge_governor_interaction",
+   "boost_efficiency_interaction",
+   "damage_efficiency_interaction",
+   "governor_removal_interaction",
+   "ep3_mass_arrests_interaction",
+   "trade_oath_interaction",
+   "evict_adventurer_interaction",
+   "task_contract_train_knight_interaction",
+   "laamp_war_change_sides_interaction",
+   "laamp_leave_war_interaction",
+   "start_slander_interaction",
+   "start_promote_interaction",
+   "start_challenge_status_interaction",
+   "start_expand_power_base_interaction",
+   "start_depose_interaction",
+   "start_foster_legitimacy_interaction",
+   "start_damage_legitimacy_interaction",
+   "start_dispute_border_interaction",
+   "start_subsume_province_interaction",
+   "start_found_despotate_interaction",
+   "start_raid_estate_interaction",
+   "start_ingratiate_family_interaction",
+   "steal_herd_interaction",
+   "celestial_siphon_treasury_interaction",
+   "send_child_to_examination_interaction",
+   "influence_meritorious_career_interaction",
+   "celestial_request_military_aid_interaction",
+   "celestial_send_military_aid_interaction",
+   "set_favored_minister_interaction",
+   "celestial_movement_power_promote_interaction",
+   "celestial_movement_power_slander_interaction",
+   "break_with_elder",
+   "diarch_train_knight_interaction",
+   "censor_find_secrets_interaction",
+   "leave_house_bloc_interaction",
+   "kick_from_house_bloc_interaction",
+   "improve_house_relation_in_bloc_interaction",
+   "designate_theocratic_heir_interaction",
+   "increase_theocratic_heir_candidacy",
+   "support_clerical_candidacy_interaction",
+   "harm_clerical_candidacy_interaction",
+   "replace_ecclesiastical_title_holder_interaction",
+   "grant_pope_blessing_interaction",
+   "increase_papabile_score_interaction",
+   "pam_give_holy_myron_interaction",
+   "start_disbelieve_mandala_interaction",
+   "start_coerce_tributary_interaction",
+   "start_coerce_contribution_interaction",
+   "start_leverage_contribution_interaction"
+  ],
+  "an icon in the top bar": [
+   "adopt_interaction",
+   "negotiate_alliance_interaction",
+   "perk_alliance_interaction",
+   "gift_artifact_interaction",
+   "demand_artifact_interaction",
+   "demand_dynasty_banner_interaction",
+   "destroy_artifact_interaction",
+   "offer_vassalization_interaction",
+   "offer_ward_interaction",
+   "offer_guardianship_interaction",
+   "fp3_request_turkic_invasion_interaction",
+   "fp3_change_allegiance",
+   "gift_interaction",
+   "offer_concubine",
+   "divorce_character_house_head_interaction",
+   "divorce_character_rel_head_interaction",
+   "divorce_character_dynast_request_rel_head_interaction",
+   "elope_interaction",
+   "ransom_interaction",
+   "pay_ransom_interaction",
+   "ransom_me_interaction",
+   "release_from_prison_interaction",
+   "make_clerical_puppet_interaction",
+   "make_external_clerical_puppet_interaction",
+   "make_external_ruler_puppet_interaction",
+   "ask_for_conversion_courtier_interaction",
+   "convert_at_war_interaction",
+   "seek_indulgences_interaction",
+   "declaration_of_repentance_interaction",
+   "request_excommunication_interaction",
+   "hof_ask_for_gold_interaction",
+   "hof_ask_for_claim_interaction",
+   "revel_in_pain_interaction",
+   "monastic_donation_interaction",
+   "lease_title_to_existing_monastic_order_interaction",
+   "study_faith_interaction",
+   "become_tributary_interaction",
+   "demand_tributary_interaction",
+   "offer_courtier_interaction",
+   "demand_courtier_interaction",
+   "demand_concubine_interaction",
+   "offer_tributary_status_interaction",
+   "reassert_tributary_interaction",
+   "ask_for_pardon_interaction",
+   "end_war_attacker_victory_interaction",
+   "end_war_attacker_white_peace_interaction",
+   "end_war_attacker_defeat_interaction",
+   "designate_shieldmaiden_interaction",
+   "request_elevation_interaction",
+   "request_ecclesiastical_title_creation_interaction",
+   "request_ecclesiastical_title_expansion_interaction",
+   "request_ecclesiastical_title_merger_interaction",
+   "request_ecclesiastical_title_split_interaction",
+   "fund_inspiration_interaction",
+   "indebt_guest_interaction",
+   "share_known_secrets_interaction",
+   "challenge_to_2p_chess_interaction",
+   "request_appointment_support",
+   "noble_family_adoption_interaction",
+   "request_raid_remit_interaction",
+   "request_co_emperor_interaction",
+   "ep3_hof_ask_for_influence_interaction",
+   "ep3_governor_request_war_permission_interaction",
+   "reinforce_soldiers_interaction",
+   "refill_maa_interaction",
+   "request_laamp_legitimist_support",
+   "start_teach_governor_interaction",
+   "refill_maa_nomad_interaction",
+   "mpo_gift_herd_interaction",
+   "celestial_demand_treasury_interaction",
+   "celestial_give_treasury_interaction",
+   "request_mentoring_interaction",
+   "celestial_ask_to_switch_movements_interaction",
+   "transfer_small_gold_amount_to_treasury_interaction",
+   "transfer_large_gold_amount_to_treasury_interaction",
+   "transfer_huge_gold_amount_to_treasury_interaction",
+   "find_elder_interaction",
+   "celestial_request_elders_support_interaction",
+   "tgp_mandala_send_missionary_interaction",
+   "landless_admin_switch_non_admin_top_liege_interaction",
+   "pay_treasury_debt_interaction",
+   "invite_to_house_bloc_interaction",
+   "join_house_bloc_interaction",
+   "assume_house_bloc_leadership_interaction",
+   "grant_house_bloc_leadership_interaction",
+   "demand_aspiration_change_interaction",
+   "request_realm_priest_replacement_interaction",
+   "pam_sway_schism_stance_interaction",
+   "destroy_cardinalate_interaction",
+   "ecclesiastic_grant_claim_interaction",
+   "ecclesiastic_transfer_land_interaction",
+   "petition_antipope_indulgences_interaction",
+   "petition_antipope_gold_interaction",
+   "ecclesiastic_incite_holy_war_interaction",
+   "ecclesiastic_incite_claim_war_interaction",
+   "pam_destroy_monastic_order_interaction"
+  ],
+  "a window that pauses": [
+   "challenge_for_artifact_interaction",
+   "ce1_ask_to_promote_legend_interaction",
+   "diarch_revoke_title_interaction",
+   "diarch_retract_vassal_interaction",
+   "diarch_imprison_interaction",
+   "diarch_subsidise_crown_authority_interaction",
+   "diarch_adjust_bureaucracy_interaction",
+   "diarch_request_imperial_expedition_interaction",
+   "diarch_demand_despotate_interaction",
+   "liege_dismiss_entrenched_regency_interaction",
+   "fp3_demand_submission_interaction",
+   "fp3_challenge_house_head_interaction",
+   "challenge_to_single_combat_interaction",
+   "imprison_interaction",
+   "demand_conversion_player_ruler_interaction",
+   "send_to_holy_order_interaction",
+   "take_vows_interaction",
+   "take_monastic_vows_interaction",
+   "revoke_title_interaction",
+   "spar_with_knight_interaction",
+   "retract_vassal_interaction",
+   "challenge_to_trial_by_combat_interaction",
+   "contract_assistance_interaction",
+   "request_contract_assistance_interaction",
+   "bargain_fealty_interaction",
+   "offer_hostage_interaction",
+   "demand_hostage_interaction",
+   "exchange_hostage_interaction",
+   "influence_child_personality_interaction",
+   "contest_appointment_interaction",
+   "offer_eunuch_interaction",
+   "force_governor_removal_interaction",
+   "purchase_land_interaction",
+   "purchase_sacred_land_interaction",
+   "negotiate_settlement_interaction",
+   "contact_list_request_interaction",
+   "hire_laamp_mercenaries_interaction",
+   "procure_estate_interaction",
+   "offer_confederation_interaction",
+   "promote_divergent_or_hybrid_culture_interaction",
+   "inspire_conversion_interaction",
+   "mpo_interaction_grant_paiza",
+   "mpo_interaction_ask_for_paiza",
+   "mpo_interaction_leverage_khan_authority",
+   "mpo_ask_for_herd_interaction",
+   "mpo_demand_obedience_interaction",
+   "influence_child_commander_interaction",
+   "mpo_retrieve_land_from_herder_interaction",
+   "mpo_offer_submission_or_ruin",
+   "mpo_negotiate_obedience_interaction",
+   "coronation_anointment_request",
+   "celestial_request_treasury_interaction",
+   "celestial_request_commander_interaction",
+   "celestial_request_examination_support_interaction",
+   "decommission_mandala_temple_interaction"
+  ],
+  "a window": [
+   "blackmail_interaction",
+   "demand_conversion_vassal_ruler_interaction",
+   "turn_subject_into_mandala_interaction",
+   "exact_tribute_interaction",
+   "exact_tribute_player_interaction",
+   "request_clerical_elector_title_interaction",
+   "propose_best_friendship_interaction",
+   "reaffirm_best_friendship_interaction",
+   "synergise_friendship_interaction",
+   "purchase_truce_interaction",
+   "enforce_truce_interaction",
+   "demand_admin_interaction",
+   "request_council_interaction",
+   "castrate_child_interaction",
+   "force_step_down_interaction",
+   "request_governorship_interaction",
+   "request_ally_title_troops_interaction",
+   "request_emperor_title_troops_interaction",
+   "frontier_influence_war_interaction",
+   "house_head_request_interaction",
+   "mpo_make_blood_brother",
+   "force_abdication_interaction",
+   "request_clerical_chastity_interaction",
+   "demand_child_as_monk_interaction",
+   "sway_courtier_to_my_rite_interaction",
+   "sway_vassal_to_my_rite_interaction",
+   "sway_ruler_to_my_rite_interaction",
+   "appoint_cardinal_interaction",
+   "request_court_chaplain_cardinalate_interaction",
+   "give_cardinal_order_interaction",
+   "request_legitimacy_interaction",
+   "strengthen_claim_interaction",
+   "sell_claim_interaction",
+   "gift_claim_interaction",
+   "buy_ecclesiastical_title_interaction",
+   "grant_ecclesiastical_title_interaction",
+   "influence_papal_vote_interaction",
+   "pam_ai_evangelize_personal_tenet_interaction",
+   "pam_reaffirm_doctrine_interaction",
+   "request_enforce_succession_interaction",
+   "request_ecclesiastical_treasury_interaction",
+   "pam_ask_subordinates_for_gold_interaction",
+   "request_white_peace_interaction",
+   "request_victory_interaction",
+   "ecclesiastic_consecrate_kingdom_interaction",
+   "ecclesiastical_bestow_title_interaction",
+   "request_unformed_title_interaction",
+   "ecclesiastical_de_jure_shifting_interaction",
+   "ecclesiastical_de_jure_shifting_grant_interaction",
+   "demand_divorce_interaction",
+   "seek_communion_interaction",
+   "spiritual_counsel_interaction"
+  ]
+ },
+ "warnings": {
+  "alert": [
+   "action_take_decision",
+   "action_plan_great_project",
+   "action_contribute_to_great_project",
+   "action_can_host_activity",
+   "action_can_join_open_activity",
+   "action_invited_to_activity",
+   "action_awaiting_coronation",
+   "action_can_choose_dynasty_perk",
+   "action_no_heir",
+   "action_no_player_heir_but_replacement_exists_gameover_risk",
+   "action_primary_heir_wrong_dynasty_no_replacement_exists",
+   "action_primary_heir_wrong_dynasty_but_replacement_exists",
+   "action_nominate_successor",
+   "action_can_choose_lifestyle",
+   "action_can_spend_perk_point",
+   "action_lifestyle_diplo",
+   "action_lifestyle_intrigue",
+   "action_lifestyle_learning",
+   "action_lifestyle_martial",
+   "action_lifestyle_stewarship",
+   "action_lifestyle_wanderer",
+   "action_adult_player_heir_not_married",
+   "action_adult_ruler_not_married",
+   "action_non_adult_ruler_not_betrothed",
+   "action_betrothed_can_marry",
+   "action_grand_wedding_can_marry",
+   "mercenary_contract_expiring",
+   "action_dying",
+   "action_being_raided",
+   "action_above_domain_limit",
+   "action_above_vassal_limit",
+   "action_empty_council_position",
+   "action_dangerous_faction_targeting_me",
+   "action_mega_duke_penalty",
+   "action_missing_ghw_beneficiary",
+   "action_ghw_participation_alert",
+   "action_has_unopened_court_event",
+   "action_has_open_court_event",
+   "action_has_courtier_or_guest_with_inspiration",
+   "action_appoint_tax_collector",
+   "action_assign_tax_payers",
+   "action_inherit_legend",
+   "action_promote_legend",
+   "action_promote_foreign_legend",
+   "action_upgrade_legend",
+   "action_laamp_support_expiring_legend",
+   "action_laamp_camp_purpose",
+   "action_low_fertility",
+   "action_switch_to_tributary",
+   "action_upgrade_dominance",
+   "action_excommunicated_recovery",
+   "action_losing_realm_to_clerical_region",
+   "action_pam_decision_confession",
+   "action_can_select_personal_tenet",
+   "action_targeted_by_mass_rite_conversion",
+   "action_too_many_celestial_province_types",
+   "action_too_many_celestial_province_types_2",
+   "action_no_mandala_aspect",
+   "action_can_upgrade_mandala_aspect",
+   "action_no_mandala_decree",
+   "action_targeted_by_grand_campaign",
+   "action_can_upgrade_house_aspiration",
+   "action_no_house_aspiration",
+   "action_landless_admin_escape_to_realm"
+  ],
+  "action": [
+   "action_ask_for_pardon",
+   "action_convert_at_war_interaction",
+   "action_active_diplomacy_oath_1",
+   "action_active_martial_oath_1",
+   "action_active_martial_oath_2",
+   "action_active_stewardship_oath_1",
+   "action_active_stewardship_oath_2",
+   "action_active_learning_oath_1",
+   "action_active_purge_pretenders_oath",
+   "action_active_end_the_struggle_oath",
+   "action_active_greatest_hunter_oath",
+   "action_active_heir_preparation_oath",
+   "action_active_install_claimants_oath",
+   "action_active_mend_the_fracture_oath",
+   "action_active_provide_for_the_warriors_oath",
+   "action_active_provide_for_the_faithful_oath",
+   "action_active_provide_for_the_poor_oath",
+   "action_active_repent_oath",
+   "action_can_reforge_artifact",
+   "action_end_regency",
+   "action_swing_scales_regent",
+   "action_swing_scales_liege_entrenched_dangerous",
+   "action_regent_revoke",
+   "action_regent_retract",
+   "action_regent_imprison",
+   "action_legal_meddling",
+   "action_syphon_treasury",
+   "action_shift_privileges",
+   "action_subsidise_liege_authority",
+   "action_designate_regent_for_hook",
+   "action_appoint_co_emperor_junior",
+   "action_appoint_co_emperor_adult_child",
+   "action_appoint_co_monarch",
+   "action_send_child_to_university",
+   "action_send_guardian_to_university",
+   "action_send_child_to_your_university",
+   "action_send_yourself_to_university",
+   "action_title_lost_from_realm_on_succession",
+   "action_title_lost_from_realm_on_foreign_ruler_succession",
+   "action_title_election",
+   "action_in_line_of_succession_for_title",
+   "action_heir_in_line_of_succession_for_title",
+   "action_close_family_can_marry",
+   "action_can_take_concubine",
+   "action_too_few_spouses",
+   "action_can_assign_guardian",
+   "action_can_ransom",
+   "action_should_pay_ransom",
+   "action_vassal_ransom_gives_hook",
+   "action_can_vassalize",
+   "action_can_propose_alliance_to_family_member",
+   "action_can_potentially_propose_alliance_to_family_member",
+   "action_can_demand_payment",
+   "action_can_ask_hof_for_money",
+   "action_can_ask_hof_for_claim",
+   "action_hook_expiring",
+   "action_can_lawfully_imprison",
+   "action_can_pardon",
+   "action_too_many_held_duchies",
+   "action_powerful_vassal_not_on_council",
+   "action_wrong_holding_type",
+   "action_upgrade_tribal_holding_type",
+   "action_disabled_building",
+   "action_county_in_dangerous_populist_faction",
+   "action_in_debt",
+   "action_in_treasury_debt",
+   "action_not_endorsed_by_realm_priest",
+   "action_not_endorsed_by_realm_priest_no_holding",
+   "action_low_control_in_county",
+   "action_can_use_hook_to_change_contract",
+   "action_grant_vassal_to_rightful_liege",
+   "action_can_create_head_of_faith_title",
+   "action_can_create_head_of_faith_title_spiritual",
+   "action_can_claim_liege_title",
+   "action_station_men_at_arms",
+   "action_title_lost_from_realm_by_vassal_war",
+   "action_can_raze_holding",
+   "action_can_create_title",
+   "action_can_usurp_title",
+   "action_has_any_display_cb_on",
+   "action_can_call_ally",
+   "action_can_call_house_member",
+   "action_can_call_dynasty_member",
+   "action_not_enough_knights",
+   "action_ongoing_house_feud",
+   "action_can_hire_court_physician",
+   "action_can_challenge_to_single_combat",
+   "action_can_make_shieldmaiden",
+   "action_can_offer_assistance",
+   "action_can_bargain_fealty",
+   "action_recent_hunt_sighting",
+   "action_empty_accolade_slot",
+   "action_accolade_can_spend_attribute",
+   "action_can_offer_hostage",
+   "action_can_demand_hostage",
+   "action_can_exchange_hostage",
+   "action_can_recall_hostage",
+   "action_laamp_apprehension_threat",
+   "action_ep3_can_ask_hof_for_influence",
+   "action_ep3_laamp_contract_travel",
+   "action_in_debt_landless",
+   "action_primary_heir_not_inheriting_held_admin_title",
+   "action_invested_candidate_not_inheriting_admin_title",
+   "action_can_interrogate",
+   "action_join_tributary_war",
+   "action_can_hire_court_astrologer",
+   "action_demand_tributary",
+   "action_pacify_tributary",
+   "action_can_demand_herd",
+   "action_upgrade_nomadic_holding_type",
+   "action_upgrade_herder_holding_type",
+   "action_chaotic_succession",
+   "action_losing_tributaries",
+   "action_offer_submission_or_ruin",
+   "action_offer_confederation",
+   "action_efg_request_excommunication",
+   "action_can_complete_task_contract",
+   "action_can_complete_steal_artifact_contract",
+   "action_can_start_laamp_raid_contract",
+   "action_can_start_join_war_contract",
+   "action_can_train_knights_contract",
+   "action_can_generate_claim_contract",
+   "action_can_make_request_interaction",
+   "action_can_press_faction_demands_contract",
+   "action_new_task_contract",
+   "action_new_tier_3_task_contract",
+   "action_new_criminal_task_contract",
+   "action_new_governance_issue",
+   "action_new_tier_3_governance_issue",
+   "action_excommunication_at_risk",
+   "action_in_line_for_local_clerical_region",
+   "action_can_request_new_clerical_region",
+   "action_can_request_clerical_region_expansion",
+   "action_can_request_enforce_succession",
+   "action_can_demand_church_succession",
+   "action_can_request_preach_legitimacy",
+   "action_sanctify_artifact",
+   "action_can_appoint_cardinals",
+   "action_can_make_clerical_puppet",
+   "action_can_make_external_clerical_puppet",
+   "action_can_make_external_ruler_puppet",
+   "action_opportunity_to_study_scripture",
+   "action_can_upgrade_great_cathedral",
+   "action_can_plan_mass_conversion",
+   "action_can_sway_ruler_to_rite",
+   "action_can_ask_subordinates_for_gold",
+   "action_sway_ruler_to_rite_unlikely",
+   "action_can_sway_prelate_to_rite",
+   "action_sway_prelate_to_rite_unlikely",
+   "action_can_found_holy_site_in_capital",
+   "action_mandala_tributary_at_risk_of_breakaway",
+   "action_hegemonic_tributary_has_low_subject_standing_tributary",
+   "action_hegemonic_tributary_has_low_subject_standing_suzerain",
+   "action_can_go_on_tribute_mission",
+   "action_new_mandala_ritual",
+   "action_could_exact_tribute_from",
+   "action_can_call_tributary",
+   "action_aspiration_does_not_match_house_bloc",
+   "action_missing_elder",
+   "action_can_make_elder_request",
+   "action_would_accept_mandala_embrace",
+   "action_can_request_treasury",
+   "action_can_request_examination_support",
+   "action_start_great_project",
+   "action_can_send_to_childrens_examination",
+   "action_opportunity_to_study_classics",
+   "action_unaligned_join_movement",
+   "action_minister_can_imprison",
+   "action_minister_can_pardon",
+   "action_can_be_pardoned_by_minister",
+   "action_pay_governors_treasury_debt",
+   "action_minister_can_pay_treasury_debt",
+   "action_can_find_secrets"
+  ],
+  "tutorial": [
+   "action_reactive_advice_mercenaries",
+   "action_reactive_advice_succession",
+   "action_reactive_advice_bastards",
+   "action_reactive_advice_protecting_against_hostile_schemes",
+   "action_reactive_advice_protect_against_factions",
+   "action_reactive_advice_imprisoned",
+   "action_reactive_advice_county_control",
+   "action_reactive_advice_bankruptcy",
+   "action_reactive_advice_rightful_liege",
+   "action_reactive_advice_bishop_endorsement",
+   "action_reactive_advice_encyclopedia",
+   "action_reactive_advice_religion_rites",
+   "action_reactive_advice_dynamic_culture",
+   "action_reactive_advice_fabricate_claim",
+   "action_reactive_advice_education",
+   "action_reactive_advice_tooltip_modes",
+   "action_perk_bonus_cap_modes",
+   "action_reactive_advice_varangian_adventure",
+   "action_reactive_advice_court_positions",
+   "action_reactive_advice_artifact_inventory",
+   "action_reactive_advice_tours_picking_vassals",
+   "action_reactive_advice_regency_for_liege",
+   "action_reactive_advice_regency_for_regent",
+   "action_reactive_advice_set_future_regent",
+   "action_reactive_advice_travel_planning",
+   "action_reactive_advice_house_unity",
+   "action_reactive_advice_tax_collector",
+   "action_reactive_advice_legitimacy",
+   "action_reactive_advice_epidemics",
+   "action_reactive_advice_plague_resistance",
+   "action_reactive_advice_tutorial_schemes",
+   "action_reactive_advice_tutorial_war",
+   "action_reactive_advice_favorite_child",
+   "action_reactive_advice_army_automation",
+   "action_reactive_advice_landless_adventurer",
+   "action_reactive_advice_admin_gov",
+   "action_reactive_advice_admin_gov_troops",
+   "action_reactive_advice_agent_scheme_rework",
+   "action_reactive_advice_laamp_contract_move",
+   "action_reactive_advice_migration",
+   "action_reactive_advice_great_steppe",
+   "action_reactive_advice_kurultai",
+   "action_reactive_advice_tributaries",
+   "action_reactive_advice_treasury",
+   "action_reactive_advice_meritocratic_governor",
+   "action_reactive_advice_dynastic_cycle",
+   "action_reactive_advice_merit_candidacy",
+   "action_reactive_advice_china_council",
+   "action_reactive_advice_great_projects",
+   "action_reactive_advice_natural_disasters",
+   "action_reactive_advice_women_in_china",
+   "action_reactive_advice_christian_situation",
+   "action_reactive_advice_puppets",
+   "action_reactive_advice_clerical_regions",
+   "action_reactive_advice_personal_beliefs",
+   "action_reactive_advice_ecclesiastical_ruler",
+   "action_reactive_advice_welcome_to_japan",
+   "action_reactive_advice_soryo_intro",
+   "action_reactive_advice_lead_your_soryo_bloc",
+   "action_reactive_advice_soryo_regent_become_shogun",
+   "action_lesson_tgp_playtest_intro_mandala",
+   "action_reactive_advice_should_form_hybrid_culture",
+   "action_reactive_advice_royal_court",
+   "action_reactive_advice_struggle"
+  ]
+ }
+}

@@ -28,6 +28,23 @@
   "measured": "2026-10-22 15:44",
   "player": "SU_rI_"
  },
+ "activity_planner": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "intent",
+    "n",
+    "opened activity_intent_selection"
+   ],
+   [
+    "travel_option",
+    "alt+t",
+    "opened culture_window"
+   ]
+  ],
+  "measured": "2026-11-09 14:04",
+  "player": "SU_rI_"
+ },
  "activity_window": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -55,6 +72,35 @@
   "measured": "2026-10-22 16:15",
   "player": "SU_rI_"
  },
+ "anonymous_letter_event": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_tooltips",
+    "ESCAPE",
+    "shut layer_window, opened ingame_pausemenu"
+   ],
+   [
+    "event_tooltips",
+    "alt+e",
+    "changed the text: 5 lines, was 3"
+   ]
+  ],
+  "measured": "2026-11-09 13:55",
+  "player": "SU_rI_"
+ },
+ "appoint_court_position_view": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-09 13:55",
+  "player": "SU_rI_"
+ },
  "army_window": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -66,6 +112,28 @@
   ],
   "measured": "2026-11-07 19:42",
   "player": "Harold"
+ },
+ "artifact_details_view": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "tab_1",
+    "ctrl+1",
+    "nothing"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "changed the text: 10 lines, was 11"
+   ]
+  ],
+  "measured": "2026-11-09 13:55",
+  "player": "SU_rI_"
  },
  "battle_summary": {
   "exe": "101125752-1792594002",
@@ -88,6 +156,23 @@
   ],
   "measured": "2026-11-08 11:16",
   "player": "Harold"
+ },
+ "big_event_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "event_tooltips",
+    "alt+e",
+    "changed the text: 18 lines, was 8"
+   ],
+   [
+    "close_tooltips",
+    "ESCAPE",
+    "changed the text: 8 lines, was 18"
+   ]
+  ],
+  "measured": "2026-11-09 13:55",
+  "player": "SU_rI_"
  },
  "blackmail_interaction_window": {
   "exe": "101125752-1792594002",
@@ -194,6 +279,23 @@
   "measured": "2026-11-08 11:06",
   "player": "Harold"
  },
+ "character_event": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "event_tooltips",
+    "alt+e",
+    "changed the text: 18 lines, was 8"
+   ],
+   [
+    "close_tooltips",
+    "ESCAPE",
+    "changed the text: 8 lines, was 18"
+   ]
+  ],
+  "measured": "2026-11-09 13:55",
+  "player": "SU_rI_"
+ },
  "character_finder_window": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -205,6 +307,50 @@
   ],
   "measured": "2026-10-22 11:58",
   "player": "Harold"
+ },
+ "character_interaction_confirmation_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "tab_1",
+    "ctrl+1",
+    "nothing"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "nothing"
+   ],
+   [
+    "tab_3",
+    "ctrl+3",
+    "nothing"
+   ],
+   [
+    "compact_mode",
+    "alt+f",
+    "nothing"
+   ]
+  ],
+  "measured": "2026-11-09 13:55",
+  "player": "SU_rI_"
+ },
+ "character_interaction_menu_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-09 13:55",
+  "player": "SU_rI_"
  },
  "character_interaction_notification_window": {
   "exe": "101125752-1792594002",
@@ -357,6 +503,18 @@
   ],
   "measured": "2026-10-22 11:58",
   "player": "Harold"
+ },
+ "court_task_interaction_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-09 13:55",
+  "player": "SU_rI_"
  },
  "court_window": {
   "exe": "101125752-1792594002",
@@ -563,6 +721,79 @@
   "measured": "2026-10-22 16:41",
   "player": "Andronikos"
  },
+ "duel_event": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "event_tooltips",
+    "alt+e",
+    "changed the text: 6 lines, was 4"
+   ],
+   [
+    "close_tooltips",
+    "ESCAPE",
+    "changed the text: 4 lines, was 6"
+   ]
+  ],
+  "measured": "2026-11-09 13:55",
+  "player": "SU_rI_"
+ },
+ "dynasty_house_view": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "go_back",
+    "B",
+    "shut the window, opened character_window"
+   ],
+   [
+    "go_back_2",
+    "BACKSPACE",
+    "shut the window, opened character_window"
+   ],
+   [
+    "tab_1",
+    "ctrl+1",
+    "changed the text: 26 lines, was 31"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "changed the text: 31 lines, was 26"
+   ],
+   [
+    "tab_3",
+    "ctrl+3",
+    "changed the text: 16 lines, was 31"
+   ]
+  ],
+  "measured": "2026-11-09 13:55",
+  "player": "SU_rI_"
+ },
+ "dynasty_legacy_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-09 13:55",
+  "player": "SU_rI_"
+ },
+ "dynasty_tree_view": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-09 13:55",
+  "player": "SU_rI_"
+ },
  "epidemics_window": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -691,6 +922,23 @@
   "measured": "2026-10-22 11:58",
   "player": "Harold"
  },
+ "fullscreen_event": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "event_tooltips",
+    "alt+e",
+    "changed the text: 6 lines, was 4"
+   ],
+   [
+    "close_tooltips",
+    "ESCAPE",
+    "changed the text: 4 lines, was 6"
+   ]
+  ],
+  "measured": "2026-11-09 13:55",
+  "player": "SU_rI_"
+ },
  "geographical_regions_window": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -740,6 +988,33 @@
   "measured": "2026-10-22 16:41",
   "player": "Andronikos"
  },
+ "grant_titles_interaction_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "tab_1",
+    "ctrl+1",
+    "nothing"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "nothing"
+   ],
+   [
+    "tab_3",
+    "ctrl+3",
+    "nothing"
+   ]
+  ],
+  "measured": "2026-11-09 13:55",
+  "player": "SU_rI_"
+ },
  "hired_troop_detail_view": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -778,6 +1053,57 @@
   ],
   "measured": "2026-10-22 11:58",
   "player": "Harold"
+ },
+ "holy_site_creation_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "holy_site_compact",
+    "alt+f",
+    "nothing"
+   ]
+  ],
+  "measured": "2026-11-09 13:55",
+  "player": "SU_rI_"
+ },
+ "holy_site_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "holy_site_inventory",
+    "alt+d",
+    "changed the text: 26 lines, was 19; again: back"
+   ],
+   [
+    "holy_site_compact",
+    "alt+f",
+    "nothing"
+   ]
+  ],
+  "measured": "2026-11-09 13:55",
+  "player": "SU_rI_"
+ },
+ "houses_list": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-09 13:55",
+  "player": "SU_rI_"
  },
  "interfere_in_war_interaction_window": {
   "exe": "101125752-1792594002",
@@ -855,6 +1181,35 @@
    ]
   ],
   "measured": "2026-10-22 15:44",
+  "player": "SU_rI_"
+ },
+ "knight_permissions": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-09 13:55",
+  "player": "SU_rI_"
+ },
+ "knight_view": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "knight_permissions",
+    "f",
+    "opened knight_permissions"
+   ]
+  ],
+  "measured": "2026-11-09 13:55",
   "player": "SU_rI_"
  },
  "ledger_window": {
@@ -1066,6 +1421,23 @@
   "measured": "2026-10-22 13:28",
   "player": "SU_rI_"
  },
+ "letter_event": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "event_tooltips",
+    "alt+e",
+    "changed the text: 8 lines, was 6"
+   ],
+   [
+    "close_tooltips",
+    "ESCAPE",
+    "changed the text: 6 lines, was 8"
+   ]
+  ],
+  "measured": "2026-11-09 13:55",
+  "player": "SU_rI_"
+ },
  "levy_view": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -1077,6 +1449,50 @@
   ],
   "measured": "2026-11-07 18:58",
   "player": "Harold"
+ },
+ "mainline_rite_tenets_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "compact_faith_window",
+    "alt+f",
+    "nothing"
+   ],
+   [
+    "sub_tab_1",
+    "alt+1",
+    "nothing"
+   ],
+   [
+    "sub_tab_2",
+    "alt+2",
+    "changed the text: 27 lines, was 70"
+   ],
+   [
+    "sub_tab_3",
+    "alt+3",
+    "changed the text: 237 lines, was 27"
+   ]
+  ],
+  "measured": "2026-11-09 13:55",
+  "player": "SU_rI_"
+ },
+ "marriage_interaction_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-09 13:55",
+  "player": "SU_rI_"
  },
  "military_view": {
   "exe": "101125752-1792594002",
@@ -1120,6 +1536,33 @@
   "measured": "2026-10-22 11:58",
   "player": "Harold"
  },
+ "modify_vassal_contract_interaction_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "tab_1",
+    "ctrl+1",
+    "nothing"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "nothing"
+   ],
+   [
+    "tab_3",
+    "ctrl+3",
+    "nothing"
+   ]
+  ],
+  "measured": "2026-11-09 13:55",
+  "player": "SU_rI_"
+ },
  "my_realm_window": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -1161,6 +1604,28 @@
   ],
   "measured": "2026-10-22 11:58",
   "player": "Harold"
+ },
+ "plan_great_project": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "tab_1",
+    "ctrl+1",
+    "nothing"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "changed the text: 20 lines, was 14"
+   ]
+  ],
+  "measured": "2026-11-09 13:55",
+  "player": "SU_rI_"
  },
  "potential_councillor_window": {
   "exe": "101125752-1792594002",
@@ -1269,6 +1734,69 @@
   ],
   "measured": "2026-10-22 11:58",
   "player": "Harold"
+ },
+ "scheme_conclusion_event_no_header": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "event_tooltips",
+    "alt+e",
+    "changed the text: 6 lines, was 4"
+   ],
+   [
+    "close_tooltips",
+    "ESCAPE",
+    "changed the text: 4 lines, was 6"
+   ]
+  ],
+  "measured": "2026-11-09 13:55",
+  "player": "SU_rI_"
+ },
+ "scheme_failed_event": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "event_tooltips",
+    "alt+e",
+    "changed the text: 7 lines, was 5"
+   ],
+   [
+    "close_tooltips",
+    "ESCAPE",
+    "changed the text: 5 lines, was 7"
+   ]
+  ],
+  "measured": "2026-11-09 13:55",
+  "player": "SU_rI_"
+ },
+ "scheme_preparations_event": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "event_tooltips",
+    "alt+e",
+    "changed the text: 12 lines, was 6"
+   ]
+  ],
+  "measured": "2026-11-09 13:55",
+  "player": "SU_rI_"
+ },
+ "scheme_successful_event": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "event_tooltips",
+    "alt+e",
+    "changed the text: 7 lines, was 5"
+   ],
+   [
+    "close_tooltips",
+    "ESCAPE",
+    "changed the text: 5 lines, was 7"
+   ]
+  ],
+  "measured": "2026-11-09 13:55",
+  "player": "SU_rI_"
  },
  "select_commander_window": {
   "exe": "101125752-1792594002",
@@ -1460,6 +1988,18 @@
   "measured": "2026-11-08 11:31",
   "player": "Eadmund"
  },
+ "succession_law_change_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-09 13:55",
+  "player": "SU_rI_"
+ },
  "succession_select_destiny_window": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -1547,6 +2087,23 @@
   ],
   "measured": "2026-11-08 12:15",
   "player": "Harold"
+ },
+ "visit_settlement_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "event_tooltips",
+    "alt+e",
+    "changed the text: 12 lines, was 6"
+   ],
+   [
+    "close_tooltips",
+    "ESCAPE",
+    "changed the text: 6 lines, was 12"
+   ]
+  ],
+  "measured": "2026-11-09 13:55",
+  "player": "SU_rI_"
  },
  "war_declared_overview": {
   "exe": "101125752-1792594002",
@@ -1776,6 +2333,18 @@
   ],
   "measured": "2026-10-22 11:58",
   "player": "Harold"
+ },
+ "window_tax_slot_assign_vassal": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-09 13:55",
+  "player": "SU_rI_"
  },
  "window_tax_slot_obligations": {
   "exe": "101125752-1792594002",

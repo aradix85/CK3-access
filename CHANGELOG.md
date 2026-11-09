@@ -4,8 +4,12 @@ Outcomes, newest day first. No release yet.
 
 ## 2026-11-09
 - The key round inside windows walks the hand route a record keeps before a chain from the files: the chain to the hostage exchange failed where the hand opened it.
-- Keys pressed in three windows on Harold, the war offer on Gyrth and five windows on Andronikos: 113 windows still to do for play, 41 without a key round.
+- Keys pressed in 41 windows on Harold, Gyrth, Andronikos and Ghur: 82 windows still to do for play, 9 without a key round.
+- In the activity planner Alt+T opens the culture window, because the game binds the HUD's culture shortcut to the same key.
 - The AI sends the notice to interfere in a war only as a liege joining a vassal's defence, under a realm law England lacks and the Chinese empire has.
+- tools.ck3.unsolicited lists per channel what the game brings up unasked: 9096 events, 193 of them shown inside the royal court rather than in a window of their own.
+- The game's tutorial counts as a window for play: 498 steps, 343 of them highlighting a widget, 245 of the 261 highlighted widgets named in the gui files.
+- The compass uses eight equal sectors, the most accurate of three rules over 20,000 pairs of provinces: 11.2 degrees off on average and never more than 22.5.
 
 ## 2026-11-08
 - The clock watcher clicks a battle it is told to wait for on the map and records the battle window; it no longer starts the clock again after its last goal.

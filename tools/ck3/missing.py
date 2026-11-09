@@ -101,7 +101,7 @@ DECIDED = {
     'coa_window', 'dynasty_customization_window', 'dynasty_house_customization_window',
     'title_customization_window', 'window_court_visuals', 'reforge_artifact_window', 'artifact_kill_list',
     'ruler_designer', 'load_ruler_window', 'save_ruler_window', 'game_rules', 'game_rules_preset',
-    'achievements_window', 'dlc_info', 'tutorial_window',
+    'achievements_window', 'dlc_info',      # tutorial_window counts for play: her decision, 9 November 2026
 ), NOT_FOR_PLAY)
 
 

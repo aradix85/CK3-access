@@ -569,6 +569,20 @@ returns a pair, passed on as one thing, costs a run.
 | `new(pid, title)` | 2-tuple | From the setup screen: start at random, play the holder of the title, save. Both saves. |
 | `main()` | nothing | - |
 
+## ck3\unsolicited.py
+*Everything the game brings up unasked, per channel, read off disk: an upper bound of what the*
+
+| call | returns | does |
+|---|---|---|
+| `entries(text)` | iterator | Every top-level `key = { ... }`: its key, its first-level `key = value` pairs, and the keys of |
+| `event_files()` | value | Every event file the engine loads, as (layer, virtual, full). Unlike the databases in |
+| `read(branch)` | iterator | Every entry of a folder, as the engine merges it, with the file it comes from. |
+| `events()` | value | Window -> how many events a player sees in it. |
+| `messages()` | dict | Message type -> its place, whether it pauses by default, its group, and its messages. |
+| `interactions()` | value | What the recipient of an interaction the AI can send gets, -> the interactions. |
+| `warnings()` | value | Important action type -> its actions; an `alert` stands in the top bar, `action` in the list |
+| `main()` | nothing | - |
+
 ## ck3\vtablemap.py
 *Hands the vtables of the widget classes to the channel, where the game has loaded them.*
 
