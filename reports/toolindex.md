@@ -238,6 +238,7 @@ returns a pair, passed on as one thing, costs a run.
 | call | returns | does |
 |---|---|---|
 | `route_of(route, window)` | NoneType of 3-tuple | (source, its press, the steps) of a `hand:` route as the record of `window` keeps it, so the |
+| `hover_point(game, source, name)` | value of 2-tuple | The middle of the drawn widget `name` in `source`, or why there is none. |
 | `walk(game, source, steps, route, tables, reached)` | value of NoneType | In `source`, standing open, press each step in turn, and hand every window a step brings up |
 | `main()` | nothing | - |
 

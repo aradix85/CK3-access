@@ -4,7 +4,9 @@ Outcomes, newest day first. No release yet.
 
 ## 2026-11-09
 - The key round inside windows walks the hand route a record keeps before a chain from the files: the chain to the hostage exchange failed where the hand opened it.
-- Keys pressed in 41 windows on Harold, Gyrth, Andronikos and Ghur: 82 windows still to do for play, 9 without a key round.
+- Keys pressed in 48 windows on Harold, Gyrth, Andronikos and Ghur: 75 windows still to do for play, 6 without a key round.
+- tools.ck3.hand takes a hover step: the memories and the inventory only show while the mouse is over the main portrait, and came in that way.
+- The army automation options and culture divergence came in by hand, behind calls that name no view.
 - In the activity planner Alt+T opens the culture window, because the game binds the HUD's culture shortcut to the same key.
 - The AI sends the notice to interfere in a war only as a liege joining a vassal's defence, under a realm law England lacks and the Chinese empire has.
 - tools.ck3.unsolicited lists per channel what the game brings up unasked: 9096 events, 193 of them shown inside the royal court rather than in a window of their own.

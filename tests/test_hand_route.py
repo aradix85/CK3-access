@@ -17,6 +17,9 @@ def test_a_recorded_route_comes_back_as_steps() -> None:
         ('InteractionItem.OnClick@Grant Court Position', 'court_task_interaction_window')])
     assert hand.route_of('hand: F1, marry_off_interaction in character_window', 'marriage_interaction_window') == (
         'character_window', 'F1', [('marry_off_interaction', 'marriage_interaction_window')])
+    assert hand.route_of('hand: F1, hover:tutorial_highlight_main_character_button in character_window, '
+                         "'memories' in character_window", 'memories_window') == ('character_window', 'F1', [
+        ('hover:tutorial_highlight_main_character_button', ''), ("'memories'", 'memories_window')])
     assert hand.route_of('hand: button:button_x', 'x_window') == ('x_window', 'button:button_x', [])
     assert hand.route_of('hand: event:debug.1000', 'character_event') == ('character_event', 'event:debug.1000', [])
 

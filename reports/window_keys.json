@@ -1,4 +1,38 @@
 {
+ "activity_guest_list": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "confirm",
+    "RETURN",
+    "shut the window"
+   ],
+   [
+    "confirm_2",
+    "alt+c",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-09 14:28",
+  "player": "SU_rI_"
+ },
+ "activity_intent_selection": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-09 14:28",
+  "player": "SU_rI_"
+ },
  "activity_list": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -26,6 +60,18 @@
    ]
   ],
   "measured": "2026-10-22 15:44",
+  "player": "SU_rI_"
+ },
+ "activity_log": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-09 14:28",
   "player": "SU_rI_"
  },
  "activity_planner": {
@@ -99,6 +145,18 @@
    ]
   ],
   "measured": "2026-11-09 13:55",
+  "player": "SU_rI_"
+ },
+ "army_automation_options_view": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-09 14:57",
   "player": "SU_rI_"
  },
  "army_window": {
@@ -694,6 +752,78 @@
   "measured": "2026-10-22 15:44",
   "player": "SU_rI_"
  },
+ "diverge_culture_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "tab_1",
+    "ctrl+1",
+    "nothing"
+   ],
+   [
+    "sub_tab_1 on tab_1",
+    "alt+1",
+    "nothing"
+   ],
+   [
+    "sub_tab_2 on tab_1",
+    "alt+2",
+    "nothing"
+   ],
+   [
+    "sub_tab_3 on tab_1",
+    "alt+3",
+    "nothing"
+   ],
+   [
+    "sub_tab_4 on tab_1",
+    "alt+4",
+    "nothing"
+   ],
+   [
+    "sub_tab_5 on tab_1",
+    "alt+5",
+    "nothing"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "changed the text: 26 lines, was 34"
+   ],
+   [
+    "sub_tab_1 on tab_2",
+    "alt+1",
+    "nothing"
+   ],
+   [
+    "sub_tab_2 on tab_2",
+    "alt+2",
+    "nothing"
+   ],
+   [
+    "sub_tab_3 on tab_2",
+    "alt+3",
+    "nothing"
+   ],
+   [
+    "sub_tab_4 on tab_2",
+    "alt+4",
+    "nothing"
+   ],
+   [
+    "sub_tab_5 on tab_2",
+    "alt+5",
+    "nothing"
+   ]
+  ],
+  "measured": "2026-11-09 14:57",
+  "player": "SU_rI_"
+ },
  "domicile_window": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -1159,6 +1289,23 @@
   "measured": "2026-10-22 11:58",
   "player": "Harold"
  },
+ "inventory_view": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "all_artifacts",
+    "alt+a",
+    "nothing"
+   ]
+  ],
+  "measured": "2026-11-09 14:57",
+  "player": "SU_rI_"
+ },
  "jomini_encyclopedia": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -1492,6 +1639,18 @@
    ]
   ],
   "measured": "2026-11-09 13:55",
+  "player": "SU_rI_"
+ },
+ "memories_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-09 14:57",
   "player": "SU_rI_"
  },
  "military_view": {

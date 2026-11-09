@@ -1,10 +1,10 @@
 {
- "harvest": "2026-11-08 12:04",
- "without a player record": 147,
- "still to do for play": 82,
+ "harvest": "2026-11-09 14:48",
+ "without a player record": 143,
+ "still to do for play": 75,
  "still to do, by reason": {
-  "no player record yet": 73,
-  "a player record, but no key round yet": 9
+  "no player record yet": 69,
+  "a player record, but no key round yet": 6
  },
  "counts": {
   "developer": 26,
@@ -13,7 +13,7 @@
   "event": 0,
   "interaction": 1,
   "chain": 11,
-  "no window route on disk": 61
+  "no window route on disk": 57
  },
  "groups": {
   "developer": {
@@ -388,10 +388,6 @@
     "file": "gui/window_admin_vassal_detail.gui",
     "state": "console record"
    },
-   "army_automation_options_view": {
-    "file": "gui/window_army_automation_options.gui",
-    "state": "console record"
-   },
    "army_reorganization_window": {
     "file": "gui/window_army.gui",
     "state": "console record"
@@ -436,10 +432,6 @@
     "file": "gui/window_title_claimants.gui",
     "state": "console record"
    },
-   "diverge_culture_window": {
-    "file": "gui/window_diverge_culture.gui",
-    "state": "console record"
-   },
    "dynasty_house_members_view": {
     "file": "gui/window_dynasty_house_members.gui",
     "state": "console record"
@@ -476,10 +468,6 @@
     "file": "gui/window_hybridize_culture.gui",
     "state": "console record"
    },
-   "inventory_view": {
-    "file": "gui/window_inventory.gui",
-    "state": "console record"
-   },
    "jomini_message": {
     "file": "gui/notifications/jomini_message.gui",
     "state": "console record"
@@ -494,10 +482,6 @@
    },
    "lineage_window": {
     "file": "gui/window_lineage.gui",
-    "state": "console record"
-   },
-   "memories_window": {
-    "file": "gui/window_memories.gui",
     "state": "console record"
    },
    "menatarms_view": {
@@ -664,6 +648,7 @@
    "artifact_details_view",
    "holy_site_creation_window",
    "holy_site_window",
+   "inventory_view",
    "ledger_window",
    "royal_court_window"
   ],
@@ -744,19 +729,8 @@
    "window_tax_slot_vassals"
   ]
  },
- "windows whose keys no round pressed": 9,
+ "windows whose keys no round pressed": 6,
  "keys not pressed": {
-  "activity_guest_list": [
-   "close_window",
-   "confirm",
-   "confirm_2"
-  ],
-  "activity_intent_selection": [
-   "close_window"
-  ],
-  "activity_log": [
-   "close_window"
-  ],
   "concubine_interaction_window": [
    "close_window"
   ],
