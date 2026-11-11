@@ -617,6 +617,7 @@ returns a pair, passed on as one thing, costs a run.
 | `text_classes_of(pid)` | set | Where the text classes have their vtables in this run: the only widgets whose text is read. |
 | `key_effect(game, name, text_classes, standing, before, keys, toggles)` | 3-tuple | What a key just pressed in `name` did, against what stood once it was open and the texts it |
 | `shutting_last(presses)` | value | The keys with the ones that shut the window by their name at the end: a confirmation, and |
+| `steps_for(presses)` | value | The presses of one window in the order a round makes them, each with the tab it goes in on: |
 | `keys_in_place(game, name)` | value | Press every key of `name`, standing open, where it stands, and say per key what happened, as |
 | `window_keys_round(game, names, by_hand)` | value | Open each window along its route, press every key in it that only changes the view, and say |
 | `modified_keys()` | value | Binding -> (spelling, modifier keys, key) for every name in `MODIFIED`, as the file binds it. |

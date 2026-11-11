@@ -523,6 +523,18 @@
   "measured": "2026-11-08 12:04",
   "player": "Harold"
  },
+ "concubine_interaction_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-11 08:27",
+  "player": "Saru"
+ },
  "council_task_interaction_window": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -1169,6 +1181,18 @@
   "measured": "2026-11-09 13:55",
   "player": "SU_rI_"
  },
+ "herd_leaderboard_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-11 08:27",
+  "player": "Saru"
+ },
  "hired_troop_detail_view": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -1382,6 +1406,18 @@
   ],
   "measured": "2026-11-09 13:55",
   "player": "SU_rI_"
+ },
+ "ledger_filter_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-11 08:27",
+  "player": "Saru"
  },
  "ledger_window": {
   "exe": "101125752-1792594002",
@@ -2477,6 +2513,18 @@
   "measured": "2026-10-23 14:48",
   "player": "Saru"
  },
+ "window_natural_disaster_participant_groups": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-11 08:27",
+  "player": "Saru"
+ },
  "window_personal_beliefs": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -2498,6 +2546,23 @@
   ],
   "measured": "2026-10-22 11:58",
   "player": "Harold"
+ },
+ "window_silk_road": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "go_back",
+    "B",
+    "shut the window, opened window_situation_list"
+   ],
+   [
+    "go_back_2",
+    "BACKSPACE",
+    "not pressed: an earlier key shut the window"
+   ]
+  ],
+  "measured": "2026-11-11 08:28",
+  "player": "Saru"
  },
  "window_situation_list": {
   "exe": "101125752-1792594002",
@@ -2618,5 +2683,149 @@
   ],
   "measured": "2026-11-09 15:33",
   "player": "Chixin"
+ },
+ "window_tgp_natural_disaster": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "go_back",
+    "B",
+    "shut the window, opened window_situation_list"
+   ],
+   [
+    "go_back_2",
+    "BACKSPACE",
+    "shut the window, opened window_situation_list"
+   ],
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-11 08:27",
+  "player": "Saru"
+ },
+ "window_the_great_steppe": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "go_back",
+    "B",
+    "shut the window, opened window_situation_list"
+   ],
+   [
+    "go_back_2",
+    "BACKSPACE",
+    "shut the window, opened window_situation_list"
+   ],
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "map_mode_19",
+    "ctrl+C",
+    "nothing"
+   ],
+   [
+    "map_mode_2",
+    "T",
+    "nothing"
+   ],
+   [
+    "map_mode_18",
+    "ctrl+R",
+    "nothing"
+   ],
+   [
+    "map_mode_9",
+    "shift+Q",
+    "nothing"
+   ],
+   [
+    "map_mode_10",
+    "shift+W",
+    "nothing"
+   ],
+   [
+    "map_mode_11",
+    "shift+E",
+    "nothing"
+   ],
+   [
+    "map_mode_terrain",
+    "ctrl+H",
+    "nothing"
+   ],
+   [
+    "map_mode_12",
+    "ctrl+G",
+    "nothing"
+   ],
+   [
+    "map_mode_8",
+    "ctrl+P",
+    "nothing"
+   ],
+   [
+    "map_mode_confederations",
+    "shift+C",
+    "nothing"
+   ],
+   [
+    "map_mode_16",
+    "ctrl+E",
+    "nothing"
+   ],
+   [
+    "map_mode_17",
+    "ctrl+L",
+    "nothing"
+   ],
+   [
+    "map_mode_6",
+    "ctrl+A",
+    "nothing"
+   ],
+   [
+    "map_mode_20",
+    "shift+H",
+    "nothing"
+   ],
+   [
+    "map_mode_5",
+    "ctrl+Q",
+    "nothing"
+   ],
+   [
+    "map_mode_7",
+    "ctrl+W",
+    "nothing"
+   ],
+   [
+    "map_mode_13",
+    "ctrl+D",
+    "nothing"
+   ],
+   [
+    "map_mode_15",
+    "ctrl+F",
+    "nothing"
+   ],
+   [
+    "map_mode_14",
+    "ctrl+S",
+    "nothing"
+   ],
+   [
+    "map_mode_diplomatic_relations",
+    "shift+F",
+    "nothing"
+   ]
+  ],
+  "measured": "2026-11-11 08:27",
+  "player": "Saru"
  }
 }

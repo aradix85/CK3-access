@@ -44,6 +44,18 @@ def test_in_place_the_keys_that_shut_the_window_go_last() -> None:
                                                                    'close_window']
 
 
+def test_the_first_tab_goes_in_again_after_the_last_one() -> None:
+    """A window remembers its tab: after a round that ended on the second tab of the dynastic cycle,
+    the routes to its eras and catalysts found no button on the first (measured 9 November 2026)."""
+    tab_1, tab_2, sub = ('tab_1', 'ctrl+1', False), ('tab_2', 'ctrl+2', False), ('sub_tab_1', 'alt+1', False)
+    shut = ('close_window', 'ESCAPE', False)
+    assert windowmap.steps_for([tab_2, tab_1, sub, shut]) == [
+        (tab_2, None), (sub, 'tab_2'), (tab_1, None), (sub, 'tab_1'), (shut, None)]
+    assert windowmap.steps_for([tab_1, tab_2, sub, shut]) == [
+        (tab_1, None), (sub, 'tab_1'), (tab_2, None), (sub, 'tab_2'), (tab_1, None), (shut, None)]
+    assert windowmap.steps_for([sub, shut]) == [(shut, None), (sub, None)]
+
+
 def test_a_widget_without_an_onclick_blocks_nothing_and_a_mouse_button_is_no_key() -> None:
     rows = [row('go_back', ['OpenFromViewHistory']), row('go_back', []), row('go_back_3', ['OpenFromViewHistory'])]
     assert pressed(rows) == ['go_back']

@@ -333,6 +333,31 @@ def shutting_last(presses: list[Key]) -> list[Key]:
     return sorted(presses, key=lambda one: (one[0] == 'close_window', one[0].startswith('confirm')))
 
 
+def steps_for(presses: list[Key]) -> list[tuple[Key, str | None]]:
+    """The presses of one window in the order a round makes them, each with the tab it goes in on:
+    every sub-tab again after each tab, or once in a window without a tab key.
+
+    **The first tab goes in once more after the last one**, because a window remembers its tab and a
+    later route looks for its button on the first: after the round in the dynastic cycle ended on its
+    second tab, the routes to the eras and the catalysts found no button (measured 9 November 2026
+    on Zhuye Chixin)."""
+    sub_tabs = [p for p in presses if SUB_TAB.search(p[0])]
+    tabs = [p for p in presses if TAB.search(p[0]) and p not in sub_tabs]
+    steps: list[tuple[Key, str | None]] = []
+    for one in presses:
+        if one in sub_tabs:
+            continue
+        steps.append((one, None))
+        steps += [(sub, one[0]) for sub in sub_tabs if one in tabs]
+    if not tabs:
+        return steps + [(sub, None) for sub in sub_tabs]
+    first = min(tabs, key=lambda one: int(one[0].rsplit('_', 1)[1]))
+    last = max(at for at, (one, on_tab) in enumerate(steps) if one in tabs or on_tab is not None)
+    if (steps[last][1] or steps[last][0][0]) != first[0]:
+        steps.insert(last + 1, (first, None))
+    return steps
+
+
 def keys_in_place(game: 'Game', name: str) -> str | list[tuple[str, str, str]]:
     """Press every key of `name`, standing open, where it stands, and say per key what happened, as
     `window_keys_round` does, for a window that cannot be opened again: one the clock, the console
@@ -384,7 +409,9 @@ def window_keys_round(game: 'Game', names: list[str],
     **A sub-tab lives on a tab**, so every sub-tab key is pressed again after each tab key, and
     its row says on which: on Harold, 22 October 2026, 17 of 23 sub-tab keys pressed on whatever
     tab stood open did nothing, nine of them in the ledger. A window with no tab key gets its
-    sub-tab keys once. **A toggle is pressed a second time**, and the row says whether that put
+    sub-tab keys once. After the last tab the first goes in again, and its row says `again`,
+    because the window remembers its tab (`steps_for`). **A toggle is pressed a second time**,
+    and the row says whether that put
     the text back, because the game keeps a view such as the compact one for the next opening.
 
     **Only along a player route: a key, a click, or a chain** from a window that opens along one,
@@ -468,19 +495,12 @@ def window_keys_round(game: 'Game', names: list[str],
         before = drawn_texts(name)
         results: list[tuple[str, str, str]] = []
         presses = presses_for(plan.get(name, []), bound)
-        sub_tabs = [p for p in presses if SUB_TAB.search(p[0])]
-        tabs = [p for p in presses if TAB.search(p[0]) and p not in sub_tabs]
-        steps: list[tuple[Key, str | None]] = []
-        for one in presses:
-            if one in sub_tabs:
-                continue
-            steps.append((one, None))
-            steps += [(sub, one[0]) for sub in sub_tabs if one in tabs]
-        if not tabs:
-            steps += [(sub, None) for sub in sub_tabs]
+        steps = steps_for(presses)
         shut_tab: str | None = None
         for number, ((binding, keys, toggles), on_tab) in enumerate(steps, 1):
             label = f'{binding} on {on_tab}' if on_tab else binding
+            if any(label == earlier for earlier, _, _ in results):
+                label += ' again'
             if on_tab is not None and on_tab == shut_tab:
                 results.append((label, keys, 'not pressed: its tab shut the window'))
                 continue
@@ -512,8 +532,8 @@ def window_keys_round(game: 'Game', names: list[str],
                     raise SystemExit(f'{name} did not open again after {keys}')
                 time.sleep(1.0)
                 if on_tab is not None:
-                    # It opens on its first tab, and the sub-tabs after this one belong on that tab.
-                    press(next(k for b, k, _ in tabs if b == on_tab))
+                    # The sub-tabs after this one belong on its tab, whichever the window opens on.
+                    press(next(k for b, k, _ in presses if b == on_tab))
                     time.sleep(1.4)
                 if game.state()[2] != standing:
                     raise SystemExit(f'after {keys} in {name} the state did not come back')

@@ -2,6 +2,13 @@
 
 Outcomes, newest day first. No release yet.
 
+## 2026-11-11
+- The key round inside windows presses the first tab again after the last: five of nine windows tried on Saru open again on the tab last pressed.
+- Saru: the Great Steppe with its herd leaderboard, and an earthquake with its participant groups, harvested along player routes. 253 windows.
+- Keys pressed on Saru in the last three windows without a key round and in the four new ones: 62 windows still to do for play, all without a player record.
+- An earthquake started from the console brings up its event and a message at once, also in a paused game.
+- In the realm window Alt+D opens a nomad's domicile, the HUD's own key, later than the key round waits, so the round blamed the next key; not fixed yet.
+
 ## 2026-11-09
 - The key round inside windows walks the hand route a record keeps before a chain from the files: the chain to the hostage exchange failed where the hand opened it.
 - Keys pressed in 53 windows on Harold, Gyrth, Andronikos, Ghur and Zhuye Chixin: 69 windows still to do for play, 3 without a key round.
