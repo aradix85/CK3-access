@@ -7,7 +7,8 @@ Outcomes, newest day first. No release yet.
 - Saru: the Great Steppe with its herd leaderboard, and an earthquake with its participant groups, harvested along player routes. 253 windows.
 - Keys pressed on Saru in the last three windows without a key round and in the four new ones: 62 windows still to do for play, all without a player record.
 - An earthquake started from the console brings up its event and a message at once, also in a paused game.
-- In the realm window Alt+D opens a nomad's domicile, the HUD's own key, later than the key round waits, so the round blamed the next key; not fixed yet.
+- In the realm window Alt+D opens a nomad's domicile, the HUD's own key. One round put that window down to the next key; a second did not, cause unknown.
+- The Silk Road's sub-region icon is not built on the map at Saru's starting camera, so its window is still to come.
 
 ## 2026-11-09
 - The key round inside windows walks the hand route a record keeps before a chain from the files: the chain to the hostage exchange failed where the hand opened it.

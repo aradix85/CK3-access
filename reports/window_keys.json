@@ -1798,22 +1798,27 @@
    [
     "tab_2",
     "ctrl+2",
-    "changed the text: 95 lines, was 68"
+    "changed the text: 90 lines, was 54"
    ],
    [
     "tab_3",
     "ctrl+3",
-    "changed the text: 23 lines, was 95"
+    "changed the text: 20 lines, was 90"
    ],
    [
     "tab_4",
     "ctrl+4",
-    "changed the text: 29 lines, was 23"
+    "changed the text: 24 lines, was 20"
+   ],
+   [
+    "tab_1 again",
+    "ctrl+1",
+    "changed the text: 54 lines, was 24"
    ],
    [
     "mass_directives",
     "alt+d",
-    "nothing"
+    "opened domicile_window"
    ],
    [
     "compact_subject_list_realm",
@@ -1821,8 +1826,8 @@
     "nothing"
    ]
   ],
-  "measured": "2026-10-22 11:58",
-  "player": "Harold"
+  "measured": "2026-11-11 09:13",
+  "player": "Saru"
  },
  "plan_great_project": {
   "exe": "101125752-1792594002",
