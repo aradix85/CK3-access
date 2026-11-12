@@ -2296,6 +2296,28 @@
   "measured": "2026-11-08 11:31",
   "player": "Eadmund"
  },
+ "task_contract": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "tab_1",
+    "ctrl+1",
+    "nothing"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "changed the text: 10 lines, was 10"
+   ],
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-12 11:32",
+  "player": "Hereweard"
+ },
  "title_election": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -2371,6 +2393,47 @@
   ],
   "measured": "2026-11-08 12:15",
   "player": "Harold"
+ },
+ "travel_option_selection_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-12 11:29",
+  "player": "Hereweard"
+ },
+ "travel_planner_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "travel_option",
+    "alt+t",
+    "opened culture_window"
+   ],
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-12 11:29",
+  "player": "Hereweard"
+ },
+ "travel_route_edit_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-12 11:29",
+  "player": "Hereweard"
  },
  "visit_settlement_window": {
   "exe": "101125752-1792594002",
@@ -2553,6 +2616,18 @@
   ],
   "measured": "2026-10-23 14:48",
   "player": "Saru"
+ },
+ "window_move_domicile": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-12 11:26",
+  "player": "Hereweard"
  },
  "window_natural_disaster_participant_groups": {
   "exe": "101125752-1792594002",

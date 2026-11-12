@@ -9,6 +9,9 @@ Outcomes, newest day first. No release yet.
 - A chain round on Saru brings in the raid intent choice, its key pressed: 60 windows still to do for play, all without a player record.
 - The raid window is harvested on Saru from the icon of a running raid, drawn only once the map is zoomed in: 59 windows still to do for play.
 - The debug tooltip's X and Y on the map are a pixel of the province image, Y from below; two samples place a province on the screen.
+- Hereweard: the camp move planner by chain from the domicile, and from a destination on the map the travel planner, its options and its route editor.
+- Hereweard: a contract from its icon on the map, three days into the game; keys pressed in all five: 54 windows still to do for play.
+- In the travel planner Alt+T opens the culture window, as it does in the activity planner.
 
 ## 2026-11-11
 - The key round inside windows presses the first tab again after the last: five of nine windows tried on Saru open again on the tab last pressed.

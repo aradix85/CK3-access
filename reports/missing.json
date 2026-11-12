@@ -1,9 +1,9 @@
 {
- "harvest": "2026-11-12 10:58",
- "without a player record": 134,
- "still to do for play": 59,
+ "harvest": "2026-11-12 11:31",
+ "without a player record": 129,
+ "still to do for play": 54,
  "still to do, by reason": {
-  "no player record yet": 59,
+  "no player record yet": 54,
   "a player record, but no key round yet": 0
  },
  "counts": {
@@ -13,7 +13,7 @@
   "event": 0,
   "interaction": 0,
   "chain": 8,
-  "no window route on disk": 51
+  "no window route on disk": 46
  },
  "groups": {
   "developer": {
@@ -503,10 +503,6 @@
     "file": "gui/window_replace_pillar.gui",
     "state": "console record"
    },
-   "task_contract": {
-    "file": "gui/window_task_contract.gui",
-    "state": "console record"
-   },
    "title_add_law_window": {
     "file": "gui/window_title_add_law.gui",
     "state": "console record"
@@ -519,28 +515,12 @@
     "file": "gui/activity_window_widgets/tournament_contest_information.gui",
     "state": "console record"
    },
-   "travel_option_selection_window": {
-    "file": "gui/window_travel_option_selection.gui",
-    "state": "console record"
-   },
-   "travel_planner_window": {
-    "file": "gui/window_travel_planner.gui",
-    "state": "console record"
-   },
-   "travel_route_edit_window": {
-    "file": "gui/window_travel_route_edit.gui",
-    "state": "console record"
-   },
    "tutorial_window": {
     "file": "gui/window_tutorial.gui",
     "state": "console record"
    },
    "window_house_relation_history": {
     "file": "gui/window_house_relation_history.gui",
-    "state": "console record"
-   },
-   "window_move_domicile": {
-    "file": "gui/window_move_domicile.gui",
     "state": "console record"
    },
    "window_pam_christian_church": {
@@ -577,15 +557,9 @@
   "house_relation_history_window": [
    "dynasty_house_view"
   ],
-  "inventory": [
-   "character_window"
-  ],
   "language": [
    "culture_window",
    "royal_court_window"
-  ],
-  "memories": [
-   "character_window"
   ],
   "men_at_arms": [
    "holding_view"
@@ -593,10 +567,6 @@
   "message_settings": [
    "window_message_popup",
    "window_message_settings"
-  ],
-  "move_domicile_planner": [
-   "domicile_window",
-   "holding_view"
   ],
   "organization": [
    "character_window"
@@ -649,11 +619,20 @@
   "house_aspiration_window": [
    "window_house_aspiration"
   ],
+  "inventory": [
+   "inventory_view"
+  ],
   "legends": [
    "legends_window"
   ],
+  "memories": [
+   "memories_window"
+  ],
   "military": [
    "military_view"
+  ],
+  "move_domicile_planner": [
+   "window_move_domicile"
   ],
   "my_realm": [
    "my_realm_window"
