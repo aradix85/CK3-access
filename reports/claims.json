@@ -220,10 +220,10 @@
  },
  {
   "name": "texts the reading rule says over the harvest",
-  "claimed": 7721,
+  "claimed": 7734,
   "measure": "unseen_texts",
   "arguments": ["texts"],
-  "counting_rule": "every widget in a harvested record whose text is not empty once the game's markup is stripped, summed over the records that hold a window; refusal records carry no tree and do not count. The harvest on 1.20.1.2 of 21 October to 11 November 2026"
+  "counting_rule": "every widget in a harvested record whose text is not empty once the game's markup is stripped, summed over the records that hold a window; refusal records carry no tree and do not count. The harvest on 1.20.1.2 of 21 October to 12 November 2026"
  },
  {
   "name": "harvested texts that are in the tree but not on the screen",
@@ -234,7 +234,7 @@
  },
  {
   "name": "files that go into the repo",
-  "claimed": 97,
+  "claimed": 98,
   "measure": "repo_files",
   "counting_rule": "files under the project folder that .gitignore does not exclude, the same set git ls-files plus git ls-files --others --exclude-standard gives"
  },
@@ -246,12 +246,12 @@
    "<project>\\harvest",
    "windows"
   ],
-  "counting_rule": "records in harvest\\ with opened true, on 1.20.1.2, 21 October to 11 November 2026: most on Ghur played, the rest on a state that has what the window needs; the route of each record says how it was opened. A refusal carries no tree; a window with no route at all is not tried, and what the bare screen draws is the baseline and is never harvested",
+  "counting_rule": "records in harvest\\ with opened true, on 1.20.1.2, 21 October to 12 November 2026: most on Ghur played, the rest on a state that has what the window needs; the route of each record says how it was opened. A refusal carries no tree; a window with no route at all is not tried, and what the bare screen draws is the baseline and is never harvested",
   "quoted_in": ["README.md", "brief\\vensters.md"]
  },
  {
   "name": "text boxes in the harvest round",
-  "claimed": 4014,
+  "claimed": 4027,
   "measure": "harvest_total",
   "arguments": [
    "<project>\\harvest",
@@ -261,7 +261,7 @@
  },
  {
   "name": "text boxes the recogniser confirmed",
-  "claimed": 3618,
+  "claimed": 3630,
   "measure": "harvest_total",
   "arguments": [
    "<project>\\harvest",
@@ -335,7 +335,7 @@
  },
  {
   "name": "harvested widgets that carry text",
-  "claimed": 7751,
+  "claimed": 7764,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -345,7 +345,7 @@
  },
  {
   "name": "harvested texts paired with a place in a gui file",
-  "claimed": 7088,
+  "claimed": 7101,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -395,7 +395,7 @@
  },
  {
   "name": "harvested texts filled by a data function",
-  "claimed": 5898,
+  "claimed": 5912,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -475,7 +475,7 @@
  },
  {
   "name": "harvested texts the gui files do not predict",
-  "claimed": 952,
+  "claimed": 951,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -485,7 +485,7 @@
  },
  {
   "name": "unexplained texts that inherit a data context",
-  "claimed": 733,
+  "claimed": 732,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -505,7 +505,7 @@
  },
  {
   "name": "unexplained texts in windows a player opens",
-  "claimed": 881,
+  "claimed": 880,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -527,7 +527,7 @@
  },
  {
   "name": "unexplained texts in windows a player opens that the reading rule says",
-  "claimed": 418,
+  "claimed": 417,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -549,7 +549,7 @@
  },
  {
   "name": "named live widgets in the harvest",
-  "claimed": 66126,
+  "claimed": 66136,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -560,7 +560,7 @@
  },
  {
   "name": "named live widgets the alignment puts on their own name",
-  "claimed": 63519,
+  "claimed": 63529,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -754,7 +754,7 @@
  },
  {
   "name": "mapped windows without a player record",
-  "claimed": 137,
+  "claimed": 135,
   "measure": "json_field",
   "arguments": ["<project>\\reports\\missing.json", "without a player record"],
   "counting_rule": "windows of reports\\windows.json whose harvest record did not open them along a key, a click, a chain, by hand or as the game showed them by itself: a console record, a window that did not open, one drawn always, or none at all (tools.ck3.missing)",
@@ -762,7 +762,7 @@
  },
  {
   "name": "windows still to do for play",
-  "claimed": 62,
+  "claimed": 60,
   "measure": "json_field",
   "arguments": ["<project>\\reports\\missing.json", "still to do for play"],
   "counting_rule": "of those, every one outside the groups that fall away: developer, multiplayer and decided, the last with CLOSED and NOT_FOR_PLAY (tools.ck3.missing.FALL_AWAY); plus every window with a player record that no key round has pressed yet (her decision, 8 November 2026)",
@@ -786,7 +786,7 @@
  },
  {
   "name": "windows without a player record that a chain route on disk reaches",
-  "claimed": 9,
+  "claimed": 8,
   "measure": "json_field",
   "arguments": ["<project>\\reports\\missing.json", "counts", "chain"],
   "counting_rule": "of those, the targets of openers.chain_routes from the windows with a player record or a key, and in no group before it",
@@ -794,7 +794,7 @@
  },
  {
   "name": "windows without a player record and without a window route on disk",
-  "claimed": 53,
+  "claimed": 52,
   "measure": "json_field",
   "arguments": ["<project>\\reports\\missing.json", "counts", "no window route on disk"],
   "counting_rule": "the rest: no file names a call that opens the window itself; some sit behind a view whose window only a round sees",

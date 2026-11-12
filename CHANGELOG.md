@@ -2,6 +2,12 @@
 
 Outcomes, newest day first. No release yet.
 
+## 2026-11-12
+- The Silk Road's sub-region window is harvested on Saru from its map icon, built only with the Silk Road open and a sub-region's capital in view.
+- The camera goes to a county from inside: Find Title on V, the title, its holding, and Go to location; only that last button moves it.
+- The harvest takes a window whose same widgets never stand still as an animation: an empty building slot bobs in a nomad's domicile and stopped a round.
+- A chain round on Saru brings in the raid intent choice, its key pressed: 60 windows still to do for play, all without a player record.
+
 ## 2026-11-11
 - The key round inside windows presses the first tab again after the last: five of nine windows tried on Saru open again on the tab last pressed.
 - Saru: the Great Steppe with its herd leaderboard, and an earthquake with its participant groups, harvested along player routes. 253 windows.

@@ -499,20 +499,31 @@ def settled(game: windowmap.Game, nodes: widgettree.Nodes, address: int) -> widg
     on Ghur played, was recorded with "Marriage Doctrines" at y 389 where the screen had it at 914,
     and the recogniser confirmed 2 of its 41 text boxes; a second later the tree put it at 911, and
     it stayed there (measured 22 October 2026, twice).
+
+    **A widget that never stops is an animation, not a layout.** The icon of an empty building slot
+    in a nomad's domicile bobs a few points up and down for as long as the window stands, and that
+    stopped a chain round on Saru (measured 12 November 2026). So when every one of the last
+    reads moved exactly the same widgets, the window is taken as it stands, and a line says so.
     """
     tries: int = 10
+    animated: int = 4
 
     def places(tree: widgettree.Nodes) -> dict[int, tuple[float, float, float, float]]:
         return {a: tree[a][1:5] for a, _, _ in subtree(tree, address)}
 
     before = places(nodes)
+    moving: list[set[int]] = []
     for _ in range(tries):
         time.sleep(0.5)
         nodes = game.tree()
         now = places(nodes)
         if now == before:
             return nodes
+        moving.append({a for a in now.keys() | before.keys() if now.get(a) != before.get(a)})
         before = now
+    if all(moved == moving[-1] for moved in moving[-animated:]):
+        print(f'   {len(moving[-1])} widgets below {address:x} never stand still: an animation, recorded as it stands')
+        return nodes
     raise SystemExit(f'{address:x} was still moving after {tries} reads')
 
 

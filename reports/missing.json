@@ -1,9 +1,9 @@
 {
- "harvest": "2026-11-11 08:14",
- "without a player record": 137,
- "still to do for play": 62,
+ "harvest": "2026-11-12 09:59",
+ "without a player record": 135,
+ "still to do for play": 60,
  "still to do, by reason": {
-  "no player record yet": 62,
+  "no player record yet": 60,
   "a player record, but no key round yet": 0
  },
  "counts": {
@@ -12,8 +12,8 @@
   "decided": 32,
   "event": 0,
   "interaction": 0,
-  "chain": 9,
-  "no window route on disk": 53
+  "chain": 8,
+  "no window route on disk": 52
  },
  "groups": {
   "developer": {
@@ -353,10 +353,6 @@
     "file": "gui/window_legend_creation.gui",
     "state": "console record"
    },
-   "raid_intent_selection_window": {
-    "file": "gui/window_raid_intent_selection.gui",
-    "state": "console record"
-   },
    "title_appointment": {
     "file": "gui/window_title_appointment.gui",
     "state": "console record"
@@ -511,10 +507,6 @@
     "file": "gui/window_replace_pillar.gui",
     "state": "console record"
    },
-   "situation_sub_region_window": {
-    "file": "gui/window_situation_sub_region.gui",
-    "state": "console record"
-   },
    "task_contract": {
     "file": "gui/window_task_contract.gui",
     "state": "console record"
@@ -583,12 +575,6 @@
    "government_administration_window",
    "window_tgp_dynastic_cycle"
   ],
-  "domicile": [
-   "dynasty_house_view",
-   "government_administration_window",
-   "my_realm_window",
-   "title_view_window"
-  ],
   "faith_conversion": [
    "faith_window"
   ],
@@ -648,6 +634,9 @@
   ],
   "diarchy": [
    "diarchy_window"
+  ],
+  "domicile": [
+   "domicile_window"
   ],
   "epidemics": [
    "epidemics_window"
