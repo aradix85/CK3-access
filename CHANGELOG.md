@@ -7,6 +7,8 @@ Outcomes, newest day first. No release yet.
 - The camera goes to a county from inside: Find Title on V, the title, its holding, and Go to location; only that last button moves it.
 - The harvest takes a window whose same widgets never stand still as an animation: an empty building slot bobs in a nomad's domicile and stopped a round.
 - A chain round on Saru brings in the raid intent choice, its key pressed: 60 windows still to do for play, all without a player record.
+- The raid window is harvested on Saru from the icon of a running raid, drawn only once the map is zoomed in: 59 windows still to do for play.
+- The debug tooltip's X and Y on the map are a pixel of the province image, Y from below; two samples place a province on the screen.
 
 ## 2026-11-11
 - The key round inside windows presses the first tab again after the last: five of nine windows tried on Saru open again on the tab last pressed.

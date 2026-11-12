@@ -220,7 +220,7 @@
  },
  {
   "name": "texts the reading rule says over the harvest",
-  "claimed": 7734,
+  "claimed": 7742,
   "measure": "unseen_texts",
   "arguments": ["texts"],
   "counting_rule": "every widget in a harvested record whose text is not empty once the game's markup is stripped, summed over the records that hold a window; refusal records carry no tree and do not count. The harvest on 1.20.1.2 of 21 October to 12 November 2026"
@@ -251,7 +251,7 @@
  },
  {
   "name": "text boxes in the harvest round",
-  "claimed": 4027,
+  "claimed": 4035,
   "measure": "harvest_total",
   "arguments": [
    "<project>\\harvest",
@@ -261,7 +261,7 @@
  },
  {
   "name": "text boxes the recogniser confirmed",
-  "claimed": 3630,
+  "claimed": 3637,
   "measure": "harvest_total",
   "arguments": [
    "<project>\\harvest",
@@ -335,7 +335,7 @@
  },
  {
   "name": "harvested widgets that carry text",
-  "claimed": 7764,
+  "claimed": 7772,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -345,7 +345,7 @@
  },
  {
   "name": "harvested texts paired with a place in a gui file",
-  "claimed": 7101,
+  "claimed": 7109,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -395,7 +395,7 @@
  },
  {
   "name": "harvested texts filled by a data function",
-  "claimed": 5912,
+  "claimed": 5920,
   "measure": "json_field",
   "arguments": [
    "<project>\\reports\\pairing.json",
@@ -754,7 +754,7 @@
  },
  {
   "name": "mapped windows without a player record",
-  "claimed": 135,
+  "claimed": 134,
   "measure": "json_field",
   "arguments": ["<project>\\reports\\missing.json", "without a player record"],
   "counting_rule": "windows of reports\\windows.json whose harvest record did not open them along a key, a click, a chain, by hand or as the game showed them by itself: a console record, a window that did not open, one drawn always, or none at all (tools.ck3.missing)",
@@ -762,7 +762,7 @@
  },
  {
   "name": "windows still to do for play",
-  "claimed": 60,
+  "claimed": 59,
   "measure": "json_field",
   "arguments": ["<project>\\reports\\missing.json", "still to do for play"],
   "counting_rule": "of those, every one outside the groups that fall away: developer, multiplayer and decided, the last with CLOSED and NOT_FOR_PLAY (tools.ck3.missing.FALL_AWAY); plus every window with a player record that no key round has pressed yet (her decision, 8 November 2026)",
@@ -794,7 +794,7 @@
  },
  {
   "name": "windows without a player record and without a window route on disk",
-  "claimed": 52,
+  "claimed": 51,
   "measure": "json_field",
   "arguments": ["<project>\\reports\\missing.json", "counts", "no window route on disk"],
   "counting_rule": "the rest: no file names a call that opens the window itself; some sit behind a view whose window only a round sees",

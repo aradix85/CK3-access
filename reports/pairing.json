@@ -1,9 +1,9 @@
 {
  "caption of the widget above": 312,
- "data function": 4489,
- "data function through key": 1423,
- "data functions together": 5912,
- "harvest": "2026-11-12 09:59",
+ "data function": 4496,
+ "data function through key": 1424,
+ "data functions together": 5920,
+ "harvest": "2026-11-12 10:58",
  "key not in localization": 3,
  "key quoting another key": 27,
  "named live widgets": 66136,
@@ -43,14 +43,14 @@
   "window_silk_road": 18,
   "window_situation_list": 2
  },
- "paired": 7101,
+ "paired": 7109,
  "placeholder, code fills it": 17,
  "plain key": 745,
  "plain key agrees": 737,
  "plain key differs": 8,
  "sentence in the file": 126,
  "sentence in the file agrees": 126,
- "texts": 7764,
+ "texts": 7772,
  "top functions": {
   "Add_int32": 32,
   "ArmyComposition": 40,
@@ -82,5 +82,5 @@
  "unexplained with data context": 732,
  "widgets in harvest": 140005,
  "windows": 253,
- "with data context": 6576
+ "with data context": 6584
 }

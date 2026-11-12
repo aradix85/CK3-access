@@ -1875,6 +1875,18 @@
   "measured": "2026-11-12 10:36",
   "player": "Saru"
  },
+ "raid_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-12 10:59",
+  "player": "Saru"
+ },
  "revoke_titles_interaction_window": {
   "exe": "101125752-1792594002",
   "keys": [

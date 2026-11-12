@@ -1,9 +1,9 @@
 {
- "harvest": "2026-11-12 09:59",
- "without a player record": 135,
- "still to do for play": 60,
+ "harvest": "2026-11-12 10:58",
+ "without a player record": 134,
+ "still to do for play": 59,
  "still to do, by reason": {
-  "no player record yet": 60,
+  "no player record yet": 59,
   "a player record, but no key round yet": 0
  },
  "counts": {
@@ -13,7 +13,7 @@
   "event": 0,
   "interaction": 0,
   "chain": 8,
-  "no window route on disk": 52
+  "no window route on disk": 51
  },
  "groups": {
   "developer": {
@@ -489,10 +489,6 @@
    },
    "potential_great_project_contributors_window": {
     "file": "gui/window_potential_great_project_contributors.gui",
-    "state": "console record"
-   },
-   "raid_window": {
-    "file": "gui/window_raid.gui",
     "state": "console record"
    },
    "rally_point_window": {
