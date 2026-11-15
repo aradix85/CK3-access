@@ -4,6 +4,10 @@
 brief/
 BRIEF.md
 .git-notes/
+# The entry point Claude Code loads by itself: it pulls in those notes, so it stays out with them.
+# .claude/ is what Claude Code keeps per machine: local settings and its own working copies.
+CLAUDE.md
+.claude/
 
 # build leftovers
 dll/*.obj

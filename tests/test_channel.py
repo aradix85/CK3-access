@@ -95,7 +95,8 @@ def host(request: pytest.FixtureRequest, tmp_path_factory: pytest.TempPathFactor
                   'copy /y "%VCToolsInstallDir%bin\\Hostx64\\x64\\clang_rt.asan_dynamic-x86_64.dll" . || exit /b 1']
     lines.append(f'cl /nologo /Od {sanitize} "{SOURCE}" user32.lib /Fe:host.exe || exit /b 1')
     (work / 'build.bat').write_text('\r\n'.join(lines) + '\r\n')
-    built = subprocess.run(['cmd', '/c', 'build.bat'], capture_output=True, text=True, cwd=work,
+    # By its path: Claude Code sets NoDefaultCurrentDirectoryInExePath, and cmd then finds no bare name here.
+    built = subprocess.run(['cmd', '/c', r'.\build.bat'], capture_output=True, text=True, cwd=work,
                            check=False)                 # the return code is asserted below, with the output
     assert built.returncode == 0, built.stdout + built.stderr
     with subprocess.Popen([str(work / 'host.exe'), dll, str(work / 'keys.log')], stdout=subprocess.PIPE,
