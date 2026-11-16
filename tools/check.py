@@ -93,9 +93,11 @@ NOT_OURS = {'git': 'a program', 'effect': "the game's own console"}
 
 
 def _documents() -> list[str]:
-    """The markdown in the project root and in `brief\\`. On a clone the second is not there."""
+    """The markdown in the project root, in `brief\\` and the commands under `.claude\\skills`. On a
+    clone only the first is there."""
     return sorted(glob.glob(os.path.join(PROJ, '*.md'))
-                  + glob.glob(os.path.join(PROJ, 'brief', '*.md')))
+                  + glob.glob(os.path.join(PROJ, 'brief', '*.md'))
+                  + glob.glob(os.path.join(PROJ, '.claude', 'skills', '*', 'SKILL.md')))
 
 
 def channel_commands() -> set[str]:

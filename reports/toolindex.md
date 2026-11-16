@@ -1,7 +1,7 @@
 # Tool index - calls and the shape of what they return
 
-Generated from the source by `tools\toolindex.py`. **Read this before writing a
-script**, and generate it again once you have changed the tools.
+Generated from the source by `tools\toolindex.py`. **Look up the module you are about to
+call before writing a script**, and generate it again once you have changed the tools.
 The *returns* column is here because that is where the mistakes were: a function that
 returns a pair, passed on as one thing, costs a run.
 

@@ -2,6 +2,12 @@
 
 Outcomes, newest day first. No release yet.
 
+## 2026-11-16
+- The checks also read the commands kept under .claude/skills, and the tool index asks for the module you are about to call, not a full read.
+
+## 2026-11-15
+- Claude Code's entry file and local folder stay out of the repository; the channel test starts its build script by path, as Claude Code's shell requires.
+
 ## 2026-11-12
 - The Silk Road's sub-region window is harvested on Saru from its map icon, built only with the Silk Road open and a sub-region's capital in view.
 - The camera goes to a county from inside: Find Title on V, the title, its holding, and Go to location; only that last button moves it.
