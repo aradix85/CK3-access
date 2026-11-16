@@ -2435,6 +2435,12 @@
   "measured": "2026-11-12 11:29",
   "player": "Hereweard"
  },
+ "tutorial_window": {
+  "exe": "101125752-1792594002",
+  "keys": [],
+  "measured": "2026-11-16 11:37",
+  "player": "Murchad"
+ },
  "visit_settlement_window": {
   "exe": "101125752-1792594002",
   "keys": [

@@ -1,9 +1,9 @@
 {
- "harvest": "2026-11-12 11:31",
- "without a player record": 129,
- "still to do for play": 54,
+ "harvest": "2026-11-16 11:36",
+ "without a player record": 128,
+ "still to do for play": 53,
  "still to do, by reason": {
-  "no player record yet": 54,
+  "no player record yet": 53,
   "a player record, but no key round yet": 0
  },
  "counts": {
@@ -13,7 +13,7 @@
   "event": 0,
   "interaction": 0,
   "chain": 8,
-  "no window route on disk": 46
+  "no window route on disk": 45
  },
  "groups": {
   "developer": {
@@ -513,10 +513,6 @@
    },
    "tournament_contest_information": {
     "file": "gui/activity_window_widgets/tournament_contest_information.gui",
-    "state": "console record"
-   },
-   "tutorial_window": {
-    "file": "gui/window_tutorial.gui",
     "state": "console record"
    },
    "window_house_relation_history": {

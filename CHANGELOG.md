@@ -3,6 +3,9 @@
 Outcomes, newest day first. No release yet.
 
 ## 2026-11-16
+- The tutorial window is harvested as the game shows it, on Petty King Murchad; Enter presses Next in it: 53 windows still to do for play.
+- A tutorial highlight takes its target's rectangle in the target's layer, the lesson file names the target, and an open instruction carries an icon code.
+- The tutorial's Nested Tooltips step wants the pointer on a concept and then inside its tooltip, and offers no way to skip it.
 - The checks also read the commands kept under .claude/skills, and the tool index asks for the module you are about to call, not a full read.
 
 ## 2026-11-15
