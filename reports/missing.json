@@ -1,9 +1,9 @@
 {
- "harvest": "2026-11-16 11:36",
- "without a player record": 128,
- "still to do for play": 53,
+ "harvest": "2026-11-16 13:57",
+ "without a player record": 102,
+ "still to do for play": 27,
  "still to do, by reason": {
-  "no player record yet": 53,
+  "no player record yet": 27,
   "a player record, but no key round yet": 0
  },
  "counts": {
@@ -12,8 +12,8 @@
   "decided": 32,
   "event": 0,
   "interaction": 0,
-  "chain": 8,
-  "no window route on disk": 45
+  "chain": 6,
+  "no window route on disk": 21
  },
  "groups": {
   "developer": {
@@ -325,20 +325,12 @@
   "event": {},
   "interaction": {},
   "chain": {
-   "accolade_view": {
-    "file": "gui/window_accolade.gui",
-    "state": "console record"
-   },
    "challengers_subwindow": {
     "file": "gui/window_faith.gui",
     "state": "console record"
    },
    "confederation_window": {
     "file": "gui/window_confederation.gui",
-    "state": "console record"
-   },
-   "create_accolade_view": {
-    "file": "gui/window_create_accolade.gui",
     "state": "console record"
    },
    "great_project": {
@@ -359,16 +351,8 @@
    }
   },
   "no window route on disk": {
-   "accolade_attribute_selection_view": {
-    "file": "gui/window_accolade_attribute_selection.gui",
-    "state": "console record"
-   },
    "activity_locale_window": {
     "file": "gui/window_activity_locale.gui",
-    "state": "console record"
-   },
-   "add_tradition_window": {
-    "file": "gui/window_add_tradition.gui",
     "state": "console record"
    },
    "admin_vassal_detail_view": {
@@ -395,68 +379,16 @@
     "file": "gui/shared/dialogs.gui",
     "state": "console record"
    },
-   "catalysts_sub_window": {
-    "file": "gui/window_pam_christian_church.gui",
-    "state": "console record"
-   },
-   "change_court_type_window": {
-    "file": "gui/window_court_types.gui",
-    "state": "console record"
-   },
    "change_ghw_target_window": {
     "file": "gui/window_ghw_change_target.gui",
-    "state": "console record"
-   },
-   "character_focus_window": {
-    "file": "gui/window_character_focus.gui",
-    "state": "console record"
-   },
-   "christian_church_phases_sub_window": {
-    "file": "gui/window_pam_christian_church.gui",
-    "state": "console record"
-   },
-   "claimants_window": {
-    "file": "gui/window_title_claimants.gui",
-    "state": "console record"
-   },
-   "dynasty_house_members_view": {
-    "file": "gui/window_dynasty_house_members.gui",
-    "state": "console record"
-   },
-   "dynasty_perk_confirmation_popup": {
-    "file": "gui/window_dynasty_legacy.gui",
-    "state": "console record"
-   },
-   "faith_conversion_window": {
-    "file": "gui/window_faith_conversion.gui",
-    "state": "console record"
-   },
-   "find_vassal_list_window": {
-    "file": "gui/window_find_vassal.gui",
     "state": "console record"
    },
    "great_holy_war_window": {
     "file": "gui/window_ghw.gui",
     "state": "console record"
    },
-   "holding_tracks_view": {
-    "file": "gui/window_county_view.gui",
-    "state": "console record"
-   },
-   "holding_type_selection_view": {
-    "file": "gui/window_county_view.gui",
-    "state": "console record"
-   },
-   "hybridize_culture_window": {
-    "file": "gui/window_hybridize_culture.gui",
-    "state": "console record"
-   },
    "jomini_message": {
     "file": "gui/notifications/jomini_message.gui",
-    "state": "console record"
-   },
-   "languages_window": {
-    "file": "gui/window_languages.gui",
     "state": "console record"
    },
    "lease_out_baronies_window": {
@@ -467,20 +399,8 @@
     "file": "gui/window_lineage.gui",
     "state": "console record"
    },
-   "menatarms_view": {
-    "file": "gui/window_menatarms.gui",
-    "state": "console record"
-   },
-   "menatarmstype_view": {
-    "file": "gui/window_menatarms_type_view.gui",
-    "state": "console record"
-   },
    "organization_window": {
     "file": "gui/window_organization.gui",
-    "state": "console record"
-   },
-   "potential_agent_window": {
-    "file": "gui/window_intrigue_potential_scheme_agent.gui",
     "state": "console record"
    },
    "potential_faction_member_window": {
@@ -491,36 +411,12 @@
     "file": "gui/window_potential_great_project_contributors.gui",
     "state": "console record"
    },
-   "rally_point_window": {
-    "file": "gui/window_rally_points.gui",
-    "state": "console record"
-   },
-   "rename_popup": {
-    "file": "gui/shared/dialogs.gui",
-    "state": "console record"
-   },
-   "replace_pillar_window": {
-    "file": "gui/window_replace_pillar.gui",
-    "state": "console record"
-   },
    "title_add_law_window": {
     "file": "gui/window_title_add_law.gui",
     "state": "console record"
    },
-   "title_history_window": {
-    "file": "gui/window_title_history.gui",
-    "state": "console record"
-   },
    "tournament_contest_information": {
     "file": "gui/activity_window_widgets/tournament_contest_information.gui",
-    "state": "console record"
-   },
-   "window_house_relation_history": {
-    "file": "gui/window_house_relation_history.gui",
-    "state": "console record"
-   },
-   "window_pam_christian_church": {
-    "file": "gui/window_pam_christian_church.gui",
     "state": "console record"
    },
    "window_puppet_selection": {
@@ -552,6 +448,10 @@
   ],
   "house_relation_history_window": [
    "dynasty_house_view"
+  ],
+  "knights": [
+   "accolade_view",
+   "create_accolade_view"
   ],
   "language": [
    "culture_window",

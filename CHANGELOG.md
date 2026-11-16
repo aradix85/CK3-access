@@ -3,6 +3,13 @@
 Outcomes, newest day first. No release yet.
 
 ## 2026-11-16
+- Dauid, a ruler of eight: the education focus window from the HUD button a child gets; a focus button shows its name and effect only once pressed.
+- Harold: the three accolade windows from the knights window; an accolade can be created only for a candidate who serves as a knight.
+- Harold: claimants, title history, both men-at-arms windows, the rally point, court type, court languages, renaming an artifact.
+- Harold: a new tradition and a pillar from the culture window's reform mode, hybridisation from a foreign culture's window.
+- Harold: the Christian Church situation with its phases and catalysts, faith conversion from another rite, potential agents of a scheme.
+- Harold: house members, a house relation's history, the dynasty perk confirmation, the building choice, the holding type choice, Find Vassal.
+- Keys pressed in all 26 new windows: 27 windows still to do for play.
 - The tutorial window is harvested as the game shows it, on Petty King Murchad; Enter presses Next in it: 53 windows still to do for play.
 - A tutorial highlight takes its target's rectangle in the target's layer, the lesson file names the target, and an open instruction carries an icon code.
 - The tutorial's Nested Tooltips step wants the pointer on a concept and then inside its tooltip, and offers no way to skip it.
