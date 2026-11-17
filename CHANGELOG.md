@@ -7,12 +7,12 @@ Outcomes, newest day first. No release yet.
 - Harold: adding a title law once England's own law is cleared, leasing out baronies and the title selector from the two decisions that found an order.
 - Harold: a great project with its potential contributors, creating a legend and its chronicle, the lineage window, the puppet selection.
 - Harold: the faith's challengers once an antipope stands, a great holy war from its HUD icon and changing its target after pledging.
-- Andronikos: the administrative vassal detail, potential faction members after founding a faction, the appointment to a title.
-- Emperor Manuel, played from that state: the treasury budget, and a faith's organisation from a cleric's character window.
-- A new state, Praya Nyala of Sintang, the one government that barters: the barter window, which exists only while a barter runs.
-- Omiwa: the confederation window, from the bloc his house belongs to.
+- Andronikos and Emperor Manuel, played from his state: the vassal detail, potential faction members, a title appointment, the treasury budget, a faith's organisation.
+- New state Praya Nyala of Sintang, the one government that barters: the barter window, open only while a barter runs; Omiwa: the confederation.
 - Four windows are closed with their reason: no file names a player's way to situation participation or to three engine dialogs.
-- Keys pressed in all 21 new windows: 2 windows still to do for play, both inside a running tournament.
+- Emperor Manuel's Grand Tournament: the tournament grounds as the game shows them, and the contest information from a contest's card.
+- Keys pressed in all 23 new windows: no window is left to do for play.
+- An event inside an activity and a message shown as a window grow no layer the reader watches; in a tournament the message stands hidden behind the grounds.
 - A posted click moves the game's hover point: the tooltip of the widget clicked stands afterwards, with the game in the background.
 - The hand tool refuses a step that holds a comma, which a recorded route could not keep.
 

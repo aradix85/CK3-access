@@ -91,6 +91,33 @@
   "measured": "2026-10-22 15:44",
   "player": "SU_rI_"
  },
+ "activity_locale_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "event_tooltips",
+    "alt+e",
+    "changed the text: 43 lines, was 41"
+   ],
+   [
+    "close_tooltips",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "confirm",
+    "RETURN",
+    "not pressed: an earlier key shut the window"
+   ],
+   [
+    "confirm_2",
+    "alt+c",
+    "not pressed: an earlier key shut the window"
+   ]
+  ],
+  "measured": "2026-11-17 14:55",
+  "player": "Manuel"
+ },
  "activity_log": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -2960,6 +2987,33 @@
   ],
   "measured": "2026-11-08 12:15",
   "player": "Harold"
+ },
+ "tournament_contest_information": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "tab_1",
+    "ctrl+1",
+    "nothing"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "changed the text: 59 lines, was 12"
+   ],
+   [
+    "tab_3",
+    "ctrl+3",
+    "nothing"
+   ],
+   [
+    "tab_4",
+    "ctrl+4",
+    "nothing"
+   ]
+  ],
+  "measured": "2026-11-17 14:58",
+  "player": "Manuel"
  },
  "transfer_vassal_interaction_window": {
   "exe": "101125752-1792594002",

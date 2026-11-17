@@ -1,9 +1,9 @@
 {
- "harvest": "2026-11-17 14:24",
- "without a player record": 81,
- "still to do for play": 2,
+ "harvest": "2026-11-17 14:57",
+ "without a player record": 79,
+ "still to do for play": 0,
  "still to do, by reason": {
-  "no player record yet": 2,
+  "no player record yet": 0,
   "a player record, but no key round yet": 0
  },
  "counts": {
@@ -13,7 +13,7 @@
   "event": 0,
   "interaction": 0,
   "chain": 0,
-  "no window route on disk": 2
+  "no window route on disk": 0
  },
  "groups": {
   "developer": {
@@ -341,16 +341,7 @@
   "event": {},
   "interaction": {},
   "chain": {},
-  "no window route on disk": {
-   "activity_locale_window": {
-    "file": "gui/window_activity_locale.gui",
-    "state": "console record"
-   },
-   "tournament_contest_information": {
-    "file": "gui/activity_window_widgets/tournament_contest_information.gui",
-    "state": "console record"
-   }
-  }
+  "no window route on disk": {}
  },
  "views not reached": {
   "activity_list_detail_invite_window": [
@@ -392,6 +383,7 @@
    "military_view"
   ],
   "treasury_budget_change": [
+   "activity_locale_window",
    "my_realm_window",
    "royal_court_window"
   ]
