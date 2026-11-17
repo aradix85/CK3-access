@@ -12,9 +12,9 @@ Outcomes, newest day first. No release yet.
 - Four windows are closed with their reason: no file names a player's way to situation participation or to three engine dialogs.
 - Emperor Manuel's Grand Tournament: the tournament grounds as the game shows them, and the contest information from a contest's card.
 - Keys pressed in all 23 new windows: no window is left to do for play.
-- An event inside an activity and a message shown as a window grow no layer the reader watches; in a tournament the message stands hidden behind the grounds.
-- A posted click moves the game's hover point: the tooltip of the widget clicked stands afterwards, with the game in the background.
-- The hand tool refuses a step that holds a comma, which a recorded route could not keep.
+- The reader's layers miss an event inside an activity, a message window (hidden behind a tournament's grounds), a top-bar request and a court event.
+- A click reaches a top-bar icon only while its middle lies inside the frame that clips the row: one alert fewer brought a request back in reach.
+- A posted click moves the game's hover point, so the clicked widget's tooltip stands afterwards; the hand tool refuses a step that holds a comma.
 
 ## 2026-11-16
 - Dauid, a ruler of eight: the education focus window from the HUD button a child gets; a focus button shows its name and effect only once pressed.
