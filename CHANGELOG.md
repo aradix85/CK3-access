@@ -9,12 +9,12 @@ Outcomes, newest day first. No release yet.
 - Harold: the faith's challengers once an antipope stands, a great holy war from its HUD icon and changing its target after pledging.
 - Andronikos and Emperor Manuel, played from his state: the vassal detail, potential faction members, a title appointment, the treasury budget, a faith's organisation.
 - New state Praya Nyala of Sintang, the one government that barters: the barter window, open only while a barter runs; Omiwa: the confederation.
-- Four windows are closed with their reason: no file names a player's way to situation participation or to three engine dialogs.
 - Emperor Manuel's Grand Tournament: the tournament grounds as the game shows them, and the contest information from a contest's card.
-- Keys pressed in all 23 new windows: no window is left to do for play.
+- Keys pressed in all 23 new windows, and four windows no file gives a player a way to are closed with that reason: no window is left to do for play.
 - The reader's layers miss an event inside an activity, a message window (hidden behind a tournament's grounds), a top-bar request and a court event.
 - A click reaches a top-bar icon only while its middle lies inside the frame that clips the row: one alert fewer brought a request back in reach.
 - A posted click moves the game's hover point, so the clicked widget's tooltip stands afterwards; the hand tool refuses a step that holds a comma.
+- The README says what to run after a game patch, in five steps, and is brought up to date with what was measured today.
 
 ## 2026-11-16
 - Dauid, a ruler of eight: the education focus window from the HUD button a child gets; a focus button shows its name and effect only once pressed.

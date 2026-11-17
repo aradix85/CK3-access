@@ -16,9 +16,9 @@ NVDA. No game files are copied or redistributed.
 - **It survives patches:** every memory offset is derived from the running game and rechecked at start.
 - **Events are read aloud live**, with the key that answers them.
 - **282 windows are mapped**, checked against what the running game builds; 253 were harvested on
-  1.20.1.2 and joined to the `.gui` files. Which ones are still to do - no record from a player's
-  route yet, or no key round inside them yet - and how a player gets to each,
-  `python -m tools.ck3.missing` writes to `reports/missing.json`.
+  1.20.1.2 and joined to the `.gui` files. Every window a player opens has a record from a player's
+  route with the keys inside it pressed, or a stated reason why not; `python -m tools.ck3.missing`
+  writes which and why to `reports/missing.json`.
 - **A reader** hands out one unit per keystroke, speech and braille together. Switched-off buttons say
   so, hidden widgets stay silent, and every failure is spoken.
 - **A map layer from the files alone:** neighbours, de jure titles, distance, bearing, travel days.
@@ -131,12 +131,11 @@ whatever lies underneath.
   read what is drawn, put the state back (`tools/ck3/openers.py`).
 - **Modifiers:** a posted key carries no modifier state, so `combo` holds the modifier for the game
   while the combination runs.
-- **Hovering:** the game shows the tooltip of whatever lies under its own hover point. That point
-  follows the real pointer only while the game is in front, and then moving the pointer is enough;
-  posted mouse messages never move it. The tooltip's text stands in `_tooltip_root_`, a root outside
-  the widget tree that keeps its last text, so `onscreen.shown` decides which text is current.
-  `derive.tooltip_root` reaches it without a scan, through the engine's own list of layer roots.
-  For now the explain key reads the tooltip the gui files predict.
+- **Hovering:** the game shows the tooltip of whatever lies under its own hover point. The real
+  pointer moves that point only while the game is in front; a posted click moves it too, so the
+  tooltip of the widget clicked stands afterwards. The text stands in `_tooltip_root_`, a root
+  outside the widget tree (`derive.tooltip_root`) that keeps its last text, so `onscreen.shown`
+  decides which text is current. For now the explain key reads the tooltip the gui files predict.
 
 ### 6.5 Reading the game
 
@@ -152,16 +151,11 @@ whatever lies underneath.
 Text recognition (`tools/ocr.py`) is a witness, never the product.
 
 **Open a window the way a player does.** The console builds a window without its data context, so it
-yields captions without values; a key, a click, a chain of presses the gui files describe
-(`openers.chain`), presses named by hand (`tools/ck3/hand.py`), or an event the console fires - the
-game shows it in its own window, with its data - give the values. `python -m tools.ck3.clock` lets the
-clock run and records what the game shows by itself, clicking the icons that requests from the AI and
-the results of wars put in the top bar, and a battle on the map when it is told to wait for one, and
-presses the keys of each window it records where it stands, since such a window cannot be opened
-again. An interaction window opens from
-the menu of a character for whom it is valid; `python -m tools.ck3.interactions` reads who that is
-into `reports/interactions.json`. **Check the window map against the game**, not the files:
-`windowmap.unmapped` lists what the engine built that the map lacks.
+yields captions without values. A key, a click, a chain of presses the gui files describe
+(`openers.chain`), presses named by hand (`tools/ck3/hand.py`) or an event the console fires give
+the values; `python -m tools.ck3.clock` lets the clock run and records what the game shows by
+itself. **Check the window map against the game**, not the files: `windowmap.unmapped` lists what
+the engine built that the map lacks.
 
 **The tree and the files are joined by structure, not by name** (`tools/ck3/pairing.py`), because most
 widgets that show text have no name. `guimap` is the only gui reader and follows the engine's rules,
@@ -172,7 +166,8 @@ among them that every `onclick` of a block fires, in order, on a click and on a 
 Not sorted by screen position; one keystroke gives one unit of speech plus braille.
 `tools/ck3/reader.py` claims up, down, F12 and Delete and gives every key back on the way out. An event
 is noticed through the child counts of the layers under the root, and a toast through its container.
-A request from the AI arrives as an icon in the top bar instead, which the reader does not notice yet.
+Four things grow no layer and are not noticed yet: an event inside an activity, a message shown as a
+window, a request from the AI in the top bar, and a court event.
 
 **Screen files** under `screens/` hold exceptions only, in the game's own format; whatever they do not
 name is read in gui-file order, so a stale file costs detail, never the screen. `tools/ck3/screens.py`
@@ -197,6 +192,21 @@ Two functions: `output(text, mode, braille)` and `failure(where, what, remedy)`.
   pointer, to read a tooltip or to point at a place on the map. `tools/ck3/modifiers.py` presses real
   keys, as a measurement only.
 - No hard-coded addresses, offsets or click positions.
+
+### 6.9 After a game patch
+
+Across three version changes the nine widget offsets held, the globals moved and were derived again
+by themselves, and the character record grew once. The gui and localization files are read from
+disk as the engine merges them, so they follow a patch by themselves. To find what a patch broke,
+in this order:
+1. `python -m tools.check`, without the game: which numbers in `reports/claims.json` moved.
+2. `python -m tools.ck3.start_game`: the offsets are rechecked and derived again where a check
+   fails, and the start says so when it cannot.
+3. `python -m tools.ck3.model <pid>` and `python -m tools.ck3.calibrate <pid>`, on two saves: the
+   character record, and the field that deviates.
+4. `tools/ck3/numbering.py` and `tools/ck3/place.py`: numbers to keys, and where the player stands.
+5. `windowmap.unmapped`: a window the game builds that the map lacks. Harvest it with
+   `python -m tools.ck3.harvest <pid>` and run `python -m tools.ck3.missing`.
 
 ## 7. Contributing
 
