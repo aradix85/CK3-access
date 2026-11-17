@@ -1,19 +1,19 @@
 {
- "harvest": "2026-11-17 13:07",
- "without a player record": 88,
- "still to do for play": 13,
+ "harvest": "2026-11-17 14:24",
+ "without a player record": 81,
+ "still to do for play": 2,
  "still to do, by reason": {
-  "no player record yet": 13,
+  "no player record yet": 2,
   "a player record, but no key round yet": 0
  },
  "counts": {
   "developer": 26,
   "multiplayer": 17,
-  "decided": 32,
+  "decided": 36,
   "event": 0,
   "interaction": 0,
-  "chain": 2,
-  "no window route on disk": 11
+  "chain": 0,
+  "no window route on disk": 2
  },
  "groups": {
   "developer": {
@@ -217,6 +217,14 @@
     "file": "gui/shared/dialogs.gui",
     "state": "a template the game never builds under that name; its four instances each carry a name of their own (read 23 October 2026)"
    },
+   "basic_image_info_popup": {
+    "file": "gui/shared/dialogs.gui",
+    "state": "closed without a harvest: one attempt failed, or only luck, the AI or an uncertain search brings it up; reopened only on negative feedback from players (2 November 2026)"
+   },
+   "basic_info_popup": {
+    "file": "gui/shared/dialogs.gui",
+    "state": "closed without a harvest: one attempt failed, or only luck, the AI or an uncertain search brings it up; reopened only on negative feedback from players (2 November 2026)"
+   },
    "character_name_window": {
     "file": "gui/window_barbershop.gui",
     "state": "not important for play: appearance, customisation, achievements or setup a blind player gains nothing from; reopened only on negative feedback from players (2 November 2026)"
@@ -255,6 +263,10 @@
    },
    "interfere_in_war_interaction_notification_window": {
     "file": "gui/interaction_interfere_in_war_notification.gui",
+    "state": "closed without a harvest: one attempt failed, or only luck, the AI or an uncertain search brings it up; reopened only on negative feedback from players (2 November 2026)"
+   },
+   "jomini_message": {
+    "file": "gui/notifications/jomini_message.gui",
     "state": "closed without a harvest: one attempt failed, or only luck, the AI or an uncertain search brings it up; reopened only on negative feedback from players (2 November 2026)"
    },
    "jomini_notification_sidebar": {
@@ -320,63 +332,22 @@
    "window_situation_participant_groups": {
     "file": "gui/window_situation.gui",
     "state": "closed without a harvest: one attempt failed, or only luck, the AI or an uncertain search brings it up; reopened only on negative feedback from players (2 November 2026)"
+   },
+   "window_situation_participation": {
+    "file": "gui/window_situation_participation.gui",
+    "state": "no player route: the one call of its view sits in the debug situation window (read 17 November 2026)"
    }
   },
   "event": {},
   "interaction": {},
-  "chain": {
-   "confederation_window": {
-    "file": "gui/window_confederation.gui",
-    "state": "console record"
-   },
-   "title_appointment": {
-    "file": "gui/window_title_appointment.gui",
-    "state": "console record"
-   }
-  },
+  "chain": {},
   "no window route on disk": {
    "activity_locale_window": {
     "file": "gui/window_activity_locale.gui",
     "state": "console record"
    },
-   "admin_vassal_detail_view": {
-    "file": "gui/window_admin_vassal_detail.gui",
-    "state": "console record"
-   },
-   "barter_window": {
-    "file": "gui/window_barter.gui",
-    "state": "console record"
-   },
-   "basic_image_info_popup": {
-    "file": "gui/shared/dialogs.gui",
-    "state": "console record"
-   },
-   "basic_info_popup": {
-    "file": "gui/shared/dialogs.gui",
-    "state": "console record"
-   },
-   "jomini_message": {
-    "file": "gui/notifications/jomini_message.gui",
-    "state": "console record"
-   },
-   "organization_window": {
-    "file": "gui/window_organization.gui",
-    "state": "console record"
-   },
-   "potential_faction_member_window": {
-    "file": "gui/window_intrigue_potential_faction_member.gui",
-    "state": "console record"
-   },
    "tournament_contest_information": {
     "file": "gui/activity_window_widgets/tournament_contest_information.gui",
-    "state": "console record"
-   },
-   "window_situation_participation": {
-    "file": "gui/window_situation_participation.gui",
-    "state": "console record"
-   },
-   "window_treasury_budget_change": {
-    "file": "gui/window_treasury_budget_change.gui",
     "state": "console record"
    }
   }
@@ -408,9 +379,6 @@
    "window_message_popup",
    "window_message_settings"
   ],
-  "organization": [
-   "character_window"
-  ],
   "reforge_artifact": [
    "artifact_details_view",
    "holy_site_creation_window",
@@ -420,6 +388,7 @@
    "royal_court_window"
   ],
   "select_title_troop_assignment": [
+   "admin_vassal_detail_view",
    "military_view"
   ],
   "treasury_budget_change": [
@@ -476,6 +445,9 @@
   ],
   "my_realm": [
    "my_realm_window"
+  ],
+  "organization": [
+   "organization_window"
   ],
   "personal_beliefs_window": [
    "window_personal_beliefs"

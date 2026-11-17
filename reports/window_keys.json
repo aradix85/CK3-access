@@ -184,6 +184,33 @@
   "measured": "2026-11-16 12:59",
   "player": "Harold"
  },
+ "admin_vassal_detail_view": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "tab_1",
+    "ctrl+1",
+    "nothing"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "changed the text: 16 lines, was 26"
+   ],
+   [
+    "tab_1 again",
+    "ctrl+1",
+    "changed the text: 26 lines, was 16"
+   ]
+  ],
+  "measured": "2026-11-17 13:44",
+  "player": "Andronikos"
+ },
  "anonymous_letter_event": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -282,6 +309,18 @@
   ],
   "measured": "2026-11-17 12:06",
   "player": "Harold"
+ },
+ "barter_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-17 14:17",
+  "player": "Nyala"
  },
  "battle_summary": {
   "exe": "101125752-1792594002",
@@ -702,6 +741,28 @@
   ],
   "measured": "2026-11-11 08:27",
   "player": "Saru"
+ },
+ "confederation_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "go_back",
+    "B",
+    "nothing"
+   ],
+   [
+    "go_back_2",
+    "BACKSPACE",
+    "nothing"
+   ],
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-17 14:29",
+  "player": "Koremochi_3"
  },
  "council_task_interaction_window": {
   "exe": "101125752-1792594002",
@@ -2238,6 +2299,18 @@
   "measured": "2026-11-11 09:13",
   "player": "Saru"
  },
+ "organization_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-17 13:59",
+  "player": "Manuel"
+ },
  "plan_great_project": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -2283,6 +2356,18 @@
   ],
   "measured": "2026-11-07 18:58",
   "player": "Harold"
+ },
+ "potential_faction_member_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-17 13:48",
+  "player": "Andronikos"
  },
  "potential_great_project_contributors_window": {
   "exe": "101125752-1792594002",
@@ -2792,6 +2877,28 @@
   ],
   "measured": "2026-11-17 12:11",
   "player": "Harold"
+ },
+ "title_appointment": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "go_back",
+    "B",
+    "shut the window, opened title_view_window"
+   ],
+   [
+    "go_back_2",
+    "BACKSPACE",
+    "shut the window, opened title_view_window"
+   ],
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-17 13:52",
+  "player": "Andronikos"
  },
  "title_election": {
   "exe": "101125752-1792594002",
@@ -3519,5 +3626,17 @@
   ],
   "measured": "2026-11-17 12:18",
   "player": "Harold"
+ },
+ "window_treasury_budget_change": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-17 13:57",
+  "player": "Manuel"
  }
 }

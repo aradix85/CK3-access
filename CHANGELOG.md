@@ -7,7 +7,12 @@ Outcomes, newest day first. No release yet.
 - Harold: adding a title law once England's own law is cleared, leasing out baronies and the title selector from the two decisions that found an order.
 - Harold: a great project with its potential contributors, creating a legend and its chronicle, the lineage window, the puppet selection.
 - Harold: the faith's challengers once an antipope stands, a great holy war from its HUD icon and changing its target after pledging.
-- Keys pressed in all 14 new windows: 13 windows still to do for play.
+- Andronikos: the administrative vassal detail, potential faction members after founding a faction, the appointment to a title.
+- Emperor Manuel, played from that state: the treasury budget, and a faith's organisation from a cleric's character window.
+- A new state, Praya Nyala of Sintang, the one government that barters: the barter window, which exists only while a barter runs.
+- Omiwa: the confederation window, from the bloc his house belongs to.
+- Four windows are closed with their reason: no file names a player's way to situation participation or to three engine dialogs.
+- Keys pressed in all 21 new windows: 2 windows still to do for play, both inside a running tournament.
 - A posted click moves the game's hover point: the tooltip of the widget clicked stands afterwards, with the game in the background.
 - The hand tool refuses a step that holds a comma, which a recorded route could not keep.
 

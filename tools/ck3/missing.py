@@ -90,7 +90,12 @@ DECIDED = {
                              'drawn (read 24 October 2026)',
     'jomini_notification_sidebar': 'visible = no after inheritance: the console made it and it was '
                                    'not drawn (read 24 October 2026)',
+    'window_situation_participation': 'no player route: the one call of its view sits in the debug '
+                                      'situation window (read 17 November 2026)',
 } | dict.fromkeys((
+    # No file names a call for these three: the engine raises them (read 17 November 2026).
+    'basic_info_popup', 'basic_image_info_popup',
+    'jomini_message',                               # none came on the console's play, twice (17 November 2026)
     'window_situation',                                     # no situation of ours uses it
     'window_situation_participant_groups',
     'create_ceremonial_claimant_faction_against_interaction_window',  # off for Omiwa (2 November 2026)
