@@ -101,9 +101,10 @@ void cmd_waitkey(DWORD timeout)
 static void refused(void) { emit("error: the game window refused a message\n"); }
 
 // mouse and rmouse: a left or a right click. A window message carries a point in 16 bits a side, so
-// a bigger one is refused rather than wrapped round onto another place. Posted mouse messages do not
-// move the game's hover point, so a move alone does nothing. The right click is there for what only
-// a right click opens, such as the menu of interactions on a portrait.
+// a bigger one is refused rather than wrapped round onto another place. A click moves the game's
+// hover point with it: the tooltip of the widget clicked stands afterwards, with the game in the
+// background (measured 17 November 2026). The right click is there for what only a right click
+// opens, such as the menu of interactions on a portrait.
 void cmd_mouse(unsigned x, unsigned y, bool right)
 {
     if (x > 0x7FFF || y > 0x7FFF) { emit("error: the point %u %u does not fit a window message\n", x, y); return; }

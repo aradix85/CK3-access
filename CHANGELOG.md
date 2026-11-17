@@ -2,6 +2,15 @@
 
 Outcomes, newest day first. No release yet.
 
+## 2026-11-17
+- Harold: army reorganisation with two armies selected, and attaching to an army, which wants two friendly armies of another ruler in one place.
+- Harold: adding a title law once England's own law is cleared, leasing out baronies and the title selector from the two decisions that found an order.
+- Harold: a great project with its potential contributors, creating a legend and its chronicle, the lineage window, the puppet selection.
+- Harold: the faith's challengers once an antipope stands, a great holy war from its HUD icon and changing its target after pledging.
+- Keys pressed in all 14 new windows: 13 windows still to do for play.
+- A posted click moves the game's hover point: the tooltip of the widget clicked stands afterwards, with the game in the background.
+- The hand tool refuses a step that holds a comma, which a recorded route could not keep.
+
 ## 2026-11-16
 - Dauid, a ruler of eight: the education focus window from the HUD button a child gets; a focus button shows its name and effect only once pressed.
 - Harold: the three accolade windows from the knights window; an accolade can be created only for a candidate who serves as a knight.

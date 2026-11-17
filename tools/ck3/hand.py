@@ -177,6 +177,9 @@ def main() -> None:
         raise SystemExit(__doc__)
     pid, source, how = int(sys.argv[1]), sys.argv[2], sys.argv[3]
     steps = [step.partition('=')[::2] for step in sys.argv[4:]]
+    # A route is kept as its steps joined by ', ', and `route_of` splits it there again.
+    if any(', ' in step for step, _ in steps):
+        raise SystemExit("a step holds ', ', which a route cannot keep: give the call up to its comma")
     game = windowmap.Game(pid)
     openers.game_classes = game.window_classes
     if not harvest.paused(game):

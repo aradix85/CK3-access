@@ -225,6 +225,18 @@
   "measured": "2026-11-09 14:57",
   "player": "SU_rI_"
  },
+ "army_reorganization_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-17 11:56",
+  "player": "Harold"
+ },
  "army_window": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -258,6 +270,18 @@
   ],
   "measured": "2026-11-09 13:55",
   "player": "SU_rI_"
+ },
+ "attach_to_army_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-17 12:06",
+  "player": "Harold"
  },
  "battle_summary": {
   "exe": "101125752-1792594002",
@@ -403,10 +427,34 @@
   "measured": "2026-11-16 13:13",
   "player": "Harold"
  },
+ "challengers_subwindow": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-17 13:02",
+  "player": "Harold"
+ },
  "change_court_type_window": {
   "exe": "101125752-1792594002",
   "keys": [],
   "measured": "2026-11-16 12:52",
+  "player": "Harold"
+ },
+ "change_ghw_target_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window, opened great_holy_war_window"
+   ]
+  ],
+  "measured": "2026-11-17 13:08",
   "player": "Harold"
  },
  "character_ally_list_subview": {
@@ -1365,6 +1413,40 @@
   "measured": "2026-11-09 13:55",
   "player": "SU_rI_"
  },
+ "great_holy_war_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "tab_1",
+    "ctrl+1",
+    "nothing"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "nothing"
+   ],
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-17 13:05",
+  "player": "Harold"
+ },
+ "great_project": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-17 12:27",
+  "player": "Harold"
+ },
  "herd_leaderboard_window": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -1642,6 +1724,18 @@
   "measured": "2026-11-16 12:52",
   "player": "Harold"
  },
+ "lease_out_baronies_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window, opened decisiondetail_view, decisions_view"
+   ]
+  ],
+  "measured": "2026-11-17 12:16",
+  "player": "Harold"
+ },
  "ledger_filter_window": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -1781,6 +1875,50 @@
   "measured": "2026-10-22 11:58",
   "player": "Harold"
  },
+ "legend_chronicle": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-17 12:53",
+  "player": "Harold"
+ },
+ "legend_creation": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "tab_1",
+    "ctrl+1",
+    "nothing"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "changed the text: 55 lines, was 55"
+   ],
+   [
+    "tab_3",
+    "ctrl+3",
+    "changed the text: 55 lines, was 55"
+   ],
+   [
+    "tab_1 again",
+    "ctrl+1",
+    "changed the text: 55 lines, was 55"
+   ]
+  ],
+  "measured": "2026-11-17 12:49",
+  "player": "Harold"
+ },
  "legends_window": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -1890,6 +2028,18 @@
    ]
   ],
   "measured": "2026-11-07 18:58",
+  "player": "Harold"
+ },
+ "lineage_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-17 12:40",
   "player": "Harold"
  },
  "mainline_rite_tenets_window": {
@@ -2132,6 +2282,18 @@
    ]
   ],
   "measured": "2026-11-07 18:58",
+  "player": "Harold"
+ },
+ "potential_great_project_contributors_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-17 12:31",
   "player": "Harold"
  },
  "raid_intent_selection_window": {
@@ -2619,6 +2781,18 @@
   "measured": "2026-11-12 11:32",
   "player": "Hereweard"
  },
+ "title_add_law_window": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut title_view_window"
+   ]
+  ],
+  "measured": "2026-11-17 12:11",
+  "player": "Harold"
+ },
  "title_election": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -3041,6 +3215,18 @@
   "measured": "2026-10-22 11:58",
   "player": "Harold"
  },
+ "window_puppet_selection": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-17 12:44",
+  "player": "Harold"
+ },
  "window_silk_road": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -3321,5 +3507,17 @@
   ],
   "measured": "2026-11-11 08:27",
   "player": "Saru"
+ },
+ "window_title_selector": {
+  "exe": "101125752-1792594002",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window, opened decisiondetail_view, decisions_view"
+   ]
+  ],
+  "measured": "2026-11-17 12:18",
+  "player": "Harold"
  }
 }
