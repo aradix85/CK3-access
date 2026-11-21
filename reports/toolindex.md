@@ -458,6 +458,21 @@ returns a pair, passed on as one thing, costs a run.
 | `harvested_at()` | value | When the newest record in the harvest was measured: which harvest a report drawn from it |
 | `main()` | nothing | - |
 
+## ck3\patchround.py
+*After a game patch: what held and what moved, one sentence per check.*
+
+| call | returns | does |
+|---|---|---|
+| `disk()` | value of str | - |
+| `launcher()` | 2-tuple | The version, and a sentence on the launcher file against the copy kept as a safety net. |
+| `record(pid, save)` | value | The character record: derived against the save when this build has no derivation that |
+| `who(pid, save)` | value | - |
+| `numbers(pid)` | value | - |
+| `seat(pid)` | value | - |
+| `windows(pid)` | value | - |
+| `said(label, step)` | value | Run one check with what it prints on the way kept out, and say its outcome; a check that |
+| `main()` | nothing | - |
+
 ## ck3\place.py
 *From a character in the running game to a place on the map.*
 

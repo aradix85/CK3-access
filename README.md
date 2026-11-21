@@ -200,7 +200,9 @@ by themselves, and the character record grew once. 1.21.0.3 was the first to bre
 text of a text box moved, and two fixed read sizes and two rules read off one version stopped the
 tools (`CHANGELOG.md`, 2026-11-21). The window map, the key rounds and the harvest are still those
 of 1.20.1.2. The gui and localization files are read from disk as the engine merges them, so they
-follow a patch by themselves. To find what a patch broke, in this order:
+follow a patch by themselves. To find what a patch broke, start the game on a played save and run
+`python -m tools.ck3.patchround <pid>`, then once more on a second save: it walks the steps below
+and says per check, in a sentence, what held and what moved. By hand they are, in this order:
 1. `python -m tools.check`, without the game: which numbers in `reports/claims.json` moved.
 2. `python -m tools.ck3.start_game`: the offsets of the last build are rechecked first, a text
    offset that moved is found again alone, and only where another check fails is everything

@@ -109,7 +109,7 @@
    "form": "int32"
   }
  },
- "derived_on": "2026-11-21, 80 characters, 0 records unreadable or reused, against Ghurshah_Suri_of_the_Ghurid_Shahdom_867_12_301_21_0_3.ck3",
+ "derived_on": "2026-11-21, 80 characters, 0 records unreadable or reused, against Ghurshah_Suri_of_the_Ghurid_Shahdom_867_12_301_21_0_3_1121_1613.ck3",
  "globals": {
   ".?AV?$TPdxRefDatabase@VCCulture@@$07@@": 111572512,
   ".?AV?$TPdxRefDatabase@VCFaith@@$07@@": 111571640,
@@ -148,11 +148,6 @@
   }
  },
  "player_spots": [
-  "b2d7f3",
-  "239286e",
-  "388d30e",
-  "4b24e2c",
-  "4e12640",
   "5d2a4f8",
   "5d2a590",
   "5d2a650",
@@ -160,6 +155,6 @@
   "5d50448",
   "6a72340"
  ],
- "player_derived_on": "2026-11-21 15:46 against character 15310",
+ "player_derived_on": "2026-11-21 16:20 against character 32399, keeping the places that also held the player before (2026-11-21 16:13 against character 15310, keeping the places that also held the player before (2026-11-21 15:46 against character 15310))",
  "player_key": "114758264-1795099871"
 }

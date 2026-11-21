@@ -5,8 +5,8 @@ Outcomes, newest day first. No release yet.
 ## 2026-11-21
 - The game moved to 1.21.0.3 on 19 November: the first patch that broke something, in each case a fixed limit or a rule read off one version.
 - A text box grew from 0x410 to 0x4D0 bytes with its text at +0x450; the derivation now reads a text box to its measured size.
-- After a patch the start rechecks the offsets of the last build first and finds a moved text again alone: 15.6 seconds, where deriving all took 5:20.
-- Every start now checks the text offset too: the text boxes of the tree hold at least five distinct texts there.
+- After a patch the start rechecks the last build's offsets first, and every start checks the text offset: 15.6 seconds, where deriving all took 5:20.
+- `python -m tools.ck3.patchround <pid>` walks the patch round in one run and says per check what held; on two states, the player sits in six places.
 - The reader's request for F1 waits for what moves on the character window and not on the control; a counter that ticks by itself ended both waits.
 - The reader's start is inside its watch, so a derivation that stops is spoken instead of ending it without a word.
 - The character model reads 0x800 behind a pointer: 1.21 keeps the domain limit at +0x408; all nineteen fields agree on 400 characters.
