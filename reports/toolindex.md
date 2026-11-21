@@ -197,7 +197,8 @@ returns a pair, passed on as one thing, costs a run.
 | `visibility_fields(fields, named, player)` | value | Derive the two visibility offsets by toggling a window and watching what moves. |
 | `position_from_tree(pid, fields)` | 3-tuple | Derive the position field a second time, from the live tree instead of the scan. |
 | `store(fields)` | nothing | - |
-| `stored()` | NoneType of value | - |
+| `kept()` | NoneType of value | The derivation on disk, of whichever build it was made on. |
+| `stored()` | value | The derivation of this build, or None when the one on disk is of another. |
 | `tooltip_root(pid, fields, root)` | value | The root outside the tree that holds the tooltip being shown, found without a scan. |
 | `to_root(address, f_parent)` | 2-tuple | Up until the parent is no longer a widget. `tree` on a non-widget returns nothing, and that |
 | `quick_root(fields, pid)` | 2-tuple | From seed widgets up to the roots, then return the largest tree. |
@@ -239,6 +240,7 @@ returns a pair, passed on as one thing, costs a run.
 |---|---|---|
 | `route_of(route, window)` | NoneType of 3-tuple | (source, its press, the steps) of a `hand:` route as the record of `window` keeps it, so the |
 | `hover_point(game, source, name)` | value of 2-tuple | The middle of the drawn widget `name` in `source`, or why there is none. |
+| `press_named(game, source, name)` | 2-tuple of 3-tuple | In `source`, standing open, click the first widget called `name` that a click reaches, and |
 | `walk(game, source, steps, route, tables, reached)` | value of NoneType | In `source`, standing open, press each step in turn, and hand every window a step brings up |
 | `main()` | nothing | - |
 
@@ -264,6 +266,7 @@ returns a pair, passed on as one thing, costs a run.
 | `record_window(game, name, nodes, header, route, attempts, file, started, views)` | dict | Everything this project can read of one drawn window, plus a capture. It stays open. |
 | `harvest(game, name, row, baseline, header)` | 2-tuple | One window, from opening to the state coming back. Returns the record, or a reason. |
 | `stop_checks(pid, player, player_name, before)` | nothing | The three conditions asked before every window: memory, the channel, and the player. |
+| `came_up(game, before, looks)` | 2-tuple | The tree and the windows drawn beyond `before`, asked once a second until one is there, |
 | `chain_press(game, source, goal, tables, showing=None)` | 4-tuple | In `source`, standing open, press what reaches `goal` and wait for what comes up: the tree |
 | `window_shows(game, nodes, names, text)` | bool | Does one of the drawn windows called `names` show `text` anywhere in it, in a widget nothing |
 | `player_chains(names, direct, tables)` | value | Window -> the chain route that opens it, for each of `names` that no key or click opens, as |
@@ -376,7 +379,7 @@ returns a pair, passed on as one thing, costs a run.
 | call | returns | does |
 |---|---|---|
 | `on_disk(kind)` | value of set | Every key of this database as the files give it, mods merged in the engine's own order. |
-| `keys(pid, kind)` | value | Number -> key, from the running game. Disk is used to prove the reading, never to make it. |
+| `keys(pid, kind)` | dict | Number -> key, from the running game. Disk is used to prove the reading, never to make it. |
 | `derive_layout(pid, kind)` | value | Where the key sits in a record of this database, kept under the key of this exe. |
 | `main(pid)` | nothing | - |
 

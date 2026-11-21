@@ -15,6 +15,8 @@ How it works, at two speeds:
 Every prediction below is one that can only come true for the right field. If a field cannot be
 found, this file stops hard and names that field.
 """
+import collections
+import itertools
 import json
 import math
 import os
@@ -30,7 +32,7 @@ from tools.ck3 import channel, guimap, memory, onscreen, vtablemap, widgettree
 from tools.nvda import speech
 
 STORED = os.path.join(paths.REPORTS, 'fields.json')
-CHUNK = 0x420          # roomier than the largest widget object
+CHUNK = 0x420          # holds every field derived here but the text, which a text box is read whole for
 
 
 class Fields(TypedDict):
@@ -408,15 +410,27 @@ def _name_field(chunks: dict[int, bytes], gui: str) -> int:
     return best[0]
 
 
-def _text_field(chunks: dict[int, bytes], text_boxes: list[int], translation: str, f_name: int) -> int:
+def _text_field(text_boxes: list[int], translation: str, f_name: int) -> int:
     """Prediction: most displayed texts appear in the localization files. Test on text boxes only -
-    on another object you are reading the neighbour from the same pool here."""
+    on another object you are reading the neighbour from the same pool here.
+
+    **A text box is read to its own size, and that size is measured:** text boxes lie side by side
+    in one pool, so the commonest distance between two neighbours is the size of one. Until
+    21 November 2026 they were read to `CHUNK` like every object, which was roomier than a text box
+    of 1.20. On 1.21.0.3 a text box is 0x4D0 bytes with its text at +0x450 (Harold: 10406 of 12717
+    neighbours lie that far apart), and the derivation stopped here without one candidate.
+    """
+    boxes = sorted(text_boxes)
+    steps = collections.Counter(b - a for a, b in itertools.pairwise(boxes))
+    if not steps:
+        raise SystemExit('deriving failed on field: text (fewer than two text boxes to measure the size of one)')
+    size = steps.most_common(1)[0][0]
+    blocks = channel.readmany(boxes, size)
     best: tuple[int | None, int] = (None, 0)
-    for offset in range(0, CHUNK - 32, 8):
+    for offset in range(0, size - 32, 8):
         if offset == f_name:
             continue
-        texts = {widgettree.strip_markup(t)
-                 for t in (_cstring(chunks[a], offset) for a in text_boxes if a in chunks) if t}
+        texts = {widgettree.strip_markup(t) for t in (_cstring(b, offset) for b in blocks.values()) if t}
         texts = {t for t in texts if t}
         if len(texts) < 5:
             continue
@@ -424,7 +438,7 @@ def _text_field(chunks: dict[int, bytes], text_boxes: list[int], translation: st
         if hit > best[1] and hit >= 0.5 * len(texts):
             best = (offset, hit)
     if best[0] is None:
-        raise SystemExit('deriving failed on field: text')
+        raise SystemExit(f'deriving failed on field: text (no candidate in the 0x{size:X} bytes of a text box)')
     return best[0]
 
 
@@ -456,7 +470,7 @@ def derive_all(pid: int) -> tuple[Fields, set[int]]:
     f_name = _name_field(chunks, gui_text())
     classes = widgettree.class_map(pid, addresses)
     text_boxes = [a for a, k in classes.items() if k == 'Textbox']
-    f_text = _text_field(chunks, text_boxes, localization_text(), f_name)
+    f_text = _text_field(text_boxes, localization_text(), f_name)
 
     return ({'key': build_key(), 'parent': f_parent, 'children': f_children, 'count': f_count,
              'position': f_position, 'size': f_size, 'name': f_name, 'text': f_text,
@@ -514,6 +528,10 @@ def visibility_fields(fields: Fields, named: dict[str, int], player: bool) -> Fi
 
     **With `player` the player presses F1, asked out loud**, and gets a minute for each press: the
     product never sends a key itself (her decision, 21 October 2026). The tools press it themselves.
+    **A press is something that moves on the subject and not on the control**: the counter ticks by
+    itself, on 1.21.0.3 at +0x3AC of both windows within three seconds, and while any change on the
+    subject counted, both waits ended on a tick before the player could press, with no candidate
+    left (measured 21 November 2026 on Harold, the first time the reader derived in the game).
     """
     subject, control = SUBJECT, CONTROL
     waits = 120 if player else 20           # half seconds: a minute for a person, ten for a post
@@ -535,7 +553,8 @@ def visibility_fields(fields: Fields, named: dict[str, int], player: bool) -> Fi
         for _ in range(waits):
             time.sleep(0.5)
             after = snapshot()
-            if after[subject] != before[subject]:
+            if any(after[subject][o] != before[subject][o] and after[control][o] == before[control][o]
+                   for o in range(CHUNK)):
                 return after
         raise SystemExit(f'deriving visibility failed: {what} changed nothing in {waits // 2} seconds')
 
@@ -610,12 +629,19 @@ def store(fields: Fields) -> None:
         json.dump(fields, file, indent=1)
 
 
-def stored() -> Fields | None:
+def kept() -> Fields | None:
+    """The derivation on disk, of whichever build it was made on."""
     if not os.path.exists(STORED):
         return None
     with open(STORED) as file:
         fields: Fields = json.load(file)
-    return fields if fields.get('key') == build_key() else None
+    return fields
+
+
+def stored() -> Fields | None:
+    """The derivation of this build, or None when the one on disk is of another."""
+    fields = kept()
+    return fields if fields and fields['key'] == build_key() else None
 
 
 TOOLTIP_ROOT = '_tooltip_root_'     # the engine's own name for the root that holds the tooltip of now
@@ -941,11 +967,36 @@ def _visibility_check(fields: Fields, chunks: dict[int, bytes], nodes: dict[int,
     return defects
 
 
+def _text_boxes(nodes: dict[int, int], pid: int) -> list[int]:
+    return [a for a, k in widgettree.class_map(pid, nodes).items() if k == 'Textbox']
+
+
+def _text_check(fields: Fields, nodes: dict[int, int], pid: int) -> list[str]:
+    """Do the text boxes of the tree still hold texts at the stored text offset?
+
+    Until 21 November 2026 no check asked, and the one field a patch moved was the text: on
+    1.21.0.3 the 12,718 text boxes of Harold hold no string at all at +0x390, where 1.20 kept the
+    text, and 32 distinct texts at +0x450. Reading them takes no file from disk, so it costs a
+    start nothing it can feel; which offset holds the texts is asked of the localization only when
+    this fails (`_text_field`).
+    """
+    blocks = channel.readmany([a + fields['text'] for a in _text_boxes(nodes, pid)], 32)
+    texts = {t for t in (_cstring(b, 0) for b in blocks.values()) if t}
+    if len(texts) < 5:
+        return [f"the text boxes hold {len(texts)} distinct texts at +0x{fields['text']:03X}"]
+    return []
+
+
 def fields_for(pid: int, recheck: bool = True, player: bool = False) -> tuple[Fields, int, str]:
     """The path walked at every start: the derivation, the root of the tree, and what happened.
 
-    If there is a derivation for this exe and it holds up against the running game, that is the
-    one. Otherwise it is derived again and written out. Nothing is assumed: a stored derivation
+    If the derivation on disk holds up against the running game, that is the one, **also when it
+    was made on another build**: across 1.19, 1.20, 1.20.1.1 and 1.20.1.2 the nine offsets stood
+    where they stood, and on 1.21.0.3 eight did and the text moved. Deriving everything again took
+    five minutes and twenty seconds there, on a tree of 131,393 widgets, and that is too long for a
+    player (her words, 21 November 2026). So after a patch the old places are rechecked first, a
+    text that moved is found again alone, in seconds, and only when another check fails is
+    everything derived again and written out. Nothing is assumed: a stored derivation
     also has to prove itself every time - except with `recheck` off, for leaving a game from a
     menu, where the recheck turns a good derivation down and derives again for minutes.
 
@@ -956,21 +1007,38 @@ def fields_for(pid: int, recheck: bool = True, player: bool = False) -> tuple[Fi
     """
     vtablemap.configure(pid)          # vtables first, or no scan finds anything
     onscreen.use_screen(pid)          # and the drawing area, which every geometric answer needs
-    fields = stored()
+    fields = kept()
     if fields:
+        same = fields['key'] == build_key()
         configure_channel(fields)               # the walk below runs on these, not on defaults
         onscreen.use_fields(fields.get('alpha'), fields.get('flag'))
-        root, nodes = quick_root(fields, pid)
-        if not recheck:
+        try:
+            root, nodes = quick_root(fields, pid)
+        except SystemExit:
+            if same:
+                raise
+            root, nodes = 0, {}                 # the places of another build find no tree on this one
+        if nodes and not recheck:
             return fields, root, 'stored derivation, not rechecked'
-        defects = verify(fields, root, nodes, pid)
+        defects = verify(fields, root, nodes, pid) if nodes else ['no tree at the places of the last build']
+        moved = ''
+        if not defects and _text_check(fields, nodes, pid):
+            fields['text'] = _text_field(_text_boxes(nodes, pid), localization_text(), fields['name'])
+            moved = f"; the text moved to +0x{fields['text']:03X}"
         if not defects:
-            return fields, root, 'stored derivation holds'
+            if moved or not same:
+                fields['key'] = build_key()
+                store(fields)
+                configure_channel(fields)
+            return fields, root, ('stored derivation holds' if same else
+                                  'the derivation of the last build holds on this one') + moved
         reason = 'stored derivation fails: ' + '; '.join(defects)
-        speech.failure('reading the game', 'the places it read this game at last time do not hold',
-                       'it is working out the new places, which takes a few minutes')
+        if same:
+            speech.failure('reading the game', 'the places it read this game at last time do not hold',
+                           'it is working out the new places, which takes a few minutes')
     else:
         reason = 'no derivation for this version of the game'
+    if not fields or not same:
         speech.output('the game has changed since the last start, so finding where it keeps things '
                       'takes a few minutes')
     fields, scanned = derive_all(pid)

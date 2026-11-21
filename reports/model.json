@@ -1,5 +1,5 @@
 {
- "key": "101125752-1792594002",
+ "key": "114758264-1795099871",
  "number_field_in_record": 24,
  "number_mask": 16777215,
  "block_size": 1024,
@@ -9,24 +9,24 @@
   "dynasty_house": 320
  },
  "evidence": {
-  "culture": "78 of 78 in the record",
-  "rite": "79 of 79 in the record",
-  "dynasty_house": "42 of 42 in the record",
-  "gold": "72 of 72 through the pointer at +0x198",
+  "culture": "77 of 77 in the record",
+  "rite": "80 of 80 in the record",
+  "dynasty_house": "49 of 49 in the record",
+  "gold": "71 of 71 through the pointer at +0x198",
   "piety": "80 of 80 through the pointer at +0x198",
   "prestige": "80 of 80 through the pointer at +0x198",
   "current_strength": "80 of 80 through the pointer at +0x1a8",
   "strength": "80 of 80 through the pointer at +0x1a8",
   "strength_for_liege": "52 of 52 through the pointer at +0x1a8",
-  "strength_without_hires": "77 of 77 through the pointer at +0x1a8",
-  "levy": "71 of 71 through the pointer at +0x1a8",
+  "strength_without_hires": "80 of 80 through the pointer at +0x1a8",
+  "levy": "65 of 65 through the pointer at +0x1a8",
   "power": "80 of 80 through the pointer at +0x1a8",
   "max_power": "80 of 80 through the pointer at +0x1a8",
-  "balance": "71 of 71 through the pointer at +0x1a8",
-  "liege_tax": "54 of 54 through the pointer at +0x1a8",
-  "dread": "37 of 37 through the pointer at +0x1a8",
-  "domain_limit": "76 of 76 through the pointer at +0x1a8",
-  "realm_capital": "71 of 71 through the pointer at +0x1a8"
+  "balance": "70 of 70 through the pointer at +0x198",
+  "liege_tax": "53 of 53 through the pointer at +0x1a8",
+  "dread": "27 of 27 through the pointer at +0x1a8",
+  "domain_limit": "79 of 79 through the pointer at +0x1a8",
+  "realm_capital": "68 of 68 through the pointer at +0x1a8"
  },
  "name": {
   "offset": 8,
@@ -50,78 +50,78 @@
   },
   "current_strength": {
    "pointer": 424,
-   "offset": 96,
+   "offset": 104,
    "form": "int32"
   },
   "strength": {
    "pointer": 424,
-   "offset": 100,
+   "offset": 108,
    "form": "int32"
   },
   "strength_for_liege": {
    "pointer": 424,
-   "offset": 104,
+   "offset": 112,
    "form": "int32"
   },
   "strength_without_hires": {
    "pointer": 424,
-   "offset": 108,
+   "offset": 116,
    "form": "int32"
   },
   "levy": {
    "pointer": 424,
-   "offset": 112,
+   "offset": 120,
    "form": "int32"
   },
   "power": {
    "pointer": 424,
-   "offset": 128,
+   "offset": 136,
    "form": "fixed64"
   },
   "max_power": {
    "pointer": 424,
-   "offset": 120,
+   "offset": 128,
    "form": "fixed64"
   },
   "balance": {
-   "pointer": 424,
-   "offset": 704,
+   "pointer": 408,
+   "offset": 688,
    "form": "fixed64"
   },
   "liege_tax": {
    "pointer": 424,
-   "offset": 712,
+   "offset": 32,
    "form": "fixed64"
   },
   "dread": {
    "pointer": 424,
-   "offset": 848,
+   "offset": 896,
    "form": "fixed64"
   },
   "domain_limit": {
    "pointer": 424,
-   "offset": 984,
+   "offset": 1032,
    "form": "int32"
   },
   "realm_capital": {
    "pointer": 424,
-   "offset": 504,
+   "offset": 528,
    "form": "int32"
   }
  },
- "derived_on": "2026-10-01, 80 characters, 0 records unreadable or reused, against Ghurshah_Suri_of_the_Ghurid_Shahdom_867_10_26_reload.ck3",
+ "derived_on": "2026-11-21, 80 characters, 0 records unreadable or reused, against Ghurshah_Suri_of_the_Ghurid_Shahdom_867_12_301_21_0_3.ck3",
  "globals": {
-  ".?AV?$TPdxRefDatabase@VCCulture@@$07@@": 97727232,
-  ".?AV?$TPdxRefDatabase@VCFaith@@$07@@": 97727248,
-  ".?AV?$TPdxRefDatabase@VCReligion@@$07@@": 97726104,
-  ".?AVCTraitDatabase@@": 96978096,
-  ".?AV?$TPdxRefDatabase@VCCharacter@@$07@@": 96978160,
-  ".?AV?$TPdxRefDatabase@VCLandedTitle@@$07@@": 97725192,
-  ".?AV?$TPdxRefDatabase@VCRite@@$07@@": 97727240
+  ".?AV?$TPdxRefDatabase@VCCulture@@$07@@": 111572512,
+  ".?AV?$TPdxRefDatabase@VCFaith@@$07@@": 111571640,
+  ".?AV?$TPdxRefDatabase@VCReligion@@$07@@": 111569416,
+  ".?AVCTraitDatabase@@": 109771496,
+  ".?AV?$TPdxRefDatabase@VCCharacter@@$07@@": 109742376,
+  ".?AV?$TPdxRefDatabase@VCLandedTitle@@$07@@": 111568456,
+  ".?AV?$TPdxRefDatabase@VCRite@@$07@@": 111571648
  },
  "databases": {
   "culture": {
-   "record": 1848,
+   "record": 1864,
    "pointer": 40,
    "key": 24
   },
@@ -138,23 +138,28 @@
    "key": 24
   },
   "title": {
-   "record": 848,
-   "pointer": 72,
+   "record": 968,
+   "pointer": 80,
    "key": 24
   },
   "rite": {
-   "record": 3168,
-   "key": 1304
+   "record": 3200,
+   "key": 1336
   }
  },
  "player_spots": [
-  "544d7c4",
-  "544d8a0",
-  "544d8c8",
-  "544d960",
-  "54efc40",
-  "5d3cd88"
+  "b2d7f3",
+  "239286e",
+  "388d30e",
+  "4b24e2c",
+  "4e12640",
+  "5d2a4f8",
+  "5d2a590",
+  "5d2a650",
+  "5d2a678",
+  "5d50448",
+  "6a72340"
  ],
- "player_derived_on": "2026-10-21 17:17 against character 32399, keeping the places that also held the player before (2026-10-21 17:12 against character 15310)",
- "player_key": "101125752-1792594002"
+ "player_derived_on": "2026-11-21 15:46 against character 15310",
+ "player_key": "114758264-1795099871"
 }

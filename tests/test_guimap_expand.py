@@ -26,6 +26,16 @@ def names(node: guimap.Node) -> list[str]:
     return ([own] if own else []) + [name for child in node['children'] for name in names(child)]
 
 
+def test_type_with_an_equals_sign_is_an_attribute_and_no_template() -> None:
+    """The landed titles of 1.21 say `type = title_type_holy_order`, and the map data is read with
+    this grammar: until 21 November 2026 it took `=` for the template's name and stopped there."""
+    title, template = guimap.parse('d_knights_templar = { type = title_type_holy_order capital = c_jerusalem }\n'
+                                   'type row = hbox { name = "r" }')
+    assert [(e['key'], e['arg'], e['value']) for e in title['body'] or []] == [
+        ('type', None, 'title_type_holy_order'), ('capital', None, 'c_jerusalem')]
+    assert (template['key'], template['arg'], template['value']) == ('type', 'row', 'hbox')
+
+
 def test_a_local_template_is_looked_up_where_it_is_used(tmp_path: pathlib.Path) -> None:
     tree = window(tmp_path, 'w', {
         'gui/shared.gui': 'local_template part { textbox = { name = "from_part" } }\n'

@@ -113,7 +113,7 @@ class ChainRoute(TypedDict):
 # A widget of an open window that the files say reaches a goal, with why it cannot be pressed.
 Spot = TypedDict('Spot', {
     'address': int, 'rect': list[float], 'class': str | None, 'name': str,
-    'also_does': list[str], 'why_not': str | None})
+    'fires': list[str], 'also_does': list[str], 'why_not': str | None})
 
 # A button that can take a click: its draw order, its rectangle on screen, and the widget.
 Clickable = tuple[tuple[int, ...], float, float, float, float, pairing.Harvested]
@@ -646,7 +646,7 @@ def spots_for_goal(game: windowmap.Game, pid: int, window: str, goal: Goal,
         address = int(built['address'], 16)
         out.append({'address': address, 'rect': built['screen_rect'],
                     'class': built['class'], 'name': built['name'],
-                    'also_does': others,
+                    'fires': wanted, 'also_does': others,
                     'why_not': on_screen(address, nodes, scales, classes)})
     return out, record, acting, nodes, scales, classes
 

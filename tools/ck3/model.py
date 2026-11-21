@@ -154,7 +154,9 @@ HEAD = {'table': 8, 'blocks': 16, 'count': 60}
 # every field behind it quietly wrong.
 BLOCK = 1024
 POINTER = (0x10000000000, 0x800000000000)       # where a heap pointer of the game can lie
-BEHIND = 0x400                                  # how much is read behind a pointer in a record
+# How much is read behind a pointer in a record. 0x400 until 21 November 2026: on 1.21.0.3 the block
+# of a landed ruler keeps the domain limit at +0x408, and the derivation said "nowhere" for it.
+BEHIND = 0x800
 
 
 def block_table(address: int) -> tuple[tuple[int, ...], int]:

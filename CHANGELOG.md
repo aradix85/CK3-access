@@ -2,6 +2,20 @@
 
 Outcomes, newest day first. No release yet.
 
+## 2026-11-21
+- The game moved to 1.21.0.3 on 19 November: the first patch that broke something, in each case a fixed limit or a rule read off one version.
+- A text box grew from 0x410 to 0x4D0 bytes with its text at +0x450; the derivation now reads a text box to its measured size.
+- After a patch the start rechecks the offsets of the last build first and finds a moved text again alone: 15.6 seconds, where deriving all took 5:20.
+- Every start now checks the text offset too: the text boxes of the tree hold at least five distinct texts there.
+- The reader's request for F1 waits for what moves on the character window and not on the control; a counter that ticks by itself ended both waits.
+- The reader's start is inside its watch, so a derivation that stops is spoken instead of ending it without a word.
+- The character model reads 0x800 behind a pointer: 1.21 keeps the domain limit at +0x408; all nineteen fields agree on 400 characters.
+- Title numbering: the record is 968 bytes now, found by the derivation; a save of 1.20 keeps empty slots of dropped titles, and those are allowed.
+- The file grammar reads `type = x` as an attribute: the landed titles of 1.21 carry it, and the disk check stopped there.
+- The reader read a window 1.20 did not have, the trade window on F5, with no change; 1.21 also moved the function keys from F5 on.
+- The hand tool records a window standing open, with its keys pressed in place, presses a button by name, and writes the view a step opened.
+- `tools.check` reports 40 of 84 numbers moved by 1.21; the window map, the key rounds, the states and the harvest are still those of 1.20.
+
 ## 2026-11-17
 - Harold: army reorganisation with two armies selected, and attaching to an army, which wants two friendly armies of another ruler in one place.
 - Harold: adding a title law once England's own law is cleared, leasing out baronies and the title selector from the two decisions that found an order.

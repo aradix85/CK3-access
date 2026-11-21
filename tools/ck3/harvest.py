@@ -604,6 +604,17 @@ def stop_checks(pid: int, player: int, player_name: str | None, before: str) -> 
                          'reload the state and start the round again.')
 
 
+def came_up(game: windowmap.Game, before: set[str], looks: int) -> tuple[widgettree.Nodes, set[str]]:
+    """The tree and the windows drawn beyond `before`, asked once a second until one is there,
+    `looks` times at most."""
+    for _ in range(looks):
+        time.sleep(1.0)
+        nodes, _, drawn = game.state()
+        if drawn - before:
+            break
+    return nodes, drawn - before
+
+
 def chain_press(game: windowmap.Game, source: str, goal: 'openers.Goal', tables: guimap.Tables,
                 showing: str | None = None) -> tuple[widgettree.Nodes, set[str], 'openers.Spot | None', str | None]:
     """In `source`, standing open, press what reaches `goal` and wait for what comes up: the tree
@@ -654,13 +665,7 @@ def chain_press(game: windowmap.Game, source: str, goal: 'openers.Goal', tables:
         refused = openers.press_spot(game, goal, spot, point)
         if refused is not None:
             return nodes, set(), None, refused
-        opened: set[str] = set()
-        for _ in range(1 if right else 6):
-            time.sleep(1.0)
-            nodes, _, drawn = game.state()
-            opened = drawn - before
-            if opened:
-                break
+        nodes, opened = came_up(game, before, 1 if right else 6)
         if right and opened and showing is not None and not window_shows(game, nodes, opened, showing):
             # Somebody else's menu: Escape shuts it alone (measured 29 October 2026, six of six).
             channel.ask('sendkey 27')

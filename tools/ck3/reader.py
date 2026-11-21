@@ -268,13 +268,15 @@ def give_back() -> None:
 
 def main() -> None:
     pid = int(sys.argv[1])
-    reader = Reader(pid)
-    channel.ask('keys on')
-    reader.claim()
-    print(f'reader ready on pid {int(pid)}: F12 switches it on, up and down step through the window', flush=True)
-    print(f'watching {len(reader.toasts)} toast container(s)', flush=True)
-    print(f"watching {len(reader.layers)} layers: {', '.join(f'{reader.layers[a]} {count}' for a, count in sorted(reader.counted.items(), key=lambda pair: reader.layers[pair[0]]))}", flush=True)
+    # The start is inside the watch too: a derivation that stopped ended the reader without a word,
+    # while the player waited for its question (measured 21 November 2026 on 1.21.0.3).
     try:
+        reader = Reader(pid)
+        channel.ask('keys on')
+        reader.claim()
+        print(f'reader ready on pid {int(pid)}: F12 switches it on, up and down step through the window', flush=True)
+        print(f'watching {len(reader.toasts)} toast container(s)', flush=True)
+        print(f"watching {len(reader.layers)} layers: {', '.join(f'{reader.layers[a]} {count}' for a, count in sorted(reader.counted.items(), key=lambda pair: reader.layers[pair[0]]))}", flush=True)
         loop(reader)
     except channel.Gone:
         print('the game has ended, and so has the reader', flush=True)

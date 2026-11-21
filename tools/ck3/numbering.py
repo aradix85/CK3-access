@@ -165,12 +165,19 @@ def _read(pid: int, kind: str, layout: Layout) -> tuple[int, dict[int, str]]:
 
 
 def _holds(kind: str, count: int, found: dict[int, str]) -> bool:
-    """Does this reading prove itself? Every number has a well-formed key, and the great
-    majority are keys the files carry. Not all of them: a player can found a faith or a culture,
-    and those carry a key no file has - which is exactly why the numbering is read here."""
+    """Does this reading prove itself? Every number has a well-formed key or none at all, and the
+    great majority are keys the files carry. Not all of them: a player can found a faith or a
+    culture, and those carry a key no file has - which is exactly why the numbering is read here.
+
+    **A number may carry an empty key: a save of an older version keeps the slot of a title the
+    new files no longer have.** Ghur played, saved on 1.20 and loaded on 1.21.0.3, holds 173 such
+    titles among 18,722, between baronies of Germany and Italy, where 1.21 redrew the map; and it
+    lacks the 1,897 titles 1.21 added, the merchant companies among them (measured 21 November
+    2026). Until then an empty key failed this test and the title numbering stopped. Empty ones
+    count against the nine in ten, so a layout that reads nothing still fails."""
     known = on_disk(kind)
     shaped = _key_test(known)
-    if len(found) != count or any(not shaped.match(text) for text in found.values()):
+    if len(found) != count or any(text and not shaped.match(text) for text in found.values()):
         return False
     return sum(1 for text in found.values() if text in known) >= 0.9 * count
 
@@ -179,18 +186,17 @@ def keys(pid: int, kind: str) -> dict[int, str]:
     """Number -> key, from the running game. Disk is used to prove the reading, never to make it.
 
     The stored layout has to hold up every time; if it does not, it is derived again, which is
-    the same setup `derive.py` uses for the widget fields.
+    the same setup `derive.py` uses for the widget fields. A number whose key is empty names
+    nothing in this game and is left out (`_holds`).
     """
     layout = _stored(kind)
-    if layout:
+    count, found = _read(pid, kind, layout) if layout else (0, {})
+    if not layout or not _holds(kind, count, found):
+        layout = derive_layout(pid, kind)
         count, found = _read(pid, kind, layout)
-        if _holds(kind, count, found):
-            return found
-    layout = derive_layout(pid, kind)
-    count, found = _read(pid, kind, layout)
-    if not _holds(kind, count, found):
-        raise SystemExit(f'the layout just derived for {kind} does not read {int(count)} keys')
-    return found
+        if not _holds(kind, count, found):
+            raise SystemExit(f'the layout just derived for {kind} does not read {int(count)} keys')
+    return {number: key for number, key in found.items() if key}
 
 
 def _key_at(chunk: bytes, at: int, shaped: re.Pattern[str]) -> bool:

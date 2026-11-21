@@ -730,7 +730,7 @@ class Game:
         The writing test first did this with a full tree walk, and at 83,000 nodes that cost over
         two seconds per attempt, four times per window. This way it is one read.
         """
-        return derive._cstring(channel.read_known(address, derive.CHUNK), self.fields['text']) or ''
+        return derive._cstring(channel.read_known(address + self.fields['text'], 32), 0) or ''
 
     def set_console(self, on: bool, nodes: widgettree.Nodes | None = None) -> widgettree.Nodes:
         """Open or close the console, and prove it with the flag byte before typing anything.

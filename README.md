@@ -196,14 +196,18 @@ Two functions: `output(text, mode, braille)` and `failure(where, what, remedy)`.
 ### 6.9 After a game patch
 
 Across three version changes the nine widget offsets held, the globals moved and were derived again
-by themselves, and the character record grew once. The gui and localization files are read from
-disk as the engine merges them, so they follow a patch by themselves. To find what a patch broke,
-in this order:
+by themselves, and the character record grew once. 1.21.0.3 was the first to break something: the
+text of a text box moved, and two fixed read sizes and two rules read off one version stopped the
+tools (`CHANGELOG.md`, 2026-11-21). The window map, the key rounds and the harvest are still those
+of 1.20.1.2. The gui and localization files are read from disk as the engine merges them, so they
+follow a patch by themselves. To find what a patch broke, in this order:
 1. `python -m tools.check`, without the game: which numbers in `reports/claims.json` moved.
-2. `python -m tools.ck3.start_game`: the offsets are rechecked and derived again where a check
-   fails, and the start says so when it cannot.
-3. `python -m tools.ck3.model <pid>` and `python -m tools.ck3.calibrate <pid>`, on two saves: the
-   character record, and the field that deviates.
+2. `python -m tools.ck3.start_game`: the offsets of the last build are rechecked first, a text
+   offset that moved is found again alone, and only where another check fails is everything
+   derived again, which takes minutes; the start says so when it cannot.
+3. Save from the loaded game, then `python -m tools.ck3.model <pid> <save>` and
+   `python -m tools.ck3.calibrate <pid>`, on two saves: the character record, and the field that
+   deviates.
 4. `tools/ck3/numbering.py` and `tools/ck3/place.py`: numbers to keys, and where the player stands.
 5. `windowmap.unmapped`: a window the game builds that the map lacks. Harvest it with
    `python -m tools.ck3.harvest <pid>` and run `python -m tools.ck3.missing`.

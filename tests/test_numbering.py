@@ -23,6 +23,15 @@ def block_of(record: int, rows: int, own_at: int) -> bytes:
     return bytes(out)
 
 
+def test_a_number_may_carry_no_key_and_a_reading_of_nothing_still_fails(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A save of 1.20 loaded on 1.21 keeps the slots of the titles 1.21 dropped, with an empty key."""
+    monkeypatch.setattr(numbering, 'on_disk', lambda _kind: {f'b_place_{n}' for n in range(20)})
+    read = {n: f'b_place_{n}' for n in range(19)} | {19: ''}
+    assert numbering._holds('title', 20, read)
+    assert not numbering._holds('title', 20, read | {18: '\x01\x02'})
+    assert not numbering._holds('title', 20, read | {n: '' for n in range(10)})
+
+
 def test_the_record_length_comes_from_the_record_s_own_number() -> None:
     assert 1848 in numbering._own_number_strides(block_of(1848, 35, 16), 32)
 

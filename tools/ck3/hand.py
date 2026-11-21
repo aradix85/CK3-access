@@ -1,7 +1,7 @@
 r"""Windows by hand, along presses the files cannot route.
 
 Usage:
-    python -m tools.ck3.hand <pid> <source> <key | button:name | event:id> [<step> ...]
+    python -m tools.ck3.hand <pid> <source> <key | button:name | event:id | standing:how> [<step> ...]
 
 Opens `source` by its key, by pressing a button by name, as the migration window opens from the
 nomad's bar, or by firing an event from the console, which the game shows in its own window with
@@ -13,7 +13,9 @@ one comes up that shows the text in a drawn widget, such as a character's name -
 what the files say reaches that window; `<call>@<text>` takes the first whose row shows that text,
 where rows share a call, as the activities do, and `<call>@<group>><text>` the one alone under the
 nearest heading `group`, as the expander of one category of the interaction menu
-(`InteractionItem.OnClick@Vassal>2 more`); `hover:<name>` rests the real pointer on the drawn
+(`InteractionItem.OnClick@Vassal>2 more`); `button:<name>` clicks the widget of that name in the
+window, for one no gui file puts there, as the game hangs a decision's own widget into the decision
+(`press_named`); `hover:<name>` rests the real pointer on the drawn
 widget of that name, for buttons the game shows only while the mouse is over something, as the
 memories and the inventory sit behind the main portrait of the character window; it takes the
 foreground until the walk ends. Wait for `target`, record it into the harvest, and go on from it.
@@ -21,9 +23,18 @@ A step without `=target` only changes the window standing open, as a tab does: t
 sits in the war overview's peace terms, which the engine shows once a terms tab is pressed. A
 window on the way that already has a record from a player route keeps it, as in the chain round,
 with the view of its step written into it; the last target is always recorded. A step's view is
-the one `goal:<window>` waits on, when its name is no window name. A record it replaces goes aside
+every view the pressed widget opens by the files whose name is no window name, whether the step
+named a goal or a call (`Spot['fires']`). A record it replaces goes aside
 into `harvest-<date>-replaced`, or into `harvest-<date>-console-replaced` when the console made it.
 The state is put back, or nothing is written.
+
+**With `standing:<how>` the source stands open already**, after something this tool does not press:
+a place on the map clicked with the real mouse, the clock, a key in a second window. `how` says in
+words what brought it up, and the route keeps it. Nothing is opened and nothing is put back: the
+steps go from the source as it stands, the records are written, and the last window recorded gets
+its keys pressed where it stands, Escape last, into `reports\window_keys.json`, as the watcher does
+(`windowmap.keys_in_place`), because the key round cannot open it again. Such a record names no
+bare screen: none is measured with a window standing.
 
 The route of every record says what was pressed, starting with `hand:`. Made on 22 October 2026,
 after the filter presets, the settings window and the court appointment with its filter had each
@@ -63,9 +74,10 @@ def route_of(route: str, window: str) -> tuple[str, str, list[Step]] | None:
     route can be walked again (`windowmap.window_keys_round`). A step's target is the window the
     next step is pressed in, and the last one's is `window`.
 
-    None for a route this tool cannot walk again: one with a step it does not take, such as a place
-    on the map clicked with the real mouse, and one written before this tool."""
-    if not route.startswith('hand: '):
+    None for a route this tool cannot walk again: one from a window that stood open already, one
+    with a step it does not take, such as a place on the map clicked with the real mouse, and one
+    written before this tool."""
+    if not route.startswith('hand: ') or route.startswith('hand: standing:'):
         return None
     how, *rest = route[len('hand: '):].split(', ')
     parsed = [part.rpartition(' in ') for part in rest]
@@ -130,11 +142,33 @@ def hover_point(game: windowmap.Game, source: str, name: str) -> tuple[float, fl
     return x + w / 2, y + h / 2
 
 
+def press_named(game: windowmap.Game, source: str, name: str) -> tuple[widgettree.Nodes, set[str], str | None]:
+    """In `source`, standing open, click the first widget called `name` that a click reaches, and
+    wait for what comes up: the tree then, the windows the press brought up, and why nothing was
+    pressed.
+
+    For a widget no gui file puts in its window, which the alignment of a call cannot find: the
+    game hangs a decision's own widget into `decisiondetail_view` from gui\\decision_view_widgets
+    when the decision opens, and the lease of baronies and the title selector open from buttons in
+    it (measured 17 November 2026 on Harold)."""
+    nodes, _, before = game.state()
+    under = openers.subtree_of(nodes, source)
+    scales = onscreen.scales_for(list(nodes))
+    classes = widgettree.class_map(game.pid, {a: k[0] for a, k in nodes.items()})
+    refused: list[str] = []
+    for address in [a for a in nodes if a in under and nodes[a][6] == name]:
+        why = openers.press(address, nodes, scales, classes)
+        if why is None:
+            return (*harvest.came_up(game, before, 6), None)
+        refused.append(why)
+    return nodes, set(), f"no {name} in {source} takes a click: {', '.join(sorted(set(refused))) or 'none is there'}"
+
+
 def walk(game: windowmap.Game, source: str, steps: list[Step], route: str, tables: guimap.Tables,
          reached: Callable[[str, widgettree.Nodes, str, list[str]], None]) -> str | None:
     """In `source`, standing open, press each step in turn, and hand every window a step brings up
-    to `reached`, with the route so far and the view its step waited on when that view's name is no
-    window name. None once the last step is done, else why the walk stopped; the caller puts the
+    to `reached`, with the route so far and the views the pressed widget opens by the files whose
+    name is no window name. None once the last step is done, else why the walk stopped; the caller puts the
     state back. A hover's foreground and pointer go back before this returns."""
     known = tables[2]
     pointer: Pointer | None = None
@@ -153,18 +187,26 @@ def walk(game: windowmap.Game, source: str, steps: list[Step], route: str, table
                     return f'{step} in {source}: a hover opens no window, so it takes no target'
                 route += f', {step} in {source}'
                 continue
-            call, at, showing = step.partition('@')
-            goal = (openers.goal_of(call[len('goal:'):], tables) if call.startswith('goal:')
-                    else openers.Goal('right', call[len('right:'):]) if call.startswith('right:')
-                    else openers.Goal('call', call))
-            nodes, opened, spot, why = harvest.chain_press(game, source, goal, tables, showing if at else None)
-            print(f"in {source} pressed {(spot['name'] or spot['class']) if spot else None}; "
+            fires: list[str] = []
+            if step.startswith('button:'):
+                nodes, opened, why = press_named(game, source, step[len('button:'):])
+                pressed = None if why else step[len('button:'):]
+            else:
+                call, at, showing = step.partition('@')
+                goal = (openers.goal_of(call[len('goal:'):], tables) if call.startswith('goal:')
+                        else openers.Goal('right', call[len('right:'):]) if call.startswith('right:')
+                        else openers.Goal('call', call))
+                nodes, opened, spot, why = harvest.chain_press(game, source, goal, tables, showing if at else None)
+                pressed = (spot['name'] or spot['class']) if spot else None
+                fires = spot['fires'] if spot else []
+            print(f"in {source} pressed {pressed}; "
                   f"opened {', '.join(sorted(opened)) or 'nothing'}{'; ' + why if why else ''}")
-            if spot is None or (target and target not in opened):
+            if pressed is None or (target and target not in opened):
                 return f"{step} in {source} brought up {', '.join(sorted(opened)) or 'nothing'}{'; ' + why if why else ''}"
             route += f', {step} in {source}'
             if target:
-                reached(target, nodes, route, [goal.name] if goal.kind == 'view' and goal.name not in known else [])
+                reached(target, nodes, route, sorted({view for call in fires
+                                                      for view in openers.VIEW_CALL.findall(call) if view not in known}))
                 source = target
     finally:
         if pointer is not None:
@@ -185,16 +227,26 @@ def main() -> None:
     if not harvest.paused(game):
         raise SystemExit('the clock is running: pause the game first')
     windows: dict[str, windowmap.Route] = json.loads(pathlib.Path(harvest.MAP).read_text(encoding='utf-8'))['windows']
-    row = windowmap.pressed(how)
-    baseline = game.bare()
-    header = harvest.header(game, baseline)
+    standing = how.startswith('standing:')
     back: windowmap.Route = {'click': True}
     tables = guimap.tables()
     started = time.time()
-    opened_source, attempts = harvest.open_window(game, source, row, baseline)
-    if opened_source is None:
-        harvest.close_window(game, back, baseline)
-        raise SystemExit(f'{source} did not open along {how}')
+    opened_source: widgettree.Nodes | None
+    if standing:
+        if not how[len('standing:'):].strip():
+            raise SystemExit('standing: says in words what brought the window up, for the route')
+        opened_source, _, drawn = game.state()
+        if source not in drawn:
+            raise SystemExit(f"{source} does not stand open; drawn: {', '.join(sorted(drawn))}")
+        attempts, header = 1, harvest.header(game, set())
+    else:
+        row = windowmap.pressed(how)
+        baseline = game.bare()
+        header = harvest.header(game, baseline)
+        opened_source, attempts = harvest.open_window(game, source, row, baseline)
+        if opened_source is None:
+            harvest.close_window(game, back, baseline)
+            raise SystemExit(f'{source} did not open along {how}')
     records: list[harvest.Record] = []
     noted: list[tuple[str, str]] = []
     if not steps:
@@ -211,7 +263,7 @@ def main() -> None:
     why = walk(game, source, steps, f'hand: {how}', tables, reached)
     if why:
         print(f'stopped: {why}')
-    if not harvest.close_window(game, row if row.get('event') else back, baseline):
+    if not standing and not harvest.close_window(game, row if row.get('event') else back, baseline):
         raise SystemExit('the state did not come back; nothing written')
     for window, view in noted:
         harvest.note_view(window, view)
@@ -226,6 +278,13 @@ def main() -> None:
         pathlib.Path(path).write_text(json.dumps(record, ensure_ascii=False, indent=1), encoding='utf-8')
         print(f"{record['window']}: {int(record['widgets'])} widgets, "
               f"{int(record['confirmed'])}/{int(record['boxes'])} text boxes confirmed")
+    if standing and records and not why:
+        last = records[-1]['window']
+        keys = windowmap.keys_in_place(game, last)
+        if isinstance(keys, str):
+            raise SystemExit(keys)
+        windowmap.store_window_keys(pid, {last: keys})
+        print(f"standing now: {', '.join(sorted(game.state()[2]))}")
 
 
 if __name__ == '__main__':

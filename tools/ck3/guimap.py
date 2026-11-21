@@ -187,7 +187,9 @@ def _one(found: list[Token], at: int) -> tuple[int, Entry]:
         at, body = _body(found, at + 1)
         return at, _entry(word, arg=name, body=body)
 
-    if word in ('type', 'local_type'):
+    # `type = title_type_holy_order` is an attribute and no template: the landed titles carry it
+    # since 1.21, and the map data is read with this grammar.
+    if word in ('type', 'local_type') and found[at][:2] != ('punct', '='):
         name = found[at][1]
         at = _want(found, at + 1, '=')
         parent = found[at][1]
