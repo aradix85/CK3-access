@@ -966,8 +966,13 @@ def keys_only(pid: int, modified: bool = False) -> None:
     """Only the key round, and add what it finds to the map without touching anything else in it.
 
     Runs without -debug_mode. A key that opens a window becomes that window's shortcut route in
-    `reports\\windows.json`; a window that already has one keeps it, and nothing is removed - a
-    key that finds nothing this time says something about this state, not about the window.
+    `reports\\windows.json`. A key that finds nothing this time says something about this state,
+    not about the window, so such a window keeps its key. **But a key that now opens other windows
+    is taken from the window that held it**, and a window found on another key gets that one: until
+    21 November 2026 a window that had a key kept it, and 1.21 moved the function keys - F5 became
+    the trade window, the court F6, intrigue F7, factions F8 and the decisions F9 - so the map
+    sent every round to the wrong window. A window the map does not know yet is named and left
+    out; the full round adds it.
     With `modified` it presses the bindings in `MODIFIED` through the channel's `combo`, which
     posts them and holds the modifier for the game, so the foreground stays the player's; what the
     game asked about the keyboard meanwhile is printed after the round.
@@ -985,17 +990,24 @@ def keys_only(pid: int, modified: bool = False) -> None:
             line for line in channel.ask('count').split('\n') if line.startswith(('count', 'asked'))))
     with open(OUT, encoding='utf-8') as file:
         result: WindowMap = json.load(file)
-    added = []
+    opened_by: dict[str, set[str]] = {}
+    for window, key in found.items():
+        opened_by.setdefault(key, set()).add(window)
+    changed = []
+    for window, row in sorted(result['windows'].items()):
+        held = row.get('shortcut')
+        if held in opened_by and window not in opened_by[held] and window not in found:
+            del row['shortcut']
+            changed.append(f'{window} no longer on {held}')
     for window, key in sorted(found.items()):
         if window not in result['windows']:
-            raise SystemExit(f'{window} opened on {key} and the map does not know it; run '
-                             'windowmap.unmapped first')
-        if not result['windows'][window].get('shortcut'):
+            changed.append(f'{window} on {key}, which the map does not know yet')
+        elif result['windows'][window].get('shortcut') != key:
+            changed.append(f"{window} on {key}, was {result['windows'][window].get('shortcut') or 'without a key'}")
             result['windows'][window]['shortcut'] = key
-            added.append(f'{window} on {key}')
     with open(OUT, 'w', encoding='utf-8') as file:
         json.dump(result, file, ensure_ascii=False, indent=1, sort_keys=True)
-    print(f"windows with a key: {len(found)}, new in the map: {len(added)}{(' - ' + ', '.join(added)) if added else ''}")
+    print(f"windows with a key: {len(found)}, changed in the map: {len(changed)}{(' - ' + '; '.join(changed)) if changed else ''}")
 
 
 def main() -> None:

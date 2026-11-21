@@ -12,7 +12,7 @@ Outcomes, newest day first. No release yet.
 - The character model reads 0x800 behind a pointer: 1.21 keeps the domain limit at +0x408; all nineteen fields agree on 400 characters.
 - Title numbering: the record is 968 bytes now, found by the derivation; a save of 1.20 keeps empty slots of dropped titles, and those are allowed.
 - The file grammar reads `type = x` as an attribute: the landed titles of 1.21 carry it, and the disk check stopped there.
-- The reader read a window 1.20 did not have, the trade window on F5, with no change; 1.21 also moved the function keys from F5 on.
+- 1.21 moved the function keys (F5 trade, then court, intrigue, factions, decisions): the key round now moves a key in the map. The reader read the trade window unchanged.
 - The hand tool records a window standing open, with its keys pressed in place, presses a button by name, and writes the view a step opened.
 - `tools.check` reports 40 of 84 numbers moved by 1.21; the window map, the key rounds, the states and the harvest are still those of 1.20.
 

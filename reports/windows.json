@@ -119,8 +119,7 @@
    "message": "",
    "nodes_added": 2,
    "seconds": 9.2,
-   "shape": "top level",
-   "shortcut": "F9"
+   "shape": "top level"
   },
   "activity_list_detail_host": {
    "cleaned_up": true,
@@ -822,7 +821,7 @@
    "nodes_added": 2,
    "seconds": 7.1,
    "shape": "top level",
-   "shortcut": "F5"
+   "shortcut": "F6"
   },
   "create_accolade_view": {
    "cleaned_up": true,
@@ -928,7 +927,7 @@
    "nodes_added": 2,
    "seconds": 7.2,
    "shape": "top level",
-   "shortcut": "F8"
+   "shortcut": "F9"
   },
   "declare_war_window": {
    "cleaned_up": true,
@@ -1154,7 +1153,7 @@
    "nodes_added": 2,
    "seconds": 7.3,
    "shape": "top level",
-   "shortcut": "F7"
+   "shortcut": "F8"
   },
   "faith_conversion_window": {
    "cleaned_up": true,
@@ -1498,7 +1497,7 @@
    "nodes_added": 4,
    "seconds": 14.3,
    "shape": "top level",
-   "shortcut": "F6"
+   "shortcut": "F7"
   },
   "inventory_view": {
    "cleaned_up": true,

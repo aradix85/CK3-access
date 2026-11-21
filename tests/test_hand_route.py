@@ -20,9 +20,9 @@ def test_a_recorded_route_comes_back_as_steps() -> None:
     assert hand.route_of('hand: F1, hover:tutorial_highlight_main_character_button in character_window, '
                          "'memories' in character_window", 'memories_window') == ('character_window', 'F1', [
         ('hover:tutorial_highlight_main_character_button', ''), ("'memories'", 'memories_window')])
-    assert hand.route_of('hand: F8, DecisionsViewItem.OnSelect@Found Military Order in decisions_view, '
+    assert hand.route_of('hand: F9, DecisionsViewItem.OnSelect@Found Military Order in decisions_view, '
                          'button:change_capital in decisiondetail_view', 'lease_out_baronies_window') == (
-        'decisions_view', 'F8', [('DecisionsViewItem.OnSelect@Found Military Order', 'decisiondetail_view'),
+        'decisions_view', 'F9', [('DecisionsViewItem.OnSelect@Found Military Order', 'decisiondetail_view'),
                                  ('button:change_capital', 'lease_out_baronies_window')])
     assert hand.route_of('hand: button:button_x', 'x_window') == ('x_window', 'button:button_x', [])
     assert hand.route_of('hand: event:debug.1000', 'character_event') == ('character_event', 'event:debug.1000', [])
