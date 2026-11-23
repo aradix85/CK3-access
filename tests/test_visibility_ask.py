@@ -14,11 +14,11 @@ from tools.ck3 import channel, derive
 from tools.nvda import speech
 
 SUBJECT, CONTROL = 0x1000, 0x2000
-FLAG, ALPHA, COUNTER = 0x0D0, 0x108, 0x3AC
+FLAG, ALPHA, COUNTER, SIZE = 0x0D0, 0x108, 0x3AC, 0x3F0
 
 
 def chunk(open_window: bool, ticks: int) -> bytes:
-    data = bytearray(derive.CHUNK)
+    data = bytearray(SIZE)
     data[FLAG] = 0x00 if open_window else 0x18
     struct.pack_into('<f', data, ALPHA, 1.0 if open_window else 0.0)
     struct.pack_into('<I', data, COUNTER, ticks)
@@ -49,8 +49,8 @@ def test_the_player_is_asked_and_no_key_is_sent(monkeypatch: pytest.MonkeyPatch)
     monkeypatch.setattr(channel, 'read', read)
     monkeypatch.setattr(time, 'sleep', lambda _seconds: None)
     named = {derive.SUBJECT: SUBJECT, derive.CONTROL: CONTROL}
-    fields = derive.visibility_fields({}, named, player=True)  # type: ignore[typeddict-item]
+    fields = derive.visibility_fields({}, named, player=True, size=SIZE)  # type: ignore[typeddict-item]
     assert (fields['flag'], fields['alpha']) == (FLAG, ALPHA)
     assert len(asked) == 2 and all('F1' in text for text in asked)
     with pytest.raises(AssertionError, match='sendkey 112'):
-        derive.visibility_fields({}, named, player=False)  # type: ignore[typeddict-item]
+        derive.visibility_fields({}, named, player=False, size=SIZE)  # type: ignore[typeddict-item]

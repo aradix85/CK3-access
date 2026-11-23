@@ -45,9 +45,11 @@ CLASSES = {
     'trait': ('.?AVCTraitDatabase@@', 'array'),
     'title': ('.?AV?$TPdxRefDatabase@VCLandedTitle@@$07@@', 'indirect'),
 }
-CHUNK = 65536
+CHUNK = channel.READ_MOST   # of the first block, and a block is longer: 1024 records
 STRING = 32
 SAMPLE = 32
+HEAD = 256                  # how far into an array database its array is looked for
+BEHIND = 512                # how far behind a pointer a key is looked for
 
 
 def _key_test(known: set[str]) -> re.Pattern[str]:
@@ -93,11 +95,11 @@ def _is_array_database(address: int) -> bool:
     that, and no global points at a copy, so the derivation walked away empty. The array has to
     hold addresses that are addresses.
     """
-    head = channel.read(address, 256)
+    head = channel.read(address, HEAD)
     if head is None:
         return False
     return any(_members(found) for found in
-               (_array_at(head, at) for at in range(0, 224, 8)) if found)
+               (_array_at(head, at) for at in range(0, HEAD - STRING, 8)) if found)
 
 
 def _array_at(head: bytes, at: int) -> tuple[int, int] | None:
@@ -134,7 +136,7 @@ def _places(pid: int, kind: str, layout: Layout) -> dict[int, int]:
     """
     address, shape = _object(pid, kind)
     if shape == 'array':
-        head = channel.read_known(address, 256)
+        head = channel.read_known(address, HEAD)
         found = _array_at(head, layout['array'])
         if found is None:
             raise SystemExit(f"the {kind} database no longer holds its array at +{layout['array']}")
@@ -195,7 +197,9 @@ def keys(pid: int, kind: str) -> dict[int, str]:
         layout = derive_layout(pid, kind)
         count, found = _read(pid, kind, layout)
         if not _holds(kind, count, found):
-            raise SystemExit(f'the layout just derived for {kind} does not read {int(count)} keys')
+            raise SystemExit(f'the layout just derived for {kind} does not read {int(count)} keys; what is not '
+                             f'derived is the head of the database (`anchor.HEAD`) and the {model.BLOCK} slots '
+                             'of a block, so look there')
     return {number: key for number, key in found.items() if key}
 
 
@@ -245,7 +249,8 @@ def _own_number_strides(block: bytes, rows: int) -> list[int]:
             if seen >= 4 and all(value[start + n * stride] == n for n in range(seen)):
                 found.add(stride * 4)
     if not found:
-        raise SystemExit('no record in this block carries its own number')
+        raise SystemExit(f'no record in the first {len(block)} bytes of this block carries its own number, '
+                         'at any record length that lets four fit in them, up to 16 kB')
     return sorted(found)
 
 
@@ -307,24 +312,25 @@ def _derive_array(address: int, known: set[str]) -> Layout:
     not enough: the object carries more than one array over the same things, and the first is not
     the one whose order is the numbering.
     """
-    head = channel.read_known(address, 256)
+    head = channel.read_known(address, HEAD)
     shaped = _key_test(known)
     scores: dict[tuple[int, int], int] = {}
-    for at in range(0, 224, 8):
+    for at in range(0, HEAD - STRING, 8):
         found = _array_at(head, at)
         entries = _members(found, SAMPLE) if found else None
         if not entries:
             continue
-        chunks = channel.readmany(entries, 512)
+        chunks = channel.readmany(entries, BEHIND)
         if len(chunks) < len(entries):
             continue
         for inside in sorted({spot for one in chunks.values()
-                              for spot in range(0, 512 - STRING, 8) if _key_at(one, spot, shaped)}):
+                              for spot in range(0, BEHIND - STRING, 8) if _key_at(one, spot, shaped)}):
             hits = _agrees(chunks, inside, known)
             if hits:
                 scores[(at, inside)] = hits
     if not scores:
-        raise SystemExit('no array of definitions in this database')
+        raise SystemExit(f'no array of definitions in this database: none of under 10000 pointers in its '
+                         f'first {HEAD} bytes, with a key on disk in the first {BEHIND} bytes of a definition')
     at, inside = _winner(scores, 'array of definitions')
     return {'array': at, 'key': inside}
 
@@ -368,17 +374,18 @@ def _derive_indirect(address: int, known: set[str]) -> Layout:
             targets = _pointers_at(block, at, rows, record)
             if not targets:
                 continue
-            chunks = channel.readmany(sorted(set(targets.values())), 512)
+            chunks = channel.readmany(sorted(set(targets.values())), BEHIND)
             by_slot = {n: chunks[where] for n, where in targets.items() if where in chunks}
             if len(by_slot) < rows:
                 continue
             for inside in sorted({spot for one in by_slot.values()
-                                  for spot in range(0, 512 - STRING, 8) if _key_at(one, spot, shaped)}):
+                                  for spot in range(0, BEHIND - STRING, 8) if _key_at(one, spot, shaped)}):
                 texts = model.names_of(by_slot, inside)
                 if texts and _agrees(by_slot, inside, known):
                     readings[(record, at, inside)] = texts
     if not readings:
-        raise SystemExit('no pointer in a record of this database leads to a key on disk')
+        raise SystemExit('no pointer in a record of this database leads to a key on disk within '
+                         f'{BEHIND} bytes of where it points')
     return dict(zip(('record', 'pointer', 'key'), _one_reading(readings), strict=True))
 
 

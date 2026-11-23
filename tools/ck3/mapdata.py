@@ -104,24 +104,24 @@ def centres(numbers: NDArray[numpy.int32] | None = None) -> dict[int, tuple[floa
             for number in range(1, highest + 1) if count[number]}
 
 
-SPREAD = 20000          # bigger than the highest province number, so a pair packs into one int
-
-
 def touching(numbers: NDArray[numpy.int32] | None = None) -> set[tuple[int, int]]:
     """Every pair of provinces whose pixels lie next to each other.
 
     Four-neighbour, because a diagonal touch is a corner and not a border. Packed into one integer
     per pair so that `unique` does the counting; a Python loop over the differing pixels is minutes
-    where this is seconds.
+    where this is seconds. The packing takes its room from the image: one past the highest province
+    number on it (13474 on 1.21.0.3; a fixed 20000 stood here until 23 November 2026, and a map
+    grown past it would have folded two pairs into one without a word).
     """
     numbers = province_image() if numbers is None else numbers
+    spread = int(numbers.max()) + 1
     out: set[tuple[int, int]] = set()
     for left, right in ((numbers[:, :-1], numbers[:, 1:]), (numbers[:-1, :], numbers[1:, :])):
         differ = left != right
         low = numpy.minimum(left[differ], right[differ]).astype(numpy.int64)
         high = numpy.maximum(left[differ], right[differ]).astype(numpy.int64)
-        for packed in numpy.unique(low * SPREAD + high).tolist():
-            out.add((packed // SPREAD, packed % SPREAD))
+        for packed in numpy.unique(low * spread + high).tolist():
+            out.add((packed // spread, packed % spread))
     return out
 
 

@@ -90,7 +90,7 @@ def field_moved(pid: int, fields: derive.Fields) -> None:
             raise SystemExit('a moved offset passed the check; the check is broken, not the offset')
     finally:
         derive.STORED, derive.derive_all = stored_at, derive_all
-        onscreen.use_fields(fields.get('alpha'), fields.get('flag'))
+        onscreen.use_fields(fields.get('alpha'), fields.get('flag'), fields.get('scale'))
         derive.configure_channel(fields)        # the moved copy reached the DLL too; put it back
         os.remove(copy)
 

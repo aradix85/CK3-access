@@ -2,8 +2,9 @@
 widget is drawn, the frame of a list that clips it, the drawing area, and the scales and anchors
 that turn a place in the tree into a point on the screen.
 
-The two visibility offsets and the drawing area belong to a run: `derive.fields_for` publishes them
-through `use_fields` and `use_screen`, and every question here stops loudly until it has.
+The scale offset, the two visibility offsets and the drawing area belong to a run:
+`derive.fields_for` publishes them through `use_fields` and `use_screen`, and every question here
+stops loudly until it has.
 """
 import pathlib
 import struct
@@ -30,6 +31,7 @@ def window_size(pid: int) -> tuple[int, int]:
 
 ALPHA: int | None = None
 WINDOW_FLAG: int | None = None
+SCALE: int | None = None
 DRAWING_AREA: tuple[int, int] | None = None
 
 
@@ -55,21 +57,22 @@ def drawing_area() -> tuple[int, int]:
     return DRAWING_AREA
 
 
-def use_fields(alpha: int | None, flag: int | None) -> None:
-    """Publish the two visibility offsets for this build, as the derivation holds them.
+def use_fields(alpha: int | None, flag: int | None, scale: int | None) -> None:
+    """Publish the two visibility offsets and the scale offset for this build, as the derivation
+    holds them.
 
-    `flags_for` and `is_visible` need an offset but are called per widget, so passing the field
-    dictionary down every call site would be noise. They read these two instead, and
+    `flags_for`, `is_visible` and `scales_for` need an offset but are called per widget, so passing
+    the field dictionary down every call site would be noise. They read these three instead, and
     `derive.fields_for` sets them. They start as None on purpose: a wrong offset here reads as
     "nothing is visible", which is indistinguishable from a game that has not drawn anything yet,
     so the failure has to be loud and immediate rather than a plausible empty list.
     """
-    global ALPHA, WINDOW_FLAG
-    ALPHA, WINDOW_FLAG = alpha, flag
+    global ALPHA, WINDOW_FLAG, SCALE
+    ALPHA, WINDOW_FLAG, SCALE = alpha, flag, scale
 
 
-def _visibility_offset(which: str) -> int:
-    value = ALPHA if which == 'alpha' else WINDOW_FLAG
+def _offset(which: str) -> int:
+    value = {'alpha': ALPHA, 'flag': WINDOW_FLAG, 'scale': SCALE}[which]
     if value is None:
         raise SystemExit(f'the {which} offset is not known yet: call derive.fields_for(pid) first, '
                          'which derives it or reads it back from the stored derivation')
@@ -98,14 +101,14 @@ def flags_for(addresses: Iterable[int]) -> dict[int, int]:
     0x01 never occurs; 0x40 sits on scroll areas, edit boxes, zoom areas and widgets with `scissor`
     (`CLIPS`).
     """
-    return channel.field_for(addresses, _visibility_offset('flag'))
+    return channel.field_for(addresses, _offset('flag'))
 
 
 def alphas_for(addresses: Iterable[int]) -> dict[int, float]:
     """The alpha of many objects, the way `flags_for` reads the state byte. One that cannot be read
     is missing from the answer."""
     return {address: struct.unpack('<f', value.to_bytes(4, 'little'))[0]
-            for address, value in channel.field_for(addresses, _visibility_offset('alpha'), 4).items()}
+            for address, value in channel.field_for(addresses, _offset('alpha'), 4).items()}
 
 
 def shown(nodes: widgettree.Nodes, addresses: Iterable[int]) -> dict[int, int]:
@@ -147,20 +150,19 @@ def shown_in_record(node: pairing.Harvested, by_address: dict[str, pairing.Harve
     return True
 
 
-OWN_SCALE = 0x110
-
-
 def scales_for(addresses: Iterable[int]) -> Scales:
     """Per widget (own scale, scale from above). The two sit next to each other, so one read round.
 
-    Measured 23 August 2026 across all 2437 nodes of the main menu: +0x114 is exactly the product
-    of the own scales of every ancestor, no exceptions. So the engine already works that out for
-    us and the parent chain does not need multiplying.
+    Measured 23 August 2026 across all 2437 nodes of the main menu: the second is exactly the
+    product of the own scales of every ancestor, no exceptions. So the engine already works that
+    out for us and the parent chain does not need multiplying. Where the pair sits is derived
+    (`derive._scale_field`): +0x110 from 1.19 through 1.21.0.3.
     """
+    at = _offset('scale')
     out: Scales = {}
-    for address, value in channel.readmany((a + OWN_SCALE for a in addresses), 8).items():
+    for address, value in channel.readmany((a + at for a in addresses), 8).items():
         own, above = struct.unpack('<ff', value)
-        out[address - OWN_SCALE] = (own, above)
+        out[address - at] = (own, above)
     return out
 
 
@@ -187,7 +189,8 @@ def screen_pos(nodes: widgettree.Nodes, address: int, scales: Scales) -> tuple[f
 
     Five of the 515 gui files scale a full-screen container. The arithmetic, measured 30 July and
     23 August 2026: add up the position of every node times the scale that applies at that point
-    (+0x114), and for each scaled container above it add `size x (1 - own scale) / 2`. That is the
+    (the scale from above), and for each scaled container above it add
+    `size x (1 - own scale) / 2`. That is the
     difference between shrinking around the centre and shrinking around the edge - and so it only
     applies on an axis where the container hangs centred. Which axes those are comes from disk, via
     `scale_anchors`; a scaled container it does not know is corrected on both axes, which is a
@@ -221,13 +224,13 @@ def screen_pos(nodes: widgettree.Nodes, address: int, scales: Scales) -> tuple[f
 
 
 def _anchor_for(nodes: widgettree.Nodes, address: int, anchors: Anchors) -> tuple[bool, bool]:
-    """From a scaled container up to the window it hangs in."""
-    p, steps = address, 0
-    while p in nodes and steps < 24:
+    """From a scaled container up to the window it hangs in, however far up that is."""
+    p = address
+    while p in nodes:
         name = nodes[p][6]
         if name in anchors:
             return anchors[name]
-        p, steps = nodes[p][5], steps + 1
+        p = nodes[p][5]
     return True, True
 
 
@@ -287,7 +290,7 @@ def is_visible(nodes: widgettree.Nodes, address: int) -> bool:
     while the child itself keeps reporting 1.0. An ancestor that can no longer be read went away
     after the walk, and counts as not shown, as in `shown`."""
     while address in nodes:
-        alpha = channel.read(address + _visibility_offset('alpha'), 4)
+        alpha = channel.read(address + _offset('alpha'), 4)
         if alpha is None or struct.unpack('<f', alpha)[0] == 0.0:
             return False
         address = nodes[address][5]
@@ -309,13 +312,13 @@ def is_clipped(nodes: widgettree.Nodes, address: int, scales: Scales, classes: d
     """
     x, y = screen_pos(nodes, address, scales)
     width, height = screen_size(nodes, address, scales)
-    p, steps = nodes[address][5], 0
-    while p in nodes and steps < 30:
+    p = nodes[address][5]
+    while p in nodes:
         if 'Scroll' in (classes.get(p) or ''):
             ax, ay = screen_pos(nodes, p, scales)
             aw, ah = screen_size(nodes, p, scales)
             if aw > 1 and ah > 1:
                 return not (ax - 1 <= x and ay - 1 <= y
                             and x + width <= ax + aw + 1 and y + height <= ay + ah + 1)
-        p, steps = nodes[p][5], steps + 1
+        p = nodes[p][5]
     return False

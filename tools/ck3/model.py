@@ -123,55 +123,83 @@ def stored() -> anchor.Model | None:
     return model if model.get('key') == derive.build_key() else None
 
 
+def _own_numbers(data: bytes, stride: int, model: anchor.Model, first: int) -> int:
+    """Of slots 1 to 16 in these bytes, read at this stride, how many carry their own number when
+    the bytes start at slot `first`."""
+    at, mask = model['number_field_in_record'], model['number_mask']
+    return sum(1 for slot in range(1, 17)
+               if struct.unpack_from('<I', data, slot * stride + at)[0] & mask == first + slot)
+
+
 def _record_length(block_start: int, model: anchor.Model) -> int:
     """The record length of this build, measured: the stride at which a slot's own handle repeats.
 
     It stood in `reports\\model.json` as a constant, 464, outside the key of the exe. On 1.20.0.3 a
     record grew to 472 bytes, measured 1 October 2026 as 39 of 39 slots, and every record read at
-    the old stride was somebody else's - so it is measured at each start instead.
+    the old stride was somebody else's - so it is measured at each start instead. Any length that
+    lets sixteen records fit one read is tried; between 400 and 1200 bytes until 23 November 2026.
     """
-    at, mask = model['number_field_in_record'], model['number_mask']
-    data = channel.read_known(block_start, 40 * 1200)
-    for stride in range(400, 1200, 8):
-        hits = sum(1 for slot in range(1, 40)
-                   if (struct.unpack_from('<I', data, slot * stride + at)[0] & mask) == slot)
-        if hits >= 35:
+    at = model['number_field_in_record']
+    data = channel.read_known(block_start, channel.READ_MOST)
+    longest = (len(data) - at - 4) // 16
+    for stride in range(at + 8, longest + 1, 8):
+        if _own_numbers(data, stride, model, 0) >= 14:
             return stride
-    raise SystemExit('no record length fits block 0: the handle is not where the model says it is')
+    raise SystemExit(f'no record length up to {longest} bytes fits block 0: a record grew past that, or '
+                     f'the handle is not at +{at}, where the model says it is')
 
 
-# A TPdxRefDatabase, the shape of the character database and of most others: the table of block
-# starts at +8, how many blocks at +16, how many slots are filled at +60. These are not derived, so
-# every read proves them again: the records that come out have to carry their own number, and the
-# keys the keys the files on disk carry. A block holds BLOCK slots.
-HEAD = {'table': 8, 'blocks': 16, 'count': 60}
-# **The field at +40 is not the block size, measured 1 September 2026.** It reads 1024 for
+# **The field at +40 of the head is not the block size, measured 1 September 2026.** It reads 1024 for
 # cultures, faiths and religions - the size they really use - and it read as the block size here
 # until titles came along, where it says 32768 while the database works in blocks of 1024, and
-# characters, where it says 131072. Three databases where the two coincided is a coincidence and
-# not a counting rule. The character database has carried 1024 by hand all along and that turns out to be
-# right; taking it from the header would have indexed the character database at 131072 and read
-# every field behind it quietly wrong.
+# characters, where it says 65536 on 1.21.0.3. Three databases where the two coincided is a
+# coincidence and not a counting rule. So a block holds BLOCK slots by hand, and that is proved where
+# a database can prove it: the second block of the characters starts at slot BLOCK (`_layout`), and
+# so does that of the titles (their own number at +16, Ghur played, 23 November 2026).
 BLOCK = 1024
-POINTER = (0x10000000000, 0x800000000000)       # where a heap pointer of the game can lie
-# How much is read behind a pointer in a record. 0x400 until 21 November 2026: on 1.21.0.3 the block
-# of a landed ruler keeps the domain limit at +0x408, and the derivation said "nowhere" for it.
+# Where a heap pointer of the game can lie: what tells a pointer from a number in a record. Proved
+# at every read of a database, on its table and its blocks (`block_table`).
+POINTER = (0x10000000000, 0x800000000000)
+# How far behind a pointer in a record a field is looked for. 0x400 until 21 November 2026: on
+# 1.21.0.3 the block of a landed ruler keeps the domain limit at +0x408, and the derivation said
+# "nowhere" for it, so that sentence now says how far it looked.
 BEHIND = 0x800
 
 
 def block_table(address: int) -> tuple[tuple[int, ...], int]:
-    """Where each block of a database starts, and how many of its slots are filled."""
-    head = channel.read_known(address, 64)
-    table, count = struct.unpack_from('<QI', head, HEAD['table'])
-    filled: int = struct.unpack_from('<I', head, HEAD['count'])[0]
-    return struct.unpack(f'<{int(count)}Q', channel.read_known(table, count * 8)), filled
+    """Where each block of a database starts, and how many of its slots are filled.
+
+    The one place a head is read, so the one place that proves `anchor.HEAD`, `BLOCK` and `POINTER`
+    on it: a table that can be read, with every block a heap pointer, and no more slots filled than
+    the blocks hold. A head that fails stops here and names the three, instead of further on as a
+    read at an address that is none.
+    """
+    head = channel.read_known(address, anchor.HEAD['count'] + 4)
+    table: int = struct.unpack_from('<Q', head, anchor.HEAD['table'])[0]
+    count: int = struct.unpack_from('<I', head, anchor.HEAD['blocks'])[0]
+    filled: int = struct.unpack_from('<I', head, anchor.HEAD['count'])[0]
+    raw = channel.read(table, count * 8) if 0 < count * 8 <= channel.READ_MOST else None
+    starts: tuple[int, ...] = struct.unpack(f'<{count}Q', raw) if raw else ()
+    if (not starts or filled > count * BLOCK
+            or not all(POINTER[0] <= one < POINTER[1] for one in (table, *starts))):
+        raise SystemExit(f'the database at {address:x} does not read as one: a table at {table:x}, {count} '
+                         f'blocks, {filled} slots filled. Its head is read as `anchor.HEAD` has it, a block '
+                         f'as {BLOCK} slots, a heap pointer as lying from {POINTER[0]:x} up to '
+                         f'{POINTER[1]:x}; one of those three no longer holds')
+    return starts, filled
 
 
 def _layout(pid: int) -> tuple[anchor.Model, tuple[int, ...], int]:
-    """Where every record starts, from the block table, and how long a record is."""
+    """Where every record starts, from the block table, and how long a record is. The second block
+    has to start at slot `BLOCK`, which is the proof of that number."""
     model = anchor.load_model()
     starts, _ = block_table(anchor.database(pid))
     model['record_length'] = _record_length(starts[0], model)
+    if len(starts) > 1:
+        second = channel.read_known(starts[1], 17 * model['record_length'])
+        if _own_numbers(second, model['record_length'], model, BLOCK) < 14:
+            raise SystemExit(f'the second block of the character database does not start at slot {BLOCK}: '
+                             f'a block no longer holds {BLOCK} slots')
     return model, starts, len(starts)
 
 
@@ -228,6 +256,9 @@ def answer_key(save_path: str) -> dict[int, Row]:
             found = re.search(rf'\b{key}=(-?[\d.]+)', section)
             row[field] = found.group(1) if found else None
         rows[number] = row
+    if not rows:
+        raise SystemExit(f'{os.path.basename(save_path)} names no character with a current_strength, of '
+                         f'{len(index)} it names at all: the save is written another way than this reads it')
     return rows
 
 
@@ -391,7 +422,8 @@ def build(pid: int, rows: dict[int, Row], against: str) -> anchor.Model:
                 through[((pointer, offset), form)] = hits
         reached = _best(through, asked.get(field, 0))
         if not reached:
-            evidence[field] = f'nowhere, in none of the six forms ({int(asked.get(field, 0))} characters carry it)'
+            evidence[field] = (f'nowhere, in none of the six forms, in the record or the first 0x{BEHIND:X} bytes '
+                               f'behind a pointer in it ({int(asked.get(field, 0))} characters carry it)')
             continue
         (pointer, offset), form, hits = reached
         places[field] = {'pointer': pointer, 'offset': offset, 'form': form}

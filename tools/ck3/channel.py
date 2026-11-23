@@ -23,6 +23,7 @@ from ctypes import wintypes
 from tools.nvda import speech
 
 PIPE = r'\\.\pipe\ck3_access'
+READ_MOST = 65536       # bytes the DLL hands over in one `read`; more is an error from it, not less
 _k32 = ctypes.WinDLL('kernel32', use_last_error=True)
 _connection: io.FileIO | None = None
 

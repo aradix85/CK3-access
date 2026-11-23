@@ -131,7 +131,7 @@
  },
  {
   "name": "derived field offsets",
-  "claimed": 9,
+  "claimed": 10,
   "measure": "json_keys",
   "arguments": [
    "<project>\\reports\\fields.json",
@@ -143,17 +143,7 @@
    "gui_global",
    "root_slot"
   ],
-  "counting_rule": "fields in fields.json besides the bookkeeping keys and the route to the tooltip root, which is not a widget offset; the seven layout offsets plus alpha and the window flag, which have been derived by toggling a window since 24 August 2026"
- },
- {
-  "name": "characters per block",
-  "claimed": 1024,
-  "measure": "json_field",
-  "arguments": [
-   "<project>\\reports\\model.json",
-   "block_size"
-  ],
-  "counting_rule": "from model.json"
+  "counting_rule": "fields in fields.json besides the bookkeeping keys and the route to the tooltip root, which is not a widget offset; the seven layout offsets, the scale, derived since 23 November 2026, plus alpha and the window flag, which have been derived by toggling a window since 24 August 2026"
  },
  {
   "name": "model field culture",
@@ -234,7 +224,7 @@
  },
  {
   "name": "files that go into the repo",
-  "claimed": 99,
+  "claimed": 100,
   "measure": "repo_files",
   "counting_rule": "files under the project folder that .gitignore does not exclude, the same set git ls-files plus git ls-files --others --exclude-standard gives"
  },

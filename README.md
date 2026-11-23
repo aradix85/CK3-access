@@ -99,9 +99,10 @@ speech.
 
 ### 6.2 Derivation
 
-No memory layout is hard-coded. Widget vtables come from the RTTI in the executable; nine field
+No memory layout is hard-coded. Widget vtables come from the RTTI in the executable; ten field
 offsets are derived from the running game and rechecked at each start, and derived again if a check
-fails.
+fails. An object is read to the size measured for its class; what is still written down, the head
+of a database and the slots of a block, is checked at every read.
 
 ### 6.3 Visibility
 
@@ -195,7 +196,7 @@ Two functions: `output(text, mode, braille)` and `failure(where, what, remedy)`.
 
 ### 6.9 After a game patch
 
-Across three version changes the nine widget offsets held, the globals moved and were derived again
+Across three version changes the widget offsets held, the globals moved and were derived again
 by themselves, and the character record grew once. 1.21.0.3 was the first to break something: the
 text of a text box moved, and two fixed read sizes and two rules read off one version stopped the
 tools (`CHANGELOG.md`, 2026-11-21). The window map, the key rounds and the harvest are still those
@@ -204,8 +205,8 @@ follow a patch by themselves. To find what a patch broke, start the game on a pl
 `python -m tools.ck3.patchround <pid>`, then once more on a second save: it walks the steps below
 and says per check, in a sentence, what held and what moved. By hand they are, in this order:
 1. `python -m tools.check`, without the game: which numbers in `reports/claims.json` moved.
-2. `python -m tools.ck3.start_game`: the offsets of the last build are rechecked first, a text
-   offset that moved is found again alone, and only where another check fails is everything
+2. `python -m tools.ck3.start_game`: the offsets of the last build are rechecked first, a text or
+   scale offset that moved is found again alone, and only where another check fails is everything
    derived again, which takes minutes; the start says so when it cannot.
 3. Save from the loaded game, then `python -m tools.ck3.model <pid> <save>` and
    `python -m tools.ck3.calibrate <pid>`, on two saves: the character record, and the field that

@@ -37,6 +37,12 @@ from tools.ck3 import channel, derive, memory, vtablemap
 
 MODEL = os.path.join(paths.REPORTS, 'model.json')
 CLASS = '.?AV?$TPdxRefDatabase@VCCharacter@@$07@@'
+# The head of a TPdxRefDatabase, the shape of the character database and of most others: the table
+# of block starts at +8, how many blocks at +16 and how many the table has room for at +20, how many
+# slots are filled at +60. These are not derived, so every read proves them again:
+# `model.block_table` stops with a sentence when a head does not read as one, the records that come
+# out have to carry their own number, and their keys have to be keys the files on disk carry.
+HEAD = {'table': 8, 'blocks': 16, 'room': 20, 'count': 60}
 
 
 class Place(TypedDict):
@@ -58,8 +64,7 @@ class Model(TypedDict, total=False):
     globals: dict[str, int]
     number_field_in_record: int
     number_mask: int
-    block_size: int
-    record_length: int          # measured at every start by `model`, never stored
+    record_length: int         # measured at every start by `model`, never stored
     name: Name
     fields: dict[str, int]
     indirect: dict[str, Place]
@@ -96,10 +101,11 @@ def vtables(pid: int, name: str = CLASS) -> list[int]:
 def is_ref_database(address: int) -> bool:
     """Does this address carry a believable TPdxRefDatabase? A table, and counts that are not
     absurd. The stack copies fall away here by themselves: they have an empty table."""
-    b = channel.read(address, 24)
+    b = channel.read(address, HEAD['room'] + 4)
     if b is None:
         return False
-    table, count, capacity = struct.unpack_from('<QII', b, 8)
+    table = struct.unpack_from('<Q', b, HEAD['table'])[0]
+    count, capacity = (struct.unpack_from('<I', b, HEAD[field])[0] for field in ('blocks', 'room'))
     return bool(table) and 0 < count <= capacity <= 100000
 
 
@@ -115,6 +121,7 @@ def find_objects(pid: int, name: str = CLASS,
     one therefore is not enough; the caller decides which of them it can use.
     """
     found: list[int] = []
+    carrying = 0
     left_out: list[derive.Skips] = []
     for vt in vtables(pid, name):
         pattern = struct.pack('<Q', vt)[1:].hex()
@@ -127,11 +134,13 @@ def find_objects(pid: int, name: str = CLASS,
             head = channel.read(address, 8)
             if head is None or struct.unpack('<Q', head)[0] != vt:
                 continue
+            carrying += 1
             if valid(address) and address not in found:
                 found.append(address)
     if not found:
-        raise SystemExit(f'no object of {name} found in memory; the search '
-                         f'{derive.skipped(*left_out) or "skipped nothing"}')
+        raise SystemExit(f'no object of {name} found in memory: {carrying} places carry its vtable and none '
+                         'reads as the object, so if there are more than its copies on a stack, its head '
+                         f'changed; the search {derive.skipped(*left_out) or "skipped nothing"}')
     return found
 
 

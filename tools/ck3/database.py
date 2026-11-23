@@ -36,6 +36,8 @@ def files(branch: str) -> list[tuple[str, str, str]]:
     `00_...txt` in front of the game's and lose exactly the entries a mod means to add.
     """
     layers = [('game', os.path.join(paths.require('GAME'), 'game', 'common'))]
+    if not os.path.isdir(os.path.join(layers[0][1], *branch.split('/'))):
+        raise SystemExit(f'the game has no folder common/{branch}: this database moved, as the faiths did on 1.20')
     layers += [('mod', os.path.join(folder, 'common')) for folder in paths.mod_folders()]
     found: list[tuple[str, str, str]] = []
     for layer, base in layers:

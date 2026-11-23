@@ -32,13 +32,13 @@ from tools.ck3 import channel, guimap, memory, onscreen, vtablemap, widgettree
 from tools.nvda import speech
 
 STORED = os.path.join(paths.REPORTS, 'fields.json')
-CHUNK = 0x420          # holds every field derived here but the text, which a text box is read whole for
 
 
 class Fields(TypedDict):
     """A derivation, as `fields.json` keeps it: the build it holds for, the seven offsets the channel
-    walks with, three counts from the scan and what the scan skipped, the two visibility offsets
-    a state with a window to open adds, and the route to the tooltip root once it is asked for."""
+    walks with, three counts from the scan and what the scan skipped, the scale, the two visibility
+    offsets a state with a window to open adds, and the route to the tooltip root once it is asked
+    for."""
     key: str
     parent: int
     children: int
@@ -50,6 +50,7 @@ class Fields(TypedDict):
     objects: int
     unreadable: int
     roots: int
+    scale: NotRequired[int]          # a widget's own scale, the scale from above right behind it
     flag: NotRequired[int]
     alpha: NotRequired[int]
     skipped: NotRequired[str]
@@ -117,17 +118,53 @@ def tree(root: int) -> dict[int, int]:
     return found
 
 
-def chunks_of(addresses: Iterable[int]) -> tuple[dict[int, bytes], int]:
-    """Raw bytes per object. Unreadable ones are skipped and counted, not hidden."""
-    chunks: dict[int, bytes] = {}
-    failed = 0
-    for address in addresses:
-        b = channel.read(address, CHUNK)
-        if b is None:
-            failed += 1
-        else:
-            chunks[address] = b
-    return chunks, failed
+def chunks_of(addresses: Iterable[int], size: int) -> tuple[dict[int, bytes], int]:
+    """The first `size` bytes of each object, in the order asked: the position proof takes the first
+    families it meets, and in the order of the walk those are the ones on top. Unreadable ones are
+    skipped and counted, not hidden."""
+    wanted = list(dict.fromkeys(addresses))
+    read = channel.readmany(wanted, size)
+    chunks = {address: read[address] for address in wanted if address in read}
+    return chunks, len(wanted) - len(chunks)
+
+
+def object_size(addresses: Iterable[int]) -> tuple[int, float]:
+    """The size of one object of a class, measured, and the share of neighbours that showed it.
+
+    Objects of one class come out of one pool side by side, so the commonest distance between two
+    neighbours is the size of one: on 1.21.0.3 0x4D0 for a text box, 0x3C0 for an icon, 0x910 for a
+    button and 0x3F0 for a window (Ghur played, 23 November 2026). **A fixed read is a bound a
+    patch passes without a word**: every object was read to 0x420 bytes until 1.21 put the text of
+    a text box at +0x450, and the derivation found no candidate (21 November 2026).
+    """
+    steps = collections.Counter(b - a for a, b in itertools.pairwise(sorted(addresses)))
+    if not steps:
+        return 0, 0.0
+    size, hits = steps.most_common(1)[0]
+    return size, hits / steps.total()
+
+
+def _base_size(pid: int, objects: dict[int, int]) -> int:
+    """How far a field every widget carries can lie: the size of the smallest widget class.
+
+    Every class holds the fields of the base class in front of its own, so those lie within the
+    smallest object there is, and an object read that far is never read past its own end. A class
+    counts when a hundred of its objects are there and most neighbours lie one size apart.
+    """
+    per_class: dict[str | None, list[int]] = {}
+    for address, name in widgettree.class_map(pid, objects).items():
+        per_class.setdefault(name, []).append(address)
+    sizes = [size for size, share in (object_size(members) for members in per_class.values()
+                                      if len(members) >= 100) if share > 0.5]
+    if not sizes:
+        raise SystemExit('deriving failed: no widget class has a hundred objects lying side by side, '
+                         'so the size of a widget object cannot be measured')
+    return min(sizes)
+
+
+def _reach(chunks: dict[int, bytes]) -> int:
+    """How many bytes of each object were read, which is how far a field is looked for."""
+    return len(next(iter(chunks.values())))
 
 
 def _pair(chunk: bytes, offset: int) -> tuple[float, float]:
@@ -135,30 +172,37 @@ def _pair(chunk: bytes, offset: int) -> tuple[float, float]:
     return first, second
 
 
+def _ending_at_a_root(parent: dict[int, int]) -> int:
+    """How many objects have a chain of parents that ends, each object looked at once. A chain that
+    comes back on itself ends nowhere, and neither does one that runs into it. However deep the tree
+    goes: the chains were followed forty steps until 23 November 2026, where the tree of Ghur played
+    went 29 deep with no window open."""
+    ends: dict[int, bool] = {0: True}
+    for address in parent:
+        path: list[int] = []
+        p = address
+        while p not in ends:
+            ends[p] = False             # on the way: met again, it is a circle
+            path.append(p)
+            p = parent.get(p, 0)
+        if ends[p]:
+            ends.update(dict.fromkeys(path, True))
+    return sum(1 for address in parent if ends[address])
+
+
 def _parent_field(chunks: dict[int, bytes], addresses: set[int]) -> int:
     """Prediction: the parent field forms a forest. Every chain ends at a root and there are no
     cycles. A sibling or neighbour pointer points at a widget just as often but loops around, and
     drops out on that."""
     best: tuple[int, int] | None = None
-    for offset in range(0, CHUNK - 8, 8):
+    for offset in range(0, _reach(chunks) - 8, 8):
         parent: dict[int, int] = {}
         for address, b in chunks.items():
             value = int.from_bytes(b[offset:offset + 8], 'little')
             parent[address] = value if value in addresses else 0
         if len(set(parent.values()) - {0}) < 2:
             continue
-        ends = 0
-        for address in parent:
-            seen: set[int] = set()
-            p, depth = address, 0
-            while p and depth < 40:
-                if p in seen:
-                    break
-                seen.add(p)
-                p = parent.get(p, 0)
-                depth += 1
-            if p == 0:
-                ends += 1
+        ends = _ending_at_a_root(parent)
         if ends < 0.99 * len(parent):
             continue
         if best is None or ends > best[1]:
@@ -188,7 +232,7 @@ def _count_field(chunks: dict[int, bytes], children_of: dict[int, set[int]]) -> 
     943 would fail such a result, and that is not strictness but brittleness.
     """
     tally: dict[int, int] = {}
-    for offset in range(0, CHUNK - 4, 4):
+    for offset in range(0, _reach(chunks) - 4, 4):
         hit = sum(1 for parent, children in children_of.items()
                    if parent in chunks
                    and int.from_bytes(chunks[parent][offset:offset + 4], 'little') == len(children))
@@ -209,17 +253,18 @@ def _count_field(chunks: dict[int, bytes], children_of: dict[int, set[int]]) -> 
 
 def _child_field(chunks: dict[int, bytes], children_of: dict[int, set[int]]) -> int:
     """Prediction: a pointer to a block containing exactly the children that name this object as
-    their parent. Equal, not overlapping."""
+    their parent. Equal, not overlapping. Tried on the twenty largest families whose list fits one
+    read."""
     samples: int = 20
     probe = [o for o in sorted(children_of, key=lambda k: -len(children_of[k]))
-             if o in chunks][:samples]
+             if o in chunks and len(children_of[o]) * 8 <= channel.READ_MOST][:samples]
     best: tuple[int | None, int] = (None, 0)
-    for offset in range(0, CHUNK - 8, 8):
+    for offset in range(0, _reach(chunks) - 8, 8):
         ok = 0
         for parent in probe:
             children = children_of[parent]
             pointer = int.from_bytes(chunks[parent][offset:offset + 8], 'little')
-            if pointer < 0x10000 or len(children) > 500:
+            if pointer < 0x10000:
                 continue
             b = channel.read(pointer, len(children) * 8)
             if b is None:
@@ -276,7 +321,7 @@ def _size_field(chunks: dict[int, bytes], roots: list[int], window_width: int,
     axes relative to the window's drawing area. A field that is zero everywhere fails this, and a
     random pair almost never hits the window's ratio.
     """
-    for offset in range(0, CHUNK - 8, 4):
+    for offset in range(0, _reach(chunks) - 8, 4):
         for root in roots:
             if root not in chunks:
                 continue
@@ -338,7 +383,7 @@ def _pos_field(chunks: dict[int, bytes], f_parent: int, f_size: int) -> int:
     position-like: when a window is unparked, both move from -60 to 0.
     """
     rows: list[tuple[int, int, int, int]] = []
-    for offset in range(0, CHUNK - 8, 4):
+    for offset in range(0, _reach(chunks) - 8, 4):
         holds, distinct, _ = _position_like(chunks, f_parent, offset)
         if not holds:
             continue
@@ -401,7 +446,7 @@ def _name_field(chunks: dict[int, bytes], gui: str) -> int:
     """Prediction: most names appear literally in the game's gui files. That is a primary source
     on disk and needs no eyesight."""
     best: tuple[int | None, int] = (None, 0)
-    for offset in range(0, CHUNK - 32, 8):
+    for offset in range(0, _reach(chunks) - 32, 8):
         hit = _gui_names({t for t in (_cstring(b, offset) for b in chunks.values()) if t}, gui)
         if hit > best[1]:
             best = (offset, hit)
@@ -410,22 +455,59 @@ def _name_field(chunks: dict[int, bytes], gui: str) -> int:
     return best[0]
 
 
+def _scale_like(pairs: list[tuple[bytes, bytes]], offset: int) -> tuple[int, int]:
+    """(pairs where the child's scale from above is its parent's two multiplied, how many of those
+    under a parent with a scale of its own) for a candidate offset. A scale is a number a widget
+    could be drawn at: a field of zeros or of whole numbers read as floats fails that."""
+    held = scaled = 0
+    for child, parent in pairs:
+        own, above = _pair(parent, offset)
+        below = _pair(child, offset)[1]
+        if all(0.01 < value < 100.0 for value in (own, above, below)) and abs(below - own * above) < 1e-4:
+            held += 1
+            scaled += abs(own - 1.0) > 1e-4
+    return held, scaled
+
+
+def _scale_field(chunks: dict[int, bytes], f_parent: int) -> int:
+    """Prediction: two floats side by side, a widget's own scale and the scale that reaches it
+    from above, where the second is the product of both of its parent - on nearly every widget, and
+    on at least one under a parent whose own scale is not 1, or a field holding 1.0 twice passes.
+
+    Until 23 November 2026 the place stood in `onscreen` as a constant, +0x110, the one offset of a
+    widget that was not derived. Measured that day on Ghur played, 1.21.0.3, over all 87,467 pairs
+    of the tree: only +0x110 passes, with 1580 pairs under a scaled parent, of 264 widgets that
+    carry a scale of their own. Candidates are sifted on a sample first, then counted over all.
+    `chunks` holds the tree and not the scan, as for the position (`position_from_tree`).
+    """
+    pairs = [(b, chunks[parent]) for b in chunks.values()
+             if (parent := int.from_bytes(b[f_parent:f_parent + 8], 'little')) in chunks]
+    some = pairs[::max(1, len(pairs) // 2000)]
+    found = [offset for offset in range(0, _reach(chunks) - 8, 4)
+             if _scale_like(some, offset)[0] >= 0.99 * len(some)]
+    found = [offset for offset in found
+             if (seen := _scale_like(pairs, offset))[0] >= 0.99 * len(pairs) and seen[1]]
+    if len(found) != 1:
+        raise SystemExit(f'deriving failed on field: scale ({len(found)} places hold a scale from above that is '
+                         f"the product of the parent's, among {len(pairs)} widgets and their parents; "
+                         'expected exactly one, and a screen on which nothing is scaled shows none)')
+    return found[0]
+
+
 def _text_field(text_boxes: list[int], translation: str, f_name: int) -> int:
     """Prediction: most displayed texts appear in the localization files. Test on text boxes only -
     on another object you are reading the neighbour from the same pool here.
 
-    **A text box is read to its own size, and that size is measured:** text boxes lie side by side
-    in one pool, so the commonest distance between two neighbours is the size of one. Until
-    21 November 2026 they were read to `CHUNK` like every object, which was roomier than a text box
-    of 1.20. On 1.21.0.3 a text box is 0x4D0 bytes with its text at +0x450 (Harold: 10406 of 12717
-    neighbours lie that far apart), and the derivation stopped here without one candidate.
+    **A text box is read to its own size, and that size is measured** (`object_size`). Until
+    21 November 2026 text boxes were read to 0x420 bytes like every object, which was roomier than
+    a text box of 1.20. On 1.21.0.3 a text box is 0x4D0 bytes with its text at +0x450 (Harold:
+    10406 of 12717 neighbours lie that far apart), and the derivation stopped here without one
+    candidate.
     """
-    boxes = sorted(text_boxes)
-    steps = collections.Counter(b - a for a, b in itertools.pairwise(boxes))
-    if not steps:
+    size, _ = object_size(text_boxes)
+    if not size:
         raise SystemExit('deriving failed on field: text (fewer than two text boxes to measure the size of one)')
-    size = steps.most_common(1)[0][0]
-    blocks = channel.readmany(boxes, size)
+    blocks = channel.readmany(text_boxes, size)
     best: tuple[int | None, int] = (None, 0)
     for offset in range(0, size - 32, 8):
         if offset == f_name:
@@ -456,7 +538,9 @@ def derive_all(pid: int) -> tuple[Fields, set[int]]:
     if not addresses:
         raise SystemExit('the scan found no widget at all; is the game already showing a screen? '
                          f'It {left_out or "skipped nothing"}')
-    chunks, failed = chunks_of(addresses)
+    chunks, failed = chunks_of(addresses, _base_size(pid, addresses))
+    if not chunks:
+        raise SystemExit(f'the scan found {len(addresses)} widgets and not one of them can be read')
     width, height = onscreen.window_size(pid)
 
     f_parent = _parent_field(chunks, set(addresses))
@@ -468,9 +552,7 @@ def derive_all(pid: int) -> tuple[Fields, set[int]]:
     f_size = _size_field(chunks, roots, width, height)
     f_position = _pos_field(chunks, f_parent, f_size)
     f_name = _name_field(chunks, gui_text())
-    classes = widgettree.class_map(pid, addresses)
-    text_boxes = [a for a, k in classes.items() if k == 'Textbox']
-    f_text = _text_field(text_boxes, localization_text(), f_name)
+    f_text = _text_field(_text_boxes(addresses, pid), localization_text(), f_name)
 
     return ({'key': build_key(), 'parent': f_parent, 'children': f_children, 'count': f_count,
              'position': f_position, 'size': f_size, 'name': f_name, 'text': f_text,
@@ -498,18 +580,22 @@ def all_in_scan(nodes: Iterable[int], scanned: set[int], left_out: str) -> None:
 KEY, SUBJECT, CONTROL = 112, 'character_window', 'council_window'
 
 
-def _window_objects(pid: int, root: int) -> dict[str, int]:
-    """Name -> the first window object of that name in the tree."""
+def _window_objects(pid: int, root: int) -> tuple[dict[str, int], int]:
+    """Name -> the first window object of that name in the tree, and the size of a window object."""
     window_classes = window_classes_of(pid)
     named: dict[str, int] = {}
+    every: list[int] = []
     for a, k in widgettree.widgets(root).items():
-        if k[0] in window_classes and k[6]:
-            named.setdefault(k[6], a)
-    return named
+        if k[0] in window_classes:
+            every.append(a)
+            if k[6]:
+                named.setdefault(k[6], a)
+    return named, object_size(every)[0]
 
 
-def visibility_fields(fields: Fields, named: dict[str, int], player: bool) -> Fields:
-    """Derive the two visibility offsets by toggling a window and watching what moves.
+def visibility_fields(fields: Fields, named: dict[str, int], player: bool, size: int) -> Fields:
+    """Derive the two visibility offsets by toggling a window and watching what moves, in the
+    `size` bytes of a window object.
 
     Everything else here is derived from what one reading of memory looks like. These two cannot
     be: alpha and the window flag are ordinary numbers whose *meaning* only shows when the state
@@ -539,7 +625,7 @@ def visibility_fields(fields: Fields, named: dict[str, int], player: bool) -> Fi
     def snapshot() -> dict[str, bytes]:
         out: dict[str, bytes] = {}
         for name in (subject, control):
-            chunk = channel.read(named[name], CHUNK)
+            chunk = channel.read(named[name], size)
             if chunk is None:
                 raise SystemExit(f'deriving visibility failed: the {name} object can no longer be read')
             out[name] = chunk
@@ -554,9 +640,10 @@ def visibility_fields(fields: Fields, named: dict[str, int], player: bool) -> Fi
             time.sleep(0.5)
             after = snapshot()
             if any(after[subject][o] != before[subject][o] and after[control][o] == before[control][o]
-                   for o in range(CHUNK)):
+                   for o in range(size)):
                 return after
-        raise SystemExit(f'deriving visibility failed: {what} changed nothing in {waits // 2} seconds')
+        raise SystemExit(f'deriving visibility failed: nothing moved on {subject} in {waits // 2} seconds '
+                         f'after F1, the key taken for {what} it')
 
     start = snapshot()
     opened = toggle(start, 'opening', 'to finish, press F1 once to open the character window')
@@ -576,11 +663,11 @@ def visibility_fields(fields: Fields, named: dict[str, int], player: bool) -> Fi
         changed = [o for o in range(word, word + 4) if before[o] != after[o]]
         return changed == [offset]
 
-    flag = [o for o in range(CHUNK)
+    flag = [o for o in range(size)
             if start[subject][o] == closed[subject][o] != opened[subject][o] == 0
             and alone_in_its_word(start[subject], opened[subject], o)
             and not moved(start[control], opened[control], o, 1)]
-    alpha = [o for o in range(0, CHUNK - 4, 4)
+    alpha = [o for o in range(0, size - 4, 4)
              if struct.unpack_from('<f', opened[subject], o)[0] == 1.0
              and struct.unpack_from('<f', start[subject], o)[0] == 0.0
              and start[subject][o:o + 4] == closed[subject][o:o + 4]
@@ -588,6 +675,10 @@ def visibility_fields(fields: Fields, named: dict[str, int], player: bool) -> Fi
     if len(flag) != 1 or len(alpha) != 1:
         raise SystemExit(f"deriving visibility failed: {len(flag)} candidates for the flag {[f'0x{o:03X}' for o in flag[:6]]} and {len(alpha)} for "
                          f"alpha {[f'0x{o:03X}' for o in alpha[:6]]}; expected exactly one of each")
+    if not start[subject][flag[0]] & onscreen.HIDDEN:
+        raise SystemExit(f'deriving visibility failed: {subject}, shut, carries 0x{start[subject][flag[0]]:02X} '
+                         f'at +0x{flag[0]:03X}, without the 0x{onscreen.HIDDEN:02X} that hides a widget: the bits '
+                         'of the state byte changed meaning')
     print(f'flag: +0x{flag[0]:03X}, alpha: +0x{alpha[0]:03X} ({subject} toggled, {control} did not move)')
     out = fields.copy()
     out['flag'], out['alpha'] = flag[0], alpha[0]
@@ -615,7 +706,7 @@ def position_from_tree(pid: int, fields: Fields) -> tuple[Fields, int, dict[int,
     nodes: int = 1000
     configure_channel(fields)
     root, walked = quick_root(fields, pid)
-    chunks, _ = chunks_of(list(walked)[:nodes])
+    chunks, _ = chunks_of(list(walked)[:nodes], _base_size(pid, walked))
     from_tree = _pos_field(chunks, fields['parent'], fields['size'])
     if from_tree != fields['position']:
         print('position: the scan said +0x{:03X}, the tree says +0x{:03X}; the tree decides'.format(fields['position'], from_tree))
@@ -719,7 +810,8 @@ def _tooltip_route(pid: int, root: int, base: int, f_name: int) -> tuple[int, in
             if slots[0] - 0x1000 <= value <= slots[0]:
                 holders.setdefault(value, []).append(start + at)
     if not holders:
-        raise SystemExit('no global in the exe points at the object that lists the layer roots')
+        raise SystemExit('no global in the exe points at the object that lists the layer roots, or at '
+                         'most 4 kB before the place of the root in it, which is as far as was looked')
     holder = max(holders, key=lambda value: (len(holders[value]), value))
     return min(holders[holder]) - base, slots[0] - holder
 
@@ -750,22 +842,22 @@ def _image_writable(pid: int, base: int) -> Iterator[tuple[int, bytes]]:
         k32.CloseHandle(handle)
 
 
-def to_root(address: int, f_parent: int) -> tuple[int, dict[int, int]]:
-    """Up until the parent is no longer a widget. `tree` on a non-widget returns nothing, and that
-    is the test right there."""
-    p, nodes = address, tree(address)
-    for _ in range(40):
+def to_root(address: int, f_parent: int, widget_vtables: set[int]) -> tuple[int, dict[int, int]]:
+    """Up until the parent carries no widget vtable, and the tree from there. The climb is as long
+    as the tree is deep; one that comes back on itself has no top. Until 23 November 2026 it gave
+    up after forty steps, walking the tree at each of them."""
+    seen = {address}
+    p = address
+    while True:
         b = channel.read(p + f_parent, 8)
-        if b is None:
-            return p, nodes
-        upper = int.from_bytes(b, 'little')
-        if upper < 0x10000:
-            return p, nodes
-        top = tree(upper)
-        if not top:
-            return p, nodes
-        p, nodes = upper, top
-    raise SystemExit('the parent chain does not end; is the parent field still right?')
+        upper = int.from_bytes(b, 'little') if b else 0
+        head = channel.read(upper, 8) if upper >= 0x10000 else None
+        if head is None or int.from_bytes(head, 'little') not in widget_vtables:
+            return p, tree(p)
+        if upper in seen:
+            raise SystemExit('the parent chain comes back on itself; is the parent field still right?')
+        seen.add(upper)
+        p = upper
 
 
 def quick_root(fields: Fields, pid: int) -> tuple[int, dict[int, int]]:
@@ -787,6 +879,8 @@ def quick_root(fields: Fields, pid: int) -> tuple[int, dict[int, int]]:
     samples: int = 40
     ample: int = 1500
     at_least: int = 500
+    base = vtablemap.module_base(pid)
+    widget_vtables = {base + rva for rva in memory.widget_vtables()}
     found: dict[int, dict[int, int]] = {}
     left_out: list[Skips] = []
     for group, skips_of_piece in seed_batches(pid):
@@ -794,14 +888,14 @@ def quick_root(fields: Fields, pid: int) -> tuple[int, dict[int, int]]:
         for address in group[:samples]:
             if address in found:
                 continue
-            root, nodes = to_root(address, fields['parent'])
+            root, nodes = to_root(address, fields['parent'], widget_vtables)
             found[root] = nodes
             if len(nodes) >= ample:                 # this is the interface, searching further is pointless
                 return root, nodes
         if found and max(len(k) for k in found.values()) >= at_least:
             root = max(found, key=lambda w: len(found[w]))
             return root, found[root]
-    raise SystemExit('no widget tree of any significance found; is the game still running? '
+    raise SystemExit(f'no widget tree of {at_least} widgets or more found; is the game still running? '
                      f'The scan {skipped(*left_out) or "skipped nothing"}')
 
 
@@ -821,10 +915,11 @@ def _child_check(fields: Fields, root: int) -> tuple[int, int]:
     parent as their parent. This tests the child field, the count and the parent field in one
     movement, and it need not cover the whole tree.
 
-    **It reads only the two fields it tests, not a whole chunk.** Measured 4 October 2026 on the
+    **It reads only the two fields it tests, not a whole object.** Measured 4 October 2026 on the
     loaded Ghur game of 1.20: the root sat 816 bytes before the end of readable memory, a read of
-    `CHUNK` from it failed, nothing was tested, and the start turned a good derivation down, said
-    so to the player and derived the same offsets again for three minutes.
+    0x420 bytes from it failed, nothing was tested, and the start turned a good derivation down,
+    said so to the player and derived the same offsets again for three minutes. A parent whose
+    child list does not fit one read is passed over.
     """
     how_many: int = 20
     need = max(fields['children'] + 8, fields['count'] + 4)
@@ -837,7 +932,7 @@ def _child_check(fields: Fields, root: int) -> tuple[int, int]:
             continue
         items = int.from_bytes(b[fields['children']:fields['children'] + 8], 'little')
         count = int.from_bytes(b[fields['count']:fields['count'] + 4], 'little')
-        if not items or count == 0 or count > 500:
+        if not items or count == 0 or count * 8 > channel.READ_MOST:
             continue
         block = channel.read(items, count * 8)
         if block is None:
@@ -860,9 +955,10 @@ def verify(fields: Fields, root: int, nodes: dict[int, int], pid: int) -> list[s
 
     A sample is enough: this check has to establish whether the layout is still the same, not take
     inventory of the whole tree. Walking every node cost three seconds at every start and added
-    nothing.
+    nothing. The text and the scale are asked after separately, because a start finds each of
+    those again alone (`_found_alone`).
     """
-    chunks, _ = chunks_of(_sample(nodes, root))
+    chunks, _ = chunks_of(_sample(nodes, root), _span(fields))
     window_width, window_height = onscreen.window_size(pid)
     defects: list[str] = []
 
@@ -884,9 +980,20 @@ def verify(fields: Fields, root: int, nodes: dict[int, int], pid: int) -> list[s
         defects.append(f'fewer than {GUI_NAMES:.0%} of {len(names)} names appear in the gui files')
 
     defects.extend(_position_check(fields, nodes))
-    defects.extend(_scale_check(fields, chunks, nodes))
     defects.extend(_visibility_check(fields, chunks, nodes, pid))
     return defects
+
+
+def _span(fields: Fields) -> int:
+    """How much of an object a recheck reads: up to the end of the furthest field it tests. Not a
+    whole object, which can end right before an unreadable page (`_child_check`)."""
+    return max(fields['parent'] + 8, fields['position'] + 8, fields['size'] + 8, fields['name'] + 32,
+               fields.get('alpha', 0) + 4)
+
+
+def _publish(fields: Fields) -> None:
+    """Hand `onscreen` the three offsets it reads by."""
+    onscreen.use_fields(fields.get('alpha'), fields.get('flag'), fields.get('scale'))
 
 
 def _position_check(fields: Fields, nodes: Iterable[int]) -> list[str]:
@@ -904,7 +1011,7 @@ def _position_check(fields: Fields, nodes: Iterable[int]) -> list[str]:
     (0.97 of families against 0.33).
     """
     how_many: int = 800
-    chunks, _ = chunks_of(list(nodes)[:how_many])
+    chunks, _ = chunks_of(list(nodes)[:how_many], _span(fields))
     if not chunks:
         return ['nothing could be read from the tree to check the position offset against']
     holds, distinct, families = _position_like(chunks, fields['parent'], fields['position'])
@@ -914,26 +1021,49 @@ def _position_check(fields: Fields, nodes: Iterable[int]) -> list[str]:
     return []
 
 
-def _scale_check(fields: Fields, chunks: dict[int, bytes], nodes: dict[int, int]) -> list[str]:
-    """Is `onscreen.OWN_SCALE` still the own scale, with the scale from above beside it?
+def _scale_check(fields: Fields, nodes: dict[int, int], root: int) -> list[str]:
+    """Is the stored scale offset still the own scale, with the scale from above beside it?
 
-    That offset is not derived, and this is what keeps it from going stale unseen. The scale from
-    above is the product of the own scales of every ancestor (`onscreen.scales_for`), so for every
-    widget of the sample whose parent is in the tree, the parent's own scale times the parent's
-    scale from above is the widget's scale from above. A field holding anything else - a pointer, a
-    count, a coordinate - breaks that at once. Not yet measured on a loaded game of 1.20.1.2.
+    The scale from above is the product of the own scales of every ancestor (`onscreen.scales_for`),
+    so for every widget of a sample whose parent is in the tree, the parent's own scale times the
+    parent's scale from above is the widget's scale from above. A field holding anything else - a
+    pointer, a count, a coordinate - breaks that at once. One holding 1.0 twice passes; telling that
+    apart takes the whole tree, and `_scale_field` does it when this fails.
     """
-    parents = {a: int.from_bytes(b[fields['parent']:fields['parent'] + 8], 'little')
-               for a, b in chunks.items()}
-    parents = {a: p for a, p in parents.items() if p in nodes}
+    if 'scale' not in fields:
+        return ['no scale offset in the stored derivation']
+    parents = {a: p for a, p in channel.field_for(_sample(nodes, root), fields['parent'], 8).items()
+               if p in nodes}
     scales = onscreen.scales_for(set(parents) | set(parents.values()))
     pairs = [(scales[a][1], scales[p][0] * scales[p][1]) for a, p in parents.items()
              if a in scales and p in scales]
     held = sum(1 for above, expected in pairs if abs(above - expected) < 1e-4)
     if len(pairs) < 20 or held < 0.99 * len(pairs):
-        return [(f'the scale at +0x{onscreen.OWN_SCALE:03X} does not behave like one: the scale from '
+        return [(f"the scale at +0x{fields['scale']:03X} does not behave like one: the scale from "
                  f"above is the product of the parent's in {held} of {len(pairs)} widgets")]
     return []
+
+
+def _found_alone(fields: Fields, root: int, nodes: dict[int, int], pid: int) -> str:
+    """Find again, each by itself and in seconds, the two fields a start can: the text of a text
+    box, which 1.21 moved while the other eight stood, and the scale. What it found, as a clause;
+    empty when both hold."""
+    moved = ''
+    if _text_check(fields, nodes, pid):
+        fields['text'] = _text_field(_text_boxes(nodes, pid), localization_text(), fields['name'])
+        moved += f"; the text moved to +0x{fields['text']:03X}"
+    if _scale_check(fields, nodes, root):
+        fields['scale'] = _scale_from_tree(fields, nodes, pid)
+        _publish(fields)
+        moved += f"; the scale found at +0x{fields['scale']:03X}"
+    return moved
+
+
+def _scale_from_tree(fields: Fields, nodes: dict[int, int], pid: int) -> int:
+    """The scale offset, from every widget of the tree read as far as the smallest one goes: five
+    seconds on Ghur played (23 November 2026)."""
+    chunks, _ = chunks_of(nodes, _base_size(pid, nodes))
+    return _scale_field(chunks, fields['parent'])
 
 
 def _visibility_check(fields: Fields, chunks: dict[int, bytes], nodes: dict[int, int],
@@ -951,7 +1081,7 @@ def _visibility_check(fields: Fields, chunks: dict[int, bytes], nodes: dict[int,
         return ['no visibility offsets in the stored derivation']
     # Publish the candidate before testing it: `flags_for` reads the offset from there, and this is
     # the one under test. If it turns out wrong, `fields_for` derives again and publishes that.
-    onscreen.use_fields(fields.get('alpha'), fields.get('flag'))
+    _publish(fields)
     defects: list[str] = []
     alphas = [struct.unpack_from('<f', b, fields['alpha'])[0] for b in chunks.values()]
     if not alphas or any(a < 0.0 or a > 1.0 for a in alphas) or 1.0 not in alphas:
@@ -964,6 +1094,8 @@ def _visibility_check(fields: Fields, chunks: dict[int, bytes], nodes: dict[int,
         defects.append('no window object could be read at +0x{:03X}'.format(fields['flag']))
     elif any(v & ~0x3F for v in values):
         defects.append('the window flag at +0x{:03X} carries bits it never carries ({})'.format(fields['flag'], sorted({f'0x{v:02X}' for v in values})[:6]))
+    elif not any(v & onscreen.HIDDEN for v in values):
+        defects.append('not one window carries the bit that hides at +0x{:03X}, among {} windows'.format(fields['flag'], len(values)))
     return defects
 
 
@@ -995,15 +1127,15 @@ def fields_for(pid: int, recheck: bool = True, player: bool = False) -> tuple[Fi
     where they stood, and on 1.21.0.3 eight did and the text moved. Deriving everything again took
     five minutes and twenty seconds there, on a tree of 131,393 widgets, and that is too long for a
     player (her words, 21 November 2026). So after a patch the old places are rechecked first, a
-    text that moved is found again alone, in seconds, and only when another check fails is
-    everything derived again and written out. Nothing is assumed: a stored derivation
+    text or a scale that moved is found again alone, in seconds, and only when another check fails
+    is everything derived again and written out. Nothing is assumed: a stored derivation
     also has to prove itself every time - except with `recheck` off, for leaving a game from a
     menu, where the recheck turns a good derivation down and derives again for minutes.
 
-    When this returns, the channel walks with these offsets and `onscreen` knows the drawing area
-    and the two visibility offsets. The root comes back too: finding it again cost every caller a
-    seed search of up to ten seconds. A start that derives again says why it takes minutes, and
-    with `player` asks the player for F1 (`visibility_fields`).
+    When this returns, the channel walks with these offsets and `onscreen` knows the drawing area,
+    the scale and the two visibility offsets. The root comes back too: finding it again cost every
+    caller a seed search of up to ten seconds. A start that derives again says why it takes
+    minutes, and with `player` asks the player for F1 (`visibility_fields`).
     """
     vtablemap.configure(pid)          # vtables first, or no scan finds anything
     onscreen.use_screen(pid)          # and the drawing area, which every geometric answer needs
@@ -1011,7 +1143,7 @@ def fields_for(pid: int, recheck: bool = True, player: bool = False) -> tuple[Fi
     if fields:
         same = fields['key'] == build_key()
         configure_channel(fields)               # the walk below runs on these, not on defaults
-        onscreen.use_fields(fields.get('alpha'), fields.get('flag'))
+        _publish(fields)
         try:
             root, nodes = quick_root(fields, pid)
         except SystemExit:
@@ -1021,11 +1153,8 @@ def fields_for(pid: int, recheck: bool = True, player: bool = False) -> tuple[Fi
         if nodes and not recheck:
             return fields, root, 'stored derivation, not rechecked'
         defects = verify(fields, root, nodes, pid) if nodes else ['no tree at the places of the last build']
-        moved = ''
-        if not defects and _text_check(fields, nodes, pid):
-            fields['text'] = _text_field(_text_boxes(nodes, pid), localization_text(), fields['name'])
-            moved = f"; the text moved to +0x{fields['text']:03X}"
         if not defects:
+            moved = _found_alone(fields, root, nodes, pid)
             if moved or not same:
                 fields['key'] = build_key()
                 store(fields)
@@ -1044,10 +1173,11 @@ def fields_for(pid: int, recheck: bool = True, player: bool = False) -> tuple[Fi
     fields, scanned = derive_all(pid)
     fields, root, nodes = position_from_tree(pid, fields)
     all_in_scan(nodes, scanned, fields.get('skipped', ''))
+    fields['scale'] = _scale_from_tree(fields, nodes, pid)
     fields, note = _with_visibility(pid, fields, root, player)
     store(fields)
     configure_channel(fields)
-    onscreen.use_fields(fields.get('alpha'), fields.get('flag'))
+    _publish(fields)
     left_out = f"; the scan {fields['skipped']}" if fields.get('skipped') else ''
     return fields, root, reason + ' - derived again' + note + left_out
 
@@ -1062,10 +1192,10 @@ def _with_visibility(pid: int, fields: Fields, root: int, player: bool) -> tuple
     catch every failure along with the main menu's, so a loaded game could come out without
     visibility and only a clause in a reason most callers threw away.
     """
-    named = _window_objects(pid, root)
+    named, size = _window_objects(pid, root)
     if SUBJECT not in named or CONTROL not in named:
         return fields, f'; visibility not derived: no {SUBJECT} in this tree, as on the main menu'
-    return visibility_fields(fields, named, player), ''
+    return visibility_fields(fields, named, player, size), ''
 
 
 def configure_channel(fields: Fields) -> None:
@@ -1078,7 +1208,7 @@ def configure_channel(fields: Fields) -> None:
 def _start_block() -> None:
     fields, _, why = fields_for(int(sys.argv[1]))
     print(why)
-    for name in ('parent', 'children', 'count', 'position', 'size', 'name', 'text',
+    for name in ('parent', 'children', 'count', 'position', 'size', 'name', 'text', 'scale',
                  'alpha', 'flag'):
         value = fields.get(name)
         print(f'{name!s:<9} +0x{value:03X}' if isinstance(value, int)

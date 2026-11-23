@@ -187,20 +187,21 @@ returns a pair, passed on as one thing, costs a run.
 | `skips(answer)` | value | What a scan or find left out. The DLL skips the stacks of its own threads, where copies of |
 | `skipped(*searches)` | value | What one or more searches left out, summed, as a clause; empty when nothing was. |
 | `tree(root)` | value | - |
-| `chunks_of(addresses)` | 2-tuple | Raw bytes per object. Unreadable ones are skipped and counted, not hidden. |
+| `chunks_of(addresses, size)` | 2-tuple | The first `size` bytes of each object, in the order asked: the position proof takes the first |
+| `object_size(addresses)` | 2-tuple | The size of one object of a class, measured, and the share of neighbours that showed it. |
 | `children_from_parents(chunks, f_parent, addresses)` | value | - |
 | `gui_text()` | value | Every gui file the engine loads, as one text: what the name prediction looks names up in. |
 | `localization_text()` | value | Every sentence the localization gives, as one text: what the text prediction looks in. |
 | `window_classes_of(pid)` | set | Where the vtables of every class with Window in its name are loaded in this run. |
 | `derive_all(pid)` | 2-tuple | Derive every field from a full scan. Expensive, so once per build. The widgets the scan found |
 | `all_in_scan(nodes, scanned, left_out)` | nothing | Every widget of the tree has to be in the full scan, or the scan missed some. |
-| `visibility_fields(fields, named, player)` | value | Derive the two visibility offsets by toggling a window and watching what moves. |
+| `visibility_fields(fields, named, player, size)` | value | Derive the two visibility offsets by toggling a window and watching what moves, in the |
 | `position_from_tree(pid, fields)` | 3-tuple | Derive the position field a second time, from the live tree instead of the scan. |
 | `store(fields)` | nothing | - |
 | `kept()` | NoneType of value | The derivation on disk, of whichever build it was made on. |
 | `stored()` | value | The derivation of this build, or None when the one on disk is of another. |
 | `tooltip_root(pid, fields, root)` | value | The root outside the tree that holds the tooltip being shown, found without a scan. |
-| `to_root(address, f_parent)` | 2-tuple | Up until the parent is no longer a widget. `tree` on a non-widget returns nothing, and that |
+| `to_root(address, f_parent, widget_vtables)` | 2-tuple | Up until the parent carries no widget vtable, and the tree from there. The climb is as long |
 | `quick_root(fields, pid)` | 2-tuple | From seed widgets up to the roots, then return the largest tree. |
 | `verify(fields, root, nodes, pid)` | value | Recheck the stored derivation against the game running right now, with predictions that are |
 | `fields_for(pid, recheck=True, player=False)` | 3-tuple | The path walked at every start: the derivation, the root of the tree, and what happened. |
@@ -391,7 +392,7 @@ returns a pair, passed on as one thing, costs a run.
 | `window_size(pid)` | value | The drawing area of the game window, live from Windows. |
 | `use_screen(pid)` | value | Publish the drawing area of this run, because it is not a property of the build. |
 | `drawing_area()` | value | - |
-| `use_fields(alpha, flag)` | nothing | Publish the two visibility offsets for this build, as the derivation holds them. |
+| `use_fields(alpha, flag, scale)` | nothing | Publish the two visibility offsets and the scale offset for this build, as the derivation |
 | `flags_for(addresses)` | value | The state byte of many objects. It is a bit pattern, and only `HIDDEN` decides what is drawn. |
 | `alphas_for(addresses)` | dict | The alpha of many objects, the way `flags_for` reads the state byte. One that cannot be read |
 | `shown(nodes, addresses)` | dict | Of `addresses`, the ones nothing hides, each with its own state byte. |

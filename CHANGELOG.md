@@ -2,6 +2,14 @@
 
 Outcomes, newest day first. No release yet.
 
+## 2026-11-23
+- The fixed bounds walked: an object is read to the size measured for its class, 0x3C0 bytes for the smallest on 1.21.0.3, where 0x420 stood for all.
+- A widget's scale is the tenth derived offset, +0x110, a constant until now; a start finds it again alone, in fourteen seconds, when only it moved.
+- The climb to the root and the proof of the parent field no longer stop at forty steps; the tree goes 29 deep with no window open.
+- A database head, the 1024 slots of a block and the range of a heap pointer are checked at every read and stop with a sentence naming them.
+- The character record length is measured up to 4094 bytes, where 1200 was the most tried; a field found nowhere says how far was looked.
+- The map packs pairs of provinces by the highest number on the image, 13474, where a fixed 20000 stood.
+
 ## 2026-11-21
 - The game moved to 1.21.0.3 on 19 November: the first patch that broke something, in each case a fixed limit or a rule read off one version.
 - A text box grew from 0x410 to 0x4D0 bytes with its text at +0x450; the derivation now reads a text box to its measured size.
