@@ -15,16 +15,17 @@ NVDA. No game files are copied or redistributed.
   included, from inside the process to map the interface — it never takes focus.
 - **It survives patches:** every memory offset is derived from the running game and rechecked at start.
 - **Events are read aloud live**, with the key that answers them.
-- **282 windows are mapped**, checked against what the running game builds; 253 were harvested on
-  1.20.1.2 and joined to the `.gui` files. Every window a player opens has a record from a player's
-  route with the keys inside it pressed, or a stated reason why not; `python -m tools.ck3.missing`
-  writes which and why to `reports/missing.json`.
+- **303 windows are mapped** on 1.21.0.3, checked against what the running game builds. 253 were
+  harvested on 1.20.1.2 along a player's route, with the keys inside them pressed, and joined to the
+  `.gui` files; on 1.21 they are being opened again and compared record by record.
+  `python -m tools.ck3.missing` writes which windows have no such record, and why, to
+  `reports/missing.json`.
 - **A reader** hands out one unit per keystroke, speech and braille together. Switched-off buttons say
   so, hidden widgets stay silent, and every failure is spoken.
 - **A map layer from the files alone:** neighbours, de jure titles, distance, bearing, travel days.
 - **The game state is readable** without searching, checked against a save.
 
-Tested on Crusader Kings III 1.20.1.2 without mods, and NVDA 2026.2.
+Runs on Crusader Kings III 1.21.0.3 without mods, and NVDA 2026.2.
 
 ## 2. Requirements
 
@@ -199,8 +200,8 @@ Two functions: `output(text, mode, braille)` and `failure(where, what, remedy)`.
 Across three version changes the widget offsets held, the globals moved and were derived again
 by themselves, and the character record grew once. 1.21.0.3 was the first to break something: the
 text of a text box moved, and two fixed read sizes and two rules read off one version stopped the
-tools (`CHANGELOG.md`, 2026-11-21). The window map, the key rounds and the harvest are still those
-of 1.20.1.2. The gui and localization files are read from disk as the engine merges them, so they
+tools (`CHANGELOG.md`, 2026-11-21). The window map is that of 1.21.0.3; the harvest of 1.20.1.2 is
+being opened again window by window. The gui and localization files are read from disk as the engine merges them, so they
 follow a patch by themselves. To find what a patch broke, start the game on a played save and run
 `python -m tools.ck3.patchround <pid>`, then once more on a second save: it walks the steps below
 and says per check, in a sentence, what held and what moved. By hand they are, in this order:
@@ -214,6 +215,11 @@ and says per check, in a sentence, what held and what moved. By hand they are, i
 4. `tools/ck3/numbering.py` and `tools/ck3/place.py`: numbers to keys, and where the player stands.
 5. `windowmap.unmapped`: a window the game builds that the map lacks. Harvest it with
    `python -m tools.ck3.harvest <pid>` and run `python -m tools.ck3.missing`.
+6. With `-debug_mode`, `python -m tools.ck3.windowmap <pid>`, then `--modified-keys`, then
+   `python -m tools.ck3.openers <pid>`: the window map, its keys and its buttons again.
+7. On each saved state, `python -m tools.ck3.compare <folder of the old harvest> --again <pid>`,
+   then the same without `--again`: every window is opened again along the route its old record
+   names, and a sentence per window says what the patch changed.
 
 ## 7. Contributing
 

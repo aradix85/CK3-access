@@ -175,6 +175,8 @@ returns a pair, passed on as one thing, costs a run.
 | `verdict(old, new)` | 2-tuple | (kind, sentence) for one window: `waiting` while no record of another build stands beside |
 | `set_aside(folder, windows)` | nothing | Move the record and the capture of each window from the harvest into `folder`. |
 | `compared(folder)` | value | Window -> (kind, sentence), for every record of `folder` that came from a player route. |
+| `commands(old, mapped)` | list of NoneType | The arguments that open this record's window again along its own route, after |
+| `again(folder, pid, wanted)` | nothing | Set aside and open again every record of an older build that the player loaded now made. |
 | `main()` | nothing | - |
 
 ## ck3\database.py

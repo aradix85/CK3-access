@@ -2,6 +2,7 @@ r"""After a patch: the harvest of the last version beside that of this one, a se
 
 Usage:  python -m tools.ck3.compare <folder of the old harvest>
         python -m tools.ck3.compare <folder of the old harvest> --set-aside <window> ...
+        python -m tools.ck3.compare <folder of the old harvest> --again <pid> [<window> ...]
 
 A patch changes windows, and which ones only the game can say: laid against the files of 1.21,
 the harvest of 1.20 pointed at fifteen windows by their texts and at more by their structure, with
@@ -15,18 +16,29 @@ how many rows a list has. A window the patch left alone carries the names it car
 `--set-aside` moves the old record of each window named, with its capture, out of the harvest into
 the folder, where it is the baseline: the rounds of `harvest` skip a window that has a record, and
 `hand` puts one it replaces into a folder of its own date. A record already in the folder is never
-written over. A window the map no longer knows is `gone`: 1.21 renamed the succession law window. Without it, every record of the folder that came from a player route is compared
-with the record the harvest holds now, and the outcome goes to `reports\compare.json`.
+written over.
+
+`--again` does the round for the state that is loaded: every record of an older build whose player
+is the one being played now is set aside and its window opened again along the route the record
+names - a key, a click or a chain through `harvest`, a hand route through `hand`, its source on
+the key the map names now. A route that opens nothing leaves a refusal with its reason, so the
+comparison says `lost` and not `waiting`. What the clock brought up, what stood open already and
+a step taken with the real mouse cannot be walked again; those are listed and left in place.
+
+Without either, every record of the folder that came from a player route is compared with the
+record the harvest holds now, and the outcome goes to `reports\compare.json`. A window the map no
+longer knows is `gone`: 1.21 renamed the succession law window.
 """
 import json
 import os
 import pathlib
 import shutil
+import subprocess
 import sys
 from collections.abc import Mapping
 
 from tools import paths, terminal
-from tools.ck3 import harvest
+from tools.ck3 import derive, hand, harvest, model
 
 REPORT = os.path.join(paths.REPORTS, 'compare.json')
 SHOWN = 6           # names a sentence spells out before it only counts
@@ -93,6 +105,67 @@ def compared(folder: str) -> dict[str, tuple[str, str]]:
     return out
 
 
+def commands(old: Mapping[str, object], mapped: Mapping[str, Mapping[str, object]]) -> list[str] | None:
+    """The arguments that open this record's window again along its own route, after
+    `python -m tools.ck3.<first> <pid>`; None for a route no tool can walk again.
+
+    **A hand route opens its source on the key the map names now**, not the one in the record: 1.21
+    moved the court to F6 and the decisions to F9, and a route of 1.20 says F5 and F8."""
+    window, route = str(old['window']), str(old['route'])
+    kind = route.split(' ')[0]
+    if kind == 'shortcut':
+        return ['harvest', window]
+    if kind == 'click':
+        return ['harvest', '--click', window]
+    if kind == 'chain':
+        return ['harvest', '--chain', window]
+    walked = hand.route_of(route, window)
+    if walked is None:
+        return None
+    source, how, steps = walked
+    key_now = mapped.get(source, {}).get('shortcut')
+    if key_now and not how.startswith(('button:', 'event:')):
+        how = str(key_now)
+    return ['hand', source, how, *(f'{step}={target}' if target else step for step, target in steps)]
+
+
+def again(folder: str, pid: int, wanted: list[str]) -> None:
+    """Set aside and open again every record of an older build that the player loaded now made."""
+    mapped = json.loads(pathlib.Path(harvest.MAP).read_text(encoding='utf-8'))['windows']
+    player = model.player(pid)[1]
+    build = derive.build_key()
+    left = []
+    for window, old in sorted(harvest.records_on_disk().items()):
+        if not harvest.player_route(old) or old['exe'] == build or old['player_name'] != player:  # type: ignore[typeddict-item]
+            continue
+        if wanted and window not in wanted:
+            continue
+        if window not in mapped:
+            set_aside(folder, [window])
+            continue
+        arguments = commands(old, mapped)
+        if arguments is None:
+            left.append(f"{window}: {old['route']}")  # type: ignore[typeddict-item]
+            continue
+        set_aside(folder, [window])
+        done = subprocess.run([sys.executable, '-u', '-m', f'tools.ck3.{arguments[0]}', str(pid), *arguments[1:]],
+                              capture_output=True, text=True, encoding='utf-8', errors='replace',
+                              cwd=paths.PROJECT, check=False)
+        said = [line for line in (done.stdout + done.stderr).splitlines() if line.strip() and 'RapidOCR' not in line]
+        last = said[-1].strip() if said else 'it said nothing'
+        target = os.path.join(harvest.OUT, window + '.json')
+        if not os.path.exists(target):
+            refusal = {'window': window, 'opened': False, 'state_returned': True,
+                       'reason': f"{' '.join(arguments)}: {last}"}
+            pathlib.Path(target).write_text(json.dumps(refusal, ensure_ascii=False, indent=1), encoding='utf-8')
+        print(f'{window}: {last}', flush=True)
+        if 'did not come back' in last:
+            raise SystemExit(f'stopping after {window}: the state did not come back')
+    print(f'\nnot walked again, {len(left)}:')
+    for line in left:
+        print('  ' + line)
+
+
 def main() -> None:
     terminal.utf8()
     if len(sys.argv) < 2:
@@ -100,6 +173,9 @@ def main() -> None:
     folder = os.path.abspath(sys.argv[1])
     if sys.argv[2:3] == ['--set-aside']:
         set_aside(folder, sys.argv[3:])
+        return
+    if sys.argv[2:3] == ['--again']:
+        again(folder, int(sys.argv[3]), sys.argv[4:])
         return
     found = compared(folder)
     counts: dict[str, int] = {}

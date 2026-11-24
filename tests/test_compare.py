@@ -33,6 +33,18 @@ def test_nothing_is_claimed_before_the_window_was_opened_again() -> None:
     assert compare.verdict(old, record('1.20', ['other']))[0] == 'waiting'
 
 
+def test_a_route_is_walked_again_on_the_key_of_this_build() -> None:
+    """A hand route of 1.20 opens the decisions on F8; the map of 1.21 names F9."""
+    mapped = {'decisions_view': {'shortcut': 'F9'}, 'my_realm_window': {'shortcut': 'F2'}}
+    by_hand = {'window': 'decisiondetail_view', 'route': 'hand: F8, PushButton in decisions_view'}
+    assert compare.commands(by_hand, mapped) == ['hand', 'decisions_view', 'F9', 'PushButton=decisiondetail_view']
+    assert compare.commands({'window': 'my_realm_window', 'route': 'shortcut F2'}, mapped) == ['harvest', 'my_realm_window']
+    assert compare.commands({'window': 'diarchy_window', 'route': 'chain X in my_realm_window'}, mapped) == [
+        'harvest', '--chain', 'diarchy_window']
+    assert compare.commands({'window': 'war_results', 'route': 'clock: the game showed it'}, mapped) is None
+    assert compare.commands({'window': 'army_window', 'route': 'hand: standing: a click on the map'}, mapped) is None
+
+
 def test_a_route_that_no_longer_opens_it_is_lost() -> None:
     old = record('1.20', ['header'])
     refused = {'window': 'my_realm_window', 'opened': False, 'exe': '1.21', 'reason': 'did not open in 3 tries'}
