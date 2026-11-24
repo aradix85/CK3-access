@@ -782,7 +782,7 @@
   "player": "Saru"
  },
  "confederation_window": {
-  "exe": "101125752-1792594002",
+  "exe": "114758264-1795099871",
   "keys": [
    [
     "go_back",
@@ -798,9 +798,24 @@
     "close_window",
     "ESCAPE",
     "shut the window"
+   ],
+   [
+    "tab_1",
+    "ctrl+1",
+    "nothing"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "nothing"
+   ],
+   [
+    "tab_1 again",
+    "ctrl+1",
+    "nothing"
    ]
   ],
-  "measured": "2026-11-17 14:29",
+  "measured": "2026-11-24 16:11",
   "player": "Koremochi_3"
  },
  "council_task_interaction_window": {

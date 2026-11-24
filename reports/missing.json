@@ -1,9 +1,9 @@
 {
- "harvest": "2026-11-24 15:41",
- "without a player record": 96,
- "still to do for play": 16,
+ "harvest": "2026-11-24 16:03",
+ "without a player record": 95,
+ "still to do for play": 15,
  "still to do, by reason": {
-  "no player record yet": 16,
+  "no player record yet": 15,
   "a player record, but no key round yet": 0
  },
  "counts": {
@@ -12,7 +12,7 @@
   "decided": 36,
   "event": 0,
   "interaction": 1,
-  "chain": 1,
+  "chain": 0,
   "no window route on disk": 14
  },
  "groups": {
@@ -349,12 +349,7 @@
     "state": "not harvested yet: the map has a route for it"
    }
   },
-  "chain": {
-   "confederation_window": {
-    "file": "gui/window_confederation.gui",
-    "state": "not harvested yet: the map has a route for it"
-   }
-  },
+  "chain": {},
   "no window route on disk": {
    "assembly_window": {
     "file": "gui/assembly_window.gui",

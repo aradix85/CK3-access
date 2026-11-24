@@ -1,14 +1,13 @@
 {
  "baseline": "harvest-2026-11-24-1.20.1.2",
  "counts": {
-  "waiting": 1,
-  "changed": 4,
+  "changed": 5,
   "gone": 1
  },
  "windows": {
   "confederation_window": {
-   "kind": "waiting",
-   "says": "not opened again on this build yet"
+   "kind": "changed",
+   "says": "18 names new (confederation_Type, confederation_members_tab, confederation_monopolies, container_guelph_ghibelline_group_icons, found_the_hanseatic_league_decision, gdp_set_league_focus_decision and 12 more), 1 gone (your_header), 111 kept"
   },
   "council_window": {
    "kind": "changed",
