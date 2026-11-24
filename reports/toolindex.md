@@ -166,6 +166,17 @@ returns a pair, passed on as one thing, costs a run.
 | `answer(game, baseline, tables)` | nothing | Answer every window beyond the bare screen, and shut what an answer leaves standing. |
 | `main()` | nothing | - |
 
+## ck3\compare.py
+*After a patch: the harvest of the last version beside that of this one, a sentence per window.*
+
+| call | returns | does |
+|---|---|---|
+| `names(record)` | set | Every distinct name a widget of this window carries. |
+| `verdict(old, new)` | 2-tuple | (kind, sentence) for one window: `waiting` while no record of another build stands beside |
+| `set_aside(folder, windows)` | nothing | Move the record and the capture of each window from the harvest into `folder`. |
+| `compared(folder)` | value | Window -> (kind, sentence), for every record of `folder` that came from a player route. |
+| `main()` | nothing | - |
+
 ## ck3\database.py
 *Reads the game's own databases off disk: which key sits at which place, and what it is called.*
 

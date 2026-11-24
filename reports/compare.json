@@ -1,0 +1,34 @@
+{
+ "baseline": "harvest-2026-11-24-1.20.1.2",
+ "counts": {
+  "waiting": 1,
+  "changed": 4,
+  "gone": 1
+ },
+ "windows": {
+  "confederation_window": {
+   "kind": "waiting",
+   "says": "not opened again on this build yet"
+  },
+  "council_window": {
+   "kind": "changed",
+   "says": "6 names new (container_guelph_ghibelline_group_icons, ghibelline_leader, ghibelline_member, guelph_leader, guelph_member, merchant_top_decor), 98 kept"
+  },
+  "court_window": {
+   "kind": "changed",
+   "says": "2 names new (council_position_tasks, show_tasks), 72 kept; opened by shortcut F6, was shortcut F5"
+  },
+  "holding_view": {
+   "kind": "changed",
+   "says": "59 names new (abort_button, below_glow, bestow_civic_liberties_interaction, building_needs_list_tutorial_uses_this, button_revoke_lease, cancel_construct_holding and 53 more), 21 gone (Conditional_margin_widget, building_button, building_icon, building_icon_can_upgrade, building_slot, cancel_holding_construction and 15 more), 106 kept"
+  },
+  "my_realm_window": {
+   "kind": "changed",
+   "says": "37 names new (background, border, company_size_levels, container_guelph_ghibelline_group_icons, ghibelline_leader, ghibelline_member and 31 more), 2 gone (duchy_group, my_realm_body), 118 kept"
+  },
+  "succession_law_change_window": {
+   "kind": "gone",
+   "says": "the game no longer has a window of this name"
+  }
+ }
+}

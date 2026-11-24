@@ -456,12 +456,12 @@
  },
  {
   "name": "cultures whose number the file order predicts",
-  "claimed": 244,
+  "claimed": 255,
   "measure": "cultures_numbered",
   "arguments": [
-   "<documents>\\save games\\Count_Dauid_of_Qasr_Ibrim_1066_09_15.ck3"
+   "<documents>\\save games\\Count_Dauid_of_Qasr_Ibrim_1066_09_15_b121.ck3"
   ],
-  "counting_rule": "cultures in a save begun on 1.20 whose number is their place in the file order. Faiths, religions and traits do not follow the file order, so the numbering is read from the running game and not derived from disk. The save is named here rather than left to whichever is newest"
+  "counting_rule": "cultures in a save begun on 1.21 whose number is their place in the file order; all 255, where a save begun on 1.20 gave 244. Faiths, religions and traits do not follow the file order, so the numbering is read from the running game and not derived from disk. The save is named here rather than left to whichever is newest"
  },
  {
   "name": "harvested texts the gui files do not predict",

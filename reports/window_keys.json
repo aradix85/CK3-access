@@ -816,7 +816,7 @@
   "player": "Andronikos"
  },
  "council_window": {
-  "exe": "101125752-1792594002",
+  "exe": "114758264-1795099871",
   "keys": [
    [
     "close_window",
@@ -837,10 +837,15 @@
     "tab_3",
     "ctrl+3",
     "nothing"
+   ],
+   [
+    "tab_1 again",
+    "ctrl+1",
+    "nothing"
    ]
   ],
-  "measured": "2026-10-22 11:58",
-  "player": "Harold"
+  "measured": "2026-11-24 15:54",
+  "player": "SU_rI_"
  },
  "court_task_interaction_window": {
   "exe": "101125752-1792594002",
@@ -855,7 +860,7 @@
   "player": "SU_rI_"
  },
  "court_window": {
-  "exe": "101125752-1792594002",
+  "exe": "114758264-1795099871",
   "keys": [
    [
     "close_window",
@@ -870,16 +875,21 @@
    [
     "tab_2",
     "ctrl+2",
-    "changed the text: 66 lines, was 23"
+    "changed the text: 66 lines, was 22"
    ],
    [
     "tab_3",
     "ctrl+3",
     "changed the text: 7 lines, was 66"
+   ],
+   [
+    "tab_1 again",
+    "ctrl+1",
+    "changed the text: 22 lines, was 7"
    ]
   ],
-  "measured": "2026-10-22 11:58",
-  "player": "Harold"
+  "measured": "2026-11-24 15:54",
+  "player": "SU_rI_"
  },
  "create_accolade_view": {
   "exe": "101125752-1792594002",
@@ -1590,31 +1600,10 @@
   "player": "Harold"
  },
  "holding_view": {
-  "exe": "101125752-1792594002",
-  "keys": [
-   [
-    "go_back",
-    "B",
-    "shut the window"
-   ],
-   [
-    "go_back_2",
-    "BACKSPACE",
-    "shut the window"
-   ],
-   [
-    "go_back_3",
-    "mb4",
-    "no key code for this spelling"
-   ],
-   [
-    "close_window",
-    "ESCAPE",
-    "shut the window"
-   ]
-  ],
-  "measured": "2026-10-22 11:58",
-  "player": "Harold"
+  "exe": "114758264-1795099871",
+  "keys": [],
+  "measured": "2026-11-24 15:54",
+  "player": "SU_rI_"
  },
  "holy_site_creation_window": {
   "exe": "101125752-1792594002",
@@ -2304,7 +2293,7 @@
   "player": "SU_rI_"
  },
  "my_realm_window": {
-  "exe": "101125752-1792594002",
+  "exe": "114758264-1795099871",
   "keys": [
    [
     "close_window",
@@ -2319,27 +2308,27 @@
    [
     "tab_2",
     "ctrl+2",
-    "changed the text: 90 lines, was 54"
+    "changed the text: 52 lines, was 40"
    ],
    [
     "tab_3",
     "ctrl+3",
-    "changed the text: 20 lines, was 90"
+    "changed the text: 23 lines, was 52"
    ],
    [
     "tab_4",
     "ctrl+4",
-    "changed the text: 24 lines, was 20"
+    "changed the text: 17 lines, was 23"
    ],
    [
     "tab_1 again",
     "ctrl+1",
-    "changed the text: 54 lines, was 24"
+    "changed the text: 40 lines, was 17"
    ],
    [
     "mass_directives",
     "alt+d",
-    "opened domicile_window"
+    "nothing"
    ],
    [
     "compact_subject_list_realm",
@@ -2347,8 +2336,8 @@
     "nothing"
    ]
   ],
-  "measured": "2026-11-11 09:13",
-  "player": "Saru"
+  "measured": "2026-11-24 15:54",
+  "player": "SU_rI_"
  },
  "organization_window": {
   "exe": "101125752-1792594002",

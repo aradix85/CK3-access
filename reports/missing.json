@@ -1,9 +1,9 @@
 {
- "harvest": "2026-11-24 14:37",
- "without a player record": 95,
- "still to do for play": 15,
+ "harvest": "2026-11-24 15:41",
+ "without a player record": 96,
+ "still to do for play": 16,
  "still to do, by reason": {
-  "no player record yet": 15,
+  "no player record yet": 16,
   "a player record, but no key round yet": 0
  },
  "counts": {
@@ -12,7 +12,7 @@
   "decided": 36,
   "event": 0,
   "interaction": 1,
-  "chain": 0,
+  "chain": 1,
   "no window route on disk": 14
  },
  "groups": {
@@ -349,7 +349,12 @@
     "state": "not harvested yet: the map has a route for it"
    }
   },
-  "chain": {},
+  "chain": {
+   "confederation_window": {
+    "file": "gui/window_confederation.gui",
+    "state": "not harvested yet: the map has a route for it"
+   }
+  },
   "no window route on disk": {
    "assembly_window": {
     "file": "gui/assembly_window.gui",
@@ -544,7 +549,5 @@
  },
  "windows whose keys no round pressed": 0,
  "keys not pressed": {},
- "records of a window the map no longer knows": [
-  "succession_law_change_window"
- ]
+ "records of a window the map no longer knows": []
 }

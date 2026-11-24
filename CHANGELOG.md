@@ -3,8 +3,9 @@
 Outcomes, newest day first. No release yet.
 
 ## 2026-11-24
-- The reader's request for F1 ran to its end in the game, pressed by the player: the same ten offsets as the tools derive, in 148 seconds.
-- A start that derives everything again now says to press nothing meanwhile: a key pressed before the request stopped the derivation.
+- `python -m tools.ck3.compare` lays the old harvest beside the new, a sentence per window: on 1.21 the holding was rebuilt, 59 names new, 21 gone.
+- Fourteen states begun on 1.21, a merchant republic and a played one among them; the patch round holds on the played one.
+- The reader's request for F1 ran to its end in the game: the same ten offsets in 148 seconds. A start that derives again says to press nothing meanwhile.
 - The build queue of 1.21 opens on the comma and is read unchanged; the key round knows that key now. Its order changes only by dragging.
 - With every message type set to a pop-up, a toast arrives as a message window behind a standing event; the reader reads the event first.
 - The window map is that of 1.21.0.3: 303 windows, 22 new and one gone; all 249 with a console route were created, and 18 open on a plain key.
@@ -13,8 +14,7 @@ Outcomes, newest day first. No release yet.
 - The missing report names a record of a window the game dropped instead of stopping on it: 21 windows of 1.21 are still to harvest.
 - The pairing report keeps per window how many named widgets land on their own name, so the next patch shows which windows it rebuilt.
 - Six new windows of 1.21 harvested with their keys on a state begun on 1.21: trade, its market, the route planner, a trade good, the build queue, the law change.
-- A new state waits after Start until the setup screen is gone, and takes a suffix for a name an older save carries.
-- Leaving the game, the tool also reads the game's log: an exit save that fails to write no longer counts as a game that did not end itself.
+- A new state waits after Start until the setup screen is gone; leaving the game, the tool reads the game's log when the exit save fails to write.
 
 ## 2026-11-23
 - The fixed bounds walked: an object is read to the size measured for its class, 0x3C0 bytes for the smallest on 1.21.0.3, where 0x420 stood for all.
