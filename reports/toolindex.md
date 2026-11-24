@@ -30,7 +30,6 @@ returns a pair, passed on as one thing, costs a run.
 | `gui_merged(with_mods)` | value | Gui files as the engine sees them: the three layers merged, mods on top. |
 | `gui_templates(scope)` | value | Templates in the merged set. `type` and `template` are global, `local_type` and |
 | `gui_windows()` | value | - |
-| `ledger_buildings(what)` | value | What a building box in the ledger can actually do when it is clicked. |
 | `gui_dlc(what)` | value | How the gui set gates content behind an expansion, counted over the merged files. |
 | `database_entries(kind, what)` | value | Entries of one of the game's databases, merged the way the engine merges them. |
 | `cultures_numbered(save)` | value | Cultures whose number in this save is their place in the file order. |
@@ -175,7 +174,7 @@ returns a pair, passed on as one thing, costs a run.
 | `verdict(old, new)` | 2-tuple | (kind, sentence) for one window: `waiting` while no record of another build stands beside |
 | `set_aside(folder, windows)` | nothing | Move the record and the capture of each window from the harvest into `folder`. |
 | `compared(folder)` | value | Window -> (kind, sentence), for every record of `folder` that came from a player route. |
-| `commands(old, mapped)` | list of NoneType | The arguments that open this record's window again along its own route, after |
+| `commands(old, mapped)` | value of list of NoneType | The arguments that open this record's window again along its own route, after |
 | `again(folder, pid, wanted)` | nothing | Set aside and open again every record of an older build that the player loaded now made. |
 | `main()` | nothing | - |
 

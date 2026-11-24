@@ -19,7 +19,7 @@ import os
 import pathlib
 import re
 import sys
-from collections.abc import Callable, Iterator
+from collections.abc import Callable
 from typing import NotRequired, TypedDict
 
 from tools import paths, terminal
@@ -162,53 +162,6 @@ def gui_templates(scope: str) -> int:
 def gui_windows() -> int:
     from tools.ck3 import guimap
     return len(guimap.windows())
-
-
-_LEDGER: dict[str, int] = {}
-
-
-def ledger_buildings(what: str) -> int:
-    """What a building box in the ledger can actually do when it is clicked.
-
-    `window_ledger.gui` gives `building_button` two onclicks: the first opens
-    `holding_view`, the second calls `GUIBuildingItem.OnClick`. **A click fires
-    both, in order** (measured 21 October 2026, `openers.fires_for`), so every box
-    calls the holding view. This count said zero from 13 September until then: it
-    kept only the last action per key, on three clicks that drew no
-    `holding_view` - while a window counted as drawn only at state byte zero, and
-    the open holding view carries 0x20. Whether the second call undoes the first
-    is measured with `onscreen.shown`, not read off the file.
-
-    `boxes` counts `widget_building_item_ledger` nodes in the expanded ledger.
-    `acting` counts widgets inside those boxes carrying onclick, onrightclick,
-    shortcut or ondoubleclick - one per box, so nothing lies on top that could
-    swallow the click. `opens_holding_view` counts the ones that call the
-    holding view among their actions.
-    """
-    from tools.ck3 import guimap
-    doing = ('onclick', 'onrightclick', 'shortcut', 'ondoubleclick')
-
-    def walk(node: guimap.Node) -> Iterator[guimap.Node]:
-        yield node
-        for child in node['children']:
-            yield from walk(child)
-
-    if not _LEDGER:
-        tree = guimap.window('ledger_window')
-        boxes = [n for n in walk(tree) if n['type'] == 'widget_building_item_ledger']
-        acting = 0
-        reaching = 0
-        for box in boxes:
-            for node in walk(box):
-                actions = [value for key, value in node['attrs'] if key in doing and value]
-                if actions:
-                    acting += 1
-                if any('holding_view' in str(value) for value in actions):
-                    reaching += 1
-        _LEDGER.update(boxes=len(boxes), acting=acting, opens_holding_view=reaching)
-    if what not in _LEDGER:
-        raise KeyError(f'no such ledger building count: {what!r}')
-    return _LEDGER[what]
 
 
 DLC_CHECK = re.compile(r"HasDlcFeature\(\s*'([^']+)'\s*\)")
@@ -547,8 +500,7 @@ MEASURES: dict[str, Callable[..., object]] = {
             'mod_windows': mod_windows, 'harvest_total': harvest_total,
             'gui_merged': gui_merged, 'gui_templates': gui_templates,
             'gui_windows': gui_windows, 'gui_dlc': gui_dlc,
-            'ledger_buildings': ledger_buildings,
-            'database_entries': database_entries, 'cultures_numbered': cultures_numbered, 'map_layer': map_layer,
+                    'database_entries': database_entries, 'cultures_numbered': cultures_numbered, 'map_layer': map_layer,
             'shortcuts': shortcuts, 'shortcut_words': shortcut_words,
             'unseen_texts': unseen_texts}
 

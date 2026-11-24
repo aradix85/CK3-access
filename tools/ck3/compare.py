@@ -114,11 +114,16 @@ def commands(old: Mapping[str, object], mapped: Mapping[str, Mapping[str, object
     window, route = str(old['window']), str(old['route'])
     kind = route.split(' ')[0]
     if kind == 'shortcut':
-        return ['harvest', window]
+        # A window whose key the patch took away has only its button left, as the activity list
+        # of 1.21; without a key `harvest` would build it through the console, with no data in it.
+        return ['harvest', window] if mapped.get(window, {}).get('shortcut') else ['harvest', '--click', window]
     if kind == 'click':
         return ['harvest', '--click', window]
     if kind == 'chain':
-        return ['harvest', '--chain', window]
+        # The chain round is asked for a view where the record came up along one: the files name
+        # the view a button opens, and which window stands behind it only a round sees.
+        views: list[str] = old.get('views') or []  # type: ignore[assignment]
+        return ['harvest', '--chain', *(views or [window])]
     walked = hand.route_of(route, window)
     if walked is None:
         return None
@@ -130,7 +135,13 @@ def commands(old: Mapping[str, object], mapped: Mapping[str, Mapping[str, object
 
 
 def again(folder: str, pid: int, wanted: list[str]) -> None:
-    """Set aside and open again every record of an older build that the player loaded now made."""
+    """Set aside and open again every record of an older build that the player loaded now made.
+
+    Two passes, so that a round that stopped goes on where it was: first every such record still in
+    the harvest goes aside, then every record of this player in the folder whose window has no
+    record yet is opened again. A window that was refused is tried again only when it is named.
+    **The chains go last**: one whose source this state cannot open costs four minutes, as the
+    guest list did without a feast (24 November 2026)."""
     mapped = json.loads(pathlib.Path(harvest.MAP).read_text(encoding='utf-8'))['windows']
     player = model.player(pid)[1]
     build = derive.build_key()
@@ -140,25 +151,41 @@ def again(folder: str, pid: int, wanted: list[str]) -> None:
             continue
         if wanted and window not in wanted:
             continue
-        if window not in mapped:
-            set_aside(folder, [window])
-            continue
-        arguments = commands(old, mapped)
-        if arguments is None:
+        if window in mapped and commands(old, mapped) is None:
             left.append(f"{window}: {old['route']}")  # type: ignore[typeddict-item]
+        else:
+            set_aside(folder, [window])
+    todo: list[tuple[list[str], str]] = []
+    for path in sorted(pathlib.Path(folder).glob('*.json')):
+        old = json.loads(path.read_text(encoding='utf-8'))
+        window = str(old['window'])
+        if not harvest.player_route(old) or old['player_name'] != player or window not in mapped:
             continue
-        set_aside(folder, [window])
+        if wanted and window not in wanted:
+            continue
+        target = os.path.join(harvest.OUT, window + '.json')
+        if os.path.exists(target):
+            if window not in wanted or json.loads(pathlib.Path(target).read_text(encoding='utf-8'))['opened']:
+                continue
+            os.remove(target)
+        arguments = commands(old, mapped)
+        if arguments is not None:
+            todo.append((arguments, window))
+    todo.sort(key=lambda pair: (pair[0][:2] == ['harvest', '--chain'], pair[1]))
+    for number, (arguments, window) in enumerate(todo, 1):
+        target = os.path.join(harvest.OUT, window + '.json')
+        if os.path.exists(target):          # an earlier route of this round brought it up already
+            continue
         done = subprocess.run([sys.executable, '-u', '-m', f'tools.ck3.{arguments[0]}', str(pid), *arguments[1:]],
                               capture_output=True, text=True, encoding='utf-8', errors='replace',
                               cwd=paths.PROJECT, check=False)
         said = [line for line in (done.stdout + done.stderr).splitlines() if line.strip() and 'RapidOCR' not in line]
         last = said[-1].strip() if said else 'it said nothing'
-        target = os.path.join(harvest.OUT, window + '.json')
         if not os.path.exists(target):
             refusal = {'window': window, 'opened': False, 'state_returned': True,
                        'reason': f"{' '.join(arguments)}: {last}"}
             pathlib.Path(target).write_text(json.dumps(refusal, ensure_ascii=False, indent=1), encoding='utf-8')
-        print(f'{window}: {last}', flush=True)
+        print(f'{number}/{len(todo)} {window}: {last}', flush=True)
         if 'did not come back' in last:
             raise SystemExit(f'stopping after {window}: the state did not come back')
     print(f'\nnot walked again, {len(left)}:')

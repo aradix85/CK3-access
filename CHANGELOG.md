@@ -8,9 +8,9 @@ Outcomes, newest day first. No release yet.
 - The reader's request for F1 ran to its end in the game: the same ten offsets in 148 seconds. A start that derives again says to press nothing meanwhile.
 - The build queue of 1.21 opens on the comma and is read unchanged; the key round knows that key now. Its order changes only by dragging.
 - With every message type set to a pop-up, a toast arrives as a message window behind a standing event; the reader reads the event first.
-- The window map is that of 1.21.0.3: 303 windows, 22 new and one gone; all 249 with a console route were created, and 18 open on a plain key.
+- The window map is that of 1.21.0.3: 303 windows, 22 new and one gone; 18 open on a plain key, and 26 of 98 buttons pressed all opened a window.
 - The disk reader knows a window whose type keeps its name in a block: three side windows of trade; the game builds no window the map misses.
-- The click round on 1.21: 26 of 98 buttons pressed and all opened a window; the activity list, which lost its key, opens from the HUD tab.
+- The 35 numbers the files of 1.21 fix are counted again in `reports/claims.json`; the three about the ledger's building boxes went with the boxes.
 - The missing report names a record of a window the game dropped instead of stopping on it: 21 windows of 1.21 are still to harvest.
 - The pairing report keeps per window how many named widgets land on their own name, so the next patch shows which windows it rebuilt.
 - Six new windows of 1.21 harvested with their keys on a state begun on 1.21: trade, its market, the route planner, a trade good, the build queue, the law change.

@@ -41,6 +41,13 @@ def test_a_route_is_walked_again_on_the_key_of_this_build() -> None:
     assert compare.commands({'window': 'my_realm_window', 'route': 'shortcut F2'}, mapped) == ['harvest', 'my_realm_window']
     assert compare.commands({'window': 'diarchy_window', 'route': 'chain X in my_realm_window'}, mapped) == [
         'harvest', '--chain', 'diarchy_window']
+    # A chain that came up along a view is asked for by that view, as the files name it.
+    assert compare.commands({'window': 'activity_list_detail_host', 'route': 'chain X in activity_list',
+                             'views': ['activity_list_detail_host_window']}, mapped) == [
+        'harvest', '--chain', 'activity_list_detail_host_window']
+    # The activity list lost its key in 1.21: it opens from its button, never through the console.
+    assert compare.commands({'window': 'activity_list', 'route': 'shortcut F9'}, mapped) == [
+        'harvest', '--click', 'activity_list']
     assert compare.commands({'window': 'war_results', 'route': 'clock: the game showed it'}, mapped) is None
     assert compare.commands({'window': 'army_window', 'route': 'hand: standing: a click on the map'}, mapped) is None
 

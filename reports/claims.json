@@ -1,7 +1,7 @@
 [
  {
   "name": "size of ck3.exe",
-  "claimed": 101125752,
+  "claimed": 114758264,
   "measure": "bytes",
   "arguments": [
    "<game>\\binaries\\ck3.exe"
@@ -10,7 +10,7 @@
  },
  {
   "name": "RTTI type names according to memory.py",
-  "claimed": 51058,
+  "claimed": 62164,
   "measure": "type_names",
   "counting_rule": "memory.type_name_count() on the exe: unique MSVC RTTI type names, compared case sensitively",
   "quoted_in": ["brief\\boom.md"]
@@ -24,7 +24,7 @@
  },
  {
   "name": "gui files, game layer",
-  "claimed": 416,
+  "claimed": 441,
   "measure": "files",
   "arguments": [
    "<game>\\game\\gui",
@@ -57,17 +57,17 @@
  },
  {
   "name": "gui files in the game folder, total",
-  "claimed": 558,
+  "claimed": 583,
   "measure": "files",
   "arguments": [
    "<game>",
    "*.gui"
   ],
-  "counting_rule": "every file with the gui suffix under the game folder: 416 game layer, 49 engine layer, 92 jomini layer and one developer file for the tweaker; this count is not tied to a folder and therefore cannot go quietly too low"
+  "counting_rule": "every file with the gui suffix under the game folder: 441 game layer, 49 engine layer, 92 jomini layer and one developer file for the tweaker; this count is not tied to a folder and therefore cannot go quietly too low"
  },
  {
   "name": "English localization files",
-  "claimed": 1250,
+  "claimed": 1350,
   "measure": "files",
   "arguments": [
    "<game>\\game\\localization\\english",
@@ -77,7 +77,7 @@
  },
  {
   "name": "lines in shortcuts.shortcuts",
-  "claimed": 1062,
+  "claimed": 1067,
   "measure": "lines",
   "arguments": [
    "<game>\\game\\gui\\shortcuts.shortcuts"
@@ -95,7 +95,7 @@
  },
  {
   "name": "map_data\\definition.csv",
-  "claimed": 432072,
+  "claimed": 424628,
   "measure": "bytes",
   "arguments": [
    "<game>\\game\\map_data\\definition.csv"
@@ -104,7 +104,7 @@
  },
  {
   "name": "map_data\\adjacencies.csv",
-  "claimed": 20541,
+  "claimed": 22211,
   "measure": "bytes",
   "arguments": [
    "<game>\\game\\map_data\\adjacencies.csv"
@@ -113,7 +113,7 @@
  },
  {
   "name": "00_landed_titles.txt",
-  "claimed": 1315675,
+  "claimed": 1377993,
   "measure": "bytes",
   "arguments": [
    "<game>\\game\\common\\landed_titles\\00_landed_titles.txt"
@@ -180,13 +180,13 @@
  },
  {
   "name": "expansions on disk",
-  "claimed": 30,
+  "claimed": 31,
   "measure": "files",
   "arguments": [
    "<game>\\game\\dlc",
    "*.dlc"
   ],
-  "counting_rule": "one metadata file with the dlc suffix per expansion folder; all 30 are enabled, because disabled_dlcs in dlc_load.json is empty"
+  "counting_rule": "one metadata file with the dlc suffix per expansion folder; all 31 are enabled, because disabled_dlcs in dlc_load.json is empty"
  },
  {
   "name": "mod descriptors left in the mod folder",
@@ -224,7 +224,7 @@
  },
  {
   "name": "files that go into the repo",
-  "claimed": 100,
+  "claimed": 103,
   "measure": "repo_files",
   "counting_rule": "files under the project folder that .gitignore does not exclude, the same set git ls-files plus git ls-files --others --exclude-standard gives"
  },
@@ -280,16 +280,16 @@
  },
  {
   "name": "gui files as the engine sees them, vanilla",
-  "claimed": 537,
+  "claimed": 562,
   "measure": "gui_merged",
   "arguments": [
    false
   ],
-  "counting_rule": "the three layers merged on their shared virtual path, so a file the game layer replaces is counted once: 417 game, 71 jomini, 49 engine. Lower than the 558 counted on disk because 21 virtual paths exist in two layers"
+  "counting_rule": "the three layers merged on their shared virtual path, so a file the game layer replaces is counted once: 442 game, 71 jomini, 49 engine. Lower than the 583 counted on disk because 21 virtual paths exist in two layers"
  },
  {
   "name": "gui files as the engine sees them, with mods",
-  "claimed": 537,
+  "claimed": 562,
   "measure": "gui_merged",
   "arguments": [
    true
@@ -299,7 +299,7 @@
  },
  {
   "name": "global gui templates",
-  "claimed": 2928,
+  "claimed": 3367,
   "measure": "gui_templates",
   "arguments": [
    "global"
@@ -309,18 +309,18 @@
  },
  {
   "name": "file-local gui templates",
-  "claimed": 10,
+  "claimed": 7,
   "measure": "gui_templates",
   "arguments": [
    "local"
   ],
-  "counting_rule": "names declared as `local_type` or `local_template`, keyed by file; the six of `local_type` sit in the developers' editor tools, the four of `local_template` in cooltip.gui (three) and hud_outliner.gui (one)"
+  "counting_rule": "names declared as `local_type` or `local_template`, keyed by file; on 1.21.0.3 six sit in the developers' tools, four in the map editor and two in the object browser, and one in window_confederation.gui"
  },
  {
   "name": "windows with a name in the merged gui set",
-  "claimed": 282,
+  "claimed": 303,
   "measure": "gui_windows",
-  "counting_rule": "three shapes, one entry per name: a `window = { name = ... }` block at any depth; a block whose type resolves through its inheritance chain to `window` and which carries a name, at any depth; and a type definition that inherits from `window` and carries the name itself. **Do not add shapes here; use `windowmap.unmapped`**, which asks the running game instead: the engine builds every window up front, so the live tree is the whole list. windows.json holds them, and on 1.20.1.1 and 1.20.1.2 the running game built none the map lacks (21 October 2026); 1.20 added 18 windows to the 265 of 1.19.0.6 and removed faith_creation_window",
+  "counting_rule": "four shapes, one entry per name: a `window = { name = ... }` block at any depth; a block whose type resolves through its inheritance chain to `window` and which carries a name, at any depth; a type definition that inherits from `window` and carries the name itself; and, since 1.21, a name kept in a `block` of the type that a use may rename with `blockoverride`. **The closed test is `windowmap.unmapped`**, which asks the running game: the engine builds every window up front, so the live tree is the whole list. On 1.21.0.3 the game built three the map lacked until the fourth shape was read, and none after (24 November 2026); 1.21 added 22 windows to the 282 of 1.20.1.2 and removed succession_law_change_window",
   "quoted_in": ["README.md", "brief\\vensters.md"]
  },
  {
@@ -406,7 +406,7 @@
  },
  {
   "name": "HasDlcFeature checks in the merged gui set",
-  "claimed": 46,
+  "claimed": 49,
   "measure": "gui_dlc",
   "arguments": [
    "checks"
@@ -415,7 +415,7 @@
  },
  {
   "name": "distinct expansion features the gui set gates on",
-  "claimed": 14,
+  "claimed": 15,
   "measure": "gui_dlc",
   "arguments": [
    "features"
@@ -424,7 +424,7 @@
  },
  {
   "name": "cultures the engine loads",
-  "claimed": 244,
+  "claimed": 255,
   "measure": "database_entries",
   "arguments": [
    "culture",
@@ -435,7 +435,7 @@
  },
  {
   "name": "cultures that also have a name in the localization",
-  "claimed": 244,
+  "claimed": 255,
   "measure": "database_entries",
   "arguments": [
    "culture",
@@ -445,7 +445,7 @@
  },
  {
   "name": "faiths the engine loads",
-  "claimed": 103,
+  "claimed": 104,
   "measure": "database_entries",
   "arguments": [
    "faith",
@@ -561,7 +561,7 @@
  },
  {
   "name": "provinces that appear on the map image",
-  "claimed": 12750,
+  "claimed": 12955,
   "measure": "map_layer",
   "arguments": [
    "provinces"
@@ -571,7 +571,7 @@
  },
  {
   "name": "counties that hold land",
-  "claimed": 3476,
+  "claimed": 3549,
   "measure": "map_layer",
   "arguments": [
    "counties"
@@ -581,7 +581,7 @@
  },
  {
   "name": "counties that have a neighbour",
-  "claimed": 3448,
+  "claimed": 3521,
   "measure": "map_layer",
   "arguments": [
    "neighboured"
@@ -591,7 +591,7 @@
  },
  {
   "name": "provinces that touch on the map image",
-  "claimed": 38506,
+  "claimed": 39115,
   "measure": "map_layer",
   "arguments": [
    "pairs"
@@ -600,7 +600,7 @@
  },
  {
   "name": "titles in landed_titles",
-  "claimed": 17681,
+  "claimed": 19694,
   "measure": "map_layer",
   "arguments": [
    "titles"
@@ -610,7 +610,7 @@
  },
  {
   "name": "titles that name a capital",
-  "claimed": 2867,
+  "claimed": 4616,
   "measure": "map_layer",
   "arguments": [
    "capitals"
@@ -620,7 +620,7 @@
  },
  {
   "name": "titles that resolve to a county",
-  "claimed": 17640,
+  "claimed": 19655,
   "measure": "map_layer",
   "arguments": [
    "placed"
@@ -629,7 +629,7 @@
  },
  {
   "name": "key bindings in shortcuts.shortcuts",
-  "claimed": 922,
+  "claimed": 927,
   "measure": "shortcuts",
   "arguments": [
    "bindings"
@@ -639,7 +639,7 @@
  },
  {
   "name": "named game actions with a shortcut",
-  "claimed": 242,
+  "claimed": 247,
   "measure": "shortcuts",
   "arguments": [
    "named"
@@ -649,7 +649,7 @@
  },
  {
   "name": "shortcuts without a modifier",
-  "claimed": 115,
+  "claimed": 116,
   "measure": "shortcuts",
   "arguments": [
    "plain"
@@ -659,7 +659,7 @@
  },
  {
   "name": "shortcuts that need a modifier",
-  "claimed": 123,
+  "claimed": 127,
   "measure": "shortcuts",
   "arguments": [
    "modified"
@@ -669,7 +669,7 @@
  },
  {
   "name": "shortcuts a widget declares",
-  "claimed": 193,
+  "claimed": 192,
   "measure": "shortcut_words",
   "arguments": [
    "declared"
@@ -679,7 +679,7 @@
  },
  {
   "name": "shortcuts that resolve to a sentence on disk",
-  "claimed": 104,
+  "claimed": 100,
   "measure": "shortcut_words",
   "arguments": [
    "worded"
@@ -689,7 +689,7 @@
  },
  {
   "name": "shortcuts declared only under a computed name",
-  "claimed": 41,
+  "claimed": 46,
   "measure": "shortcut_words",
   "arguments": [
    "computed"
@@ -699,7 +699,7 @@
  },
  {
   "name": "shortcuts declared nowhere",
-  "claimed": 8,
+  "claimed": 9,
   "measure": "shortcut_words",
   "arguments": [
    "nowhere"
@@ -714,33 +714,6 @@
    "unbound"
   ],
   "counting_rule": "named actions whose key string is empty - event_option_14, menu_14, sub_tab_14, tab_14. They are declared and reachable by nothing, and counting them among the pressable keys is what made 119 out of 115"
- },
- {
-  "name": "building boxes in the ledger",
-  "claimed": 18,
-  "measure": "ledger_buildings",
-  "arguments": [
-   "boxes"
-  ],
-  "counting_rule": "widget_building_item_ledger nodes in the expanded ledger_window; the boxes that show a holding’s buildings"
- },
- {
-  "name": "widgets in a ledger building box that can act",
-  "claimed": 18,
-  "measure": "ledger_buildings",
-  "arguments": [
-   "acting"
-  ],
-  "counting_rule": "widgets inside those boxes carrying onclick, onrightclick, shortcut or ondoubleclick - exactly one per box, the building_button itself, so nothing drawn over it can swallow a click"
- },
- {
-  "name": "ledger building buttons that call the holding view",
-  "claimed": 18,
-  "measure": "ledger_buildings",
-  "arguments": [
-   "opens_holding_view"
-  ],
-  "counting_rule": "of those acting widgets, the ones with an action that names holding_view. A click fires every onclick of a block (measured 21 October 2026), so each box calls the holding view first and GUIBuildingItem.OnClick after it"
  },
  {
   "name": "mapped windows without a player record",
