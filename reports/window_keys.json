@@ -415,6 +415,18 @@
   "measured": "2026-11-09 11:41",
   "player": "Harold"
  },
+ "build_queue_window": {
+  "exe": "114758264-1795099871",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-24 14:48",
+  "player": "SU_rI_"
+ },
  "call_ally_interaction_notification_window": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -1812,6 +1824,18 @@
   "measured": "2026-11-16 12:52",
   "player": "Harold"
  },
+ "law_change_window": {
+  "exe": "114758264-1795099871",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ]
+  ],
+  "measured": "2026-11-24 14:48",
+  "player": "SU_rI_"
+ },
  "lease_out_baronies_window": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -3015,6 +3039,92 @@
   "measured": "2026-11-17 14:58",
   "player": "Manuel"
  },
+ "trade_market_window": {
+  "exe": "114758264-1795099871",
+  "keys": [
+   [
+    "go_back",
+    "B",
+    "shut the window, opened holding_view"
+   ],
+   [
+    "go_back_2",
+    "BACKSPACE",
+    "shut the window, opened holding_view"
+   ],
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "tab_1",
+    "ctrl+1",
+    "nothing"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "nothing"
+   ],
+   [
+    "tab_3",
+    "ctrl+3",
+    "nothing"
+   ],
+   [
+    "tab_1 again",
+    "ctrl+1",
+    "nothing"
+   ]
+  ],
+  "measured": "2026-11-24 14:48",
+  "player": "SU_rI_"
+ },
+ "trade_route_planner_window": {
+  "exe": "114758264-1795099871",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window, shut tutorial_window, window_trade_good"
+   ]
+  ],
+  "measured": "2026-11-24 14:48",
+  "player": "SU_rI_"
+ },
+ "trade_window": {
+  "exe": "114758264-1795099871",
+  "keys": [
+   [
+    "close_window",
+    "ESCAPE",
+    "shut the window"
+   ],
+   [
+    "tab_1",
+    "ctrl+1",
+    "nothing"
+   ],
+   [
+    "tab_2",
+    "ctrl+2",
+    "nothing"
+   ],
+   [
+    "tab_3",
+    "ctrl+3",
+    "changed the text: 8 lines, was 12"
+   ],
+   [
+    "tab_1 again",
+    "ctrl+1",
+    "changed the text: 12 lines, was 8"
+   ]
+  ],
+  "measured": "2026-11-24 14:48",
+  "player": "SU_rI_"
+ },
  "transfer_vassal_interaction_window": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -3680,6 +3790,12 @@
   ],
   "measured": "2026-11-17 12:18",
   "player": "Harold"
+ },
+ "window_trade_good": {
+  "exe": "114758264-1795099871",
+  "keys": [],
+  "measured": "2026-11-24 14:48",
+  "player": "SU_rI_"
  },
  "window_treasury_budget_change": {
   "exe": "101125752-1792594002",

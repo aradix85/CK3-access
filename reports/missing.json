@@ -1,9 +1,9 @@
 {
- "harvest": "2026-11-17 14:57",
- "without a player record": 101,
- "still to do for play": 21,
+ "harvest": "2026-11-24 14:37",
+ "without a player record": 95,
+ "still to do for play": 15,
  "still to do, by reason": {
-  "no player record yet": 21,
+  "no player record yet": 15,
   "a player record, but no key round yet": 0
  },
  "counts": {
@@ -12,8 +12,8 @@
   "decided": 36,
   "event": 0,
   "interaction": 1,
-  "chain": 1,
-  "no window route on disk": 19
+  "chain": 0,
+  "no window route on disk": 14
  },
  "groups": {
   "developer": {
@@ -349,19 +349,10 @@
     "state": "not harvested yet: the map has a route for it"
    }
   },
-  "chain": {
-   "trade_market_window": {
-    "file": "gui/window_trade_market.gui",
-    "state": "not harvested yet: the map has a route for it"
-   }
-  },
+  "chain": {},
   "no window route on disk": {
    "assembly_window": {
     "file": "gui/assembly_window.gui",
-    "state": "not harvested yet: the map has a route for it"
-   },
-   "build_queue_window": {
-    "file": "gui/window_build_queue.gui",
     "state": "not harvested yet: the map has a route for it"
    },
    "competitors_leaderboard_window": {
@@ -384,24 +375,12 @@
     "file": "gui/window_gdp_guelph_ghibelline.gui",
     "state": "not tried: declared as a type definition inside a types block, where GUI.CreateWidget does not look"
    },
-   "law_change_window": {
-    "file": "gui/window_change_law.gui",
-    "state": "not harvested yet: the map has a route for it"
-   },
    "situation_gg_history_window": {
     "file": "gui/window_gdp_guelph_ghibelline.gui",
     "state": "not tried: declared as a type definition inside a types block, where GUI.CreateWidget does not look"
    },
    "tolls_subwindow": {
     "file": "gui/window_trade_market.gui",
-    "state": "not harvested yet: the map has a route for it"
-   },
-   "trade_route_planner_window": {
-    "file": "gui/window_trade_route_planner.gui",
-    "state": "not harvested yet: the map has a route for it"
-   },
-   "trade_window": {
-    "file": "gui/window_trade.gui",
     "state": "not harvested yet: the map has a route for it"
    },
    "trader_character_list_window": {
@@ -426,10 +405,6 @@
    },
    "window_landless_ruler_filter": {
     "file": "gui/window_landless_ruler_filter.gui",
-    "state": "not harvested yet: the map has a route for it"
-   },
-   "window_trade_good": {
-    "file": "gui/window_trade_good.gui",
     "state": "not harvested yet: the map has a route for it"
    }
   }
@@ -456,9 +431,6 @@
   "language": [
    "culture_window",
    "royal_court_window"
-  ],
-  "law_change": [
-   "my_realm_window"
   ],
   "men_at_arms": [
    "holding_view"
@@ -520,6 +492,9 @@
   ],
   "inventory": [
    "inventory_view"
+  ],
+  "law_change": [
+   "law_change_window"
   ],
   "legends": [
    "legends_window"

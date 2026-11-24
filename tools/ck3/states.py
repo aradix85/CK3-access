@@ -153,15 +153,22 @@ def holder(save_name: str, title: str) -> int:
     return int(found.group(1))
 
 
-def new(pid: int, title: str) -> tuple[str, str]:
-    """From the setup screen: start at random, play the holder of the title, save. Both saves."""
+def new(pid: int, title: str, suffix: str = '') -> tuple[str, str]:
+    """From the setup screen: start at random, play the holder of the title, save. Both saves.
+    `suffix` goes behind the name of the second, for a state whose name an older save carries:
+    the save refuses to overwrite one (Ghur 867 made again on 1.21, 24 November 2026)."""
     if wait(pid) != 'setup':
         raise SystemExit('this is not the setup screen of a bookmark')
     _click_text(pid, SETUP, tries=1)
     time.sleep(3.0)
     _click_text(pid, 'Start', tries=6)
-    if wait(pid) != 'game':
-        raise SystemExit('Start did not lead into a game')
+    # The setup screen stands for a while after Start, and `wait` answers at once with what it
+    # sees: twice this stopped with the game there twenty seconds later (17 November 2026).
+    deadline = time.time() + 600
+    while (state := wait(pid)) == 'setup' and time.time() < deadline:
+        time.sleep(10)
+    if state != 'game':
+        raise SystemExit(f'Start did not lead into a game: {state} after ten minutes')
     time.sleep(20)
     first = save(pid)
     number = holder(first, title)
@@ -170,7 +177,7 @@ def new(pid: int, title: str) -> tuple[str, str]:
     now = model.player(pid)
     if now[0] != number:
         raise SystemExit(f'play {int(number)} did not take: the player is {now}')
-    return first, save(pid)
+    return first, save(pid, suffix)
 
 
 def main() -> None:
@@ -186,7 +193,7 @@ def main() -> None:
         said = console(pid, ' '.join(sys.argv[3:]))
         print('typed:', ' '.join(sys.argv[3:]), '- error.log:', ' / '.join(said) or 'nothing')
     elif what == 'new' and len(sys.argv) > 3:
-        first, second = new(pid, sys.argv[3])
+        first, second = new(pid, sys.argv[3], sys.argv[4] if len(sys.argv) > 4 else '')
         print('written:', first, 'and', second)
     else:
         raise SystemExit(__doc__)

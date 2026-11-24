@@ -455,7 +455,7 @@ returns a pair, passed on as one thing, costs a run.
 | `developer_window(name, path)` | value | Is this window the developers' own tooling rather than something a player opens? |
 | `bare_number(text)` | bool of value | A text that is only a number. This is the case the origin question exists for: `150` |
 | `unexplained(count, kind, context, built, developer, drawn)` | nothing | The texts the gui files do not predict, split the way the decision needed them. |
-| `sweep()` | 3-tuple | Every harvested window paired, as one tally. About twenty seconds for 204 windows (measured |
+| `sweep()` | 4-tuple | Every harvested window paired, as one tally. About twenty seconds for 204 windows (measured |
 | `harvested_at()` | value | When the newest record in the harvest was measured: which harvest a report drawn from it |
 | `main()` | nothing | - |
 
@@ -586,7 +586,7 @@ returns a pair, passed on as one thing, costs a run.
 | `save(pid, suffix='')` | value | Save through the pause menu; the name of the new save comes back. |
 | `console(pid, command)` | value | Type one command into the console and shut it again, with the checks of |
 | `holder(save_name, title)` | value | The running number of whoever holds the title, out of a save of that game. |
-| `new(pid, title)` | 2-tuple | From the setup screen: start at random, play the holder of the title, save. Both saves. |
+| `new(pid, title, suffix='')` | 2-tuple | From the setup screen: start at random, play the holder of the title, save. Both saves. |
 | `main()` | nothing | - |
 
 ## ck3\unsolicited.py

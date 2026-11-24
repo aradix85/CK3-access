@@ -361,12 +361,17 @@ def unexplained(count: collections.Counter[str], kind: str, context: tuple[str, 
 REPORT = os.path.join(paths.PROJECT, 'reports', 'pairing.json')
 
 
-def sweep() -> tuple[collections.Counter[str], collections.Counter[str], collections.Counter[str]]:
+def sweep() -> tuple[collections.Counter[str], collections.Counter[str], collections.Counter[str],
+                     dict[str, list[int]]]:
     """Every harvested window paired, as one tally. About twenty seconds for 204 windows (measured
     4 October 2026).
 
     **The names score the alignment**, because they never enter it: a live widget with a name
-    whose source on disk carries the same name was put in the right place.
+    whose source on disk carries the same name was put in the right place. **Kept per window too,
+    as [on its own name, named], because that is what a patch moves:** laid against the files of
+    1.21 the harvest of 1.20 lost 7928 of 77059, and which windows lost them could not be said
+    for want of the score per window before (24 November 2026). After the next patch, run this
+    on the old harvest and compare with the report in git: a window the patch rebuilt drops.
     """
     from tools.ck3 import reading  # it imports this module
     table, local, known, root = guimap.tables()
@@ -375,6 +380,7 @@ def sweep() -> tuple[collections.Counter[str], collections.Counter[str], collect
     count: collections.Counter[str] = collections.Counter()
     functions: collections.Counter[str] = collections.Counter()
     unplaced: collections.Counter[str] = collections.Counter()
+    own_name: dict[str, list[int]] = {}
     for record_path in sorted(glob.glob(os.path.join(paths.HARVEST, '*.json'))):
         window = os.path.basename(record_path)[:-5]
         record = json.loads(pathlib.Path(record_path).read_text(encoding='utf-8'))
@@ -384,6 +390,7 @@ def sweep() -> tuple[collections.Counter[str], collections.Counter[str], collect
         count['widgets in harvest'] += len(record['tree'])
         developer = developer_window(window, known[window][0])
         seen = 0
+        scored = own_name[window] = [0, 0]
         rows_here = pairs(window, table, local, known, root, record)
         by_address = {built['address']: source for source, built, _ in rows_here}
         live = {built['address']: built for built in record['tree']}
@@ -391,8 +398,10 @@ def sweep() -> tuple[collections.Counter[str], collections.Counter[str], collect
             seen += 1
             if built['name']:
                 count['named live widgets'] += 1
+                scored[1] += 1
                 if source is not None and guimap.attribute(source, 'name') == built['name']:
                     count['named live widgets on their own name'] += 1
+                    scored[0] += 1
             if not built['text']:
                 continue
             drawn = reading.on_screen(built, live, record['size'])
@@ -435,7 +444,7 @@ def sweep() -> tuple[collections.Counter[str], collections.Counter[str], collect
                                  'texts is only worth anything against the whole tree')
     count['data functions together'] = (count['data function']
                                         + count['data function through key'])
-    return count, functions, unplaced
+    return count, functions, unplaced, own_name
 
 
 def harvested_at() -> str:
@@ -447,14 +456,15 @@ def harvested_at() -> str:
 
 
 def main() -> None:
-    count, functions, unplaced = sweep()
-    report: dict[str, str | int | dict[str, int]] = dict(count)
+    count, functions, unplaced, own_name = sweep()
+    report: dict[str, str | int | dict[str, int] | dict[str, list[int]]] = dict(count)
     report['harvest'] = harvested_at()
     report['top functions'] = dict(functions.most_common(20))
     # Which windows the leftover texts sit in, per window. Without this the share that lands in
     # the developers' own windows - the reason for leaving the rest alone - is a number nobody can
     # recompute after the next round, and it quietly ages into a claim no one can check.
     report['no source on disk, per window'] = dict(unplaced.most_common())
+    report['on their own name, per window'] = own_name
     pathlib.Path(REPORT).write_text(json.dumps(report, indent=1, sort_keys=True), encoding='utf-8')
     width = max(len(k) for k in count)
     for key in sorted(count):

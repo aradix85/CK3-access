@@ -11,6 +11,9 @@ Outcomes, newest day first. No release yet.
 - The disk reader knows a window whose type keeps its name in a block: three side windows of trade; the game builds no window the map misses.
 - The click round on 1.21: 26 of 98 buttons pressed and all opened a window; the activity list, which lost its key, opens from the HUD tab.
 - The missing report names a record of a window the game dropped instead of stopping on it: 21 windows of 1.21 are still to harvest.
+- The pairing report keeps per window how many named widgets land on their own name, so the next patch shows which windows it rebuilt.
+- Six new windows of 1.21 harvested with their keys on a state begun on 1.21: trade, its market, the route planner, a trade good, the build queue, the law change.
+- A new state waits after Start until the setup screen is gone, and takes a suffix for a name an older save carries.
 
 ## 2026-11-23
 - The fixed bounds walked: an object is read to the size measured for its class, 0x3C0 bytes for the smallest on 1.21.0.3, where 0x420 stood for all.
