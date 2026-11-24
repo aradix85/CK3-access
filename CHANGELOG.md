@@ -7,6 +7,10 @@ Outcomes, newest day first. No release yet.
 - A start that derives everything again now says to press nothing meanwhile: a key pressed before the request stopped the derivation.
 - The build queue of 1.21 opens on the comma and is read unchanged; the key round knows that key now. Its order changes only by dragging.
 - With every message type set to a pop-up, a toast arrives as a message window behind a standing event; the reader reads the event first.
+- The window map is that of 1.21.0.3: 303 windows, 22 new and one gone; all 249 with a console route were created, and 18 open on a plain key.
+- The disk reader knows a window whose type keeps its name in a block: three side windows of trade; the game builds no window the map misses.
+- The click round on 1.21: 26 of 98 buttons pressed and all opened a window; the activity list, which lost its key, opens from the HUD tab.
+- The missing report names a record of a window the game dropped instead of stopping on it: 21 windows of 1.21 are still to harvest.
 
 ## 2026-11-23
 - The fixed bounds walked: an object is read to the size measured for its class, 0x3C0 bytes for the smallest on 1.21.0.3, where 0x420 stood for all.

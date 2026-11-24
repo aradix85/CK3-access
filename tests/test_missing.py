@@ -32,6 +32,8 @@ def test_a_window_says_where_it_stands() -> None:
                             {}) == 'did not open: did not open in 1 try'
     assert missing.state_of('layer_window', None, {'layer_window'}, {}) == 'drawn always, so in every capture'
     assert missing.state_of('node_window', None, set(), {'reason': 'a type definition'}) == 'not tried: a type definition'
+    # A window a new map knows before any harvest ran: it has a route and no record (1.21's trade window).
+    assert missing.state_of('trade_window', None, set(), {'console': True}) == 'not harvested yet: the map has a route for it'
 
 
 def test_a_view_is_reached_once_its_windows_have_player_records() -> None:

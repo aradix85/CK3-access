@@ -39,13 +39,14 @@ WINDOW_KEYS = os.path.join(paths.REPORTS, 'window_keys.json')
 # The keys a round presses on a bare screen. The F row, plus every binding in shortcuts.shortcuts
 # without a modifier whose name says it can bring something up there: situations 0, character
 # finder C, find title V, plagues P, legends L, message settings M, outliner Q, intent N, the action
-# list Tab and the encyclopedia F10. Left out by name, because they move the clock, the camera or
+# list Tab, the encyclopedia F10 and, since 1.21, the build queue on the comma. Left out by name, because they move the clock, the camera or
 # the map rather than open anything: pause, the speed keys, zoom, go to capital, map modes, army
 # orders, the barbershop and ruler designer keys, the editors, and the mouse buttons. A key bound
 # only inside a window does nothing on a bare screen; that is the chain's work.
 KEYS = {112: 'F1', 113: 'F2', 114: 'F3', 115: 'F4', 116: 'F5',
         117: 'F6', 118: 'F7', 119: 'F8', 120: 'F9', 121: 'F10',
-        48: '0', 67: 'C', 86: 'V', 80: 'P', 76: 'L', 77: 'M', 81: 'Q', 78: 'N', 9: 'TAB'}
+        48: '0', 67: 'C', 86: 'V', 80: 'P', 76: 'L', 77: 'M', 81: 'Q', 78: 'N', 9: 'TAB',
+        188: 'COMMA'}
 # The bindings with a modifier that a round presses on a bare screen: every one a widget in hud.gui
 # declares that brings something up. open_capital also moves the camera, and opens holding_view
 # (measured 21 October 2026, every onclick of a block fires); royal_court is drawn only for a ruler

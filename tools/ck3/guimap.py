@@ -526,7 +526,7 @@ def windows(rows: list[Row] | None = None, table: Table | None = None) -> Known:
                 continue
             if root(entry['key']) != 'window':
                 continue
-            named = next((inner['value'] for inner in entry['body'] if inner['key'] == 'name'), None)
+            named = _own_name(entry['body'], 'blockoverride')
             if named:
                 out.setdefault(named, (virtual, entry))
             else:
@@ -534,21 +534,41 @@ def windows(rows: list[Row] | None = None, table: Table | None = None) -> Known:
     for type_name, found in table.items():
         if root(found['parent']) != 'window':
             continue
-        for inner in found['body']:
-            if inner['key'] == 'name' and inner['value']:
-                # **The one place the type is used carries its conditions**, `visible` above all:
-                # `window_religion_sub_window = { visible = "[ReligionWindow.IsVisible]" }` in the
-                # faith window, where the type says nothing (read 22 October 2026). Used in more
-                # than one place, no one use speaks for the window. An instance with an empty
-                # body: `build` takes the type's own body from the table, and handing it in as well
-                # built these windows twice over (measured 21 October 2026:
-                # character_filter_window 6138 nodes against 3070).
-                uses = unnamed.get(type_name, [])
-                out.setdefault(inner['value'], uses[0] if len(uses) == 1 else
-                               (found['file'], {'key': type_name, 'arg': None,
-                                                'value': found['parent'], 'body': []}))
-                break
+        named = _own_name(found['body'], 'block')
+        if named:
+            # **The one place the type is used carries its conditions**, `visible` above all:
+            # `window_religion_sub_window = { visible = "[ReligionWindow.IsVisible]" }` in the
+            # faith window, where the type says nothing (read 22 October 2026). Used in more
+            # than one place, no one use speaks for the window. An instance with an empty
+            # body: `build` takes the type's own body from the table, and handing it in as well
+            # built these windows twice over (measured 21 October 2026:
+            # character_filter_window 6138 nodes against 3070).
+            uses = unnamed.get(type_name, [])
+            out.setdefault(named, uses[0] if len(uses) == 1 else
+                           (found['file'], {'key': type_name, 'arg': None,
+                                            'value': found['parent'], 'body': []}))
     return out
+
+
+def _own_name(body: list[Entry], block: str) -> str | None:
+    """The name a window gives itself: written in its body, or else in a block of it.
+
+    **A fourth shape, new in 1.21.** The trade window's two side windows keep their name in a
+    block - `type trader_character_list_window = window { block "properties" { name = ... } }` -
+    so that a second use can rename it with `blockoverride "properties"`, as the route planner
+    does for `trader_planner_character_list_window`. The game built all three and the map knew
+    none (`windowmap.unmapped`, 21 November 2026). A type looks in its `block`, a use in its
+    `blockoverride`.
+    """
+    for inner in body:
+        if inner['key'] == 'name' and inner['value']:
+            return inner['value']
+    for inner in body:
+        if inner['key'] == block:
+            for deeper in inner['body'] or []:
+                if deeper['key'] == 'name' and deeper['value']:
+                    return deeper['value']
+    return None
 
 
 def root_finder(table: Table) -> Root:

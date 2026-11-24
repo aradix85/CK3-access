@@ -153,7 +153,10 @@ def state_of(window: str, record: Mapping[str, object] | None, baseline: set[str
         return f"did not open: {record['reason']}"
     if window in baseline:
         return 'drawn always, so in every capture'
-    return f"not tried: {mapped['reason']}"
+    if 'reason' in mapped:
+        return f"not tried: {mapped['reason']}"
+    # A map newer than the harvest: the windows 1.21 added have a console route and no record yet.
+    return 'not harvested yet: the map has a route for it'
 
 
 def keys_not_pressed(played: set[str]) -> dict[str, list[str]]:
@@ -171,12 +174,19 @@ def keys_not_pressed(played: set[str]) -> dict[str, list[str]]:
 
 
 def reckon() -> tuple[dict[str, dict[str, Missing]], dict[str, list[str]], dict[str, list[str]],
-                      dict[str, list[str]]]:
+                      dict[str, list[str]], list[str]]:
     """Every window of the map without a player record, by group; every view a button on disk
     opens that no round reached, with the windows that carry such a button; every one a round
-    reached, with the windows it brought up; and the windows whose keys no round pressed."""
+    reached, with the windows it brought up; the windows whose keys no round pressed; and the
+    records of a window the map no longer knows.
+
+    **A harvest can be older than the map**, and then it holds a window the game has dropped:
+    1.21 renamed `succession_law_change_window`, and its record stopped this report at the first
+    window it could not find on disk (24 November 2026). Such a record is named and left out."""
     mapped: dict[str, dict[str, object]] = json.loads(pathlib.Path(harvest.MAP).read_text(encoding='utf-8'))['windows']
-    records = harvest.records_on_disk()
+    every = harvest.records_on_disk()
+    gone = sorted(set(every) - set(mapped))
+    records = {window: record for window, record in every.items() if window in mapped}
     baseline: set[str] = set()
     for record in records.values():
         if record['opened']:
@@ -193,12 +203,12 @@ def reckon() -> tuple[dict[str, dict[str, Missing]], dict[str, list[str]], dict[
         out[group_of(window, gui_file, chained)][window] = {
             'file': gui_file, 'state': DECIDED.get(window) or state_of(window, records.get(window), baseline, mapped[window])}
     return (out, {v: s for v, s in on_disk.items() if v not in reached},
-            {v: reached[v] for v in on_disk if v in reached}, keys_not_pressed(played))
+            {v: reached[v] for v in on_disk if v in reached}, keys_not_pressed(played), gone)
 
 
 def main() -> None:
     terminal.utf8()
-    groups, views, reached, keys = reckon()
+    groups, views, reached, keys, gone = reckon()
     total = sum(len(windows) for windows in groups.values())
     to_do = sum(len(windows) for group, windows in groups.items() if group not in FALL_AWAY)
     report = {'harvest': pairing.harvested_at(), 'without a player record': total,
@@ -207,7 +217,8 @@ def main() -> None:
                                          'a player record, but no key round yet': len(keys)},
               'counts': {group: len(windows) for group, windows in groups.items()}, 'groups': groups,
               'views not reached': views, 'views reached': reached,
-              'windows whose keys no round pressed': len(keys), 'keys not pressed': keys}
+              'windows whose keys no round pressed': len(keys), 'keys not pressed': keys,
+              'records of a window the map no longer knows': gone}
     pathlib.Path(REPORT).write_text(json.dumps(report, indent=1, ensure_ascii=False), encoding='utf-8')
     print(f'{to_do + len(keys)} windows still to do for play: {to_do} of the {total} mapped windows without '
           f'a player record, and {len(keys)} with one but no key round yet')
@@ -224,6 +235,7 @@ def main() -> None:
     print(f'\nwindows with a player record whose keys no round pressed: {len(keys)}')
     for window, bindings in keys.items():
         print(f"  {window} - {', '.join(bindings)}")
+    print(f"\nrecords of a window the map no longer knows: {len(gone)}{' - ' if gone else ''}{', '.join(gone)}")
     print(f'\nwritten to {os.path.relpath(REPORT, paths.PROJECT)}')
 
 

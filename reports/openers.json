@@ -1,5 +1,5 @@
 {
- "measured": "2026-10-21 20:56",
+ "measured": "2026-11-24 14:05",
  "game_date": "30th of December, 867 AD",
  "buttons": [
   {
@@ -27,6 +27,28 @@
    "under": true,
    "reason": "2 widgets carry this name and 0 of them are on screen",
    "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "build_queue",
+   "widget": "build_queue_button_tutorial_uses_this",
+   "file": "hud.gui",
+   "point": [
+    1897,
+    107
+   ],
+   "box": [
+    1880,
+    90,
+    35,
+    35
+   ],
+   "reason": null,
+   "opens": [
+    "build_queue_window"
+   ],
+   "found_in": "the screen",
+   "state_returned": "ok"
   },
   {
    "via": "onclick",
@@ -76,7 +98,7 @@
    "target": "confederation_window",
    "widget": "confederation_button",
    "file": "hud.gui",
-   "reason": "2 widgets carry this name and 0 of them are on screen",
+   "reason": "hidden by the game",
    "opens": null
   },
   {
@@ -93,6 +115,14 @@
    "target": "faith_conversion",
    "widget": "convert_rite",
    "file": "window_faith.gui",
+   "reason": "hidden by the game",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "trade_market_window",
+   "widget": "county_view_market_button",
+   "file": "window_county_view.gui",
    "reason": "not visible",
    "opens": null
   },
@@ -109,7 +139,7 @@
    "target": "rite_creation",
    "widget": "create_rite",
    "file": "window_faith.gui",
-   "reason": "not visible",
+   "reason": "hidden by the game",
    "opens": null
   },
   {
@@ -117,8 +147,22 @@
    "target": "rite_creation",
    "widget": "create_rite_puppet",
    "file": "window_faith.gui",
-   "reason": "not visible",
-   "opens": null
+   "reason": null,
+   "opens": [
+    "rite_creation_window"
+   ],
+   "point": [
+    296,
+    1169
+   ],
+   "box": [
+    126,
+    1149,
+    340,
+    40
+   ],
+   "found_in": "in faith_window",
+   "state_returned": "fell back"
   },
   {
    "via": "onclick",
@@ -152,7 +196,7 @@
    "widget": "domain_limit",
    "file": "hud.gui",
    "under": true,
-   "reason": "6 widgets carry this name and 0 of them are on screen",
+   "reason": "6 widgets carry this name and 2 of them are on screen",
    "opens": null
   },
   {
@@ -160,7 +204,7 @@
    "target": "domicile",
    "widget": "domicile_map_icon",
    "file": "map_icon_layer.gui",
-   "reason": "10 widgets carry this name and 0 of them are on screen",
+   "reason": "135 widgets carry this name and 0 of them are on screen",
    "opens": null
   },
   {
@@ -177,7 +221,7 @@
    "target": "rite_creation",
    "widget": "edit_rite",
    "file": "window_faith.gui",
-   "reason": "not visible",
+   "reason": "hidden by the game",
    "opens": null
   },
   {
@@ -193,7 +237,7 @@
    "target": "decision_detail",
    "widget": "elevate_confederation_decision",
    "file": "window_confederation.gui",
-   "reason": "not visible",
+   "reason": "2 widgets carry this name and 0 of them are on screen",
    "opens": null
   },
   {
@@ -201,8 +245,22 @@
    "target": "faith",
    "widget": "faith_button",
    "file": "hud.gui",
-   "reason": "12 widgets carry this name and 0 of them are on screen",
-   "opens": null
+   "point": [
+    23,
+    960
+   ],
+   "box": [
+    -3,
+    934,
+    52,
+    52
+   ],
+   "reason": null,
+   "opens": [
+    "faith_window"
+   ],
+   "found_in": "the screen",
+   "state_returned": "ok"
   },
   {
    "via": "onclick",
@@ -224,9 +282,49 @@
   {
    "via": "onclick",
    "target": "decision_detail",
+   "widget": "found_the_hanseatic_league_decision",
+   "file": "window_confederation.gui",
+   "reason": "not visible",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "decision_detail",
    "widget": "gather_provisions_decision",
    "file": "map_icon_layer.gui",
-   "reason": "6 widgets carry this name and 0 of them are on screen",
+   "reason": "81 widgets carry this name and 0 of them are on screen",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "decision_detail",
+   "widget": "gdp_return_trade_envoys_decision",
+   "file": "map_icon_layer.gui",
+   "reason": "81 widgets carry this name and 0 of them are on screen",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "decision_detail",
+   "widget": "gdp_send_trade_envoys_decision",
+   "file": "map_icon_layer.gui",
+   "reason": "81 widgets carry this name and 0 of them are on screen",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "decision_detail",
+   "widget": "gdp_set_league_focus_decision",
+   "file": "window_confederation.gui",
+   "reason": "not visible",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "decision_detail",
+   "widget": "gdp_visit_holding_decision",
+   "file": "map_icon_layer.gui",
+   "reason": "81 widgets carry this name and 0 of them are on screen",
    "opens": null
   },
   {
@@ -370,7 +468,7 @@
    "target": "decision_detail",
    "widget": "leave_confederation_decision",
    "file": "window_confederation.gui",
-   "reason": "not visible",
+   "reason": "2 widgets carry this name and 0 of them are on screen",
    "opens": null
   },
   {
@@ -439,15 +537,52 @@
    "widget": "main_tabs",
    "file": "hud.gui",
    "under": true,
-   "reason": "2 widgets carry this name and 0 of them are on screen",
-   "opens": null
+   "point": [
+    1897,
+    392
+   ],
+   "box": [
+    1870,
+    120,
+    55,
+    545
+   ],
+   "reason": null,
+   "opens": [
+    "intrigue_window"
+   ],
+   "found_in": "the screen",
+   "state_returned": "ok"
+  },
+  {
+   "via": "onclick",
+   "target": "trade_window",
+   "widget": "military",
+   "file": "hud.gui",
+   "under": true,
+   "point": [
+    1752,
+    34
+   ],
+   "box": [
+    1696,
+    -1,
+    112,
+    70
+   ],
+   "reason": null,
+   "opens": [
+    "military_view"
+   ],
+   "found_in": "the screen",
+   "state_returned": "ok"
   },
   {
    "via": "onclick",
    "target": "move_domicile_planner",
    "widget": "move_camp_quick_button",
    "file": "map_icon_layer.gui",
-   "reason": "6 widgets carry this name and 0 of them are on screen",
+   "reason": "81 widgets carry this name and 0 of them are on screen",
    "opens": null
   },
   {
@@ -476,12 +611,12 @@
     "diarchy_window"
    ],
    "point": [
-    1514,
-    186
+    1651,
+    133
    ],
    "box": [
-    1498,
-    170,
+    1635,
+    117,
     32,
     32
    ],
@@ -507,31 +642,25 @@
   },
   {
    "via": "onclick",
-   "target": "outliner",
-   "widget": "outliner_button",
-   "file": "hud.gui",
-   "point": [
-    1897,
-    72
-   ],
-   "box": [
-    1880,
-    55,
-    35,
-    35
-   ],
-   "reason": null,
-   "opens": [],
-   "found_in": "the screen",
-   "state_returned": "ok"
-  },
-  {
-   "via": "onclick",
    "target": "personal_beliefs_window",
    "widget": "personal_beliefs_button",
    "file": "window_personal_beliefs.gui",
-   "reason": "not visible",
-   "opens": null
+   "reason": null,
+   "opens": [
+    "window_personal_beliefs"
+   ],
+   "point": [
+    550,
+    209
+   ],
+   "box": [
+    523,
+    182,
+    54,
+    54
+   ],
+   "found_in": "in faith_window",
+   "state_returned": "ok"
   },
   {
    "via": "onclick",
@@ -539,7 +668,7 @@
    "widget": "piety",
    "file": "hud.gui",
    "under": true,
-   "reason": "9 widgets carry this name and 0 of them are on screen",
+   "reason": "9 widgets carry this name and 2 of them are on screen",
    "opens": null
   },
   {
@@ -547,15 +676,29 @@
    "target": "culture_window",
    "widget": "player_culture_button_tutorial_uses_this",
    "file": "hud.gui",
-   "reason": "off screen",
-   "opens": null
+   "point": [
+    23,
+    1012
+   ],
+   "box": [
+    -3,
+    986,
+    52,
+    52
+   ],
+   "reason": null,
+   "opens": [
+    "culture_window"
+   ],
+   "found_in": "the screen",
+   "state_returned": "ok"
   },
   {
    "via": "onclick",
    "target": "great_project",
    "widget": "portrait_pin",
    "file": "map_icon_layer.gui",
-   "reason": "2 widgets carry this name and 0 of them are on screen",
+   "reason": "54 widgets carry this name and 0 of them are on screen",
    "opens": null
   },
   {
@@ -563,8 +706,7 @@
    "target": "select_title_troop_assignment",
    "widget": "reassign_button",
    "file": "window_military.gui",
-   "under": true,
-   "reason": "13 widgets carry this name and 0 of them are on screen",
+   "reason": "3 widgets carry this name and 0 of them are on screen",
    "opens": null
   },
   {
@@ -600,10 +742,26 @@
   },
   {
    "via": "onclick",
+   "target": "government_republic",
+   "widget": "republic_hud_button_tutorial_uses_this",
+   "file": "hud.gui",
+   "reason": "off screen",
+   "opens": null
+  },
+  {
+   "via": "onclick",
+   "target": "title_election",
+   "widget": "republic_view_election_tutorial_uses_this",
+   "file": "window_government_republic.gui",
+   "reason": "not visible",
+   "opens": null
+  },
+  {
+   "via": "onclick",
    "target": "faith",
    "widget": "rite_button",
    "file": "window_admin_vassal_detail.gui",
-   "reason": "20 widgets carry this name and 0 of them are on screen",
+   "reason": "21 widgets carry this name and 0 of them are on screen",
    "opens": null
   },
   {
@@ -705,11 +863,11 @@
    "file": "hud.gui",
    "point": [
     1897,
-    467
+    542
    ],
    "box": [
     1875,
-    445,
+    520,
     45,
     45
    ],
@@ -735,11 +893,11 @@
    "file": "hud.gui",
    "point": [
     1897,
-    212
+    242
    ],
    "box": [
     1875,
-    190,
+    220,
     45,
     45
    ],
@@ -757,11 +915,11 @@
    "file": "hud.gui",
    "point": [
     1897,
-    272
+    347
    ],
    "box": [
     1875,
-    250,
+    325,
     45,
     45
    ],
@@ -779,11 +937,11 @@
    "file": "hud.gui",
    "point": [
     1897,
-    422
+    497
    ],
    "box": [
     1875,
-    400,
+    475,
     45,
     45
    ],
@@ -801,11 +959,11 @@
    "file": "hud.gui",
    "point": [
     1897,
-    362
+    437
    ],
    "box": [
     1875,
-    340,
+    415,
     45,
     45
    ],
@@ -832,11 +990,11 @@
    "file": "hud.gui",
    "point": [
     1897,
-    317
+    392
    ],
    "box": [
     1875,
-    295,
+    370,
     45,
     45
    ],
@@ -854,11 +1012,11 @@
    "file": "hud.gui",
    "point": [
     1897,
-    167
+    197
    ],
    "box": [
     1875,
-    145,
+    175,
     45,
     45
    ],
@@ -876,11 +1034,11 @@
    "file": "hud.gui",
    "point": [
     1897,
-    122
+    152
    ],
    "box": [
     1875,
-    100,
+    130,
     45,
     45
    ],
@@ -898,11 +1056,11 @@
    "file": "hud.gui",
    "point": [
     1897,
-    512
+    587
    ],
    "box": [
     1875,
-    490,
+    565,
     45,
     45
    ],
@@ -920,17 +1078,39 @@
    "file": "hud.gui",
    "point": [
     1897,
-    557
+    632
    ],
    "box": [
     1875,
-    535,
+    610,
     45,
     45
    ],
    "reason": null,
    "opens": [
     "window_manage_tax_slots"
+   ],
+   "found_in": "the screen",
+   "state_returned": "ok"
+  },
+  {
+   "via": "onclick",
+   "target": "trade_window",
+   "widget": "tab_trade",
+   "file": "hud.gui",
+   "point": [
+    1897,
+    287
+   ],
+   "box": [
+    1875,
+    265,
+    45,
+    45
+   ],
+   "reason": null,
+   "opens": [
+    "trade_window"
    ],
    "found_in": "the screen",
    "state_returned": "ok"
@@ -949,7 +1129,7 @@
    "target": "decision_detail",
    "widget": "tehocratic_lowborn_button",
    "file": "hud.gui",
-   "reason": "off screen",
+   "reason": "hidden by the game",
    "opens": null
   },
   {
@@ -980,10 +1160,18 @@
   },
   {
    "via": "onclick",
+   "target": "law_change",
+   "widget": "view_voting_session",
+   "file": "window_government_republic.gui",
+   "reason": "not visible",
+   "opens": null
+  },
+  {
+   "via": "onclick",
    "target": "decision_detail",
    "widget": "visit_local_settlement_decision",
    "file": "map_icon_layer.gui",
-   "reason": "6 widgets carry this name and 0 of them are on screen",
+   "reason": "81 widgets carry this name and 0 of them are on screen",
    "opens": null
   }
  ]

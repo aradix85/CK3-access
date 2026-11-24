@@ -334,7 +334,7 @@ returns a pair, passed on as one thing, costs a run.
 | `group_of(window, path, chained)` | str | The first group in `GROUPS` that fits this window. |
 | `state_of(window, record, baseline, mapped)` | str of value | Where a window without a player record stands, in the words the record or the map use. |
 | `keys_not_pressed(played)` | value | Window -> the bindings a key round would press in it, for every window with a player record |
-| `reckon()` | 4-tuple | Every window of the map without a player record, by group; every view a button on disk |
+| `reckon()` | 5-tuple | Every window of the map without a player record, by group; every view a button on disk |
 | `main()` | nothing | - |
 
 ## ck3\model.py
