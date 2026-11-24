@@ -562,7 +562,7 @@ MODIFIERS = {'shift': 0xA0, 'ctrl': 0xA2, 'alt': 0xA4}
 # from their spelling; these do not.
 NAMED_KEYS = {'TAB': 9, 'BACKSPACE': 8, 'RETURN': 13, 'ESCAPE': 27, 'SPACE': 32, 'HOME': 36,
               'END': 35, 'PAGE_UP': 33, 'PAGE_DOWN': 34, 'LEFT': 37, 'UP': 38, 'RIGHT': 39,
-              'DOWN': 40, '-': 0xBD, '=': 0xBB}
+              'DOWN': 40, '-': 0xBD, '=': 0xBB, 'COMMA': 0xBC}
 
 
 def key_of(key: str) -> int:

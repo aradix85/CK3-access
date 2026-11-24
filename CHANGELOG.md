@@ -2,6 +2,12 @@
 
 Outcomes, newest day first. No release yet.
 
+## 2026-11-24
+- The reader's request for F1 ran to its end in the game, pressed by the player: the same ten offsets as the tools derive, in 148 seconds.
+- A start that derives everything again now says to press nothing meanwhile: a key pressed before the request stopped the derivation.
+- The build queue of 1.21 opens on the comma and is read unchanged; the key round knows that key now. Its order changes only by dragging.
+- With every message type set to a pop-up, a toast arrives as a message window behind a standing event; the reader reads the event first.
+
 ## 2026-11-23
 - The fixed bounds walked: an object is read to the size measured for its class, 0x3C0 bytes for the smallest on 1.21.0.3, where 0x420 stood for all.
 - A widget's scale is the tenth derived offset, +0x110, a constant until now; a start finds it again alone, in fourteen seconds, when only it moved.

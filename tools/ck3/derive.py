@@ -1162,14 +1162,18 @@ def fields_for(pid: int, recheck: bool = True, player: bool = False) -> tuple[Fi
             return fields, root, ('stored derivation holds' if same else
                                   'the derivation of the last build holds on this one') + moved
         reason = 'stored derivation fails: ' + '; '.join(defects)
+        # Both sentences say to press nothing: a window opened while the scan runs builds widgets the
+        # scan never saw, and `all_in_scan` stops there. Measured 24 November 2026 on 1.21.0.3: the
+        # player pressed F1 before she was asked, and 743 widgets of the tree were not in the scan.
         if same:
             speech.failure('reading the game', 'the places it read this game at last time do not hold',
-                           'it is working out the new places, which takes a few minutes')
+                           'it is working out the new places, which takes a few minutes; '
+                           'press nothing in the game meanwhile')
     else:
         reason = 'no derivation for this version of the game'
     if not fields or not same:
         speech.output('the game has changed since the last start, so finding where it keeps things '
-                      'takes a few minutes')
+                      'takes a few minutes; press nothing in the game meanwhile')
     fields, scanned = derive_all(pid)
     fields, root, nodes = position_from_tree(pid, fields)
     all_in_scan(nodes, scanned, fields.get('skipped', ''))

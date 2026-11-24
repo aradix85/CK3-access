@@ -7,13 +7,11 @@
  "size": 296,
  "name": 440,
  "text": 1104,
- "objects": 87582,
- "unreadable": 7,
- "roots": 1640,
- "skipped": "skipped 1 region of the channel's own stack, 28 kB; skipped 107 regions of memory without a cache, 2975 MB",
+ "objects": 91174,
+ "unreadable": 0,
+ "roots": 2900,
+ "skipped": "skipped 1 region of the channel's own stack, 28 kB; skipped 105 regions of memory without a cache, 3073 MB",
+ "scale": 272,
  "flag": 208,
- "alpha": 264,
- "gui_global": 109788000,
- "root_slot": 208,
- "scale": 272
+ "alpha": 264
 }
