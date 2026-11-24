@@ -503,6 +503,7 @@ returns a pair, passed on as one thing, costs a run.
 | `listed(drawn)` | value | - |
 | `escape_to(root, pid, window_classes, menus)` | 4-tuple | Escape until one of `menus` is drawn, and what is drawn then; stop if it does not come. |
 | `exit_save_since(moment)` | value | - |
+| `log_says_quit(moment)` | bool of value | The game's own log names a quit from inside the game, written since `moment`. |
 | `gone()` | bool | Wait until the channel stops answering, which is the game being gone. It asks `alive`, |
 | `shut_console(root)` | nothing | The console draws the developers' toolbar, and over the pause menu that toolbar covers Exit |
 | `quit_game(pid)` | nothing | - |

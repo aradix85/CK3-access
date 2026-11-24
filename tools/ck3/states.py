@@ -112,7 +112,9 @@ def save(pid: int, suffix: str = '') -> str:
         raise SystemExit(f'the save dialog is up, but its save button: {why}')
     for _ in range(60):
         time.sleep(1.0)
-        new = set(os.listdir(paths.require('SAVES'))) - before
+        # The game writes `<name>.ck3.tmp` first and renames it: three times on 24 November 2026
+        # this came back with the name of the temporary file.
+        new = {name for name in set(os.listdir(paths.require('SAVES'))) - before if not name.endswith('.tmp')}
         if new:
             time.sleep(3.0)
             channel.ask('sendkey 27')                 # the pause menu shuts again

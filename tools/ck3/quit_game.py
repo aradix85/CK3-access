@@ -119,6 +119,21 @@ def exit_save_since(moment: float) -> bool:
     return os.path.exists(path) and os.path.getmtime(path) >= moment
 
 
+def log_says_quit(moment: float) -> bool:
+    """The game's own log names a quit from inside the game, written since `moment`.
+
+    The second witness that it ended itself: on 24 November 2026 the exit save failed three times
+    out of three with "Failed writing file" while the log said the game had quit, and a save
+    through the menu still worked. The player is content with that (her decision, the same day),
+    so the log speaks where the exit save does not.
+    """
+    path = os.path.join(paths.require('DOCS'), 'logs', 'debug.log')
+    if not os.path.exists(path) or os.path.getmtime(path) < moment:
+        return False
+    with open(path, encoding='utf-8', errors='replace') as log:
+        return 'Quit: Quit from inside game' in log.read()
+
+
 def gone() -> bool:
     """Wait until the channel stops answering, which is the game being gone. It asks `alive`,
     because here the link disappearing is what success looks like."""
@@ -172,10 +187,14 @@ def quit_game(pid: int) -> None:
 
     if not gone():
         print('the game is still there after forty seconds. It is not killed; look at the screen.')
-    elif left_at is not None and not exit_save_since(left_at):
-        print('the game is gone, and it wrote no exit save')
+    elif left_at is None:
+        print('the game is gone, and it ended itself')
+    elif exit_save_since(left_at):
+        print('the game is gone, and it ended itself: its exit save is written')
+    elif log_says_quit(left_at):
+        print('the game is gone, and it ended itself: its log says so, and it wrote no exit save')
     else:
-        print('the game is gone, and it ended itself' + ('' if left_at is None else ': its exit save is written'))
+        print('the game is gone, and neither an exit save nor its log says it ended itself')
 
 
 if __name__ == '__main__':

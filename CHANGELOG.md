@@ -14,6 +14,7 @@ Outcomes, newest day first. No release yet.
 - The pairing report keeps per window how many named widgets land on their own name, so the next patch shows which windows it rebuilt.
 - Six new windows of 1.21 harvested with their keys on a state begun on 1.21: trade, its market, the route planner, a trade good, the build queue, the law change.
 - A new state waits after Start until the setup screen is gone, and takes a suffix for a name an older save carries.
+- Leaving the game, the tool also reads the game's log: an exit save that fails to write no longer counts as a game that did not end itself.
 
 ## 2026-11-23
 - The fixed bounds walked: an object is read to the size measured for its class, 0x3C0 bytes for the smallest on 1.21.0.3, where 0x420 stood for all.
