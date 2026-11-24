@@ -3,7 +3,7 @@
 Outcomes, newest day first. No release yet.
 
 ## 2026-11-24
-- `python -m tools.ck3.compare` lays the old harvest beside the new, a sentence per window: on 1.21 the holding was rebuilt, 59 names new, 21 gone.
+- `python -m tools.ck3.compare` opens every window of a state again along its old route and says what changed: of 81, 28 are the same and 44 grew.
 - Fourteen states begun on 1.21, a merchant republic and a played one among them; the patch round holds on the played one.
 - The reader's request for F1 ran to its end in the game: the same ten offsets in 148 seconds. A start that derives again says to press nothing meanwhile.
 - The build queue of 1.21 opens on the comma and is read unchanged; the key round knows that key now. Its order changes only by dragging.

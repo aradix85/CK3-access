@@ -1,9 +1,9 @@
 {
- "harvest": "2026-11-24 16:03",
- "without a player record": 95,
- "still to do for play": 15,
+ "harvest": "2026-11-24 18:08",
+ "without a player record": 103,
+ "still to do for play": 23,
  "still to do, by reason": {
-  "no player record yet": 15,
+  "no player record yet": 23,
   "a player record, but no key round yet": 0
  },
  "counts": {
@@ -11,9 +11,9 @@
   "multiplayer": 17,
   "decided": 36,
   "event": 0,
-  "interaction": 1,
-  "chain": 0,
-  "no window route on disk": 14
+  "interaction": 2,
+  "chain": 6,
+  "no window route on disk": 15
  },
  "groups": {
   "developer": {
@@ -344,13 +344,46 @@
   },
   "event": {},
   "interaction": {
+   "court_task_interaction_window": {
+    "file": "gui/interaction_court_task.gui",
+    "state": "did not open: hand character_window F1 CharacterWindow.SetTab('family') right:DefaultOnCharacterRightClick=character_interaction_menu_window InteractionItem.OnClick@Vassal>2 more InteractionItem.OnClick@Grant Court Position=court_task_interaction_window: stopped: InteractionItem.OnClick@Vassal>2 more in character_interaction_menu_window brought up nothing; nothing in character_interaction_menu_window can be pressed for it: no live widget carries the call"
+   },
    "trade_market_interaction_window": {
     "file": "gui/interaction_trade_market.gui",
     "state": "not harvested yet: the map has a route for it"
    }
   },
-  "chain": {},
+  "chain": {
+   "activity_guest_list": {
+    "file": "gui/window_activity_guest_list.gui",
+    "state": "did not open: harvest --chain activity_guest_list: chain routes tried 1: recorded 0, confirmed a window that already had a record 0, not reached 1"
+   },
+   "activity_intent_selection": {
+    "file": "gui/window_activity_intent_selection.gui",
+    "state": "did not open: harvest --chain activity_intent_selection: chain routes tried 1: recorded 0, confirmed a window that already had a record 0, not reached 1"
+   },
+   "activity_log": {
+    "file": "gui/window_activity_log.gui",
+    "state": "did not open: harvest --chain activity_log: chain routes tried 1: recorded 0, confirmed a window that already had a record 0, not reached 1"
+   },
+   "appoint_tax_collector_filter_window": {
+    "file": "gui/window_appoint_tax_collector.gui",
+    "state": "did not open: harvest --chain appoint_tax_collector_filter_window: chain routes tried 0: recorded 0, confirmed a window that already had a record 0, not reached 0"
+   },
+   "tax_slot_assigned_vassals_filter_window": {
+    "file": "gui/window_tax_slot_vassals.gui",
+    "state": "not harvested yet: the map has a route for it"
+   },
+   "tax_slot_unassigned_vassals_filter_window": {
+    "file": "gui/window_tax_slot_vassals.gui",
+    "state": "not harvested yet: the map has a route for it"
+   }
+  },
   "no window route on disk": {
+   "activity_window": {
+    "file": "gui/window_activity.gui",
+    "state": "did not open: did not open in 3 tries"
+   },
    "assembly_window": {
     "file": "gui/assembly_window.gui",
     "state": "not harvested yet: the map has a route for it"
@@ -418,6 +451,12 @@
   "decision_approval": [
    "decisiondetail_view"
   ],
+  "epidemics": [
+   "epidemics_window",
+   "holding_view",
+   "legends_window",
+   "window_situation_list"
+  ],
   "faith_conversion": [
    "faith_window"
   ],
@@ -431,6 +470,12 @@
   "language": [
    "culture_window",
    "royal_court_window"
+  ],
+  "legends": [
+   "epidemics_window",
+   "holding_view",
+   "legends_window",
+   "window_situation_list"
   ],
   "men_at_arms": [
    "holding_view"
@@ -475,9 +520,6 @@
   "domicile": [
    "domicile_window"
   ],
-  "epidemics": [
-   "epidemics_window"
-  ],
   "faith": [
    "faith_window"
   ],
@@ -495,9 +537,6 @@
   ],
   "law_change": [
    "law_change_window"
-  ],
-  "legends": [
-   "legends_window"
   ],
   "memories": [
    "memories_window"

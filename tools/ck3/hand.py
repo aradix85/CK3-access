@@ -227,9 +227,18 @@ def main() -> None:
     if not harvest.paused(game):
         raise SystemExit('the clock is running: pause the game first')
     windows: dict[str, windowmap.Route] = json.loads(pathlib.Path(harvest.MAP).read_text(encoding='utf-8'))['windows']
+    along(pid, game, windows, guimap.tables(), source, how, steps)
+
+
+def along(pid: int, game: windowmap.Game, windows: dict[str, windowmap.Route], tables: guimap.Tables,
+          source: str, how: str, steps: list[Step]) -> None:
+    """Walk one route and write its records, with the game, the map and the gui tables handed in.
+
+    A round of many routes loads them once (`compare.again`): started once per route, a round spent
+    a minute of every eighty seconds loading the derivation, the gui files, the localization and
+    the recogniser (measured 24 November 2026, 55 windows in 72 minutes)."""
     standing = how.startswith('standing:')
     back: windowmap.Route = {'click': True}
-    tables = guimap.tables()
     started = time.time()
     opened_source: widgettree.Nodes | None
     if standing:

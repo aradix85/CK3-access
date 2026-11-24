@@ -29,6 +29,8 @@ Without either, every record of the folder that came from a player route is comp
 record the harvest holds now, and the outcome goes to `reports\compare.json`. A window the map no
 longer knows is `gone`: 1.21 renamed the succession law window.
 """
+import contextlib
+import io
 import json
 import os
 import pathlib
@@ -38,7 +40,7 @@ import sys
 from collections.abc import Mapping
 
 from tools import paths, terminal
-from tools.ck3 import derive, hand, harvest, model
+from tools.ck3 import derive, guimap, hand, harvest, model, openers, windowmap
 
 REPORT = os.path.join(paths.REPORTS, 'compare.json')
 SHOWN = 6           # names a sentence spells out before it only counts
@@ -140,8 +142,10 @@ def again(folder: str, pid: int, wanted: list[str]) -> None:
     Two passes, so that a round that stopped goes on where it was: first every such record still in
     the harvest goes aside, then every record of this player in the folder whose window has no
     record yet is opened again. A window that was refused is tried again only when it is named.
-    **The chains go last**: one whose source this state cannot open costs four minutes, as the
-    guest list did without a feast (24 November 2026)."""
+    **Everything is loaded once per kind of route**: one round of `harvest` for the keys, one for
+    the clicks, the hand routes in this process, and one round for the chains, which go last
+    because one whose source this state cannot open costs minutes. Started once per window the
+    round spent a minute of every eighty seconds loading (24 November 2026)."""
     mapped = json.loads(pathlib.Path(harvest.MAP).read_text(encoding='utf-8'))['windows']
     player = model.player(pid)[1]
     build = derive.build_key()
@@ -171,26 +175,59 @@ def again(folder: str, pid: int, wanted: list[str]) -> None:
         arguments = commands(old, mapped)
         if arguments is not None:
             todo.append((arguments, window))
-    todo.sort(key=lambda pair: (pair[0][:2] == ['harvest', '--chain'], pair[1]))
-    for number, (arguments, window) in enumerate(todo, 1):
+    said: list[str] = []
+    for flag in ('', '--click'):
+        names = [window for arguments, window in todo if arguments[0] == 'harvest' and arguments[1:-1] == [flag][:bool(flag)]]
+        if names:
+            said += _round(['harvest', *[flag][:bool(flag)], *names], pid)
+    by_hand = [(arguments, window) for arguments, window in todo if arguments[0] == 'hand']
+    if by_hand:
+        game = windowmap.Game(pid)
+        openers.game_classes = game.window_classes
+        tables = guimap.tables()
+        for arguments, window in by_hand:
+            if os.path.exists(os.path.join(harvest.OUT, window + '.json')):
+                continue                    # an earlier route of this round brought it up already
+            steps = [(step, target) for step, _, target in (part.partition('=') for part in arguments[3:])]
+            heard = io.StringIO()
+            try:
+                with contextlib.redirect_stdout(heard):
+                    hand.along(pid, game, mapped, tables, arguments[1], arguments[2], steps)
+            except SystemExit as why:
+                heard.write(f'\nstopped: {why}')
+            lines = [line.strip() for line in heard.getvalue().splitlines() if line.strip()]
+            print(f"{window}: {lines[-1] if lines else 'it said nothing'}", flush=True)
+            said.append(f"{window}: {' / '.join(lines[-2:])}")
+            if any('did not come back' in line for line in lines):
+                raise SystemExit(f'stopping after {window}: the state did not come back')
+    chains = [name for arguments, _ in todo if arguments[:2] == ['harvest', '--chain'] for name in arguments[2:]]
+    if chains:
+        said += _round(['harvest', '--chain', *chains], pid)
+    # A route that was tried and wrote no record leaves its reason; one a stopped round never
+    # reached leaves nothing, and the next run takes it up.
+    for arguments, window in todo:
         target = os.path.join(harvest.OUT, window + '.json')
-        if os.path.exists(target):          # an earlier route of this round brought it up already
-            continue
-        done = subprocess.run([sys.executable, '-u', '-m', f'tools.ck3.{arguments[0]}', str(pid), *arguments[1:]],
-                              capture_output=True, text=True, encoding='utf-8', errors='replace',
-                              cwd=paths.PROJECT, check=False)
-        said = [line for line in (done.stdout + done.stderr).splitlines() if line.strip() and 'RapidOCR' not in line]
-        last = said[-1].strip() if said else 'it said nothing'
-        if not os.path.exists(target):
-            refusal = {'window': window, 'opened': False, 'state_returned': True,
-                       'reason': f"{' '.join(arguments)}: {last}"}
+        about = [line for line in said if any(name in line for name in (window, *arguments[2:]))]
+        if not os.path.exists(target) and about:
+            refusal = {'window': window, 'opened': False, 'state_returned': True, 'reason': about[-1]}
             pathlib.Path(target).write_text(json.dumps(refusal, ensure_ascii=False, indent=1), encoding='utf-8')
-        print(f'{number}/{len(todo)} {window}: {last}', flush=True)
-        if 'did not come back' in last:
-            raise SystemExit(f'stopping after {window}: the state did not come back')
     print(f'\nnot walked again, {len(left)}:')
     for line in left:
         print('  ' + line)
+
+
+def _round(arguments: list[str], pid: int) -> list[str]:
+    """One round of a tool in a process of its own, every window of its kind in it: its lines are
+    passed on as they come, and handed back."""
+    said = []
+    with subprocess.Popen([sys.executable, '-u', '-m', f'tools.ck3.{arguments[0]}', str(pid), *arguments[1:]],
+                          stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding='utf-8',
+                          errors='replace', cwd=paths.PROJECT) as running:
+        for line in running.stdout or []:
+            if line.strip() and 'RapidOCR' not in line:
+                print(line.rstrip(), flush=True)
+                said.append(line.strip())
+    return said
 
 
 def main() -> None:

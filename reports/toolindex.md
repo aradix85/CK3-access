@@ -256,6 +256,7 @@ returns a pair, passed on as one thing, costs a run.
 | `press_named(game, source, name)` | 2-tuple of 3-tuple | In `source`, standing open, click the first widget called `name` that a click reaches, and |
 | `walk(game, source, steps, route, tables, reached)` | value of NoneType | In `source`, standing open, press each step in turn, and hand every window a step brings up |
 | `main()` | nothing | - |
+| `along(pid, game, windows, tables, source, how, steps)` | nothing | Walk one route and write its records, with the game, the map and the gui tables handed in. |
 
 ## ck3\harvest.py
 *Phase 1 of the sweep: harvest one window at a time, raw.*
