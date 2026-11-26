@@ -1,9 +1,9 @@
 {
- "harvest": "2026-11-24 18:08",
- "without a player record": 103,
- "still to do for play": 23,
+ "harvest": "2026-11-26 16:18",
+ "without a player record": 114,
+ "still to do for play": 34,
  "still to do, by reason": {
-  "no player record yet": 23,
+  "no player record yet": 34,
   "a player record, but no key round yet": 0
  },
  "counts": {
@@ -11,9 +11,9 @@
   "multiplayer": 17,
   "decided": 36,
   "event": 0,
-  "interaction": 2,
-  "chain": 6,
-  "no window route on disk": 15
+  "interaction": 6,
+  "chain": 9,
+  "no window route on disk": 19
  },
  "groups": {
   "developer": {
@@ -344,9 +344,25 @@
   },
   "event": {},
   "interaction": {
+   "blackmail_interaction_window": {
+    "file": "gui/interaction_blackmail.gui",
+    "state": "did not open: blackmail_interaction_window: stopped: Character.OpenPlayerInteraction( 'blackmail_interaction' )@Is a Cannibal>Blackmail in intrigue_window brought up nothing; nothing in intrigue_window can be pressed for it: no live widget carries the call"
+   },
+   "call_ally_interaction_window": {
+    "file": "gui/interaction_call_ally.gui",
+    "state": "did not open: call_ally_interaction_window: stopped: DiplomacyItem.OnClick@Malcolm in character_window brought up nothing; nothing in character_window can be pressed for it: no live widget carries the call"
+   },
+   "character_ally_list_subview": {
+    "file": "gui/interaction_declare_war.gui",
+    "state": "did not open: character_ally_list_subview: stopped: InteractionItem.OnClick@Declare War in character_interaction_menu_window brought up nothing; nothing in character_interaction_menu_window can be pressed for it: switched off by the game"
+   },
    "court_task_interaction_window": {
     "file": "gui/interaction_court_task.gui",
-    "state": "did not open: hand character_window F1 CharacterWindow.SetTab('family') right:DefaultOnCharacterRightClick=character_interaction_menu_window InteractionItem.OnClick@Vassal>2 more InteractionItem.OnClick@Grant Court Position=court_task_interaction_window: stopped: InteractionItem.OnClick@Vassal>2 more in character_interaction_menu_window brought up nothing; nothing in character_interaction_menu_window can be pressed for it: no live widget carries the call"
+    "state": "did not open: court_task_interaction_window: in character_interaction_menu_window pressed None; opened nothing; nothing in character_interaction_menu_window can be pressed for it: no live widget carries the call / stopped: InteractionItem.OnClick@Vassal>2 more in character_interaction_menu_window brought up nothing; nothing in character_interaction_menu_window can be pressed for it: no live widget carries the call"
+   },
+   "declare_war_window": {
+    "file": "gui/interaction_declare_war.gui",
+    "state": "did not open: declare_war_window: stopped: InteractionItem.OnClick@Declare War in character_interaction_menu_window brought up nothing; nothing in character_interaction_menu_window can be pressed for it: switched off by the game"
    },
    "trade_market_interaction_window": {
     "file": "gui/interaction_trade_market.gui",
@@ -354,6 +370,10 @@
    }
   },
   "chain": {
+   "accolade_view": {
+    "file": "gui/window_accolade.gui",
+    "state": "did not open: accolade_view: stopped: 'accolade_view' in knight_view brought up nothing; nothing in knight_view can be pressed for it: no live widget carries the call"
+   },
    "activity_guest_list": {
     "file": "gui/window_activity_guest_list.gui",
     "state": "did not open: harvest --chain activity_guest_list: chain routes tried 1: recorded 0, confirmed a window that already had a record 0, not reached 1"
@@ -366,20 +386,32 @@
     "file": "gui/window_activity_log.gui",
     "state": "did not open: harvest --chain activity_log: chain routes tried 1: recorded 0, confirmed a window that already had a record 0, not reached 1"
    },
-   "appoint_tax_collector_filter_window": {
-    "file": "gui/window_appoint_tax_collector.gui",
-    "state": "did not open: harvest --chain appoint_tax_collector_filter_window: chain routes tried 0: recorded 0, confirmed a window that already had a record 0, not reached 0"
+   "challengers_subwindow": {
+    "file": "gui/window_faith.gui",
+    "state": "did not open: 1/3 challengers_subwindow              faith_window: nothing in faith_window can be pressed for it: hidden by the game"
    },
-   "tax_slot_assigned_vassals_filter_window": {
-    "file": "gui/window_tax_slot_vassals.gui",
-    "state": "not harvested yet: the map has a route for it"
+   "great_project": {
+    "file": "gui/window_great_project.gui",
+    "state": "did not open: great_project: stopped: goal:great_project in decisions_view brought up nothing; nothing in decisions_view can be pressed for it: no live widget carries the call"
    },
-   "tax_slot_unassigned_vassals_filter_window": {
-    "file": "gui/window_tax_slot_vassals.gui",
-    "state": "not harvested yet: the map has a route for it"
+   "legend_chronicle": {
+    "file": "gui/window_legend_chronicle.gui",
+    "state": "did not open: legend_chronicle: stopped: goal:legend_chronicle in legends_window brought up nothing; nothing in legends_window can be pressed for it: hidden by the game"
+   },
+   "legend_creation": {
+    "file": "gui/window_legend_creation.gui",
+    "state": "did not open: legend_creation: stopped: goal:legend_creation in legends_window brought up nothing; nothing in legends_window can be pressed for it: switched off by the game"
+   },
+   "window_exchange_hostages": {
+    "file": "gui/window_war_overview.gui",
+    "state": "did not open: window_exchange_hostages: stopped: HostageExchangeWindow.OpenDemandHostage in war_overview_window brought up nothing; nothing in war_overview_window can be pressed for it: hidden by the game"
    }
   },
   "no window route on disk": {
+   "accolade_attribute_selection_view": {
+    "file": "gui/window_accolade_attribute_selection.gui",
+    "state": "did not open: accolade_attribute_selection_view: stopped: 'accolade_view' in knight_view brought up nothing; nothing in knight_view can be pressed for it: no live widget carries the call"
+   },
    "activity_window": {
     "file": "gui/window_activity.gui",
     "state": "did not open: did not open in 3 tries"
@@ -400,6 +432,10 @@
     "file": "gui/window_decision_approval.gui",
     "state": "not harvested yet: the map has a route for it"
    },
+   "faith_conversion_window": {
+    "file": "gui/window_faith_conversion.gui",
+    "state": "did not open: faith_conversion_window: stopped: mainline_rite_tenets_window did not open along alt+R"
+   },
    "government_republic_window": {
     "file": "gui/window_government_republic.gui",
     "state": "not harvested yet: the map has a route for it"
@@ -407,6 +443,18 @@
    "guelph_ghibelline_catalysts_window": {
     "file": "gui/window_gdp_guelph_ghibelline.gui",
     "state": "not tried: declared as a type definition inside a types block, where GUI.CreateWidget does not look"
+   },
+   "potential_agent_window": {
+    "file": "gui/window_intrigue_potential_scheme_agent.gui",
+    "state": "did not open: potential_agent_window: stopped: SchemeItem.ShowPotentialAgents in intrigue_window brought up nothing; nothing in intrigue_window can be pressed for it: no live widget carries the call"
+   },
+   "potential_great_project_contributors_window": {
+    "file": "gui/window_potential_great_project_contributors.gui",
+    "state": "did not open: potential_great_project_contributors_window: stopped: goal:great_project in decisions_view brought up nothing; nothing in decisions_view can be pressed for it: no live widget carries the call"
+   },
+   "siege_window": {
+    "file": "gui/window_siege.gui",
+    "state": "did not open: siege_window: stopped: DefaultOnSiegeClick in holding_view brought up nothing; nothing in holding_view can be pressed for it: hidden by the game"
    },
    "situation_gg_history_window": {
     "file": "gui/window_gdp_guelph_ghibelline.gui",
@@ -435,10 +483,6 @@
    "window_guelph_ghibelline_participant_groups": {
     "file": "gui/window_gdp_guelph_ghibelline.gui",
     "state": "not tried: declared as a type definition inside a types block, where GUI.CreateWidget does not look"
-   },
-   "window_landless_ruler_filter": {
-    "file": "gui/window_landless_ruler_filter.gui",
-    "state": "not harvested yet: the map has a route for it"
    }
   }
  },
@@ -460,11 +504,7 @@
   "faith_conversion": [
    "faith_window"
   ],
-  "house_relation_history_window": [
-   "dynasty_house_view"
-  ],
   "knights": [
-   "accolade_view",
    "create_accolade_view"
   ],
   "language": [
@@ -531,6 +571,9 @@
   ],
   "house_aspiration_window": [
    "window_house_aspiration"
+  ],
+  "house_relation_history_window": [
+   "window_house_relation_history"
   ],
   "inventory": [
    "inventory_view"

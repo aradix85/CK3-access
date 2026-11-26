@@ -1,23 +1,23 @@
 {
- "caption of the widget above": 510,
- "data function": 5503,
- "data function through key": 1899,
- "data functions together": 7402,
- "harvest": "2026-11-17 14:57",
+ "caption of the widget above": 487,
+ "data function": 5502,
+ "data function through key": 1789,
+ "data functions together": 7291,
+ "harvest": "2026-11-26 16:18",
  "key not in localization": 3,
- "key quoting another key": 31,
- "named live widgets": 79760,
- "named live widgets on their own name": 77059,
- "no key on disk": 286,
- "no source on disk": 681,
+ "key quoting another key": 32,
+ "named live widgets": 76227,
+ "named live widgets on their own name": 71878,
+ "no key on disk": 273,
+ "no source on disk": 668,
  "no source on disk, per window": {
   "activity_list": 3,
-  "activity_locale_window": 6,
+  "activity_locale_window": 8,
   "character_filter_window": 39,
-  "character_lifestyle_window": 27,
   "court_window": 1,
   "decisions_view": 7,
   "diverge_culture_window": 8,
+  "domicile_window": 13,
   "dynasty_customization_window": 88,
   "dynasty_house_customization_window": 88,
   "dynasty_tree_view": 5,
@@ -25,65 +25,1024 @@
   "environment_debug_window": 8,
   "epidemics_window": 3,
   "flag_preview_window": 3,
-  "holding_tracks_view": 8,
+  "holding_type_selection_view": 1,
   "hybridize_culture_window": 8,
   "jomini_settings_window": 47,
   "ledger_window": 1,
-  "legend_creation": 1,
   "legends_window": 2,
-  "mainline_rite_tenets_window": 5,
+  "mainline_rite_tenets_window": 6,
   "map_debug_menu": 42,
-  "marriage_interaction_window": 8,
+  "marriage_interaction_window": 10,
   "rename_popup": 8,
   "rite_creation_window": 8,
   "ruler_designer": 96,
   "texture_node_window": 1,
   "title_customization_window": 96,
+  "tutorial_window": 1,
   "window_barbershop": 8,
-  "window_message_settings": 29,
-  "window_personal_beliefs": 2,
+  "window_message_settings": 31,
+  "window_personal_beliefs": 1,
   "window_silk_road": 18,
   "window_situation_list": 2,
+  "window_tgp_dynastic_cycle": 2,
   "window_treasury_budget_change": 4
  },
- "paired": 8935,
+ "on their own name, per window": {
+  "achievements_window": [
+   24,
+   24
+  ],
+  "activity_list": [
+   261,
+   261
+  ],
+  "activity_list_detail_host": [
+   31,
+   31
+  ],
+  "activity_list_detail_invite": [
+   96,
+   103
+  ],
+  "activity_locale_window": [
+   819,
+   943
+  ],
+  "activity_plan_doctrine_selection": [
+   164,
+   164
+  ],
+  "activity_plan_tenet_selection": [
+   188,
+   189
+  ],
+  "activity_planner": [
+   569,
+   590
+  ],
+  "add_tradition_window": [
+   151,
+   151
+  ],
+  "admin_vassal_detail_view": [
+   212,
+   230
+  ],
+  "ai_war_coordinator_watch_window": [
+   5,
+   5
+  ],
+  "ai_watch_window": [
+   84,
+   84
+  ],
+  "animation_test_window": [
+   7,
+   7
+  ],
+  "anonymous_letter_event": [
+   49,
+   51
+  ],
+  "appoint_court_character_filter_window": [
+   58,
+   65
+  ],
+  "appoint_court_position_view": [
+   312,
+   314
+  ],
+  "appoint_tax_collector_filter_window": [
+   54,
+   61
+  ],
+  "army_automation_options_view": [
+   24,
+   24
+  ],
+  "army_reorganization_window": [
+   434,
+   450
+  ],
+  "army_window": [
+   167,
+   167
+  ],
+  "artifact_details_view": [
+   305,
+   307
+  ],
+  "artifact_kill_list": [
+   108,
+   109
+  ],
+  "attach_to_army_window": [
+   58,
+   60
+  ],
+  "barter_window": [
+   48,
+   50
+  ],
+  "basic_confirmation_popup": [
+   21,
+   21
+  ],
+  "basic_image_info_popup": [
+   2,
+   2
+  ],
+  "basic_info_popup": [
+   18,
+   18
+  ],
+  "battle_summary": [
+   107,
+   109
+  ],
+  "big_event_window": [
+   553,
+   555
+  ],
+  "build_queue_window": [
+   22,
+   22
+  ],
+  "call_ally_interaction_notification_window": [
+   483,
+   537
+  ],
+  "cardinals_window": [
+   1120,
+   1120
+  ],
+  "catalysts_sub_window": [
+   37,
+   37
+  ],
+  "change_court_type_window": [
+   46,
+   46
+  ],
+  "change_ghw_target_window": [
+   2058,
+   2076
+  ],
+  "character_event": [
+   920,
+   922
+  ],
+  "character_filter_manage_presets_window": [
+   21,
+   21
+  ],
+  "character_filter_window": [
+   44,
+   106
+  ],
+  "character_finder_window": [
+   1468,
+   1489
+  ],
+  "character_focus_window": [
+   30,
+   30
+  ],
+  "character_interaction_confirmation_window": [
+   1202,
+   1204
+  ],
+  "character_interaction_menu_window": [
+   471,
+   471
+  ],
+  "character_interaction_notification_window": [
+   341,
+   377
+  ],
+  "character_lifestyle_window": [
+   61,
+   61
+  ],
+  "character_pool_watch_window": [
+   4,
+   4
+  ],
+  "character_window": [
+   1913,
+   1919
+  ],
+  "christian_church_phases_sub_window": [
+   23,
+   23
+  ],
+  "claimants_window": [
+   466,
+   467
+  ],
+  "coa_window": [
+   2,
+   16
+  ],
+  "combat_window": [
+   194,
+   206
+  ],
+  "component_library_window": [
+   710,
+   748
+  ],
+  "compound_node_window": [
+   7,
+   7
+  ],
+  "concubine_interaction_window": [
+   673,
+   726
+  ],
+  "confederation_window": [
+   396,
+   397
+  ],
+  "council_task_interaction_window": [
+   170,
+   184
+  ],
+  "council_window": [
+   4832,
+   4832
+  ],
+  "court_character_filter_window": [
+   72,
+   85
+  ],
+  "court_scene_editor_window": [
+   75,
+   76
+  ],
+  "court_window": [
+   644,
+   648
+  ],
+  "create_accolade_view": [
+   1414,
+   1414
+  ],
+  "create_ceremonial_claimant_faction_against_interaction_window": [
+   183,
+   203
+  ],
+  "create_claimant_faction_against_interaction_window": [
+   1865,
+   2088
+  ],
+  "culture_window": [
+   324,
+   324
+  ],
+  "curvesampler_node_window": [
+   7,
+   7
+  ],
+  "custom_message_window": [
+   30,
+   30
+  ],
+  "debug_tutorial_window": [
+   8,
+   8
+  ],
+  "decisiondetail_view": [
+   60,
+   60
+  ],
+  "decisions_view": [
+   190,
+   190
+  ],
+  "default_search_list_node": [
+   8,
+   8
+  ],
+  "designate_heir": [
+   563,
+   589
+  ],
+  "diarchy_window": [
+   464,
+   466
+  ],
+  "diverge_culture_window": [
+   127,
+   158
+  ],
+  "dlc_info": [
+   21,
+   21
+  ],
+  "domicile_window": [
+   40,
+   250
+  ],
+  "duel_event": [
+   198,
+   200
+  ],
+  "dynastic_cycle_participant_groups": [
+   560,
+   615
+  ],
+  "dynastic_cycle_phases_list_window": [
+   64,
+   64
+  ],
+  "dynasty_customization_window": [
+   237,
+   567
+  ],
+  "dynasty_house_customization_window": [
+   241,
+   571
+  ],
+  "dynasty_house_members_view": [
+   1404,
+   1406
+  ],
+  "dynasty_house_view": [
+   201,
+   201
+  ],
+  "dynasty_legacy_window": [
+   132,
+   132
+  ],
+  "dynasty_perk_confirmation_popup": [
+   22,
+   22
+  ],
+  "dynasty_tree_view": [
+   121,
+   574
+  ],
+  "emitter_node_window": [
+   7,
+   7
+  ],
+  "environment_debug_window": [
+   1,
+   1
+  ],
+  "epidemics_window": [
+   109,
+   109
+  ],
+  "factions_window": [
+   97,
+   97
+  ],
+  "faith_window": [
+   722,
+   722
+  ],
+  "filter_window": [
+   80,
+   97
+  ],
+  "find_title_view": [
+   19,
+   19
+  ],
+  "find_vassal_list_window": [
+   1125,
+   1127
+  ],
+  "flag_preview_window": [
+   46,
+   50
+  ],
+  "fullscreen_event": [
+   41,
+   43
+  ],
+  "game_rules": [
+   57,
+   57
+  ],
+  "game_rules_preset": [
+   20,
+   20
+  ],
+  "geographical_regions_window": [
+   52,
+   52
+  ],
+  "government_administration_window": [
+   688,
+   751
+  ],
+  "grant_titles_interaction_window": [
+   87,
+   87
+  ],
+  "graphinterface_node_window": [
+   7,
+   7
+  ],
+  "great_holy_war_window": [
+   230,
+   245
+  ],
+  "herd_leaderboard_window": [
+   405,
+   470
+  ],
+  "hired_troop_detail_view": [
+   157,
+   157
+  ],
+  "holding_tracks_view": [
+   1,
+   1
+  ],
+  "holding_type_selection_view": [
+   16,
+   23
+  ],
+  "holding_view": [
+   464,
+   464
+  ],
+  "holy_site_creation_window": [
+   96,
+   96
+  ],
+  "holy_site_window": [
+   290,
+   290
+  ],
+  "houses_list": [
+   25,
+   26
+  ],
+  "hybridize_culture_window": [
+   150,
+   181
+  ],
+  "ingame_load_ingame": [
+   321,
+   322
+  ],
+  "ingame_pausemenu": [
+   22,
+   22
+  ],
+  "ingame_resign_confirmation": [
+   22,
+   22
+  ],
+  "interfere_in_war_interaction_notification_window": [
+   341,
+   378
+  ],
+  "interfere_in_war_interaction_window": [
+   304,
+   334
+  ],
+  "intrigue_window": [
+   76,
+   76
+  ],
+  "inventory_view": [
+   205,
+   222
+  ],
+  "jomini_encyclopedia": [
+   3790,
+   3790
+  ],
+  "jomini_message": [
+   19,
+   19
+  ],
+  "jomini_settings_window": [
+   33,
+   153
+  ],
+  "kill_list": [
+   224,
+   226
+  ],
+  "knight_permissions": [
+   61,
+   63
+  ],
+  "knight_view": [
+   506,
+   506
+  ],
+  "languages_window": [
+   125,
+   125
+  ],
+  "law_change_window": [
+   76,
+   76
+  ],
+  "lease_out_baronies_window": [
+   57,
+   57
+  ],
+  "ledger_filter_window": [
+   187,
+   189
+  ],
+  "ledger_window": [
+   1657,
+   1662
+  ],
+  "legends_window": [
+   153,
+   153
+  ],
+  "letter_event": [
+   48,
+   50
+  ],
+  "levy_view": [
+   36,
+   36
+  ],
+  "lineage_window": [
+   38,
+   38
+  ],
+  "load_ruler_window": [
+   58,
+   58
+  ],
+  "mainline_rite_tenets_window": [
+   303,
+   304
+  ],
+  "mainmenu_mp_game_setup": [
+   95,
+   95
+  ],
+  "map_debug_menu": [
+   1,
+   1
+  ],
+  "marriage_interaction_notification_window": [
+   190,
+   208
+  ],
+  "marriage_interaction_window": [
+   1271,
+   1353
+  ],
+  "memories_window": [
+   30,
+   30
+  ],
+  "menatarms_view": [
+   76,
+   76
+  ],
+  "menatarmstype_view": [
+   99,
+   99
+  ],
+  "merit_pool_characters_window": [
+   419,
+   462
+  ],
+  "migration_involved_character_list_window": [
+   224,
+   232
+  ],
+  "military_view": [
+   169,
+   169
+  ],
+  "modify_vassal_contract_interaction_window": [
+   263,
+   263
+  ],
+  "my_realm_window": [
+   445,
+   446
+  ],
+  "organization_window": [
+   1376,
+   1432
+  ],
+  "plan_great_project": [
+   38,
+   38
+  ],
+  "potential_councillor_window": [
+   1151,
+   1153
+  ],
+  "potential_faction_member_window": [
+   1601,
+   1765
+  ],
+  "property_node_window": [
+   7,
+   7
+  ],
+  "raid_intent_selection_window": [
+   34,
+   34
+  ],
+  "raid_window": [
+   60,
+   62
+  ],
+  "rally_point_window": [
+   47,
+   47
+  ],
+  "reforge_artifact_window": [
+   74,
+   80
+  ],
+  "rename_popup": [
+   27,
+   57
+  ],
+  "replace_pillar_window": [
+   89,
+   89
+  ],
+  "revoke_titles_interaction_window": [
+   71,
+   75
+  ],
+  "rite_creation_window": [
+   284,
+   315
+  ],
+  "royal_court_window": [
+   558,
+   564
+  ],
+  "ruler_designer": [
+   502,
+   868
+  ],
+  "save_game_window": [
+   243,
+   243
+  ],
+  "save_ruler_window": [
+   30,
+   30
+  ],
+  "scheme_conclusion_event_no_header": [
+   118,
+   120
+  ],
+  "scheme_failed_event": [
+   118,
+   120
+  ],
+  "scheme_preparations_event": [
+   253,
+   261
+  ],
+  "scheme_successful_event": [
+   118,
+   120
+  ],
+  "search": [
+   4,
+   6
+  ],
+  "search_compact": [
+   4,
+   6
+  ],
+  "select_commander_window": [
+   945,
+   947
+  ],
+  "silk_road_catalysts_window": [
+   30,
+   30
+  ],
+  "situation_catalysts_history_window": [
+   49,
+   49
+  ],
+  "situation_catalysts_window": [
+   58,
+   58
+  ],
+  "situation_sub_region_window": [
+   24,
+   24
+  ],
+  "struggle_involvement_window": [
+   606,
+   608
+  ],
+  "struggle_window": [
+   133,
+   133
+  ],
+  "subordinates_filter_window": [
+   70,
+   82
+  ],
+  "succession_event_window": [
+   142,
+   142
+  ],
+  "succession_select_destiny_window": [
+   81,
+   84
+  ],
+  "task_contract": [
+   57,
+   58
+  ],
+  "tax_slot_assigned_vassals_filter_window": [
+   52,
+   58
+  ],
+  "tax_slot_unassigned_vassals_filter_window": [
+   52,
+   58
+  ],
+  "test_window": [
+   14,
+   14
+  ],
+  "texture_node_window": [
+   8,
+   8
+  ],
+  "title_add_law_window": [
+   30,
+   33
+  ],
+  "title_appointment": [
+   622,
+   672
+  ],
+  "title_customization_window": [
+   243,
+   603
+  ],
+  "title_election": [
+   747,
+   749
+  ],
+  "title_history_window": [
+   464,
+   464
+  ],
+  "title_view_window": [
+   1209,
+   1209
+  ],
+  "tournament_contest_information": [
+   146,
+   153
+  ],
+  "trade_market_window": [
+   297,
+   297
+  ],
+  "trade_route_planner_window": [
+   208,
+   210
+  ],
+  "trade_window": [
+   211,
+   214
+  ],
+  "transfer_vassal_interaction_window": [
+   2286,
+   2286
+  ],
+  "travel_entourage_list_window": [
+   790,
+   828
+  ],
+  "travel_option_selection_window": [
+   15,
+   35
+  ],
+  "travel_planner_window": [
+   212,
+   221
+  ],
+  "travel_route_edit_window": [
+   33,
+   33
+  ],
+  "tutorial_window": [
+   22,
+   23
+  ],
+  "unit_watch_window": [
+   3,
+   3
+  ],
+  "userdata_node_input_window": [
+   7,
+   7
+  ],
+  "userdata_node_output_window": [
+   7,
+   7
+  ],
+  "vassal_filter_window": [
+   70,
+   82
+  ],
+  "visit_settlement_window": [
+   139,
+   141
+  ],
+  "war_declared_overview": [
+   304,
+   340
+  ],
+  "war_overview_window": [
+   578,
+   580
+  ],
+  "war_results": [
+   140,
+   153
+  ],
+  "watch_window": [
+   16,
+   16
+  ],
+  "window_appoint_tax_collector": [
+   851,
+   853
+  ],
+  "window_barbershop": [
+   108,
+   139
+  ],
+  "window_court_visuals": [
+   16,
+   16
+  ],
+  "window_house_aspiration": [
+   78,
+   79
+  ],
+  "window_house_relation_history": [
+   158,
+   158
+  ],
+  "window_landless_ruler_filter": [
+   3,
+   3
+  ],
+  "window_manage_tax_slots": [
+   279,
+   279
+  ],
+  "window_message_popup": [
+   160,
+   172
+  ],
+  "window_message_settings": [
+   146,
+   161
+  ],
+  "window_migration": [
+   191,
+   197
+  ],
+  "window_move_domicile": [
+   6,
+   6
+  ],
+  "window_natural_disaster_participant_groups": [
+   304,
+   317
+  ],
+  "window_pam_christian_church": [
+   402,
+   403
+  ],
+  "window_personal_beliefs": [
+   286,
+   287
+  ],
+  "window_puppet_selection": [
+   143,
+   151
+  ],
+  "window_silk_road": [
+   222,
+   229
+  ],
+  "window_situation": [
+   64,
+   64
+  ],
+  "window_situation_debug": [
+   23,
+   23
+  ],
+  "window_situation_list": [
+   108,
+   108
+  ],
+  "window_situation_participation": [
+   179,
+   186
+  ],
+  "window_situation_participation_debug": [
+   179,
+   186
+  ],
+  "window_tax_slot_assign_vassal": [
+   141,
+   141
+  ],
+  "window_tax_slot_obligations": [
+   48,
+   48
+  ],
+  "window_tax_slot_vassals": [
+   254,
+   258
+  ],
+  "window_tgp_dynastic_cycle": [
+   243,
+   306
+  ],
+  "window_tgp_natural_disaster": [
+   138,
+   145
+  ],
+  "window_the_great_steppe": [
+   242,
+   293
+  ],
+  "window_title_selector": [
+   45,
+   45
+  ],
+  "window_trade_good": [
+   5,
+   5
+  ],
+  "window_treasury_budget_change": [
+   75,
+   81
+  ]
+ },
+ "paired": 8782,
  "placeholder, code fills it": 17,
- "plain key": 1072,
- "plain key agrees": 1058,
+ "plain key": 1042,
+ "plain key agrees": 1028,
  "plain key differs": 14,
  "sentence in the file": 124,
  "sentence in the file agrees": 124,
- "texts": 9616,
+ "texts": 9450,
  "top functions": {
-  "Add_int32": 38,
-  "ArmyComposition": 47,
+  "Add_int32": 32,
+  "ArmyComposition": 45,
   "ChangeGHWTargetWindowTitleItem": 172,
-  "Character": 800,
+  "Character": 672,
   "CharacterListFilter": 82,
-  "CharacterListItem": 108,
-  "Decision": 34,
-  "DoctrineType": 101,
+  "CharacterListItem": 79,
+  "DoctrineType": 115,
   "DynastyPerk": 60,
-  "EncyclopediaEntry": 2244,
+  "EncyclopediaEntry": 2498,
   "GeographicalRegion": 30,
   "RegimentReorgEntry": 32,
-  "SaveGameItem": 66,
-  "SelectLocalization": 117,
-  "Select_CString": 129,
+  "SaveGameItem": 80,
+  "SelectLocalization": 130,
+  "Select_CString": 128,
   "SituationCatalystEntry": 154,
   "SituationPhase": 77,
-  "TenetType": 73,
+  "SituationPhaseType": 29,
+  "TenetType": 64,
   "TravelOption": 40,
-  "War": 51
+  "War": 50
  },
- "unexplained": 984,
- "unexplained bare number in player windows": 413,
- "unexplained bare number in player windows, drawn": 5,
+ "unexplained": 958,
+ "unexplained bare number in player windows": 416,
+ "unexplained bare number in player windows, drawn": 8,
  "unexplained in developer windows": 71,
- "unexplained in player windows": 913,
- "unexplained in player windows, drawn": 446,
- "unexplained with data context": 759,
- "widgets in harvest": 165526,
- "windows": 253,
- "with data context": 7835
+ "unexplained in player windows": 887,
+ "unexplained in player windows, drawn": 463,
+ "unexplained with data context": 731,
+ "widgets in harvest": 161573,
+ "windows": 239,
+ "with data context": 7671
 }

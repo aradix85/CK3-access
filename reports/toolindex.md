@@ -176,6 +176,8 @@ returns a pair, passed on as one thing, costs a run.
 | `compared(folder)` | value | Window -> (kind, sentence), for every record of `folder` that came from a player route. |
 | `commands(old, mapped)` | value of list of NoneType | The arguments that open this record's window again along its own route, after |
 | `again(folder, pid, wanted)` | nothing | Set aside and open again every record of an older build that the player loaded now made. |
+| `mentions(line, name)` | value | Does this line of a round name this window or view, and not one whose name ends in it? |
+| `chain_rounds(chains, one_round)` | value | Every line the chain rounds said: what a round did not mention is asked again, while that |
 | `main()` | nothing | - |
 
 ## ck3\database.py

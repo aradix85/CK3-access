@@ -1865,11 +1865,36 @@
   "player": "Saru"
  },
  "ledger_window": {
-  "exe": "101125752-1792594002",
+  "exe": "114758264-1795099871",
   "keys": [
    [
     "ledger_tab_1",
     "ctrl+1",
+    "nothing"
+   ],
+   [
+    "ledger_subtab_1 on ledger_tab_1",
+    "alt+1",
+    "nothing"
+   ],
+   [
+    "ledger_subtab_2 on ledger_tab_1",
+    "alt+2",
+    "nothing"
+   ],
+   [
+    "ledger_subtab_3 on ledger_tab_1",
+    "alt+3",
+    "nothing"
+   ],
+   [
+    "sub_tab_4 on ledger_tab_1",
+    "alt+4",
+    "nothing"
+   ],
+   [
+    "sub_tab_5 on ledger_tab_1",
+    "alt+5",
     "nothing"
    ],
    [
@@ -1878,44 +1903,274 @@
     "changed the text: 58 lines, was 40"
    ],
    [
+    "ledger_subtab_1 on ledger_tab_2",
+    "alt+1",
+    "nothing"
+   ],
+   [
+    "ledger_subtab_2 on ledger_tab_2",
+    "alt+2",
+    "nothing"
+   ],
+   [
+    "ledger_subtab_3 on ledger_tab_2",
+    "alt+3",
+    "nothing"
+   ],
+   [
+    "sub_tab_4 on ledger_tab_2",
+    "alt+4",
+    "nothing"
+   ],
+   [
+    "sub_tab_5 on ledger_tab_2",
+    "alt+5",
+    "nothing"
+   ],
+   [
     "ledger_tab_3",
     "ctrl+3",
-    "changed the text: 101 lines, was 58"
+    "changed the text: 85 lines, was 58"
+   ],
+   [
+    "ledger_subtab_1 on ledger_tab_3",
+    "alt+1",
+    "nothing"
+   ],
+   [
+    "ledger_subtab_2 on ledger_tab_3",
+    "alt+2",
+    "changed the text: 87 lines, was 85"
+   ],
+   [
+    "ledger_subtab_3 on ledger_tab_3",
+    "alt+3",
+    "changed the text: 111 lines, was 87"
+   ],
+   [
+    "sub_tab_4 on ledger_tab_3",
+    "alt+4",
+    "nothing"
+   ],
+   [
+    "sub_tab_5 on ledger_tab_3",
+    "alt+5",
+    "nothing"
    ],
    [
     "ledger_tab_4",
     "ctrl+4",
-    "changed the text: 129 lines, was 101"
+    "changed the text: 129 lines, was 111"
+   ],
+   [
+    "ledger_subtab_1 on ledger_tab_4",
+    "alt+1",
+    "nothing"
+   ],
+   [
+    "ledger_subtab_2 on ledger_tab_4",
+    "alt+2",
+    "changed the text: 139 lines, was 129"
+   ],
+   [
+    "ledger_subtab_3 on ledger_tab_4",
+    "alt+3",
+    "nothing"
+   ],
+   [
+    "sub_tab_4 on ledger_tab_4",
+    "alt+4",
+    "nothing"
+   ],
+   [
+    "sub_tab_5 on ledger_tab_4",
+    "alt+5",
+    "nothing"
    ],
    [
     "ledger_tab_5",
     "ctrl+5",
-    "changed the text: 137 lines, was 129"
+    "changed the text: 72 lines, was 139"
+   ],
+   [
+    "ledger_subtab_1 on ledger_tab_5",
+    "alt+1",
+    "nothing"
+   ],
+   [
+    "ledger_subtab_2 on ledger_tab_5",
+    "alt+2",
+    "changed the text: 72 lines, was 72"
+   ],
+   [
+    "ledger_subtab_3 on ledger_tab_5",
+    "alt+3",
+    "changed the text: 72 lines, was 72"
+   ],
+   [
+    "sub_tab_4 on ledger_tab_5",
+    "alt+4",
+    "nothing"
+   ],
+   [
+    "sub_tab_5 on ledger_tab_5",
+    "alt+5",
+    "nothing"
    ],
    [
     "ledger_tab_6",
     "ctrl+6",
-    "changed the text: 160 lines, was 137"
+    "changed the text: 150 lines, was 72"
+   ],
+   [
+    "ledger_subtab_1 on ledger_tab_6",
+    "alt+1",
+    "nothing"
+   ],
+   [
+    "ledger_subtab_2 on ledger_tab_6",
+    "alt+2",
+    "nothing"
+   ],
+   [
+    "ledger_subtab_3 on ledger_tab_6",
+    "alt+3",
+    "nothing"
+   ],
+   [
+    "sub_tab_4 on ledger_tab_6",
+    "alt+4",
+    "nothing"
+   ],
+   [
+    "sub_tab_5 on ledger_tab_6",
+    "alt+5",
+    "nothing"
    ],
    [
     "ledger_tab_7",
     "ctrl+7",
-    "changed the text: 150 lines, was 160"
+    "changed the text: 141 lines, was 150"
+   ],
+   [
+    "ledger_subtab_1 on ledger_tab_7",
+    "alt+1",
+    "nothing"
+   ],
+   [
+    "ledger_subtab_2 on ledger_tab_7",
+    "alt+2",
+    "changed the text: 141 lines, was 141"
+   ],
+   [
+    "ledger_subtab_3 on ledger_tab_7",
+    "alt+3",
+    "changed the text: 141 lines, was 141"
+   ],
+   [
+    "sub_tab_4 on ledger_tab_7",
+    "alt+4",
+    "changed the text: 57 lines, was 141"
+   ],
+   [
+    "sub_tab_5 on ledger_tab_7",
+    "alt+5",
+    "nothing"
    ],
    [
     "ledger_tab_8",
     "ctrl+8",
-    "changed the text: 146 lines, was 150"
+    "changed the text: 145 lines, was 57"
+   ],
+   [
+    "ledger_subtab_1 on ledger_tab_8",
+    "alt+1",
+    "changed the text: 124 lines, was 145"
+   ],
+   [
+    "ledger_subtab_2 on ledger_tab_8",
+    "alt+2",
+    "changed the text: 145 lines, was 124"
+   ],
+   [
+    "ledger_subtab_3 on ledger_tab_8",
+    "alt+3",
+    "changed the text: 122 lines, was 145"
+   ],
+   [
+    "sub_tab_4 on ledger_tab_8",
+    "alt+4",
+    "nothing"
+   ],
+   [
+    "sub_tab_5 on ledger_tab_8",
+    "alt+5",
+    "nothing"
    ],
    [
     "ledger_tab_9",
     "ctrl+9",
-    "changed the text: 119 lines, was 146"
+    "changed the text: 118 lines, was 122"
+   ],
+   [
+    "ledger_subtab_1 on ledger_tab_9",
+    "alt+1",
+    "nothing"
+   ],
+   [
+    "ledger_subtab_2 on ledger_tab_9",
+    "alt+2",
+    "nothing"
+   ],
+   [
+    "ledger_subtab_3 on ledger_tab_9",
+    "alt+3",
+    "nothing"
+   ],
+   [
+    "sub_tab_4 on ledger_tab_9",
+    "alt+4",
+    "nothing"
+   ],
+   [
+    "sub_tab_5 on ledger_tab_9",
+    "alt+5",
+    "nothing"
    ],
    [
     "ledger_tab_10",
     "ctrl+0",
-    "changed the text: 67 lines, was 119"
+    "changed the text: 75 lines, was 118"
+   ],
+   [
+    "ledger_subtab_1 on ledger_tab_10",
+    "alt+1",
+    "nothing"
+   ],
+   [
+    "ledger_subtab_2 on ledger_tab_10",
+    "alt+2",
+    "nothing"
+   ],
+   [
+    "ledger_subtab_3 on ledger_tab_10",
+    "alt+3",
+    "nothing"
+   ],
+   [
+    "sub_tab_4 on ledger_tab_10",
+    "alt+4",
+    "nothing"
+   ],
+   [
+    "sub_tab_5 on ledger_tab_10",
+    "alt+5",
+    "nothing"
+   ],
+   [
+    "ledger_tab_1 again",
+    "ctrl+1",
+    "changed the text: 40 lines, was 75"
    ],
    [
     "close_window",
@@ -1923,72 +2178,27 @@
     "shut the window"
    ],
    [
-    "map_mode_9",
+    "map_mode_dejure_duchies",
     "shift+Q",
     "nothing"
    ],
    [
-    "map_mode_10",
+    "map_mode_dejure_kingdoms",
     "shift+W",
     "nothing"
    ],
    [
-    "map_mode_11",
+    "map_mode_dejure_empires",
     "shift+E",
     "nothing"
    ],
    [
     "ledger_filters",
     "f",
-    "nothing"
-   ],
-   [
-    "ledger_subtab_1",
-    "alt+1",
-    "nothing"
-   ],
-   [
-    "ledger_subtab_2",
-    "alt+2",
-    "nothing"
-   ],
-   [
-    "ledger_subtab_3",
-    "alt+3",
-    "nothing"
-   ],
-   [
-    "sub_tab_1",
-    "alt+1",
-    "nothing"
-   ],
-   [
-    "sub_tab_2",
-    "alt+2",
-    "nothing"
-   ],
-   [
-    "sub_tab_3",
-    "alt+3",
-    "nothing"
-   ],
-   [
-    "sub_tab_4",
-    "alt+4",
-    "nothing"
-   ],
-   [
-    "sub_tab_5",
-    "alt+5",
-    "nothing"
-   ],
-   [
-    "ledger_subtab_4",
-    "alt+4",
-    "nothing"
+    "opened ledger_filter_window"
    ]
   ],
-  "measured": "2026-10-22 11:58",
+  "measured": "2026-11-26 15:54",
   "player": "Harold"
  },
  "legend_chronicle": {
@@ -2540,13 +2750,8 @@
   "player": "SU_rI_"
  },
  "royal_court_window": {
-  "exe": "101125752-1792594002",
+  "exe": "114758264-1795099871",
   "keys": [
-   [
-    "close_window",
-    "ESCAPE",
-    "shut the window"
-   ],
    [
     "tab_1",
     "ctrl+1",
@@ -2558,23 +2763,13 @@
     "changed the text: 46 lines, was 17"
    ],
    [
+    "tab_1 again",
+    "ctrl+1",
+    "changed the text: 17 lines, was 46"
+   ],
+   [
     "all_court_artifacts",
     "alt+a",
-    "nothing"
-   ],
-   [
-    "sub_tab_1",
-    "alt+1",
-    "nothing"
-   ],
-   [
-    "sub_tab_2",
-    "alt+2",
-    "nothing"
-   ],
-   [
-    "sub_tab_3",
-    "alt+3",
     "nothing"
    ],
    [
@@ -2583,7 +2778,7 @@
     "nothing"
    ]
   ],
-  "measured": "2026-10-22 11:58",
+  "measured": "2026-11-26 15:54",
   "player": "Harold"
  },
  "scheme_conclusion_event_no_header": {
@@ -2722,7 +2917,7 @@
   "player": "SU_rI_"
  },
  "struggle_window": {
-  "exe": "101125752-1792594002",
+  "exe": "114758264-1795099871",
   "keys": [
    [
     "go_back",
@@ -2750,38 +2945,63 @@
     "changed the text: 16 lines, was 75; again: back"
    ],
    [
-    "map_mode_1",
+    "map_mode_realms",
     "E",
     "nothing"
    ],
    [
-    "map_mode_3",
+    "map_mode_religions",
     "R",
     "nothing"
    ],
    [
-    "map_mode_2",
+    "map_mode_cultures",
     "T",
     "nothing"
    ],
    [
-    "map_mode_9",
+    "map_mode_dejure_duchies",
     "shift+Q",
     "nothing"
    ],
    [
-    "map_mode_10",
+    "map_mode_dejure_kingdoms",
     "shift+W",
     "nothing"
    ],
    [
-    "map_mode_11",
+    "map_mode_dejure_empires",
     "shift+E",
     "nothing"
    ],
    [
-    "map_mode_19",
+    "map_mode_economy_buildings",
+    "ctrl+S",
+    "nothing"
+   ],
+   [
+    "map_mode_county_prosperity",
+    "ctrl+P",
+    "nothing"
+   ],
+   [
+    "map_mode_county_control",
+    "ctrl+F",
+    "nothing"
+   ],
+   [
+    "map_mode_popular_opinion",
+    "ctrl+O",
+    "nothing"
+   ],
+   [
+    "map_mode_migration_counties",
     "ctrl+C",
+    "nothing"
+   ],
+   [
+    "map_mode_dejure_counties",
+    "ctrl+A",
     "nothing"
    ],
    [
@@ -2790,18 +3010,13 @@
     "nothing"
    ],
    [
-    "map_mode_12",
+    "map_mode_simple_terrain",
     "ctrl+G",
     "nothing"
    ],
    [
-    "map_mode_8",
-    "ctrl+P",
-    "nothing"
-   ],
-   [
-    "map_mode_18",
-    "ctrl+R",
+    "map_mode_settlement_size",
+    "ctrl+shift+S",
     "nothing"
    ],
    [
@@ -2810,57 +3025,57 @@
     "nothing"
    ],
    [
-    "map_mode_16",
-    "ctrl+E",
+    "map_mode_diplomatic_relations",
+    "shift+F",
     "nothing"
    ],
    [
-    "map_mode_17",
-    "ctrl+L",
-    "nothing"
-   ],
-   [
-    "map_mode_6",
-    "ctrl+A",
-    "nothing"
-   ],
-   [
-    "map_mode_20",
-    "shift+H",
-    "nothing"
-   ],
-   [
-    "map_mode_5",
-    "ctrl+Q",
-    "nothing"
-   ],
-   [
-    "map_mode_7",
+    "map_mode_court_languages",
     "ctrl+W",
     "nothing"
    ],
    [
-    "map_mode_13",
+    "map_mode_government",
+    "ctrl+Q",
+    "nothing"
+   ],
+   [
+    "map_mode_dejure_hegemonies",
+    "shift+H",
+    "nothing"
+   ],
+   [
+    "map_mode_landless_rulers",
+    "ctrl+R",
+    "opened window_landless_ruler_filter"
+   ],
+   [
+    "map_mode_epidemics",
+    "ctrl+E",
+    "nothing"
+   ],
+   [
+    "map_mode_legends",
+    "ctrl+L",
+    "nothing"
+   ],
+   [
+    "map_mode_players",
+    "ctrl+shift+P",
+    "nothing"
+   ],
+   [
+    "map_mode_trade_good_top_production",
+    "ctrl+shift+T",
+    "nothing"
+   ],
+   [
+    "map_mode_trade_markets",
     "ctrl+D",
-    "nothing"
-   ],
-   [
-    "map_mode_15",
-    "ctrl+F",
-    "nothing"
-   ],
-   [
-    "map_mode_14",
-    "ctrl+S",
-    "nothing"
-   ],
-   [
-    "map_mode_diplomatic_relations",
-    "shift+F",
     "nothing"
    ]
   ],
-  "measured": "2026-10-22 13:50",
+  "measured": "2026-11-26 16:16",
   "player": "SU_rI_"
  },
  "succession_event_window": {
@@ -3314,6 +3529,12 @@
   "measured": "2026-11-16 13:04",
   "player": "Harold"
  },
+ "window_landless_ruler_filter": {
+  "exe": "114758264-1795099871",
+  "keys": [],
+  "measured": "2026-11-26 16:21",
+  "player": "SU_rI_"
+ },
  "window_manage_tax_slots": {
   "exe": "101125752-1792594002",
   "keys": [
@@ -3469,13 +3690,8 @@
   "player": "Harold"
  },
  "window_personal_beliefs": {
-  "exe": "101125752-1792594002",
+  "exe": "114758264-1795099871",
   "keys": [
-   [
-    "close_window",
-    "ESCAPE",
-    "shut the window"
-   ],
    [
     "tab_1",
     "ctrl+1",
@@ -3484,10 +3700,15 @@
    [
     "tab_2",
     "ctrl+2",
-    "changed the text: 222 lines, was 178"
+    "changed the text: 254 lines, was 178"
+   ],
+   [
+    "tab_1 again",
+    "ctrl+1",
+    "changed the text: 178 lines, was 254"
    ]
   ],
-  "measured": "2026-10-22 11:58",
+  "measured": "2026-11-26 15:54",
   "player": "Harold"
  },
  "window_puppet_selection": {

@@ -34,10 +34,11 @@ import io
 import json
 import os
 import pathlib
+import re
 import shutil
 import subprocess
 import sys
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 
 from tools import paths, terminal
 from tools.ck3 import derive, guimap, hand, harvest, model, openers, windowmap
@@ -201,19 +202,45 @@ def again(folder: str, pid: int, wanted: list[str]) -> None:
             if any('did not come back' in line for line in lines):
                 raise SystemExit(f'stopping after {window}: the state did not come back')
     chains = [name for arguments, _ in todo if arguments[:2] == ['harvest', '--chain'] for name in arguments[2:]]
-    if chains:
-        said += _round(['harvest', '--chain', *chains], pid)
+    said += chain_rounds(chains, lambda asked: _round(['harvest', '--chain', *asked], pid))
     # A route that was tried and wrote no record leaves its reason; one a stopped round never
     # reached leaves nothing, and the next run takes it up.
     for arguments, window in todo:
         target = os.path.join(harvest.OUT, window + '.json')
-        about = [line for line in said if any(name in line for name in (window, *arguments[2:]))]
+        # A hand route's own line starts with its window; another route's line can name it on the way.
+        about = ([line for line in said if line.startswith(f'{window}: ')]
+                 or [line for line in said if any(mentions(line, name) for name in (window, *arguments[2:]))])
         if not os.path.exists(target) and about:
             refusal = {'window': window, 'opened': False, 'state_returned': True, 'reason': about[-1]}
             pathlib.Path(target).write_text(json.dumps(refusal, ensure_ascii=False, indent=1), encoding='utf-8')
     print(f'\nnot walked again, {len(left)}:')
     for line in left:
         print('  ' + line)
+
+
+def mentions(line: str, name: str) -> bool:
+    """Does this line of a round name this window or view, and not one whose name ends in it?
+    `accolade_view` got the reason of `create_accolade_view`, which had opened (26 November 2026)."""
+    return re.search(rf'(?<!\w){re.escape(name)}(?!\w)', line) is not None
+
+
+def chain_rounds(chains: list[str], one_round: Callable[[list[str]], list[str]]) -> list[str]:
+    """Every line the chain rounds said: what a round did not mention is asked again, while that
+    list shrinks.
+
+    A chain two steps deep finds its source by the view in that source's record, and the source's
+    record went aside with the rest, so a round has no route for it until a round before wrote the
+    source anew: on Ghur the three filters of the tax windows were never tried (24 November 2026).
+    """
+    said: list[str] = []
+    while chains:
+        heard = one_round(chains)
+        said += heard
+        silent = [name for name in chains if not any(mentions(line, name) for line in heard)]
+        if len(silent) == len(chains):
+            break
+        chains = silent
+    return said
 
 
 def _round(arguments: list[str], pid: int) -> list[str]:

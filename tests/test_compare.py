@@ -52,6 +52,26 @@ def test_a_route_is_walked_again_on_the_key_of_this_build() -> None:
     assert compare.commands({'window': 'army_window', 'route': 'hand: standing: a click on the map'}, mapped) is None
 
 
+def test_a_chain_behind_a_chain_is_asked_again_once_its_source_is_written() -> None:
+    """The first round has no route for the filter and says nothing of it; the second has."""
+    asked: list[list[str]] = []
+
+    def one_round(names: list[str]) -> list[str]:
+        asked.append(names)
+        return {1: ['1/1 view tax_slot_vassals   recorded'], 2: ['1/1 vassals_filter_window   recorded']}.get(len(asked), [])
+
+    said = compare.chain_rounds(['tax_slot_vassals', 'vassals_filter_window', 'no_route_window'], one_round)
+    assert asked == [['tax_slot_vassals', 'vassals_filter_window', 'no_route_window'],
+                     ['vassals_filter_window', 'no_route_window'], ['no_route_window']]
+    assert len(said) == 2
+
+
+def test_a_line_about_a_longer_name_is_not_about_this_window() -> None:
+    assert compare.mentions('accolade_view: stopped: nothing in knight_view can be pressed', 'accolade_view')
+    assert not compare.mentions('create_accolade_view: in knight_view pressed PushButton', 'accolade_view')
+    assert compare.mentions('  2/2 view tax_slot_vassals     window_tax_slot_vassals: 680 widgets', 'tax_slot_vassals')
+
+
 def test_a_route_that_no_longer_opens_it_is_lost() -> None:
     old = record('1.20', ['header'])
     refused = {'window': 'my_realm_window', 'opened': False, 'exe': '1.21', 'reason': 'did not open in 3 tries'}
