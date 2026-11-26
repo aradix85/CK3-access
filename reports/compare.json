@@ -1,9 +1,9 @@
 {
  "baseline": "harvest-2026-11-24-1.20.1.2",
  "counts": {
-  "lost": 20,
-  "same": 48,
-  "changed": 63,
+  "lost": 26,
+  "same": 59,
+  "changed": 73,
   "gone": 1
  },
  "windows": {
@@ -42,6 +42,10 @@
   "add_tradition_window": {
    "kind": "same",
    "says": "the same 33 names"
+  },
+  "admin_vassal_detail_view": {
+   "kind": "changed",
+   "says": "5 names new (ghibelline_leader, ghibelline_member, guelph_leader, guelph_member, merchant_top_decor), 99 kept"
   },
   "anonymous_letter_event": {
    "kind": "same",
@@ -143,13 +147,25 @@
    "kind": "changed",
    "says": "5 names new (ghibelline_leader, ghibelline_member, guelph_leader, guelph_member, merchant_top_decor), 85 kept"
   },
+  "concubine_interaction_window": {
+   "kind": "lost",
+   "says": "the route no longer opens it: concubine_interaction_window: in character_interaction_menu_window pressed None; opened nothing; nothing in character_interaction_menu_window can be pressed for it: switched off by the game / stopped: InteractionItem.OnClick@Find Concubine in character_interaction_menu_window brought up nothing; nothing in character_interaction_menu_window can be pressed for it: switched off by the game"
+  },
   "confederation_window": {
    "kind": "changed",
    "says": "18 names new (confederation_Type, confederation_members_tab, confederation_monopolies, container_guelph_ghibelline_group_icons, found_the_hanseatic_league_decision, gdp_set_league_focus_decision and 12 more), 1 gone (your_header), 111 kept"
   },
+  "council_task_interaction_window": {
+   "kind": "lost",
+   "says": "the route no longer opens it: council_task_interaction_window: in character_interaction_menu_window pressed None; opened nothing; nothing in character_interaction_menu_window can be pressed for it: switched off by the game / stopped: InteractionItem.OnClick@Ask for Council Position in character_interaction_menu_window brought up nothing; nothing in character_interaction_menu_window can be pressed for it: switched off by the game"
+  },
   "council_window": {
    "kind": "changed",
    "says": "6 names new (container_guelph_ghibelline_group_icons, ghibelline_leader, ghibelline_member, guelph_leader, guelph_member, merchant_top_decor), 98 kept"
+  },
+  "court_character_filter_window": {
+   "kind": "same",
+   "says": "the same 28 names"
   },
   "court_scene_editor_window": {
    "kind": "same",
@@ -166,6 +182,10 @@
   "create_accolade_view": {
    "kind": "changed",
    "says": "6 names new (container_guelph_ghibelline_group_icons, ghibelline_leader, ghibelline_member, guelph_leader, guelph_member, merchant_top_decor), 78 kept"
+  },
+  "create_claimant_faction_against_interaction_window": {
+   "kind": "changed",
+   "says": "6 names new (container_guelph_ghibelline_group_icons, ghibelline_leader, ghibelline_member, guelph_leader, guelph_member, merchant_top_decor), 91 kept"
   },
   "culture_window": {
    "kind": "changed",
@@ -187,6 +207,10 @@
    "kind": "lost",
    "says": "the route no longer opens it: declare_war_window: stopped: InteractionItem.OnClick@Declare War in character_interaction_menu_window brought up nothing; nothing in character_interaction_menu_window can be pressed for it: switched off by the game"
   },
+  "designate_heir": {
+   "kind": "changed",
+   "says": "5 names new (ghibelline_leader, ghibelline_member, guelph_leader, guelph_member, merchant_top_decor), 114 kept"
+  },
   "diarchy_window": {
    "kind": "changed",
    "says": "6 names new (container_guelph_ghibelline_group_icons, ghibelline_leader, ghibelline_member, guelph_leader, guelph_member, merchant_top_decor), 125 kept"
@@ -195,9 +219,21 @@
    "kind": "same",
    "says": "the same 78 names"
   },
+  "domicile_window": {
+   "kind": "changed",
+   "says": "29 names new (artifact_icon, artifacts, bookmark_artifacts, bookmark_debtors, building_banner_asia_merchant, building_banner_merchant and 23 more), 1 gone (domicile_buildings), 73 kept"
+  },
   "duel_event": {
    "kind": "changed",
    "says": "7 names new (container_guelph_ghibelline_group_icons, custom_widgets_container, ghibelline_leader, ghibelline_member, guelph_leader, guelph_member and 1 more), 110 kept"
+  },
+  "dynastic_cycle_participant_groups": {
+   "kind": "changed",
+   "says": "5 names new (ghibelline_leader, ghibelline_member, guelph_leader, guelph_member, merchant_top_decor), 80 kept"
+  },
+  "dynastic_cycle_phases_list_window": {
+   "kind": "same",
+   "says": "the same 20 names"
   },
   "dynasty_house_members_view": {
    "kind": "changed",
@@ -255,6 +291,10 @@
    "kind": "same",
    "says": "the same 19 names"
   },
+  "government_administration_window": {
+   "kind": "changed",
+   "says": "6 names new (container_guelph_ghibelline_group_icons, ghibelline_leader, ghibelline_member, guelph_leader, guelph_member, merchant_top_decor), 117 kept"
+  },
   "grant_titles_interaction_window": {
    "kind": "changed",
    "says": "2 names new (effect_descriptions, market_capital), 49 kept"
@@ -262,6 +302,10 @@
   "great_project": {
    "kind": "lost",
    "says": "the route no longer opens it: great_project: stopped: goal:great_project in decisions_view brought up nothing; nothing in decisions_view can be pressed for it: no live widget carries the call"
+  },
+  "herd_leaderboard_window": {
+   "kind": "changed",
+   "says": "5 names new (ghibelline_leader, ghibelline_member, guelph_leader, guelph_member, merchant_top_decor), 78 kept"
   },
   "hired_troop_detail_view": {
    "kind": "changed",
@@ -327,6 +371,10 @@
    "kind": "changed",
    "says": "6 names new (container_guelph_ghibelline_group_icons, ghibelline_leader, ghibelline_member, guelph_leader, guelph_member, merchant_top_decor), 80 kept"
   },
+  "ledger_filter_window": {
+   "kind": "same",
+   "says": "the same 19 names"
+  },
   "ledger_window": {
    "kind": "changed",
    "says": "4 names new (average_prosperity, merchant_top_decor, prosperity, prosperity_growth), 4 gone (average_development, buildings, development, development_growth), 128 kept"
@@ -371,6 +419,10 @@
    "kind": "same",
    "says": "the same 43 names"
   },
+  "merit_pool_characters_window": {
+   "kind": "changed",
+   "says": "5 names new (ghibelline_leader, ghibelline_member, guelph_leader, guelph_member, merchant_top_decor), 83 kept"
+  },
   "military_view": {
    "kind": "same",
    "says": "the same 78 names"
@@ -395,9 +447,17 @@
    "kind": "changed",
    "says": "6 names new (container_guelph_ghibelline_group_icons, ghibelline_leader, ghibelline_member, guelph_leader, guelph_member, merchant_top_decor), 126 kept"
   },
+  "potential_faction_member_window": {
+   "kind": "lost",
+   "says": "the route no longer opens it: potential_faction_member_window: in factions_window pressed None; opened nothing; nothing in factions_window can be pressed for it: no live widget carries the call / stopped: FactionItem.ShowPotentialMembers in factions_window brought up nothing; nothing in factions_window can be pressed for it: no live widget carries the call"
+  },
   "potential_great_project_contributors_window": {
    "kind": "lost",
    "says": "the route no longer opens it: potential_great_project_contributors_window: stopped: goal:great_project in decisions_view brought up nothing; nothing in decisions_view can be pressed for it: no live widget carries the call"
+  },
+  "raid_intent_selection_window": {
+   "kind": "same",
+   "says": "the same 20 names"
   },
   "rally_point_window": {
    "kind": "same",
@@ -410,6 +470,10 @@
   "replace_pillar_window": {
    "kind": "same",
    "says": "the same 29 names"
+  },
+  "revoke_titles_interaction_window": {
+   "kind": "lost",
+   "says": "the route no longer opens it: revoke_titles_interaction_window: in character_window pressed None; opened nothing; a right click on each of the 12 in character_window that carry it brought up nothing that shows Philippos / stopped: right:DefaultOnCharacterRightClick@Philippos in character_window brought up nothing; a right click on each of the 12 in character_window that carry it brought up nothing that shows Philippos"
   },
   "rite_creation_window": {
    "kind": "changed",
@@ -447,6 +511,18 @@
    "kind": "lost",
    "says": "the route no longer opens it: siege_window: stopped: DefaultOnSiegeClick in holding_view brought up nothing; nothing in holding_view can be pressed for it: hidden by the game"
   },
+  "silk_road_catalysts_window": {
+   "kind": "same",
+   "says": "the same 18 names"
+  },
+  "situation_catalysts_history_window": {
+   "kind": "same",
+   "says": "the same 19 names"
+  },
+  "situation_catalysts_window": {
+   "kind": "same",
+   "says": "the same 19 names"
+  },
   "struggle_involvement_window": {
    "kind": "changed",
    "says": "5 names new (ghibelline_leader, ghibelline_member, guelph_leader, guelph_member, merchant_top_decor), 107 kept"
@@ -467,6 +543,10 @@
    "kind": "same",
    "says": "the same 27 names"
   },
+  "title_appointment": {
+   "kind": "changed",
+   "says": "5 names new (ghibelline_leader, ghibelline_member, guelph_leader, guelph_member, merchant_top_decor), 103 kept"
+  },
   "title_election": {
    "kind": "changed",
    "says": "7 names new (container_guelph_ghibelline_group_icons, ghibelline_leader, ghibelline_member, guelph_leader, guelph_member, merchant_top_decor and 1 more), 118 kept"
@@ -482,6 +562,10 @@
   "transfer_vassal_interaction_window": {
    "kind": "changed",
    "says": "6 names new (container_guelph_ghibelline_group_icons, ghibelline_leader, ghibelline_member, guelph_leader, guelph_member, merchant_top_decor), 132 kept"
+  },
+  "vassal_filter_window": {
+   "kind": "same",
+   "says": "the same 28 names"
   },
   "visit_settlement_window": {
    "kind": "changed",
@@ -499,6 +583,10 @@
    "kind": "lost",
    "says": "the route no longer opens it: window_exchange_hostages: stopped: HostageExchangeWindow.OpenDemandHostage in war_overview_window brought up nothing; nothing in war_overview_window can be pressed for it: hidden by the game"
   },
+  "window_house_aspiration": {
+   "kind": "same",
+   "says": "the same 23 names"
+  },
   "window_house_relation_history": {
    "kind": "changed",
    "says": "6 names new (container_guelph_ghibelline_group_icons, ghibelline_leader, ghibelline_member, guelph_leader, guelph_member, merchant_top_decor), 79 kept"
@@ -511,6 +599,10 @@
    "kind": "same",
    "says": "the same 45 names"
   },
+  "window_natural_disaster_participant_groups": {
+   "kind": "lost",
+   "says": "the route no longer opens it: window_natural_disaster_participant_groups: in window_situation_list pressed None; opened nothing; nothing in window_situation_list can be pressed for it: no live widget carries the call / stopped: Situation.GetWindowName@Earthquake in window_situation_list brought up nothing; nothing in window_situation_list can be pressed for it: no live widget carries the call"
+  },
   "window_pam_christian_church": {
    "kind": "changed",
    "says": "6 names new (container_guelph_ghibelline_group_icons, ghibelline_leader, ghibelline_member, guelph_leader, guelph_member, merchant_top_decor), 119 kept"
@@ -518,6 +610,10 @@
   "window_personal_beliefs": {
    "kind": "same",
    "says": "the same 31 names"
+  },
+  "window_silk_road": {
+   "kind": "same",
+   "says": "the same 42 names"
   },
   "window_situation_list": {
    "kind": "same",
@@ -534,6 +630,18 @@
   "window_tax_slot_vassals": {
    "kind": "changed",
    "says": "59 names new (acclaimed_knight, advancement_movement, adventurer_top_decor, best_friend, blood_brother, can_be_punished and 53 more), 51 kept"
+  },
+  "window_tgp_dynastic_cycle": {
+   "kind": "same",
+   "says": "the same 71 names"
+  },
+  "window_tgp_natural_disaster": {
+   "kind": "lost",
+   "says": "the route no longer opens it: window_tgp_natural_disaster: in window_situation_list pressed None; opened nothing; nothing in window_situation_list can be pressed for it: no live widget carries the call / stopped: Situation.GetWindowName@Earthquake in window_situation_list brought up nothing; nothing in window_situation_list can be pressed for it: no live widget carries the call"
+  },
+  "window_the_great_steppe": {
+   "kind": "changed",
+   "says": "15 names new (container_guelph_ghibelline_group_icons, county_prosperity, ghibelline_leader, ghibelline_member, government_filter_list, guelph_leader and 9 more), 1 gone (county_development), 110 kept"
   }
  }
 }

@@ -1,9 +1,9 @@
 {
- "harvest": "2026-11-26 16:18",
- "without a player record": 114,
- "still to do for play": 34,
+ "harvest": "2026-11-26 17:08",
+ "without a player record": 120,
+ "still to do for play": 40,
  "still to do, by reason": {
-  "no player record yet": 34,
+  "no player record yet": 40,
   "a player record, but no key round yet": 0
  },
  "counts": {
@@ -11,9 +11,9 @@
   "multiplayer": 17,
   "decided": 36,
   "event": 0,
-  "interaction": 6,
+  "interaction": 9,
   "chain": 9,
-  "no window route on disk": 19
+  "no window route on disk": 22
  },
  "groups": {
   "developer": {
@@ -356,6 +356,14 @@
     "file": "gui/interaction_declare_war.gui",
     "state": "did not open: character_ally_list_subview: stopped: InteractionItem.OnClick@Declare War in character_interaction_menu_window brought up nothing; nothing in character_interaction_menu_window can be pressed for it: switched off by the game"
    },
+   "concubine_interaction_window": {
+    "file": "gui/interaction_concubine.gui",
+    "state": "did not open: concubine_interaction_window: in character_interaction_menu_window pressed None; opened nothing; nothing in character_interaction_menu_window can be pressed for it: switched off by the game / stopped: InteractionItem.OnClick@Find Concubine in character_interaction_menu_window brought up nothing; nothing in character_interaction_menu_window can be pressed for it: switched off by the game"
+   },
+   "council_task_interaction_window": {
+    "file": "gui/interaction_council_task.gui",
+    "state": "did not open: council_task_interaction_window: in character_interaction_menu_window pressed None; opened nothing; nothing in character_interaction_menu_window can be pressed for it: switched off by the game / stopped: InteractionItem.OnClick@Ask for Council Position in character_interaction_menu_window brought up nothing; nothing in character_interaction_menu_window can be pressed for it: switched off by the game"
+   },
    "court_task_interaction_window": {
     "file": "gui/interaction_court_task.gui",
     "state": "did not open: court_task_interaction_window: in character_interaction_menu_window pressed None; opened nothing; nothing in character_interaction_menu_window can be pressed for it: no live widget carries the call / stopped: InteractionItem.OnClick@Vassal>2 more in character_interaction_menu_window brought up nothing; nothing in character_interaction_menu_window can be pressed for it: no live widget carries the call"
@@ -363,6 +371,10 @@
    "declare_war_window": {
     "file": "gui/interaction_declare_war.gui",
     "state": "did not open: declare_war_window: stopped: InteractionItem.OnClick@Declare War in character_interaction_menu_window brought up nothing; nothing in character_interaction_menu_window can be pressed for it: switched off by the game"
+   },
+   "revoke_titles_interaction_window": {
+    "file": "gui/interaction_revoke_title.gui",
+    "state": "did not open: revoke_titles_interaction_window: in character_window pressed None; opened nothing; a right click on each of the 12 in character_window that carry it brought up nothing that shows Philippos / stopped: right:DefaultOnCharacterRightClick@Philippos in character_window brought up nothing; a right click on each of the 12 in character_window that carry it brought up nothing that shows Philippos"
    },
    "trade_market_interaction_window": {
     "file": "gui/interaction_trade_market.gui",
@@ -448,6 +460,10 @@
     "file": "gui/window_intrigue_potential_scheme_agent.gui",
     "state": "did not open: potential_agent_window: stopped: SchemeItem.ShowPotentialAgents in intrigue_window brought up nothing; nothing in intrigue_window can be pressed for it: no live widget carries the call"
    },
+   "potential_faction_member_window": {
+    "file": "gui/window_intrigue_potential_faction_member.gui",
+    "state": "did not open: potential_faction_member_window: in factions_window pressed None; opened nothing; nothing in factions_window can be pressed for it: no live widget carries the call / stopped: FactionItem.ShowPotentialMembers in factions_window brought up nothing; nothing in factions_window can be pressed for it: no live widget carries the call"
+   },
    "potential_great_project_contributors_window": {
     "file": "gui/window_potential_great_project_contributors.gui",
     "state": "did not open: potential_great_project_contributors_window: stopped: goal:great_project in decisions_view brought up nothing; nothing in decisions_view can be pressed for it: no live widget carries the call"
@@ -483,6 +499,14 @@
    "window_guelph_ghibelline_participant_groups": {
     "file": "gui/window_gdp_guelph_ghibelline.gui",
     "state": "not tried: declared as a type definition inside a types block, where GUI.CreateWidget does not look"
+   },
+   "window_natural_disaster_participant_groups": {
+    "file": "gui/window_tgp_natural_disaster.gui",
+    "state": "did not open: window_natural_disaster_participant_groups: in window_situation_list pressed None; opened nothing; nothing in window_situation_list can be pressed for it: no live widget carries the call / stopped: Situation.GetWindowName@Earthquake in window_situation_list brought up nothing; nothing in window_situation_list can be pressed for it: no live widget carries the call"
+   },
+   "window_tgp_natural_disaster": {
+    "file": "gui/window_tgp_natural_disaster.gui",
+    "state": "did not open: window_tgp_natural_disaster: in window_situation_list pressed None; opened nothing; nothing in window_situation_list can be pressed for it: no live widget carries the call / stopped: Situation.GetWindowName@Earthquake in window_situation_list brought up nothing; nothing in window_situation_list can be pressed for it: no live widget carries the call"
    }
   }
  },
@@ -494,6 +518,12 @@
   ],
   "decision_approval": [
    "decisiondetail_view"
+  ],
+  "domicile": [
+   "dynasty_house_view",
+   "government_administration_window",
+   "my_realm_window",
+   "title_view_window"
   ],
   "epidemics": [
    "epidemics_window",
@@ -556,9 +586,6 @@
   ],
   "diarchy": [
    "diarchy_window"
-  ],
-  "domicile": [
-   "domicile_window"
   ],
   "faith": [
    "faith_window"

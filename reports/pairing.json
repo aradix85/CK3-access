@@ -1,15 +1,15 @@
 {
  "caption of the widget above": 487,
- "data function": 5502,
- "data function through key": 1789,
- "data functions together": 7291,
- "harvest": "2026-11-26 16:18",
+ "data function": 5363,
+ "data function through key": 1725,
+ "data functions together": 7088,
+ "harvest": "2026-11-26 17:08",
  "key not in localization": 3,
  "key quoting another key": 32,
- "named live widgets": 76227,
- "named live widgets on their own name": 71878,
- "no key on disk": 273,
- "no source on disk": 668,
+ "named live widgets": 73946,
+ "named live widgets on their own name": 70650,
+ "no key on disk": 267,
+ "no source on disk": 653,
  "no source on disk, per window": {
   "activity_list": 3,
   "activity_locale_window": 8,
@@ -17,7 +17,6 @@
   "court_window": 1,
   "decisions_view": 7,
   "diverge_culture_window": 8,
-  "domicile_window": 13,
   "dynasty_customization_window": 88,
   "dynasty_house_customization_window": 88,
   "dynasty_tree_view": 5,
@@ -44,7 +43,6 @@
   "window_personal_beliefs": 1,
   "window_silk_road": 18,
   "window_situation_list": 2,
-  "window_tgp_dynastic_cycle": 2,
   "window_treasury_budget_change": 4
  },
  "on their own name, per window": {
@@ -85,8 +83,8 @@
    151
   ],
   "admin_vassal_detail_view": [
-   212,
-   230
+   245,
+   245
   ],
   "ai_war_coordinator_watch_window": [
    5,
@@ -256,17 +254,9 @@
    7,
    7
   ],
-  "concubine_interaction_window": [
-   673,
-   726
-  ],
   "confederation_window": [
    396,
    397
-  ],
-  "council_task_interaction_window": [
-   170,
-   184
   ],
   "council_window": [
    4832,
@@ -293,8 +283,8 @@
    203
   ],
   "create_claimant_faction_against_interaction_window": [
-   1865,
-   2088
+   2503,
+   2536
   ],
   "culture_window": [
    324,
@@ -325,8 +315,8 @@
    8
   ],
   "designate_heir": [
-   563,
-   589
+   619,
+   621
   ],
   "diarchy_window": [
    464,
@@ -341,16 +331,16 @@
    21
   ],
   "domicile_window": [
-   40,
-   250
+   491,
+   500
   ],
   "duel_event": [
    198,
    200
   ],
   "dynastic_cycle_participant_groups": [
-   560,
-   615
+   659,
+   660
   ],
   "dynastic_cycle_phases_list_window": [
    64,
@@ -437,8 +427,8 @@
    52
   ],
   "government_administration_window": [
-   688,
-   751
+   800,
+   802
   ],
   "grant_titles_interaction_window": [
    87,
@@ -453,8 +443,8 @@
    245
   ],
   "herd_leaderboard_window": [
-   405,
-   470
+   493,
+   510
   ],
   "hired_troop_detail_view": [
    157,
@@ -553,8 +543,8 @@
    57
   ],
   "ledger_filter_window": [
-   187,
-   189
+   184,
+   186
   ],
   "ledger_window": [
    1657,
@@ -613,8 +603,8 @@
    99
   ],
   "merit_pool_characters_window": [
-   419,
-   462
+   497,
+   498
   ],
   "migration_involved_character_list_window": [
    224,
@@ -644,10 +634,6 @@
    1151,
    1153
   ],
-  "potential_faction_member_window": [
-   1601,
-   1765
-  ],
   "property_node_window": [
    7,
    7
@@ -675,10 +661,6 @@
   "replace_pillar_window": [
    89,
    89
-  ],
-  "revoke_titles_interaction_window": [
-   71,
-   75
   ],
   "rite_creation_window": [
    284,
@@ -789,8 +771,8 @@
    33
   ],
   "title_appointment": [
-   622,
-   672
+   710,
+   712
   ],
   "title_customization_window": [
    243,
@@ -928,10 +910,6 @@
    6,
    6
   ],
-  "window_natural_disaster_participant_groups": [
-   304,
-   317
-  ],
   "window_pam_christian_church": [
    402,
    403
@@ -981,16 +959,12 @@
    258
   ],
   "window_tgp_dynastic_cycle": [
-   243,
-   306
-  ],
-  "window_tgp_natural_disaster": [
-   138,
-   145
+   251,
+   252
   ],
   "window_the_great_steppe": [
-   242,
-   293
+   323,
+   324
   ],
   "window_title_selector": [
    45,
@@ -1005,21 +979,21 @@
    81
   ]
  },
- "paired": 8782,
+ "paired": 8552,
  "placeholder, code fills it": 17,
- "plain key": 1042,
- "plain key agrees": 1028,
+ "plain key": 1020,
+ "plain key agrees": 1006,
  "plain key differs": 14,
- "sentence in the file": 124,
- "sentence in the file agrees": 124,
- "texts": 9450,
+ "sentence in the file": 125,
+ "sentence in the file agrees": 125,
+ "texts": 9205,
  "top functions": {
   "Add_int32": 32,
   "ArmyComposition": 45,
   "ChangeGHWTargetWindowTitleItem": 172,
-  "Character": 672,
+  "Character": 596,
   "CharacterListFilter": 82,
-  "CharacterListItem": 79,
+  "DoctrineGroupItem": 29,
   "DoctrineType": 115,
   "DynastyPerk": 60,
   "EncyclopediaEntry": 2498,
@@ -1035,14 +1009,14 @@
   "TravelOption": 40,
   "War": 50
  },
- "unexplained": 958,
+ "unexplained": 937,
  "unexplained bare number in player windows": 416,
  "unexplained bare number in player windows, drawn": 8,
  "unexplained in developer windows": 71,
- "unexplained in player windows": 887,
- "unexplained in player windows, drawn": 463,
- "unexplained with data context": 731,
- "widgets in harvest": 161573,
- "windows": 239,
- "with data context": 7671
+ "unexplained in player windows": 866,
+ "unexplained in player windows, drawn": 442,
+ "unexplained with data context": 710,
+ "widgets in harvest": 157965,
+ "windows": 233,
+ "with data context": 7442
 }

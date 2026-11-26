@@ -3,12 +3,13 @@
 Outcomes, newest day first. No release yet.
 
 ## 2026-11-26
-- The comparison round ran over Harold begun on 1.21: of 51 windows 17 are the same, 19 gained a few names and 15 need a state prepared first.
+- The comparison round ran over five states of 1.21: of 159 windows 59 are the same, 73 changed, 26 need a state prepared first and one is gone.
+- No player's route broke with the patch beyond the moved function keys and the holding; the domicile was rebuilt, 29 names new.
 - The building window of the holding is an empty shell in 1.21: the choice of buildings now sits inside the holding view, behind a district.
 - A chain behind a chain is asked again once its source is written: the three filters of the tax windows came in on the played Ghur state.
 - A window that did not open gets the reason the round gave for it, not that of a window whose name ends in its name.
 - Key rounds of 1.21 for the court view, the ledger, the personal beliefs and the struggle; the map mode of landless rulers opens a filter on Ctrl+R.
-- Records of 1.21 land 47408 of 48288 named widgets on their own name; the 2260 hidden texts of the encyclopedia were a record taken mid fade-in.
+- Records of 1.21 land 55860 of 56844 named widgets on their own name; the 2260 hidden texts of the encyclopedia were a record taken mid fade-in.
 
 ## 2026-11-24
 - `python -m tools.ck3.compare` opens every window of a state again along its old route and says what changed: of 81, 28 are the same and 44 grew.

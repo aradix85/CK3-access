@@ -3883,7 +3883,7 @@
   "player": "Saru"
  },
  "window_the_great_steppe": {
-  "exe": "101125752-1792594002",
+  "exe": "114758264-1795099871",
   "keys": [
    [
     "go_back",
@@ -3901,33 +3901,58 @@
     "shut the window"
    ],
    [
-    "map_mode_19",
+    "map_mode_migration_counties",
     "ctrl+C",
     "nothing"
    ],
    [
-    "map_mode_2",
+    "map_mode_cultures",
     "T",
     "nothing"
    ],
    [
-    "map_mode_18",
+    "map_mode_landless_rulers",
     "ctrl+R",
-    "nothing"
+    "opened window_landless_ruler_filter"
    ],
    [
-    "map_mode_9",
+    "map_mode_dejure_duchies",
     "shift+Q",
     "nothing"
    ],
    [
-    "map_mode_10",
+    "map_mode_dejure_kingdoms",
     "shift+W",
     "nothing"
    ],
    [
-    "map_mode_11",
+    "map_mode_dejure_empires",
     "shift+E",
+    "nothing"
+   ],
+   [
+    "map_mode_economy_buildings",
+    "ctrl+S",
+    "nothing"
+   ],
+   [
+    "map_mode_county_prosperity",
+    "ctrl+P",
+    "nothing"
+   ],
+   [
+    "map_mode_county_control",
+    "ctrl+F",
+    "nothing"
+   ],
+   [
+    "map_mode_popular_opinion",
+    "ctrl+O",
+    "nothing"
+   ],
+   [
+    "map_mode_dejure_counties",
+    "ctrl+A",
     "nothing"
    ],
    [
@@ -3936,13 +3961,13 @@
     "nothing"
    ],
    [
-    "map_mode_12",
+    "map_mode_simple_terrain",
     "ctrl+G",
     "nothing"
    ],
    [
-    "map_mode_8",
-    "ctrl+P",
+    "map_mode_settlement_size",
+    "ctrl+shift+S",
     "nothing"
    ],
    [
@@ -3951,57 +3976,52 @@
     "nothing"
    ],
    [
-    "map_mode_16",
-    "ctrl+E",
+    "map_mode_diplomatic_relations",
+    "shift+F",
     "nothing"
    ],
    [
-    "map_mode_17",
-    "ctrl+L",
-    "nothing"
-   ],
-   [
-    "map_mode_6",
-    "ctrl+A",
-    "nothing"
-   ],
-   [
-    "map_mode_20",
-    "shift+H",
-    "nothing"
-   ],
-   [
-    "map_mode_5",
-    "ctrl+Q",
-    "nothing"
-   ],
-   [
-    "map_mode_7",
+    "map_mode_court_languages",
     "ctrl+W",
     "nothing"
    ],
    [
-    "map_mode_13",
+    "map_mode_government",
+    "ctrl+Q",
+    "nothing"
+   ],
+   [
+    "map_mode_dejure_hegemonies",
+    "shift+H",
+    "nothing"
+   ],
+   [
+    "map_mode_epidemics",
+    "ctrl+E",
+    "nothing"
+   ],
+   [
+    "map_mode_legends",
+    "ctrl+L",
+    "nothing"
+   ],
+   [
+    "map_mode_players",
+    "ctrl+shift+P",
+    "nothing"
+   ],
+   [
+    "map_mode_trade_good_top_production",
+    "ctrl+shift+T",
+    "nothing"
+   ],
+   [
+    "map_mode_trade_markets",
     "ctrl+D",
-    "nothing"
-   ],
-   [
-    "map_mode_15",
-    "ctrl+F",
-    "nothing"
-   ],
-   [
-    "map_mode_14",
-    "ctrl+S",
-    "nothing"
-   ],
-   [
-    "map_mode_diplomatic_relations",
-    "shift+F",
     "nothing"
    ]
   ],
-  "measured": "2026-11-11 08:27",
+  "measured": "2026-11-26 16:45",
   "player": "Saru"
  },
  "window_title_selector": {
